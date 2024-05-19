@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>译者序 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="&lt;p&gt;This is a minimal example of using the bookdown package to write a book.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.&lt;/p&gt;">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="译者序 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="&lt;p&gt;This is a minimal example of using the bookdown package to write a book.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.&lt;/p&gt;">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="译者序 | 广义线性混合模型">
+<meta name="twitter:description" content="&lt;p&gt;This is a minimal example of using the bookdown package to write a book.
+The HTML output format for this example is bookdown::gitbook,
+set in the _output.yml file.&lt;/p&gt;">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="active" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><!--bookdown:title:end--><!--bookdown:title:start--><div id="译者序" class="section level1 unnumbered">
+<h1>译者序<a class="anchor" aria-label="anchor" href="#%E8%AF%91%E8%80%85%E5%BA%8F"><i class="fas fa-link"></i></a>
+</h1>
+<p>本书为 <a href="https://doi.org/10.1201/9780429092060">Generalized Linear Mixed Models Modern Concepts, Methods and Applications, 2nd Edition</a> 的翻译。</p>
+<p>可点击带 <span class="math inline">\(\blacktriangleright\)</span> 的标题以展开图表，例如</p>
+<details><summary><font color="#8B2232">点我看本书封面</font>
+</summary><img src="figure/cover.png#center" style="width:60.0%"></details><p><br>
+数学公式有两种字体，可在任意公式处右键 → “Math Settings” → “Math Renderer” → “HTML-CSS/Common HTML” 中进行选择，默认为后者。若公式位置错乱可尝试刷新页面。</p>
+<div class="inline-figure"><img src="figure/mathjaxselect.png#center" style="width:60.0%"></div>
+<p>在原书出版商<a href="https://www.routledge.com/Generalized-Linear-Mixed-Models-Modern-Concepts-Methods-and-Applications/Stroup-Ptukhina-Garai/p/book/9781498755566">网站</a> 的 “Support Material” 栏中包含了原书所有示例的 SAS 代码、所有练习（必要时进行了勘误）及其 SAS 文件。</p>
+<p><br></p>
+<p>翻译本书的初衷有两点。</p>
+<p>其一，中文统计教科书/专著屈指可数。当然这要排除入门级统计教材，因为这已经泛滥成灾了。当统计学专业的学生接受了前两年的本科教学，试图寻找中高级统计学亚学科的教材/专著时——在 2024 年，统计学在中国独立于数学成为单独一级学科的 13 年<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;2011 年 2 月，国务院学位委员会第 28 次会议通过了新的《学位授予和人才培养学科目录》：&lt;a href="http://www.moe.gov.cn/srcsite/A22/moe_833/201103/t20110308_116439.html" class="uri"&gt;http://www.moe.gov.cn/srcsite/A22/moe_833/201103/t20110308_116439.html&lt;/a&gt;)。&lt;/p&gt;'><sup>1</sup></a>后——会看到这样的景象：英文专著浩如烟海，中文专著屈指可数。我就想，既然有能力的人不愿意写，没能力的人写不出来，不如由我来翻译吧。为什么是我？不为什么，而要反过来问，为什么不是我？</p>
+<p>其二，应用统计界对于方法的滥用误用到了令人发指的程度。这不是统计人的错，而是各行各业研究者对于统计方法的误解、对于统计建模的无知所导致的。这其实很矛盾，因为如果统计人能写出优秀的中文专著，而不是在浩如烟海的英文专著里披沙炼金，会在很大程度上减少如此事件的发生。统计语言本身就已经高深莫测了，再加上自然语言对统计学科学习的阻碍，这是火上浇油的事情。</p>
+<p>事实上这两者是“相辅相成”的。大量的中高级统计学方法是通过“计算机语言”来学习的，这类文本是最多的。写这类文本的作者会语重心长的教你怎么“拟合模型”，这行命令代表了模型的哪个公式，输出的结果应该怎么解释？。但我们最好在“几行命令就生成大量统计输出”的浮躁世界中停下来想一想，在“统计语言”、“学科语言”中间插入一个“计算机语言”，这对于学习或者做研究有什么影响？从根本上来说，统计语言是计算机语言的爸爸（当然统计模型的发展离不开算法的进步，现在在很大程度上是相辅相成了），通过计算机语言来学习统计语言就像是“先有儿子后有爸爸”，甚至是直接利用儿子生出孙子（以学科语言表达的研究结论），而不关心爸爸，这令人百思不得其解。当我们用统计软件包做统计分析时，我们需要明确想做什么、正在做什么，以及想做的是否等于正在做的。事实上只有科学地进行了如此的认知和比较的过程，我们才可能得到科学的分析。再加上作者在第 3 章开头说的，我们还需要在学科语言与统计语言之间的灵活转译。</p>
+<p>三门语言都十分重要，最不重要的应该是用的最多的计算机语言。为什么？首先，统计学的生命力在于应用，统计学是服务于其他学科的工具学科，从这一点上讲，学科语言是最重要的——身为统计人的我对于统计学没有主要话语权也表示遗憾，但我认为事实就是如此；其次，计算机语言依据统计语言来编写，只有搞懂了统计语言才有可能搞懂计算机语言——否则在统计软件包之间进行切换，会对结果感到一头雾水——若反过来则是本末倒置的笑话。这本质上是一个“质疑xx、理解xx、成为xx、超越xx”的过程。会有人说，时间精力有限，三门语言我不可能同时掌握。或者，会有人试图在有限的时间精力中掌握三门语言，然而这是危险的（如上所述）。这就是统计人的用武之地了：统计学能独立于数学成为单独的一级学科，统计人自身的价值和重要性不言而喻。</p>
+<p>当统计世界似乎对 R 等开源软件敞开怀抱时，为什么原书要用 SAS. 我十分认同作者给出的理由，还可在作者所言的基础上加一条。SAS 的全称是 Statistical Analysis System，这可能是当今浮躁世界少有的名副其实了，因为它确实称得上是统计分析系统——统计分析、并且非常系统。</p>
+<p>我不敢保证读者会喜欢本书。首先，读者可能会认为原书作者喜欢说教，而不是一上来就写出模型、抛出示例并甩出代码。但至于读者认不认同“忠言逆耳利于行”，这是读者自己的事情；其次，贯穿全书的软件是闭源收费的 SAS，这与许多应用研究者的想法背道而驰。但作者的意图很明显，我们需要慢下来仔细想想统计方法之原理，统计建模之思想究竟是什么。</p>
+<p>希望你喜欢，并且希望你在线性模型的世界里玩的开心。</p>
+<p>有表达不清、错别字、遗漏等任何问题，请联系 Email: <a href="mailto:1210683652@qq.com" class="email">1210683652@qq.com</a></p>
+<p align="right">
+王震
+</p>
+<p align="right">
+广州红花岗畔
+</p>
+<p align="right">
+2024.05
+</p>
+
+</div>
+
+  <div class="chapter-nav">
+<div class="empty"></div>
+<div class="next"><a href="%E6%89%89%E9%A1%B5.html">扉页</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#%E8%AF%91%E8%80%85%E5%BA%8F">译者序</a></li></ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

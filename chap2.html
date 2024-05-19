@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 2 章 设计要务 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="译者注：本章涉及实验设计的基础知识，译者提供一个辅助阅读材料：混乱数据分析：设计的实验(by Milliken and Johnson, 2009) 之第四章：实验设计基础。  2.1 将设计和目标转译为模型的入门思想 在第 1 章中，我们看到完整地指定一个统计模型需要 线性预测器 \(\symbf X\symbf\beta+\symbf{Zb}\) 随机模型效应的分布...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 2 章 设计要务 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="译者注：本章涉及实验设计的基础知识，译者提供一个辅助阅读材料：混乱数据分析：设计的实验(by Milliken and Johnson, 2009) 之第四章：实验设计基础。  2.1 将设计和目标转译为模型的入门思想 在第 1 章中，我们看到完整地指定一个统计模型需要 线性预测器 \(\symbf X\symbf\beta+\symbf{Zb}\) 随机模型效应的分布...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 2 章 设计要务 | 广义线性混合模型">
+<meta name="twitter:description" content="译者注：本章涉及实验设计的基础知识，译者提供一个辅助阅读材料：混乱数据分析：设计的实验(by Milliken and Johnson, 2009) 之第四章：实验设计基础。  2.1 将设计和目标转译为模型的入门思想 在第 1 章中，我们看到完整地指定一个统计模型需要 线性预测器 \(\symbf X\symbf\beta+\symbf{Zb}\) 随机模型效应的分布...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="active" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap2" class="section level1" number="2">
+<h1>
+<span class="header-section-number">第 2 章</span> 设计要务<a class="anchor" aria-label="anchor" href="#chap2"><i class="fas fa-link"></i></a>
+</h1>
+<p><br>
+译者注：本章涉及实验设计的基础知识，译者提供一个辅助阅读材料：<a href="https://zhuanlan.zhihu.com/p/698586757">混乱数据分析：设计的实验</a>(by Milliken and Johnson, 2009) 之第四章：实验设计基础。</p>
+<div id="sec2-1" class="section level2" number="2.1">
+<h2>
+<span class="header-section-number">2.1</span> 将设计和目标转译为模型的入门思想<a class="anchor" aria-label="anchor" href="#sec2-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap1.html#chap1">1</a> 章中，我们看到完整地指定一个统计模型需要</p>
+<ul>
+<li>线性预测器 <span class="math inline">\(\symbf X\symbf\beta+\symbf{Zb}\)</span>
+</li>
+<li>随机模型效应的分布 <span class="math inline">\(\symbf{b}\sim N\begin{pmatrix}\symbf 0,\symbf{G}\end{pmatrix}\)</span>
+</li>
+<li>以随机效应为条件，数据的分布 <span class="math inline">\(\symbf y\mid \symbf b\)</span>
+</li>
+<li>连接函数 <span class="math inline">\(g(\symbf \mu\mid\symbf b)=\symbf X\symbf\beta+\symbf{Zb}\)</span>
+</li>
+</ul>
+<p>此外，在第 <a href="chap1.html#chap1">1</a> 章中我们看到该模型有两个目的。首先，它描述了产生观测的合理过程；其次，它能够对建模数据收集所追求目标进行所需的估计和推断。</p>
+<p>在本章中，我们考虑研究设计方式和最终模型之间最重要的桥梁。广义上讲，<strong>设计</strong>是指研究的组织和数据收集协议。根据语境，本书中的术语“设计”可能指正式设计的实验、调查设计、准实验设计、观察性研究 (formally designed experiments, survey design, quasi-experimental design,
+observational studies) 等。我们将本章称为“设计要务”，因为将研究设计转译为统计模型是统计建模实践中至关重要的第一步。它也可能是最被低估和被忽视的。本章的目的是定义对统计建模至关重要的设计术语和概念，并介绍有助于准确地将研究设计转译为统计模型的技术。</p>
+<div id="sec2-1-1" class="section level3" number="2.1.1">
+<h3>
+<span class="header-section-number">2.1.1</span> 设计问题引起的建模问题概述<a class="anchor" aria-label="anchor" href="#sec2-1-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>大多数建模问题都是由于对设计问题理解不足或应用不当。建模问题的主要原因包括：</p>
+<ul>
+<li>构建线性预测器时的不当决策。</li>
+<li>固定/随机模型效应的不当决策。</li>
+<li>观测以及（在较小程度上）随机模型效应的概率分布的不当决策。</li>
+<li>预期的模型指定与代码之间的不匹配。</li>
+<li>结果的不良转译，强调统计术语而非学科术语（研究主题所驱动的学科语言）。</li>
+<li>未能使用模型结果来明确实现目标。通常需要根据研究目标，对模型参数的线性组合进行相关的推断，很少只是估计模型参数。</li>
+</ul>
+<p>关于最后一点，“获得参数估计后如何处理”，我们将留给第 <a href="chap3.html#chap3">3</a> 章，其中详细介绍了推断问题，以及从第 <a href="chap8.html#chap8">8</a> 章开始的第三篇，其中介绍了 GLMM 应用。在本章中，我们重点关注：</p>
+<ul>
+<li>定义用于可视化和描述研究设计的概念和术语（<a href="chap2.html#sec2-2">2.2</a> 节）。</li>
+<li>将研究设计转译为统计模型（<a href="chap2.html#sec2-3">2.3</a> 节）。</li>
+<li>区分固定效应和随机效应（<a href="chap2.html#sec2-4">2.4</a> 节）。</li>
+<li>决定观测的分布（<a href="chap2.html#sec2-4">2.4</a> 节）。</li>
+<li>将概念扩展到更复杂的研究设计（<a href="chap2.html#sec2-5">2.5</a> 节）。</li>
+<li>编写准确描述我们想要拟合的模型的 SAS 代码（附录 <a href="chap2.html#sec2-B">B</a>）。</li>
+</ul>
+<p><strong>注意</strong>：附录 <a href="chap2.html#sec2-B">B</a> 专门针对 SAS 软件进行说明。但更广泛的经验教训也适用于其他软件：统计模型从根本上运用了矩阵运算，我们必须了解命令是如何实现预期模型的。</p>
+</div>
+<div id="sec2-1-2" class="section level3" number="2.1.2">
+<h3>
+<span class="header-section-number">2.1.2</span> 源于设计要务的建模选择概述<a class="anchor" aria-label="anchor" href="#sec2-1-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>在许多建模情况下，不存在“唯一一个”正确的线性预测器。通常，我们可以选择许多合理的线性预测器。尽管所有这些都可能在技术上准确描述数据，但我们通常发现某个线性预测器能更好地帮助我们实现研究目标。</p>
+<p>第 <a href="chap1.html#chap1">1</a> 章中的线性回归示例提供了一个简单的说明。目标是估计响应随时间的线性变化。两个可能的线性预测变量为</p>
+<ol style="list-style-type: decimal">
+<li>
+<span class="math inline">\(\beta_0+\beta_1X_i\)</span> 其中 <span class="math inline">\(X_i=0,1,\ldots,10\)</span> 表示观测时间</li>
+<li>
+<span class="math inline">\(\eta+\tau_i\)</span> 其中 <span class="math inline">\(i=1,2,\ldots,10\)</span>
+</li>
+</ol>
+<p>选项 1 将时间定义为数值预测器——直接线性回归效应。选项 2 将时间定义为分类效应。作为数据的描述，两者在技术上都是正确的。
+但是，选项 1 能直截了当地回答研究目标，而选项 2 使解释变得模糊，这是没有必要的。</p>
+<p>第 <a href="chap1.html#chap1">1</a> 章中的两均值模型提供了另一个说明。两个可能的线性预测器为</p>
+<ol style="list-style-type: decimal">
+<li>
+<span class="math inline">\(\eta+\tau_i\)</span> 其中 <span class="math inline">\(i=1,2\)</span>
+</li>
+<li>
+<span class="math inline">\(\eta+\tau_i+p_j\)</span> 其中 <span class="math inline">\(i=1,2\)</span> 指处理水平，<span class="math inline">\(p_j;j = 1,2,...,J\)</span> 表示配对效应</li>
+</ol>
+<p>选项 1 和选项 2 之间的选择显然是一个设计问题。研究是通过随机分配给独立个体的处理进行的，还是在每个配对的个体间随机分配的？在继续进行统计建模之前，我们必须解决该设计问题。</p>
+<p>在线性回归示例中，我们必须确定上面编写的线性预测器是否充分，或者其多批次形式 <span class="math inline">\(\beta_{0j}+\beta_{1j}X_{ij}=\beta_0+b_{0j}+\left(\beta_1+b_{1j}\right)X_{ij}\)</span> 是否更合适。如果多批次形式更合适，特定于批次的效应 <span class="math inline">\(b_{0j}\)</span> 和 <span class="math inline">\(b_{1j}\)</span> 也有概率分布吗？再次强调，这些都是设计问题。观测是独立的，还是以某种方式分组？如果将它们分组，这些组是整个总体，还是代表更大总体的样本？重复前述内容：我们必须先解决这些设计问题，然后才能继续进行统计建模。</p>
+<p>本章可能看起来像是属于设计教科书的内容，你可能会对自己说，“我以为这应该是一本关于建模的教科书。” 严格来说，你可以在不了解通常在实验设计课程中教授的思维方式的情况下学习统计模型（实际上，你也完全可以不参考概率分布理论进行学习）。但是，仅仅因为可以这么做并不意味着你应该这样做。正如上述例子所示，如果很少提及设计原理，可能会导致我们机械地遵循一套严格的步骤，缺乏真正的理解。对设计原理和概率论的工作知识对我们在本书的工作至关重要。我们的目标是让你具备灵活性和适应各种场景的能力，真正掌握 GLMM 工作中的复杂细节。</p>
+<p>本章重点讨论设计问题，即使对于不涉及设计实验的模型也是如此。重复本节中的一句话，经验表明，统计建模中最严重的错误（在给定数据架构或目标的情况下毫无意义的模型）几乎总是由于对设计的理解不足造成的。即使是调查、准实验和观察研究也必须利用设计原则，以便对数据提出的问题获得可信的答案。因此，本章将不可避免地涉及设计概念。特此警告。</p>
+</div>
+</div>
+<div id="sec2-2" class="section level2" number="2.2">
+<h2>
+<span class="header-section-number">2.2</span> 描述数据架构以促进模型指定<a class="anchor" aria-label="anchor" href="#sec2-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>在简单的场景中，研究设计所遵循的统计模型可能很容易确定。然而，研究越复杂，从设计到模型的转译过程就越困难。从本节开始，我们将介绍一个过程，用于构建与给定研究设计和目标一致的模型。</p>
+<p>我们通过一个示例开始。假设一个学区正在实施一项专业发展计划。在要求该学区所有学校参与之前，该学区希望看到该计划的有效性证据。为了了解这一点，它进行了一项研究，设定如下：</p>
+<ul>
+<li>从区内学校中随机抽取十所学校</li>
+<li>每所学校选出四名教师：两名参加专业发展计划，两名不参加</li>
+<li>假设所有 40 人都教授相同的年级和相同的科目</li>
+<li>为评估该计划，在研究结束时对每位学生进行评估，并测量他们学习成绩的提升情况</li>
+</ul>
+<p>对于这个例子，暂时不要评判研究设计的质量——我们的目的只是通过设计架构来构建一个统计模型。</p>
+<p>在我们为这个例子构建适当的模型之前，我们需要先了解一些基本概念和术语。</p>
+<div id="sec2-2-1" class="section level3" number="2.2.1">
+<h3>
+<span class="header-section-number">2.2.1</span> 每项研究都有一个蓝图<a class="anchor" aria-label="anchor" href="#sec2-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们首先将研究设计可视化：一图胜千言。当登山者描述他们的登顶路线时，总会有一个他们称为关键 (crux) 的部分——攀登过程中最困难的部分。如果你能渡过关键部分，就能到达顶峰。在将数据和目标转译为模型的过程中，关键是确保线性预测器准确描述研究设计对你观察到的数据的影响。要解决关键问题，图片可能是最有价值的工具。</p>
+<p>在对研究设计可视化时，我们借鉴了农业实验的设计。当农业研究人员在田间进行实验时，他们会在所谓的平面图
+(plot plan) 中勾勒出实验的布局。平面图只是一张地图，显示所有观测的位置、应用处理水平的位置、是否存在配对或区组等。虽然这起源于农业，我们可以为任何与农业无关的研究绘制平面图。我们使用研究蓝图 (study blueprint) 一词来指代研究的可视化。蓝图的组成部分包括：</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>单元布局</strong>。</li>
+<li>
+<strong>待分配的处理</strong>。</li>
+<li>
+<strong>随机化方案</strong>，即将处理分配给单元的方式。</li>
+</ol>
+<p>这三个元素结合起来构成了研究蓝图。蓝图有助于将研究的文字描述转译为图形，从而区分研究中使用的处理和应用处理的单元结构。</p>
+</div>
+<div id="sec2-2-2" class="section level3" number="2.2.2">
+<h3>
+<span class="header-section-number">2.2.2</span> 两个研究蓝图示例<a class="anchor" aria-label="anchor" href="#sec2-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>在本节中，我们使用两个场景来说明如何根据研究设计描述构建研究蓝图。在 <a href="chap2.html#sec2-3">2.3</a> 节中，我们使用生成的可视化结果来构建适合每种场景的统计模型。</p>
+<div id="sdc2-2-2-1" class="section level4" number="2.2.2.1">
+<h4>
+<span class="header-section-number">2.2.2.1</span> 场景 1 的研究蓝图<a class="anchor" aria-label="anchor" href="#sdc2-2-2-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>考虑上面介绍的学校示例：十所学校，每所学校四名教师，我们要评估专业发展计划的有效性。让我们使用上面定义的组成部分构建此场景的蓝图。</p>
+<ol style="list-style-type: decimal">
+<li>单元布局：在本研究中，有多个不同尺寸的单元。最大的单元是学校。中型单元是每位参与教师使用的课堂。最小单元是学生（每个班级的学生）。每所学校内有四个课堂，每个课堂有 <span class="math inline">\(s\)</span> 名学生。
+<ul>
+<li>图 2.1.A 的左侧显示了研究中的三种不同尺寸的单元，图 2.1.A 的右侧显示了学校 1 的这些单元的布局。相同的布局适用于十所学校中的每一所。</li>
+<li>当我们将布局扩展到学校 1 之外时，我们就得到了研究蓝图的单元布局，如图 2.1.B 所示。这里我们只包含了四所学校的布局以避免冗余。其余六所学校的布局相同。</li>
+</ul>
+</li>
+<li>待分配的处理：我们有一个处理因素，有两个水平（参与者或非参与者）。图 2.1.C 说明了处理水平。</li>
+<li>随机化方案。每所学校选出四名教师参与这项研究。每个处理水平（发展计划或对照）随机分配两名教师。</li>
+</ol>
+<details><summary><font color="#8B2232">图 2.1.A-C</font>
+</summary><img src="figure/figure%202.1.png#center" style="width:80.0%"></details><br><details><summary><font color="#8B2232">图 2.1.D</font>
+</summary><img src="figure/figure%202.1%20D.png#center" style="width:80.0%"></details><p><br>
+通过使用随机化方案将图 2.1.B（单元布局）与图 2.1.C（处理）结合，我们已准备好所有组成部分来创建图 2.1.D 所示的研究蓝图。</p>
+<p>现在我们已经完成了场景 1 的研究蓝图，我们可以在图 2.1.D 中看到每所学校都经历了两种处理。参与的课堂按学校分组。课堂是分配处理的单元。在同一个老师的课堂里所有的学生都接受同样的处理。观测对学生进行，但个别学生接受处理的分配并不是独立的。</p>
+</div>
+<div id="sdc2-2-2-2" class="section level4" number="2.2.2.2">
+<h4>
+<span class="header-section-number">2.2.2.2</span> 场景 2 的研究蓝图<a class="anchor" aria-label="anchor" href="#sdc2-2-2-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>相反，假设我们只能在随机选择的一半的学校试行专业发展计划，并且研究方案要求特定学校参与研究的所有教师要么参加专业发展 (professional development, PD)，要么不参加。这导致研究设计略有不同。考虑如下的场景 2：</p>
+<ul>
+<li>从该地区的学校中随机抽取了十所学校。</li>
+<li>其中五所学校被随机分配参加专业发展计划，另外五个作为非参与的对照。</li>
+<li>从每所学校中随机挑选两名教师。假设所有 20 名学生都教授相同的年级和相同的科目。</li>
+<li>为评估该计划，在研究结束时对每位学生进行评估，并测量他们学习成绩的提升情况。</li>
+</ul>
+<p>使用本节介绍的组成部分，我们可以构建研究蓝图，如图 2.2 所示。每所学校只经历一种处理。换句话说，一所学校要么参与专业发展计划，要么不参与。现在，处理被分配到的单元是学校，而不是课堂。</p>
+<details><summary><font color="#8B2232">图 2.2</font>
+</summary><img src="figure/figure%202.2.png#center" style="width:80.0%"></details><p><br>
+尽管只在场景 1 和 2 的背景下概述了构建研究蓝图的过程，但所有研究描述都可以遵循相同的一般过程。这种将研究的所有元素连接在一起的图形对于模型构建至关重要。接下来我们定义一些关键术语，使我们能够将研究蓝图与统计模型联系起来。</p>
+</div>
+</div>
+<div id="sec2-2-3" class="section level3" number="2.2.3">
+<h3>
+<span class="header-section-number">2.2.3</span> 研究关键要素的术语<a class="anchor" aria-label="anchor" href="#sec2-2-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>既然我们有了研究的蓝图，我们就需要通过语言来描述与构建合适的线性预测器相关的研究关键要素。这些关键要素如下：</p>
+<ul>
+<li>
+<strong>因素</strong> (factor)：我们想要估计或检验其对响应效应的自变量。因素可以是分类（类别）或直接（数值）变量。</li>
+<li>
+<strong>水平</strong> (levels)：因素的具体类别（针对分类变量）或数量（针对直接变量）。</li>
+<li>
+<strong>重复单元</strong> (unit of replication)：被独立分配一个因素水平的最小实体，关键在于<strong>独立分配</strong>。在设计的实验中，这通常称为<strong>实验单元</strong> (experimental unit). 我们通过随机化实现了对因素水平的单元的独立分配。在观察性研究中，重复单元通常称为<strong>观察单元</strong> (observational unit). 在观察性研究中，我们不控制因素水平的单元分配，而是由自然进行分配。从建模的角度来看，实验和观察研究得到的线性预测器是相似的。</li>
+<li>
+<strong>抽样单元</strong> (sampling unit)：我们收集数据的最小实体。我们还将抽样单元称为<strong>观察的单元</strong> (unit of observation) 但不要与上面提到的观察单元 (observational unit) 混淆。请注意，抽样单元总是包含在重复单元中。如果抽样单元与重复单元相同，我们说抽样单元是真正的重复。</li>
+<li>
+<strong>伪重复</strong> (pseudo replicate)：被错误地识别为重复单元的单元。这通常发生在当没有独立分配给处理因素的单元被当作真正的重复进行分析时。例如，在本节中的学校例子中，学生是抽样单元而不是重复单元。如果在数据分析中将学生视为重复，就会出现伪重复。伪重复会给出不准确，甚至是严重不准确的推断统计结果。</li>
+<li>
+<strong>分组的单元</strong> (grouped units)：当重复单元被组合在一起时——理想情况下是因为它们在某些相关方面相似时，就会发生这种情况。在实验设计中，这些组称为<strong>区组</strong> (blocks). 在抽样调查中，这些组可能称为<strong>层</strong>或<strong>集群</strong> (strata or clusters)。术语有所不同，但从建模的角度来看，思想是相同的。确定分组单元（例如区组）的一个有用的方法是确定因素水平如何分配给单元。如果研究设计中存在区组，则必须在模型中考虑它。</li>
+</ul>
+<p>为了确保我们构建的统计模型适用于研究设计，正确识别真实重复并识别任何单元分组至关重要。这确保了我们定义的任何模型都能准确地测量结果。为了进一步阐明我们的术语，请考虑以下示例。</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-1" class="example"><strong>示例 2.1  </strong></span><br></p>
+<p>考虑第 <a href="chap1.html#chap1">1</a> 章中讨论的两处理示例，包括两独立样本的情况和配对观测的情况。</p>
+<ul>
+<li>因素：处理。</li>
+<li>水平：处理 1 和处理 2.</li>
+<li>重复单元：
+<ul>
+<li>两处理：分配给特定处理的个体。</li>
+<li>配对：配对的单个成员。</li>
+</ul>
+</li>
+<li>抽样单元：与重复单元相同。</li>
+<li>伪重复：无。</li>
+<li>分组的单元：
+<ul>
+<li>两处理：因素水平被随机分配给每个个体。没有单元分组在一起，因此不存在区组。</li>
+<li>配对：因素水平随机分配给一对中的单元。因此，每对代表一个区组。</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-2" class="example"><strong>示例 2.2  </strong></span><br></p>
+<p>考虑第 <a href="chap1.html#chap1">1</a> 章中讨论的多批次线性回归示例，我们有一个二项响应变量，并观测一个定量解释变量 <span class="math inline">\(X\)</span>，其中我们测量四个批次 <span class="math inline">\(X\)</span> 随时间的变化。</p>
+<ul>
+<li>因素：回归方程中使用的预测变量 <span class="math inline">\(X\)</span>。</li>
+<li>水平：<span class="math inline">\(X=0,3,6,9,12,18,24,36,48\)</span> 月。</li>
+<li>重复单元：每个批次 <span class="math inline">\(X\)</span> 的每个水平下的观测结果。</li>
+<li>抽样单元：与重复单元相同。</li>
+<li>伪重复：无。</li>
+<li>分组的单元：因素水平分配给批次内的单元。因此，每个批次代表一个区组。</li>
+</ul>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-3" class="example"><strong>示例 2.3  </strong></span><br></p>
+<p>考虑本节开头介绍的场景 1。有十所学校，每所学校都有四名教师被选来参加这项研究：两名教师被分配参加专业发展计划，两名则没有。收集每位教师课堂上所有学生的信息，以评估学生的成绩提升。</p>
+<ul>
+<li>因素：专业发展计划。</li>
+<li>水平：参与者和非参与者。</li>
+<li>重复单元：随机分配到某个计划水平的教师。</li>
+<li>抽样单元：每个老师的课堂里的学生。</li>
+<li>伪重复：同一个老师的课堂里的所有学生都暴露在相同的环境中。因此，学生是伪重复，而不是真正的重复。</li>
+<li>分组的单元：因素水平随机分配给每所学校的教师。因此，每所学校代表一个区组。</li>
+</ul>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-4" class="example"><strong>示例 2.4  </strong></span><br></p>
+<p>考虑本节前面的场景 2。有十所随机选择的学校，其中五所学校被随机分配参加专业发展计划，五所学校被分配不参加。收集每位教师课堂上所有学生的信息，以评估学生的成绩提升。</p>
+<ul>
+<li>因素：专业发展计划。</li>
+<li>水平：参与者和非参与者。</li>
+<li>重复单元：随机分配到某个计划水平的学校。</li>
+<li>抽样单元：每个老师的课堂里的学生。</li>
+<li>伪重复：与<a href="chap2.html#exm:ex2-3">示例 2.3</a> 一样，学生是伪重复而不是真正的重复。此外，教师现在也成为伪重复，因为同一所学校的所有教师都分配了相同的处理。</li>
+<li>分组的单元：因素水平随机分配给每所学校。因为学校是重复单元，并且相同的因素水平应用于整个学校，所以我们不再有区组。</li>
+</ul>
+</div>
+</div>
+<p>本节讨论的术语以及本书后续部分使用的术语均源自实验设计的视角。请注意，其他学科对类似概念使用不同的术语。强调这些差异有助于明确概念。例如，在社会科学中，多水平模型 (multi-level models) 使用“水平” (level) 一词来指代观测的结构、分组的单元（如区组）和重复单元。我们重申，在本书中，“水平”一词指的是因素水平；区组、重复单元和观察单元指的是观测的结构。</p>
+<p>最后一点：请注意，当在一个单元内分配因素水平时，就会出现某种形式的区组。</p>
+</div>
+</div>
+<div id="sec2-3" class="section level2" number="2.3">
+<h2>
+<span class="header-section-number">2.3</span> 从研究蓝图到统计模型<a class="anchor" aria-label="anchor" href="#sec2-3"><i class="fas fa-link"></i></a>
+</h2>
+<p><a href="chap2.html#sec2-2">2.2</a> 节中的研究蓝图和术语为我们从数据集描述过渡到统计模型奠定了坚实的基础。在本节中，我们将介绍实现此转换的过程。这涉及使用调整的方差分析 (repurposed ANOVA) 表作为工具。我们从变异源 (sources of variation) 开始，研究上一节中创建的蓝图（或平面图）有助于我们可视化。我们将它们列出来，就像在 ANOVA 表中列出变异源一样。然后，我们将这些变异源与旨在线性预测器中表示它们的效应以及相关的概率分布联系起来（如果有意义的话）。</p>
+<p>我们将这种“从设计到调整的 ANOVA 再到模型”的工具称为“<strong>Fisher 会怎么做？</strong>” (What Would Fisher Do, <strong>WWFD</strong>)，原因将在下一节中解释。WWFD 回到了建模的 ANOVA 根源，将 ANOVA 的思考过程用于广义线性混合模型 (GLMM) 的设定中。</p>
+<div id="sec2-3-1" class="section level3" number="2.3.1">
+<h3>
+<span class="header-section-number">2.3.1</span> Fisher 会怎么做？<a class="anchor" aria-label="anchor" href="#sec2-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>Speed (2010) 发表在 IMS Bulletin 的一篇专栏间接地启发了本节的标题。Fisher 在 Yates 题为 Complex Experiments (1935) 文章之后的评论以及 Fisher 对早期建模工作的反应（Speed 使用术语“困惑”和“愤怒”）提供了直接的推动力。Fisher 表示，复杂的研究设计可以分解为地形 (topographical) 和处理部分，然后结合起来形成合理的分析方法。Fisher 使用“地形”一词是因为他谈论的是农业实验和土地地形。我们可以扩大地形一词的使用范围，以涵盖研究中所有单元的组织方式，而不仅仅是为了设计的实地实验。本着同样的精神，Federer (1955) 拒绝使用术语 “experimental design” (“no design you actually use should be experimental”)，而使用术语实验设计 (experiment design) 和处理设计 (treatment design). <a href="https://bookdown.org/wangzhen/AMD">Milliken and Johnson (2008)</a> 则提到了研究设计 (study design) 和处理设计 (treatment design). 本书自此将遵循 Milliken and Johnson 的术语。</p>
+<p>传统上，ANOVA 被理解为算术平方和、均方及其相关二次形的集合。对于 GLMM 来说，以这种方式看待 ANOVA 是一种无益的干扰。这种局限性的观点忽略了使用 GLMM 时必不可少的关键组成部分。从 GLMM 的角度理解 ANOVA 有助于思考产生数据的过程。通过增加这种必要的视角，我们现在有了一个构建 GLMM 所需元素的有力工具。虽然我们永远无法真正知道 Fisher 会怎么做，但这种方法试图根据当代统计建模的发展来遵循他的想法。</p>
+<p>具体怎么做呢？我们将研究设计的视角划分为单元的组织方式、地形（研究设计）结构、处理结构以及处理如何应用于研究设计的单元。请注意，这与 <a href="chap2.html#sec2-2-1">2.2.1</a> 节中介绍的研究蓝图的组成部分紧密相关。对于设计的每个方面，地形和处理，我们只写出变异源和相关的自由度。我们将这些调整的 ANOVA 表称为<strong>框架 ANOVA 表</strong> (skeleton ANOVA table). WWFD 是把这些表组合起来并使用它们构建合理 GLMM 的过程。</p>
+<p>我们使用 WWFD 的目标是构建一个统计模型，该模型考虑了研究要素以及影响预期响应的处理设计（线性预测器），并考虑数据变异的概率分布。在框架 ANOVA 表中：</p>
+<ul>
+<li>我们纳入：
+<ul>
+<li>变异源</li>
+<li>相关自由度</li>
+</ul>
+</li>
+<li>我们排除：
+<ul>
+<li>平方和</li>
+<li>符号表示</li>
+</ul>
+</li>
+</ul>
+<p>变异源确定了研究的关键要素。参考研究蓝图来确定相应的自由度应该很简单。回想一下，研究蓝图的组成部分为</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>单元布局</strong>。</li>
+<li>
+<strong>待分配的处理</strong>。</li>
+<li>
+<strong>随机化方案</strong>，即将处理分配给单元的方式。</li>
+</ol>
+<p>WWFD 使用相同的组成部分。我们按如下方式使用它们。</p>
+<p>WWFD 的第一部分是确定地形结构。在这一部分，我们确定了单元的组织结构和相应的自由度 (degree of freedom, DF). 我们的重点完全放在单元本身上。这一步排除了任何涉及处理的内容；我们在这一部分的重点完全放在单元的布局上。地形结构中列出的所有术语都将延续到完整的模型中。</p>
+<div id="sec2-3-1-1" class="section level4" number="2.3.1.1">
+<h4>
+<span class="header-section-number">2.3.1.1</span> 从设计到模型过程图示：场景 1<a class="anchor" aria-label="anchor" href="#sec2-3-1-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>要了解其工作原理，请考虑 <a href="chap2.html#sec2-2-2">2.2.2</a> 节中的<a href="chap2.html#exm:ex2-3">示例 2.3</a>。WWFD 的第一部分如图 2.3.A 所示。在图中，我们包括了研究蓝图中相关的组成部分以及地形结构。此后我们将简单引用研究蓝图，而不将其包含在图中。</p>
+<details><summary><font color="#8B2232">图 2.3 A</font>
+</summary><img src="figure/figure%202.3%20A.png#center" style="width:60.0%"></details><p><br>
+在地形结构中，我们确定了仅归因于单元的所有变异源。这些变异源是学校、分组的单元和校内的课堂，使用约定 classroom(school) 列出。在研究中，有 10 所学校，每所学校内有 4 个课堂。我们有 10 × 4 = 40 个重复单元，由此 40 - 1 = 39 个总自由度。请注意，将地形结构中变异源的自由度相加也等于 39。该数学检查可用于验证是否已正确识别变异源。</p>
+<p>从技术上讲，我们应该在图 2.3.A 中增加一行，用于描述课堂内的学生。简便起见，我们假设每个课堂都有一个学生表现的度量，例如学生成绩的班级均值。因此，在这个例子中，classroom(school) 是观察单元和重复单元。</p>
+<p>WWFD 的第二部分是识别处理结构。这包括识别与处理相关的所有变异源，并确定其相应的自由度。在我们的示例中，图 2.3.B 说明了 WWFD 过程的第二部分。与之前一样，我们包含了研究蓝图中相关的构组成部分以供参考。</p>
+<details><summary><font color="#8B2232">图 2.3 B</font>
+</summary><img src="figure/figure%202.3%20B.png#center" style="width:60.0%"></details><p><br>
+在处理结构中，我们确定了仅与处理相关的所有变异源。在该研究中，一种处理有两个水平，因此有 1 个自由度。同样，我们总共有 39 个自由度，这意味着剩下的 38 个自由度属于 Fisher 称为“平行” (“parallels”) 的总类别。或者，我们可以将它们称为残余 (leftovers). 无论如何，该行本质上是一个占位符，不会延续到最终模型。</p>
+<p>WWFD 的第三部分是组合结构 (combined structure). 这整合了地形和处理结构，并确定了研究的所有变异源及其相应的自由度。图 2.4 显示了这样的安排。</p>
+<details><summary><font color="#8B2232">图 2.4</font>
+</summary><img src="figure/figure%202.4.png#center" style="width:80.0%"></details><p><br>
+行的排列很重要，区组划分—— School ——出现在第一行，处理因素—— development program ——出现在第二行。classroom(school) 出现在第三行，表示 classroom(school) 作为 development program 的重复单元。箭头强调了这种关系。始终将与给定处理因素相关的重复单元置于处理效应正下方的行中。</p>
+<p>“Combined Structure” 是通过将地形结构表和处理表中的变异源沿着它们所在行向右移动得到的。组合表对应于经典 ANOVA 表的变异源和 DF 列。</p>
+<p>请注意左表中的 classroom(school) 在合并表中修改为 “classroom(school) |
+DP”，将其解读为“考虑专业发展后的校内课堂”。这反映了处理对重复单元的分配。另请注意，在组合表的 DF 列中，DP 的考虑使得 classroom(school) 的 DF 减去相应值。处理分配前 classroom(school) 有 30 个 DF，考虑 DP 后有 30 - 1 = 29 个 DF. 处理的 DF 总是以这种方式从其相应的重复单元的 DF 中移除。从组合 ANOVA 的结构可以看出，来自 School, DP 和 classroom(school) |
+DP 的项需要纳入线性预测器。</p>
+<p>WWFD 过程的第四步是将组合表中的变异源与模型效应及其假定的概率分布（如果有意义）相关联。表 2.1 说明了这一点。</p>
+<details><summary><font color="#8B2232">表 2.1</font>
+</summary><img src="figure/table%202.1.png#center" style="width:80.0%"></details><p><br>
+根据表 2.1，我们现在可以编写统计模型。在模型方程形式中，我们有</p>
+<p><span class="math display">\[y_{ijk}=\eta+\tau_i+s_j+u_{ijk};\quad u_{ijk}\mathrm{~iid~}N\big(0,\sigma_u^2\big)\]</span></p>
+<p>在概率分布形式中—— GLMM 系列的所有模型的首选形式——模型必需元素为</p>
+<ul>
+<li>线性预测器 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+s_j\)</span>
+</li>
+<li>分布 <span class="math inline">\(y_{ijk}\sim N\left(\mu_{ij},\sigma_u^2\right)\)</span>
+</li>
+<li>连接函数：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>请注意，对于此模型，classroom(school) |
+DP 变异源对应于观察单元。与此来源相关的模型中的项此后在本书中称为<strong>单元效应</strong> (unit effect). 对于具有高斯数据的模型，我们可以使用 “Model Effect” 列中的元素以模型方程形式构建适当的模型。在具有非高斯响应变量的模型中，“Resulting
+Observation” 列对于列出模型的所有必需元素至关重要。</p>
+<p>三条要点：</p>
+<ol style="list-style-type: decimal">
+<li>第一条是一个定义。定义：合理的模型是指变异源与模型中解释这些源的项之间存在一一对应关系的模型。</li>
+<li>不符合上述定义的模型，无论是没有解释它的项的变异源，还是具有多个混淆 (confounded) 的项，根据定义都不是合理的模型。一个合理的模型不一定就是最好的模型——对于一个给定的数据集，可能有不止一个合理的模型，但是不合理的模型应取消作为候选模型的资格，并被认为不合适且不使用，参见第 <a href="#chap11"><strong>??</strong></a> 章和第 <a href="#chap12"><strong>??</strong></a> 章。</li>
+<li>除单元水平之外的其他效应可能具有相关的概率分布。我们在第 <a href="chap1.html#chap1">1</a> 章的 LMM 和 GLMM 示例中看到了这一点。有关此问题的更多信息请参见 <a href="chap2.html#sec2-4-1">2.4.1</a> 节。</li>
+</ol>
+</div>
+<div id="sec2-3-1-2" class="section level4" number="2.3.1.2">
+<h4>
+<span class="header-section-number">2.3.1.2</span> 从设计到模型过程图示：场景 2<a class="anchor" aria-label="anchor" href="#sec2-3-1-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>图 2.2 显示了学校研究的另一种设计，将 DP 处理分配给学校而不是每所学校内的课堂。为了开发模型，我们使用与场景 1 相同的策略。</p>
+<p>图 2.5 显示了并排的 WWFD 框架 ANOVAs.</p>
+<details><summary><font color="#8B2232">图 2.5</font>
+</summary><img src="figure/figure%202.5.png#center" style="width:80.0%"></details><p><br>
+请注意其相对于表 2.1 的重新安排。对于场景 1 设计，DP 处理被分配到教师的课堂，而在嵌套设计中，处理被分配到学校水平。因此，DP 置于学校上方而不是课堂上方，这表明了分配的位置以及自由度受到的影响。在合并表中，重复单元 school | DP，解读为“考虑专业发展后的学校”，出现在处理因素 DP 所在行的正下方。表 2.2 显示了合并表，其中包含变异源及其相关的模型效应。</p>
+<details><summary><font color="#8B2232">表 2.2</font>
+</summary><img src="figure/table%202.2.png#center" style="width:80.0%"></details><p><br>
+模型方程形式的结果模型为</p>
+<p><span class="math display">\[y_{ijk}=\eta+\tau_{i}+s_{ij}+c_{ijk};\quad s_{ij}\mathrm{~iid~}N{\left(0,\sigma_{s}^{2}\right)};\quad c_{ijk}\mathrm{~iid~}N{\left(0,\sigma_{c}^{2}\right)}\]</span></p>
+<p>在首选的 GLMM 形式中，模型必需元素为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+s_{ij}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(s_{ij}\mathrm{~iid~}N\left(0,\sigma_s^2\right)\)</span></li>
+<li><span class="math inline">\(y_{ijk}\mid s_{ij}\sim N\left(\mu_{ij},\sigma_c^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="sec2-4" class="section level2" number="2.4">
+<h2>
+<span class="header-section-number">2.4</span> 分布要务<a class="anchor" aria-label="anchor" href="#sec2-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>在 <a href="chap2.html#sec2-3">2.3</a> 节中，我们专注于将线性预测器完全构建为将连接划分为其组成部分的方程。在本节中，我们转向模型构建中所需的最终问题。它们为：</p>
+<ul>
+<li>区分固定模型效应和随机模型效应，即 <span class="math inline">\(\symbf{X\beta}\)</span> 中包含什么，<span class="math inline">\(\symbf{Zb}\)</span> 中包含什么？</li>
+<li>指定随机效应的概率分布。</li>
+<li>指定观测的概率分布，即 <span class="math inline">\(\symbf y \mid\symbf b\)</span> 的分布</li>
+</ul>
+<p>尽管 Lee and Nelder (1996, 2006) 讨论了双广义线性模型 (doubly generalized linear models)，其中 <span class="math inline">\(\symbf y \mid\symbf b\)</span> 和 <span class="math inline">\(\symbf b\)</span> 可能呈非高斯分布。我们在本书中将注意力限制在高斯随机效应上，即 <span class="math inline">\(\symbf{b}\sim N(\symbf{0},\symbf{G})\)</span>。出于我们的目的，我们需要决定哪些效应包含随机效应向量 <span class="math inline">\(\symbf b\)</span> 以及 <span class="math inline">\(\symbf G\)</span>——<span class="math inline">\(\symbf b\)</span> 的方差-协方差阵——的形式。</p>
+<p>以下两个小节中的示例说明了所需的决策过程。</p>
+<div id="sec2-4-1" class="section level3" number="2.4.1">
+<h3>
+<span class="header-section-number">2.4.1</span> 模型效应：固定或随机<a class="anchor" aria-label="anchor" href="#sec2-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>为了说明所涉及的决策及其制定方式，请考虑学校专业发展干预示例。图 2.1 所示设计的线性预测器为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+s_j\)</span>。根据定义，效应 <span class="math inline">\(\eta\)</span> 是固定截距，因此它自动成为 <span class="math inline">\(\symbf {X\beta}\)</span> 的一部分。对于其余项，关键问题是</p>
+<ul>
+<li>每个效应的水平是代表更大关注总体的样本，还是其本身就是明确的关注所在，从而代表了争整个总体？</li>
+<li>是否存在与所讨论的效应相关的概率分布？</li>
+</ul>
+<p>对于专业发展效应 <span class="math inline">\(\tau_i\)</span> ，这两个水平（参与者或非参与者）显然是仅有的两个关注水平——它们是研究的明确动机，并不代表更大的总体。因此 <span class="math inline">\(\tau_i\)</span> 是固定的并且属于 <span class="math inline">\(\symbf {X\beta}\)</span>。</p>
+<p>另一方面，该研究的描述称，“随机选择了十所学校。”这一点似乎也很明确。研究中观察到的学校代表了该学区的所有学校（通过外推也可能代表来自类似学区的所有学校）；本研究完全有可能选择其他的学校，而这里所观察到的这十所学校仅代表了一种随机抽样情况。由此可见，学校效应是随机的，应当纳入 <span class="math inline">\(\symbf {Zb}\)</span> 部分。这会影响我们编写组合 WWFD ANOVA 以及模型效应表的方式。假定随机学校效应，我们重写表 2.1，如表 2.3 所示。</p>
+<details><summary><font color="#8B2232">表 2.3</font>
+</summary><img src="figure/table%202.3.png#center" style="width:80.0%"></details><p><br>
+省略假定的分布隐式地将效应定义为固定的。因此，如果我们假定研究中的十所学校是全部总体，将得到固定学校效应，那么表 2.1 和由此产生的模型是合适的。根据表 2.3，假定学校效应是随机的，混合模型所需的元素为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+s_j\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(s_j\mathrm{~iid~}N\left(0,\sigma_s^2\right)\)</span></li>
+<li><span class="math inline">\(y_{ij}\mid s_j\sim N\left(\mu_{ij},\sigma_u^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p><br>
+在开发混合模型估计和推断理论时，我们必须使用矩阵形式的模型。对于上述模型，线性预测器为 <span class="math inline">\(\symbf \eta=\symbf{X\beta}+\symbf{Zb}=\begin{bmatrix}\symbf 1&amp;\mathbf{X}_{\mathrm{\rho}}\end{bmatrix}\begin{bmatrix}\eta\\\symbf{\rho}\end{bmatrix}+\mathbf{Z}_s\mathbf{s}\)</span>，其中 <span class="math inline">\(\symbf{s}\sim N\left(0,\symbf{I}{\sigma}_s^2\right)\)</span>，<span class="math inline">\(\symbf 1\)</span> 为 <span class="math inline">\(N × 1\)</span> 全一向量，<span class="math inline">\(\mathbf{X}_{\mathrm{\rho}}\)</span> 为计划参与者的 <span class="math inline">\(N × 2\)</span> 设计矩阵，<span class="math inline">\(\symbf{\rho}=\begin{bmatrix}{\rho}_1\\{\rho}_2\end{bmatrix}\)</span> 为参与者效应向量，<span class="math inline">\(\symbf s\)</span> 为学校效应向量以及 <span class="math inline">\(\symbf Z_s\)</span> 为学校效应的设计矩阵（提问：<span class="math inline">\(\symbf Z_s\)</span> 维度为何？）。</p>
+</div>
+<div id="sec2-4-2" class="section level3" number="2.4.2">
+<h3>
+<span class="header-section-number">2.4.2</span> 响应变量分布<a class="anchor" aria-label="anchor" href="#sec2-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>关于模型的其余决策涉及观测的分布。如果我们有一个仅固定效应模型，这意味着指定 <span class="math inline">\(\symbf y\)</span> 的分布。如果我们有一个混合模型，我们指定 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的分布。请注意，从 <a href="chap2.html#sec2-2">2.2</a> 节开始的“从设计到模型过程”中，在我们完全确定了变异源、用于解释这些变异源的模型项、线性预测器以及假定为随机的任何模型效应的分布之前，我们不会对观测数据展开任何讨论。（初学者经常想跳过一些步骤——这肯定会导致模型构建出现问题）。</p>
+<p>继续我们的学校、课堂、专业发展示例，一旦我们确定了 WWFD ANOVA 表的组合变异源和模型效应列，我们需要确定以下内容</p>
+<ul>
+<li>观察的单元 (unit of observation) 是什么？通常，它是表中的最后一行，如表 2.1 和表 2.2 中所示。</li>
+<li>具体对学生进行了哪些观察？到底如何测量“成绩提升”？这是成绩测试的结果吗？前测和后测有什么区别吗？是否是分类的，例如“熟练/不熟练”，测量的类型决定了我们对分布的选择，或者至少限制了我们对候选分布的选择。</li>
+</ul>
+<p>在表 2.1 和 2.2 中，这些问题的答案是</p>
+<ul>
+<li>测量在课堂水平上进行</li>
+<li>我们可以假定测量服从高斯分布</li>
+</ul>
+<p>相反，假设对每个学生的测量是“熟练”或“不熟练”，这是伯努利变量。假设课堂内的学生分数是独立的，则课堂水平的测量是每个班级 <span class="math inline">\(s\)</span> 名学生中的 <span class="math inline">\(y_{ijk}\)</span> 名学生，其中 <span class="math inline">\(y_{ijk}\)</span> 是课堂 <span class="math inline">\(k\)</span> 和学校 <span class="math inline">\(j\)</span> 中接受 DP 处理 <span class="math inline">\(i\)</span> 的熟练学生人数。在这种情况下，<span class="math inline">\(y_{ijk}\thicksim\text{Binomial}\left(s,\pi_{ij}\right)\)</span>，其中 <span class="math inline">\(\pi_{ij}\)</span> 表示在教师分配到处理 <span class="math inline">\(i\)</span> 并在学校 <span class="math inline">\(j\)</span> 任教条件下，学生达到熟练程度的概率。表 2.4 显示了修订的 WWFD ANOVA.</p>
+<details><summary><font color="#8B2232">表 2.4</font>
+</summary><img src="figure/table%202.4.png#center" style="width:80.0%"></details><p><br>
+基于表 2.4 编写的一个典型模型是具有以下元素的 GLM</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+s_j\)</span>
+</li>
+<li>分布：<span class="math inline">\(y_{ijk}\sim\text{Binomial}\left(s,\pi_{ij}\right)\)</span>
+</li>
+<li>连接函数：Logit，<span class="math inline">\(\eta_{ij}=\log\biggl[\pi_{ij}/\biggl(1-\pi_{ij}\biggr)\biggr]\)</span>
+</li>
+</ul>
+<p>请注意，线性预测器不受 <span class="math inline">\(y_{ijk}\)</span> 分布变化的影响。变化的元素是分布和连接函数。</p>
+<p>仔细观察表 2.4 和所得模型就会发现一个问题。如上所述，没有任何效应或参数可以独立解释观察单元水平的变异。对于高斯数据，<span class="math inline">\(\sigma_u^2\)</span> 解释了单元水平的方差。上面的二项 GLM 隐式地将单元水平方差定义为 <span class="math inline">\(\pi_{ij}\left(1-\pi_{ij}\right)\)</span> 的函数，这意味着单元水平方差没有相应的参数——它完全由线性预测器决定，而线性预测器只是学校和 DP 处理的函数。上述模型不符合合理模型的要求：变异源和模型效应之间必须存在一一对应关系。无法考虑所有变异源的模型通常会产生不准确（通常是严重不准确）的推断统计量。统计建模中的专业术语是<strong>过度分散</strong> (overdispersion)：数据的变异性比模型能解释的要大。在过度分散的模型中，标准误往往向下偏差，而检验统计量则向上偏差。有关过度分散的深入讨论，请参阅第 <a href="#chap11"><strong>??</strong></a> 章和第 <a href="#chap12"><strong>??</strong></a> 章。</p>
+<p>消除表 2.4 中模型过度分散的方法是添加随机单元水平的效应及其假定的分布。表 2.5 显示了两种常见方法。</p>
+<details><summary><font color="#8B2232">表 2.5</font>
+</summary><img src="figure/table%202.5.png#center" style="width:80.0%"></details><p><br>
+版本 1 得到了本书称为 Logit-Normal GLM 的模型。其所需元素为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\tau_i+s_j+u_{ijk}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid u_{ijk}\sim\mathrm{Binomial}\left(s,\pi_{ijk}\right)\)</span></li>
+<li><span class="math inline">\(u_{ijk}\mathrm{~iid~}N\left(0,\sigma_u^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：<span class="math inline">\(\eta_{ijk}=\log\left[\pi_{ijk}/\left(1-\pi_{ijk}\right)\right]\)</span>
+</li>
+</ul>
+<p><br>
+版本 2 为 Beta-Binomial GLM。其所需元素包括</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\tau_{i}+s_{j}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid p_{ijk}\thicksim\mathrm{Binomial}{\left(s,p_{ijk}\right)}\)</span></li>
+<li><span class="math inline">\(p_{ijk}\sim\mathrm{Beta}\left(\mu_{ijk},\varphi\right);0&lt;\mu_{ijk}&lt;1\)</span></li>
+</ul>
+</li>
+<li>连接函数：<span class="math inline">\(\eta_{ijk}=\log\left[\pi_{ijk}/\left(1-\pi_{ijk}\right)\right]\)</span>
+</li>
+</ul>
+<p>请注意，在 Beta-Binomial GLM 中，二项概率是随机变量。假定 <span class="math inline">\(p_{ijk}\)</span>（二项概率）的贝塔分布解释了单元水平的变异。遵循 Ferrari and Cribari-Neto (2004)，贝塔分布以模型友好的形式给出。或者，我们可以使用数理统计教科书的形式，<span class="math inline">\(p_{ijk}\sim\mathrm{Beta}\left(\alpha_{ijk},\beta_{ijk}\right)\)</span> 其中 <span class="math inline">\(\alpha_{ijk}=\varphi\mu_{ijk}\)</span> 以及 <span class="math inline">\(\beta_{ijk}=\varphi\Big(1-\mu_{ijk}\Big)\)</span>。</p>
+<p>Logit-Normal GLM 和 Beta-Binomial GLM 都是“合理”模型，因为它们都满足模型中的项解释了所有变异源的要求。忽略用于解释单元水平变异的项是不合理模型的一个例子。在线性预测变量中包含 <span class="math inline">\(u_{ijk}\)</span>，也就是说，在 Beta-Binomial 模型中使用 Logit-Normal 线性预测变量，是非合理模型的另一个例子：在线性预测变量中包含 <span class="math inline">\(u_{ijk}\)</span> 会将其方差分量与 <span class="math inline">\(p_{ijk}\)</span> 的贝塔分布的参数混淆，在这样过度指定 (overspecified) 的模型中，估计和推断效果不佳。</p>
+<p>如果我们像 <a href="chap2.html#sec2-4-1">2.4.1</a> 节中所做的那样假定学校效应是随机的，那么我们会将 <span class="math inline">\(s_j\mathrm{~iid~}N\left(0,\sigma_s^2\right)\)</span> 添加到分布列表中，并将观测的分布修改为 <span class="math inline">\(y_{ijk}\mid s_j,u_{ijk}\)</span>（对于 Logit-Normal）或 <span class="math inline">\(y_{ijk}\mid s_j,p_{ijk}\)</span>（对于 Beta-Binomial）。这些模型分别是 Logit-Normal GLMM 和 Beta-Binomial 混合模型。</p>
+<p>第 <a href="#chap12"><strong>??</strong></a> 章和第 <a href="#chap20"><strong>??</strong></a> 章介绍了 Logit-Normal GLMM 实现的详细示例。第 <a href="#chap20"><strong>??</strong></a> 章介绍了 Beta-Binomial GLMM 示例。</p>
+<p>最后一点。表 2.4 中具有过度分散性的模型是这样的例子：说明了当我们将具有高斯数据的模型逐字翻译成用于非高斯响应变量的 GLM 或 GLMM 时，只改变 <span class="math inline">\(\symbf y \mid\symbf b\)</span> 的假定分布时会发生什么。WWFD ANOVA 过程迫使我们关注我们正在构建模型的研究背景，而不仅仅是通过死记硬背的类比来构建模型。总之，编写模型的关键步骤是：</p>
+<ul>
+<li>构建组合框架 ANOVA.</li>
+<li>指定模型效应，并在有意义时假定这些效应的概率分布，确保存在一对一的对应关系——没有过度分散（指定不足的模型）或混淆（过度指定的模型）。</li>
+<li>确定线性预测器。</li>
+<li>确定观测数据的分布。</li>
+<li>确定连接函数。</li>
+</ul>
+</div>
+<div id="sec2-4-3" class="section level3" number="2.4.3">
+<h3>
+<span class="header-section-number">2.4.3</span> 固定或随机——艰难抉择<a class="anchor" aria-label="anchor" href="#sec2-4-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>决定一种效应是固定的还是随机的并不总是明确的。许多“固定或随机”的争议已经持续了几十年。例子包括多中心临床试验中的地点、长期农学试验中的年份和随机区组设计中的区组。大多数争议不太可能得到彻底解决，因为不存在单一的“正确答案”。唯一包罗万象的正确答案是“这取决于每项研究的具体情况”。</p>
+<p>与我们在本章中的讨论相关的是我们如何在给定实验的背景下思考与“固定或随机”决策相关的问题。为了说明这一点，我们使用一个看似极端的不完全区组设计，并提出问题：“对于区组效应而言，将其视为固定效应还是随机效应更有意义呢？还是说，这是否重要？”</p>
+<p>考虑以下假设（但也是现实）的场景。我们想要比较六种处理——表示为 0, 1, 2, 3, 4 和 5. 使用区组有一个自然的理由，但区组的大小是有限的。任何给定区组只能分配三种处理。假设有十个可用的区组。在这些限制条件下设计研究的方法有很多。图 2.6 显示了可能会受到认真考虑的三种替代方案。第一个是真正的<strong>均衡不完全区组</strong> (balanced incomplete block, BIB) 设计。它的主要优点是所有处理的比较都具有相等的精度。如果其中一种处理（例如处理 0）是对照或参考标准，并且目标是最大限度地提高每种处理与对照之间成对比较的精度，则可以考虑第二种设计。第三种设计称为<strong>不连通</strong> (disconnected) 设计，因为处理 0, 1 和 2 总是一起出现在相同的区组中，而不会与处理 3, 4 或 5 一起出现在同一区组中。令人惊讶的是，不连通设计在实践中得到了广泛的应用（可能是这里显示的三种设计中使用最广泛的一种）。从建模的角度来看，这也是最有趣的，当然也是与本讨论最相关的。</p>
+<details><summary><font color="#8B2232">图 2.6</font>
+</summary><img src="figure/figure%202.6.png#center" style="width:80.0%"></details><p><br>
+对于这三个设计中，明显的线性预测器为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+b_j\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应，<span class="math inline">\(b_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个区组效应。对于前两种设计，就处理效应的推断而言，假定固定或随机区组效应的影响相对较小。然而，对于不连通设计来说，影响是巨大的。如果我们假定固定区组效应，则只能在处理 0, 1 和 2 之间或在处理 3, 4 和 5 之间进行比较。所有处理均值都不可估计，我们将在第 <a href="chap3.html#chap3">3</a> 章开始明确讨论这一概念（这与基于最小二乘法的线性模型理论基本一致）。该示例还解释了为什么 Fisher 对早期线性模型工作的反应是“困惑”和“愤怒”（用 Speed 的描述）。</p>
+<p>如果我们将区组效应视为随机的，使用正式的<strong>可估性</strong> (estimability) 标准，则所有处理均值都是可估的。此外，所有的均值差异都可估，尽管精度不同，具体取决于我们比较的是在同一区组内观察到的不同处理的均值，还是不同的不连通区组的均值。</p>
+<p>对于不连通设计，固定或随机区组的决策会产生极端后果。为什么会出现这种差异？我们精心实施的 WWFD ANOVA 程序有助于解释这一现象。表 2.6 显示了地形和处理框架 ANOVAs.</p>
+<details><summary><font color="#8B2232">表 2.6</font>
+</summary><img src="figure/table%202.6.png#center" style="width:80.0%"></details><p><br>
+请注意，我们在指定处理框架 ANOVA 方面比我们构建线性预测器 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+b_j\)</span> 时显然更加精确。处理分为两组 (sets)，{0,1,2} 和 {3,4,5}，并且在整个设计中保持组的完整性。因此，我们必须将其作为处理设计中的变异源。表 2.7 显示了组合框架 ANOVA 和相应的模型效应。</p>
+<details><summary><font color="#8B2232">表 2.7</font>
+</summary><img src="figure/table%202.7.png#center" style="width:80.0%"></details><p><br>
+所得线性预测器为 <span class="math inline">\(\eta_{ijk}=\eta+\alpha_i+\tau(\alpha)_{ij}+b(\alpha)_{ik}\)</span>，其中 <span class="math inline">\(\alpha_i\)</span> 表示第 <span class="math inline">\(i\)</span> 组的效应，<span class="math inline">\(\tau(alpha)_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 组内第 <span class="math inline">\(j\)</span> 种处理的效应，<span class="math inline">\(b(\alpha)_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 组内第 <span class="math inline">\(k\)</span> 个区组的效应。模型的完整编写取决于我们假定 <span class="math inline">\(b(\alpha)_{ij}\)</span>—— block(set) 效应——是固定的还是随机的，以及观测值的分布，如果我们假定 block(set) 效应是随机的，则可以写 <span class="math inline">\(y_{ijk}\mid b\left(\alpha\right)_{ik}\sim\,??\)</span>。</p>
+<p>在我们讨论固定或随机区组效应的问题之前，有两点评论需要先提出来。</p>
+<ol style="list-style-type: decimal">
+<li>通过框架 ANOVA，我们看到不连通设计也可以理解为<strong>嵌套析因</strong> (nested factorial). 事实上，如果我们通过将 2 个“组”定义为处理因子 A 的 2 个水平，将处理 0, 1 和 2 作为与 A 第一个水平交叉的因子 B 的 3 个水平，将处理 3, 4 和 5 作为与 A 第二个水平交叉的因子 B 的相同的三个水平，从而为处理设计增加额外的结构，那么我们有一个 2 × 3 析因处理设计，我们的不连通设计有一个更熟悉的名字：<strong>裂区</strong> (split-plot).</li>
+<li>回顾 Fisher 等人如何评估“组”和组内处理效应的问题是很有指导意义的。作为一般原则，我们知道我们通过比较处理（或处理组）之间的差异与接受这些处理（或处理组）的单元之间的自然差异来计算处理（或处理组）的效应。在此设计中，组应用于区组。因此，我们将组之间的差异与即使没有应用处理也会自然发生的区组之间的差异进行比较。正式地说，我们通过取应用了第一组的五个区组的均值来估计第一组的均值，通过取应用了第二组的五个区组的均值来估计第二组的均值。然后，我们计算组 1 和组 2 之间的平均差异相对于差异的标准误，后者基于组 1 的五个区组的均值与组 2 的五个区组的均值之差的方差</li>
+</ol>
+<p><span class="math display">\[\begin{bmatrix}Var\left(\text{mean of set}1\text{ blocks}\right)+Var\left(\text{mean of set}2\text{ blocks}\right)\end{bmatrix}/5\]</span></p>
+<p>对于同一组内任意两个处理之间的比较，例如处理 0 和处理 1，我们对应用处理 0 的区组内的 5 个单元和应用处理 1 的区组内的 5 个单元进行平均。所得标准误取决于</p>
+<p><span class="math display">\[\begin{bmatrix}Var\left(\text{mean of trt 0 units}\right)+Var\left(\text{mean of trt 1 units}\right)\end{bmatrix}/5\]</span></p>
+<p>对于不在同一区组中的两种处理之间的平均差异，例如对于处理 0 和处理 4，我们对应用处理 0 的组 1 区组内的 5 个单元和应用处理 4 的组 2 区组内的 5 个单元进行平均。所得方差包括区组间方差和单元间方差。</p>
+<p>从历史上看，本示例说明的裂区结构是混合模型理论发展的主要推动力。Speed (2010) 将裂区设计描述为检验一个人对这场讨论所涉及思维过程理解的“试金石”。仅包含固定效应的线性模型理论无法充分解决这种设计类型的问题——在实践中，这种设计类型可以说是规则而非例外——这让我们理解了为什么 Fisher 对早期建模工作的反应如此负面，这些工作现在大多被我们称为 LM（仅包含固定效应，高斯观测）。</p>
+<p>回到手头的任务，当我们完成这个例子时，我们本质上规定区组效应必须是随机的。当我们说“我们通过比较应用于不同区组的组间自然发生的变异来评估组间的差异”时，我们就这样做了。因此，区组必须具有概率分布。因此它们一定是随机效应。</p>
+<p>那么，决定模型效应是固定效应还是随机效应的一个准则是，它是否具有可用作评估模型中另一个效应统计显著性（或在没有假设检验的情况下构建区间估计）的可靠标准的自然发生的变异。请注意，这并没有解决所有模棱两可的“它是固定的还是随机的？”情况。然而，在这里，设计的地形方面和处理方面的相互作用使得这一特定情况下的决策变得明确无误。顺便说一句，这也引发了一个有趣的问题：如果无论使用图 2.6 中显示的三个设计选项中的哪一个，区组的物理性质都是相同的，那么“区组效应是固定的”的倡导者如何解释在第三种设计中将区组效应视为随机效应（这是裂区实验中的普遍情况），但在前两个设计中却不视为随机的呢？</p>
+</div>
+</div>
+<div id="sec2-5" class="section level2" number="2.5">
+<h2>
+<span class="header-section-number">2.5</span> 更复杂的设计蓝图：多水平多因素研究<a class="anchor" aria-label="anchor" href="#sec2-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>我们现在考虑更复杂的设计蓝图，这些设计具有多个处理因素和不同尺寸的重复单元。这些可能是转译为适当模型时最具挑战性的设计结构，如果不这样做，后果可能是最严重的。对于统计建模的学生来说，重要的是要注意这些设计的结构。虽然 <a href="chap2.html#sec2-5-1">2.5.1</a> 节中的例子是农业的，但它的结构出现在许多环境中——医学、工程、教育等。这是一个值得我们仔细研究的好例子，因为它说明了建模学生必须掌握的许多重要特征。这也是一种经常使用错误指定的模型进行分析的结构——正如我们在本章前面所说的，建模出错的最常见原因是对设计原则的理解不足。</p>
+<div id="sec2-5-1" class="section level3" number="2.5.1">
+<h3>
+<span class="header-section-number">2.5.1</span> 裂区示例<a class="anchor" aria-label="anchor" href="#sec2-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>这个示例将作为贯穿全书的示例，它来自一个旨在评估不同种子组合 (seed mixes) 在各种种植方法下生长的实验，以确定恢复受损草地的有效方法。数据集包含四个区组。每个区组被划分为七个矩形区域。有七种种植方法。每个田地的七个区域中的一个被随机分配给七种种植方法中的每一种。每个区域被划分为四个子区域。有四种种子组合。每个子区域被随机分配接收四种种子组合中的一种。图 2.7A 显示了一个样本区组的平面图。</p>
+<details><summary><font color="#8B2232">图 2.7 A</font>
+</summary><img src="figure/figure%202.7%20A.png#center" style="width:80.0%"></details><p><br>
+为便于阅读，种植方法按顺序显示，从 Trt 1 到 Trt 7；在实际研究中，这些方法的顺序在每个四个区组内都是随机的。与学校示例一样，绘制平面图或蓝图是构建线性预测器的第一步。接下来的步骤是构建地形和处理的并排表，然后是包含模型效应和分布的合并表。根据这张最终表格，我们写出模型，列出其所需元素。在这样做时，我们引入了数据集具有两个因素这一事实所需的额外细节。我们需要处理每个因素，并正确识别其重复单元。图 2.7 B 和 2.7 C 分别说明了与 Trt 和 Mix 相关的重复单元。</p>
+<details><summary><font color="#8B2232">图 2.7 B</font>
+</summary><img src="figure/figure%202.7%20B.png#center" style="width:80.0%"></details><br><details><summary><font color="#8B2232">图 2.7 C</font>
+</summary><img src="figure/figure%202.7%20C.png#center" style="width:80.0%"></details><p><br>
+表 2.8 显示了构建 WWFD 框架 ANOVA 表的第一步。</p>
+<details><summary><font color="#8B2232">表 2.8</font>
+</summary><img src="figure/table%202.8.png#center" style="width:80.0%"></details><p><br>
+种植方法 (Trt) 的重复单元（区组内的区域）和种子组合 (Mix) 的重复单元（区域内的区）决定了行的顺序，处理因素紧跟在其重复单元上方。Trt × Mix 必须应用于与 Mix 相同的单元；区域内的区 (plot) 也是其重复单元。</p>
+<p>表 2.9 显示了下一步：组合表和建议的模型效应。</p>
+<details><summary><font color="#8B2232">表 2.9</font>
+</summary><img src="figure/table%202.9.png#center" style="width:80.0%"></details><p><br>
+我们将“区组内区域和考虑 trt 后的处理” Area(block) | trt 的变异源重写为 block × trt，我们这样做有两个原因。首先，block 和 trt 一起唯一地定义了一个区域。其次，大多数软件包要求将区域指定为 block × trt，以便识别 Area(block) | trt 效应并适当地执行计算。</p>
+<p>“Resulting Observation” 栏中显示的两个分布是示例，遵循 <a href="chap2.html#sec2-3">2.3</a> 节和 <a href="chap2.html#sec2-4">2.4</a> 节的先例。根据响应变量的不同，其他分布也是可能的，并将在后续章节中讨论。</p>
+<p>假定高斯响应变量，所得混合模型为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\tau_i+\gamma_j+\tau\gamma_{ij}+b_k+bt_{ik}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(bt_{ik}\mathrm{~iid~}N\left(0,\sigma_w^2\right)\)</span></li>
+<li><span class="math inline">\(y_{ijk}\mid bt_{ik}\sim N\left(\mu_{ijk},\sigma_u^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：恒等 <span class="math inline">\(\eta_{ijk}=\mu_{ijk}\)</span>
+</li>
+</ul>
+<p><br>
+假定二项数据，logit-normal GLMM为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\tau_i+\gamma_j+\tau\gamma_{ij}+b_k+bt_{ik}+u_{ijk}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(bt_{ik}\mathrm{~iid~}N\left(0,\sigma_w^2\right)\)</span></li>
+<li><span class="math inline">\(u_{ijk}\mathrm{~iid~}N\left(0,\sigma_u^2\right)\)</span></li>
+<li><span class="math inline">\(y_{ijk}\mid bt_{ik},u_{ijk}\sim\mathrm{Binomial}\left(n_{ijk},\pi_{ijk}\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：logit，<span class="math inline">\(\eta_{ijk}=\log\left[\frac{\pi_{ijk}}{\left(1-\pi_{ijk}\right)}\right]\)</span>
+</li>
+</ul>
+<p>请注意本书中使用的两个约定：</p>
+<ol style="list-style-type: decimal">
+<li>在线性预测器中，我们首先列出与处理设计相关的所有模型效应，然后列出与研究设计相关的元素（地形结构）。</li>
+<li>我们使用希腊字母表示固定效应，使用拉丁字母表示随机效应。通常，与处理设计相关的效应是固定的，而与研究设计相关的效应是随机的。在这种情况下，我们也可以说希腊字母表示处理效应，拉丁字母表示研究（地形）设计效应。</li>
+</ol>
+<p>对于上述模型，我们使用拉丁字母来表示区组效应。上述模型没有给出区组效应的假定分布，这隐式表明它们是给定模型中的固定效应。回到 <a href="chap2.html#sec2-4">2.4</a> 节中的讨论，更常见的是假定区组代表更大的总体，因此区组效应必须是随机的。若如此，我们需要添加一个区组效应的假定分布，例如 <span class="math inline">\(b_k\mathrm{~iid~}N\left(0,\sigma_b^2\right)\)</span>。</p>
+</div>
+<div id="sec2-5-2" class="section level3" number="2.5.2">
+<h3>
+<span class="header-section-number">2.5.2</span> 多水平、多因素主题中的变异<a class="anchor" aria-label="anchor" href="#sec2-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>刚才讨论的栽培 × 种子混合研究的方法就是裂区实验的一个例子。尽管裂区一词起源于农业，但这些类型的设计在许多学科中都很常见，包括医学、工程学、分子生物学、社会科学（称为多水平设计）等。它们的定义特征有：1) 两个或更多的处理因素（或者更一般地说，两个或更多需要评估其对响应效应的因素）以及 2) 对于各种因素或因素组合，至少有两种不同尺寸的重复单元。</p>
+<p>不存在一种“裂区设计”。Federer and King (2007) 出版了一本完整的教科书，描述了裂区的变体。 Stroup et al. (2018) 描述了进行 2 × 2 析因（两个因子，每个因子有两个水平）的七种方法，其中的四种是裂区设定的不同方法。这仅为冰山一角。换句话说，记住这些设计的通用“食谱”是徒劳的。相反，最好的方法是坚持绘制平面图以完成表 2.1，然后构造线性预测器。</p>
+<details><summary><font color="#8B2232">表 2.1</font>
+</summary><img src="figure/table%202.1.png#center" style="width:80.0%"></details><p><br>
+在本节中，我们将研究 Stroup et al. (2018) 讨论的三种变体，以了解其工作原理。在每种情况下，都有两个处理因素，每个因素都有两个水平。我们将 A1 和 A2 表示为因子 A，将 B1 和 B2 表示为因子 B。</p>
+<div class="rmdimportant">
+<p>场景 1</p>
+<p>从目标总体中随机抽取八个单元。其中四个单元随机分配接受 A1，另外四个接受 A2。每个单元细分为两个子单元。一个子单元随机分配接受 B1，另一个子单元接受 B2。图 2.8 显示了蓝图。</p>
+<details><summary><font color="#8B2232">图 2.8</font>
+</summary><img src="figure/figure%202.8.png#center" style="width:60.0%"></details><p><br>
+实验设计的学生将意识到图 2.8 是一个<strong>具有完全随机整区设计的裂区设计</strong> (split-plot design with a completely randomized whole-plot design). 表 2.10 显示了地形、处理和组合框架 ANOVA 表。</p>
+<details><summary><font color="#8B2232">表 2.10</font>
+</summary><img src="figure/table%202.10.png#center" style="width:80.0%"></details><p><br>
+我们现在可以构建一个类似于表 2.9 的表格来识别模型效应，unit 和 plot(unit) 以及所得观测的假定分布，并使用所得的表格编写适当的模型。我们将其作为练习留给读者。</p>
+</div>
+<div class="rmdimportant">
+<p>场景 2</p>
+<p>与场景 1 类似，不同之处在于从原始总体中抽取的 8 个单元被配对成为区组。通常，配对基于某些有意义的标准。在每个区组中，一个单元得到 A1，另一个单元得到 A2，分配是随机进行的。每个分配到 A 的水平的单元被进一步细分，每个子单元被分配到 B 的一个水平，这与场景 1 中的情况很相似。图 2.9 显示了所得的蓝图。</p>
+<details><summary><font color="#8B2232">图 2.9</font>
+</summary><img src="figure/figure%202.9.png#center" style="width:60.0%"></details><p><br>
+实验设计学生将意识到图 2.9 是一个<strong>裂区设计</strong> (split-plot design)，其中整区 (whole-plot) 单元安排在随机完全区组中。表 2.11 显示了地形、处理和组合框架 ANOVA 表。</p>
+<details><summary><font color="#8B2232">表 2.11</font>
+</summary><img src="figure/table%202.11.png#center" style="width:80.0%"></details>
+</div>
+<div class="rmdimportant">
+<p>场景 3</p>
+<p>此场景的开始与场景 2 类似。有四个区组，每个区组由一个 2 × 2 的区网格组成。图 2.10A 显示了给定区组的区蓝图。因子 A 的每个水平随机分配到每个区组中的一行。因子 B 的每个水平分配到一列。图 2.10B 和 2.10C 进行了说明。</p>
+<details><summary><font color="#8B2232">图 2.10</font>
+</summary><img src="figure/figure%202.10.png#center" style="width:60.0%"></details><p><br>
+实验设计学生将意识到图 2.10 中的设计是<strong>条裂区设计</strong> (strip-split plot design)，也称为<strong>裂区组设计</strong> (split-block design). 表 2.12 显式了并排的 WWFD 框架 ANOVA 表。</p>
+<details><summary><font color="#8B2232">表 2.12</font>
+</summary><img src="figure/table%202.12.png#center" style="width:80.0%"></details>
+</div>
+<p>按照本节示例所示的方式继续，我们可以确定一个有效描述任何数据架构的模型，无论它有多复杂。从这些示例中可以吸取的主要教训是</p>
+<ul>
+<li>不要试图死记硬背食谱；你的数据集很可能有一些违背任何可记忆的食谱的怪癖。</li>
+<li>此时不必担心设计的名称。正如我们刚刚看到的，“裂区”可以表示本质上无限多种布局中的任何一种。即使是看似定义明确的设计格式，如随机完全区组设计 (randomized complete block) 或完全随机设计 (completely randomized designs)，也有许多理解和误解的方式，因此以图形形式展示种植计划对于准确理解数据收集的具体方式至关重要。由于设计名称的理解或误解得不尽相同，因此设计名称可能更多的是造成混乱，而不是促进沟通。</li>
+<li>绘制准确的蓝图（平面图）。</li>
+<li>确定研究（地形）设计中的所有单元、所有处理变异源（所有因素及其相互作用），并在并排表格的适当行中正确定位处理变异源及其相关的重复单元。要小心：此时关注细节至关重要。跳过这些步骤并不是件好事。</li>
+<li>指定假定为随机的任何效应的分布以及观测单元水平的观测分布（如表 2.1, 2.2, 2.3, 2.4, 2.9 所示）。</li>
+</ul>
+<p><br>
+在接下来的四章中，我们将详细介绍使用这些模型的方法论及其基本理论。</p>
+</div>
+</div>
+<div id="exe2" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe2"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li><p>针对 <a href="chap2.html#sec2-5">2.5</a> 节中的场景 2 和场景 3，填写类似于表 2.9 的表格。你应该指定与每个变异源相对应的模型效应列表以及所得模型所需的元素。给出假定高斯观测的 LMM 和假定二项观测和 logit-normal 模型的 GLMM.</p></li>
+<li>
+<p>考虑以下六种场景。每项都描述了一项研究——研究是如何进行的、感兴趣的响应变量以及研究的目标（在某些情况下，目标是隐含的，没有用太多的文字来说明）。对于每个场景完成接下来所述的练习。</p>
+<ul>
+<li>场景 A：从总体中随机抽取十家诊所。在每个诊所中，志愿者被随机分为两组。一组接受治疗 1；另一组接受治疗 2. 令 <span class="math inline">\(N_{ij}\)</span> 表示在第 <span class="math inline">\(j\)</span> 个诊所接受第 <span class="math inline">\(i\)</span> 种治疗的患者人数。感兴趣的响应是 <span class="math inline">\(Y_{ij}\)</span>，即 <span class="math inline">\(N_{ij}\)</span> 中显示出良好治疗结果的患者数。</li>
+<li>场景 B：抽取七个地点。每个地点被分为四个部分。每个部分被随机分配一个“环境危害暴露水平”（水平为 <span class="math inline">\(0,0.5X,X\)</span> 和 <span class="math inline">\(2X\)</span>，其中 <span class="math inline">\(X\)</span> 为“名义最大安全暴露水平”）。响应变量是受该危害影响的物种的存活生物体数（理论上随着暴露水平的增加，生物体的数量线性减少）。</li>
+<li>场景 C：Statsylvania 郡拥有三种不同的土壤类型。为每种土壤类型选择一个位置。每个地点被分成十个部分，称为“区”。其中 5 个随机分配了处理 1，另外 5 个随机分配了处理 2. 每一块地都种植玉米：感兴趣的响应是适合生产乙醇的玉米产量：获得每块土地的总产量测量。目的是评估土壤类型和处理对产量的效应。</li>
+<li>场景 D：法院希望确定该州对谋杀定罪的量刑做法是否存在种族歧视的证据。法院认为相关的一段时间的记录被汇总到一个三向 2<sup>3</sup> 列联表中。第一类是受害者的种族（白人或非白人）。第二类是罪犯的种族（白人或非白人）。第三类是刑罚类型（死刑或不判处死刑）。</li>
+<li>场景 E：从“美国中部城市”县的总体中随机选择了 12 个县。将比较两种疫苗。六个县分配 A 型疫苗；另外六个县分配 B 型疫苗。在每个县，患者被随机分配到两组。第一组接种低剂量的指定疫苗；第二组接种高剂量的指定疫苗。令 <span class="math inline">\(N_{ijk}\)</span> 表示 第 <span class="math inline">\(k\)</span> 个县接受第 <span class="math inline">\(i\)</span> 个疫苗类型（A 或 B）的第 <span class="math inline">\(j\)</span> 个剂量水平（低或高）的患者人数。令 <span class="math inline">\(Y_{ijk}\)</span> 为第 <span class="math inline">\(ijk\)</span> 组中表现出疫苗旨在预防的疾病症状的患者数量。目的是评估疫苗类型和剂量水平对保护效果的效应（通过出现症状的可能性来衡量）。</li>
+<li>场景 F：从场景 E 定义的同一总体中抽取了 12 所学校，每县一所。六所学校参加了数学教师专业发展计划；六所学校没有参加（学校被随机分配到发展组或无发展组）。这些学校数学课中的学生在学年期间进行了四次数学能力测试（开学时、第一学期后、第二学期后和学年结束时）。目的是看专业发展计划是否提高了学生的数学学习成绩。</li>
+</ul>
+<p>对于每个场景，确定模型所需的元素：</p>
+<ul>
+<li>响应变量及其假定的分布。</li>
+<li>连接函数。</li>
+<li>线性预测器。</li>
+<li>对于线性预测值中假定为随机的任何效应，其假定的分布。</li>
+<li>额外：在你的模型中，哪些参数会告知你与这些目标相关的信息？它们是如何做到的？（不需要讨论太多细节——只需想想这将如何运作）</li>
+</ul>
+<p>注意：<span class="math inline">\(\symbf{X\beta}\)</span> 和 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}\)</span> 不是线性预测器的充分陈述——你需要将写其出来，这样才能清楚每个符号的含义以及每个下标的含义。</p>
+<p>还请注意：这里没有一个正确的答案——给出你认为合理的模型，并准备好解释/捍卫你的论证。</p>
+</li>
+<li><p>对于练习 1 中的每个场景，完成下面给出的 PROC GLIMMIX 语句，这是开始分析所需的最低限度</p></li>
+</ol>
+<pre class="sas"><code>CLASS ...; (if needed)
+MODEL ... = ... / (essential options, if any);
+RANDOM ...; (if needed)</code></pre>
+<p>对于本练习，只关注这三个语句，不要包括任何其他语句。</p>
+<ol start="4" style="list-style-type: decimal">
+<li>对于第 <a href="chap1.html#chap1">1</a> 章表 1.1 和 1.2 中使用的数据集，编写 PROC GLIMMIX 语句来实现第 <a href="chap1.html#chap1">1</a> 章中描述的分析。
+<ol style="list-style-type: lower-alpha">
+<li>对于表 1.1，两项分析均使用线性预测器 <span class="math inline">\(\eta_i=\beta_0+\beta_1X_i\)</span>。其一假定样本比例近似正态；另一个使用假定二项响应的广义线性模型。</li>
+<li>对于表 1.2，有四项分析，均假定线性预测器 <span class="math inline">\(\eta_{ij}=\begin{pmatrix}\beta_0+b_{0i}\end{pmatrix}+\begin{pmatrix}\beta_1+b_{1i}\end{pmatrix}X_j\)</span> 但做出了不同的假定，如下
+<ol style="list-style-type: lower-roman">
+<li>响应变量 <span class="math inline">\(Y\)</span> 假设高斯，批量效应为固定的</li>
+<li>响应变量 <span class="math inline">\(Y\)</span> 假设高斯，批量效应为随机的</li>
+<li>响应变量假定为二项，由 Fav 和 N 指定，批次效应为固定的</li>
+<li>响应变量假定为二项，由 Fav 和 N 指定，批次效应为随机的</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+<div id="sec2-A" class="section level2 unnumbered">
+<h2>附录 A：响应变量 <span class="math inline">\(y\mid b\)</span> 的常见分布<a class="anchor" aria-label="anchor" href="#sec2-A"><i class="fas fa-link"></i></a>
+</h2>
+<div class="inline-figure"><img src="figure/figure%202.A.png#center" style="width:100.0%"></div>
+</div>
+<div id="sec2-B" class="section level2 unnumbered">
+<h2>附录 B：将你的模型传达给软件或“SAS<sup>®</sup> PROC GLIMMIX 是如何‘思考’的”<a class="anchor" aria-label="anchor" href="#sec2-B"><i class="fas fa-link"></i></a>
+</h2>
+<p>我们在 SAS<sup>®</sup> 程序语句中编写的语句（或在任何其他统计软件包中编写的类似语句）本质上是从统计符号模型描述（以下称为“模型语言”）到计算机软件理解的语言（在此称为“计算机语言”或适当时称为“SAS 语言”）的翻译。</p>
+<p>在本节中，我们重点介绍 SAS GLIMMIX 程序。为什么？回想一下第 <a href="chap1.html#chap1">1</a> 章，GLMM 是最通用的线性模型。GLM 不太通用，因为它可以处理非高斯响应变量，但不能处理随机模型效应。LMM 也是一种特殊情况：处理随机模型效应，但不处理非高斯数据。LM 是最特定的：仅处理高斯数据，无随机模型效应。SAS 中的线性模型程序在历史上以相反的顺序发展。 PROC GLM 是为 LM 编写的（在编写时称为“一般”线性模型，尽管“一般”现在是一个过时的形容词）。严格来说，PROC GLM 不能执行任何特定于 LMM 的计算；GLM 确实有几个“补丁”可以满足一些 LMM 需求，但其对LMM的处理最多只能算是部分的和不充分的。而 PROC MIXED 程序是专门为 LMM 设计编写的，因此也能胜任 LM 分析。PROC GENMOD 是为 GLM（广义线性模型——当代缩写中的真正 GLM）编写的，并且由于 LM 是 GLM 和 LMM 的子集，因此 GENMOD 也可以进行 LM 分析。最后，PROC GLIMMIX 是为 GLMMs 编写的，由于 GLM, LMM 和 LM 都是其特例，GLIMMIX 可以处理其他 PROC 可以处理的任何模型，甚至更多。所有这些过程都有一个共同的语法方法。在开发这些程序时，MIXED 和 GENMOD 尽可能使用了 PROC GLM 的语法，只为诸如随机模型效应或 LM 中不存在的连接函数等术语创建了新项。除少数例外，GLIMMIX 使用了 MIXED 的 LMM 语法和 GENMOD 的 GLM 语法。</p>
+<p>出于这些原因，如果你是初学者，请从 PROC GLIMMIX 开始。一旦你掌握了 GLIMMIX，SAS 的其他线性模型程序就很容易学习了，因为除了少数例外，语法都是相同的。GLM, GENMOD 和 MIXED 程序确实具有特定于某些 LM, GLM 或 MIXED 应用程序的特殊功能，因此 GLIMMIX 并不能完全取代其他程序。但是，对于大多数情况，包括本教科书中涵盖的几乎所有示例，GLIMMIX 都可以满足你的所有需求。</p>
+<div id="sec2-B-1" class="section level3 unnumbered">
+<h3>一般原理<a class="anchor" aria-label="anchor" href="#sec2-B-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>回想一下 GLMM 由以下部分组成：</p>
+<ul>
+<li>观测响应向量 <span class="math inline">\(\symbf{y}\mid \symbf u\)</span>
+</li>
+<li>
+<span class="math inline">\(\symbf{y}\mid\symbf u\)</span> 的假定分布满足 <span class="math inline">\(\symbf{\mu}|\symbf{u}=E(\symbf{y}\mid\symbf{u})\)</span> 且 <span class="math inline">\(\symbf{R}=Var(\symbf{y}\mid\symbf{u})\)</span>
+</li>
+<li>连接函数 <span class="math inline">\(\symbf\eta=g\left(\symbf\mu\mid\symbf u\right)\)</span>
+</li>
+<li>线性预测器 <span class="math inline">\(\symbf{X\beta}+\symbf{Zu}\)</span> 对 <span class="math inline">\(\symbf\eta\)</span> 直接建模</li>
+<li>随机向量 <span class="math inline">\(\symbf u\)</span> 的假定分布，特别地 <span class="math inline">\(\symbf{u}\sim N\left(\symbf{0},\symbf{G}\right)\)</span>
+</li>
+</ul>
+<p><br>
+PROC GLIMMIX 中的三个基本语句共同指定上述列表中的每个元素：CLASS, MODEL 和 RANDOM 语句。从这个角度来看，我们可以将这些语句视为矩阵定义和组织语句。它们的作用如下</p>
+<ul>
+<li>CLASS 语句列出线性预测器中视为分类变量的所有因素。如果线性预测器中的任何因素（固定或随机）未出现在 CLASS 语句中，则将其视为直接（回归）变量。</li>
+<li>MODEL 语句具有基本形式：</li>
+</ul>
+<pre class="sas"><code>model response variable = list of fixed model effects/ options</code></pre>
+<p>观测变量 <span class="math inline">\(\symbf y\)</span> 由 <code>response variable</code> 标识。<code>list of fixed model effects</code> 指定哪些项包含固定效应参数向量 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf X\)</span> 矩阵。<code>options</code> 包括 <code>dist=</code> 和 <code>link=</code>。分布假定为高斯，除非我们使用 <code>dist=</code> 选项另行指定。分布有一个默认连接（例如 logit 是二项的默认连接）。如果我们不包含 <code>link=</code> 选项，则使用默认连接。因此，例如，如果我们想要拟合 probit 回归模型，则必须在 MODEL 语句中包含选项 <code>dist=probit</code>。</p>
+<ul>
+<li>RANDOME 语句具有基本形式：</li>
+</ul>
+<pre class="sas"><code>random list of random model effects / options</code></pre>
+<p>这指定了组成随机向量 <span class="math inline">\(\symbf u\)</span>、<span class="math inline">\(\symbf Z\)</span> 矩阵和方差—协方差阵 <span class="math inline">\(\symbf G\)</span> 形式的项。有几个选项允许我们更改 <span class="math inline">\(\symbf G\)</span> 的形状和相关结构 (correlation structure). 最常用的两个选项是 <code>subject=</code>，它允许我们形成块对角 <span class="math inline">\(\symbf G\)</span> 矩阵，以及 <code>type=</code>，它允许我们指定相关结构。</p>
+<ul>
+<li>RANDOM 语句的变体为</li>
+</ul>
+<pre class="sas"><code>random _residual_ / options</code></pre>
+<p>或等价地</p>
+<pre class="sas"><code>random effect / options residual</code></pre>
+<p>RESIDUAL 选项指定 <span class="math inline">\(\symbf R\)</span> 矩阵的形状和结构。如果你以前使用过 PROC MIXED 或 PROC GENMOD，则需要知道这些 PROC 中的 REPEATED 语句在 PROC GLIMMIX 中不存在。<code>random _residual_</code> 语句取代了 MIXED 或 GENMOD 中的 REPEATED.</p>
+</div>
+<div id="sec2-B-2" class="section level3 unnumbered">
+<h3>示例<a class="anchor" aria-label="anchor" href="#sec2-B-2"><i class="fas fa-link"></i></a>
+</h3>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-1" class="example"><strong>示例 2.1  (简单线性回归，高斯数据) </strong></span><br></p>
+<p>线性预测器为 <span class="math inline">\(\alpha+\beta X\)</span>。观测为高斯，即 <span class="math inline">\(\symbf{y}\sim N\left(\symbf{\mu},\symbf{I}{\sigma}^2\right)\)</span>。连接为恒等，<span class="math inline">\(\eta=\mu\)</span>。PROC GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ model y=x;</code></pre>
+<p>没有出现 CLASS 语句，因为线性预测器中的唯一变量是 <span class="math inline">\(X\)</span>，一个直接变量。<code>y</code> 标识响应变量。默认情况下假定截距（本例中为 <span class="math inline">\(\alpha\)</span>），因此一个全一列会自动放入 <span class="math inline">\(\symbf X\)</span> 矩阵中，并且截距参数会自动放入 <span class="math inline">\(\symbf \beta\)</span> 向量中，除非我们特别关闭截距默认值（后面的示例将演示何时需要执行此操作以及如何执行此操作）。变量 <span class="math inline">\(X\)</span> 是直接变量，因此 <span class="math inline">\(X\)</span> 的元素在 <span class="math inline">\(\symbf X\)</span> 矩阵中显示为一列。没有随机模型效应，因此不需要 RANDOM 语句。</p>
+<p>PROC GLIMMIX 中唯一的强制性语句是 PROC 和 MODEL 语句。为了可视化这些语句的效果，请考虑第 1 章表 1.1 中的数据。</p>
+<details><summary><font color="#8B2232">表 1.1</font>
+</summary><img src="figure/table%201.1.png#center" style="width:50.0%"></details><p><br>
+语句 <code>model y = x</code> 执行以下操作：</p>
+<ol style="list-style-type: decimal">
+<li>列变量 <span class="math inline">\(\symbf y\)</span> 中的元素置于如下向量中
+<span class="math display">\[\symbf{y}=\left[\begin{array}{c}0\\0\\2\\2\\2\\5\\7\\12\\10\\16\\9\end{array}\right]\]</span>
+请注意，如果响应变量具有不同的名称，例如 <code>weight</code>，则模型语句将是 <code>model weight = x</code>。</li>
+<li>其次，<span class="math inline">\(\symbf X\)</span> 矩阵由一列 1 开始，<span class="math inline">\(\symbf \beta\)</span> 向量中的第一个参数是截距——这些都是默认出现的。然后列变量 <span class="math inline">\(\symbf x\)</span> 的内容成为 <span class="math inline">\(\symbf X\)</span> 矩阵的第二列—— <span class="math inline">\(\symbf x\)</span> 的元素按其确切值插入，因为 <span class="math inline">\(\symbf x\)</span> 是直接变量。得到
+<span class="math display">\[\symbf{X\beta}=\begin{bmatrix}1&amp;0\\1&amp;1\\1&amp;2\\1&amp;3\\1&amp;4\\1&amp;5\\1&amp;6\\1&amp;7\\1&amp;8\\1&amp;9\\1&amp;10\end{bmatrix}\begin{bmatrix}\alpha\\\beta\end{bmatrix}\]</span>
+</li>
+</ol>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-2" class="example"><strong>示例 2.2  (简单 logistic 线性回归，二项数据) </strong></span><br></p>
+<p>如同<a href="chap2.html#exm:ex2-1">示例 2.1</a>，线性预测器为 <span class="math inline">\(\alpha+\beta X\)</span>。观测为 <span class="math inline">\(\symbf y\thicksim\text{Binomial}(\symbf N,\symbf{\pi})\)</span>。logit 连接为 <span class="math inline">\(\eta=\log\left(\frac{\pi}{1-\pi}\right)\)</span>。PROC GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+  model y/n=x;</code></pre>
+<p>请注意，在 MODEL 语句中，缺少 CLASS 变量并且仅在等号右侧存在变量 <code>x</code> 的效果与<a href="chap2.html#exm:ex2-1">示例 2.1</a> 中的效果相同：它们都设置了与线性预测器一致的 <span class="math inline">\(\symbf{X\beta}\)</span>。唯一的区别是响应变量 <span class="math inline">\(Y/N\)</span>。以比率形式给出响应变量意味着分布是二项的。logit 是二项的默认连接，因此不需要 <code>link=</code> 选项。</p>
+<p>如果我们想使用不同的连接，我们必须指定它。例如，如果我们想使用 probit 连接来拟合模型，则 PROC GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+  model y/n=x / link=probit;</code></pre>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-3" class="example"><strong>示例 2.3  (单向处理设计，高斯数据) </strong></span><br></p>
+<p>线性预测器为 <span class="math inline">\(\mu+\tau_i\)</span>，其中 <span class="math inline">\(\mu\)</span> 为截距，<span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应。观测为 <span class="math inline">\(\symbf{y}\sim N\left(\symbf{\mu},\symbf{I}{\sigma}^2\right)\)</span>，其中 <span class="math inline">\(\symbf\mu\)</span> 是处理均值 <span class="math inline">\(\mu_i=\mu+\tau_i\)</span> 的向量（勿将处理均值向量 <span class="math inline">\(\symbf\mu\)</span> 与截距参数（标量）<span class="math inline">\(\mu\)</span> 混淆！）。连接是恒等 <span class="math inline">\(\symbf \eta=\symbf\mu\)</span>。PROC GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class trt;
+ model y = trt;</code></pre>
+<p>与示例 2.B.1 一样，模型语句的 <code>y=</code> 部分根据列变量 <span class="math inline">\(\symbf y\)</span> 的内容创建响应向量。此外，与前两个示例一样，<span class="math inline">\(\symbf X\)</span> 矩阵中的第一列是全一列。变量 trt 是一个 CLASS 变量，因此当它出现在 MODEL 语句中时，将为每个不同的 trt 值创建一列虚拟变量。表 2.13 显示了单向设计的数据，以说明 CLASS 和 MODEL 语句的效果。</p>
+<details><summary><font color="#8B2232">表 2.13</font>
+</summary><img src="figure/table%202.13.png#center" style="width:50.0%"></details><p><br>
+MODEL 语句读取 TRT 列向量：</p>
+<p><span class="math display">\[\begin{bmatrix}1\\1\\2\\2\\3\\3\end{bmatrix}\]</span></p>
+<p>CLASS 语句将其转换为“设计”矩阵</p>
+<p><span class="math display">\[\begin{bmatrix}1&amp;0&amp;0\\[1ex]1&amp;0&amp;0\\[1ex]0&amp;1&amp;0\\[1ex]0&amp;1&amp;0\\[1ex]0&amp;0&amp;1\\[1ex]0&amp;0&amp;1\\[1ex]\end{bmatrix}\]</span></p>
+<p>在第一列中，当行对应的观测值为 trt = 1 时会出现 1；在第二列中，当行对应的观测值为 trt = 2 时会出现 1，以此类推。因此，最终的 <span class="math inline">\(\symbf X\)</span> 矩阵和 <span class="math inline">\(\symbf \beta\)</span> 向量分别为：</p>
+<p><span class="math display">\[\begin{bmatrix}1&amp;1&amp;0&amp;0\\1&amp;1&amp;0&amp;0\\1&amp;0&amp;1&amp;0\\1&amp;0&amp;1&amp;0\\1&amp;0&amp;0&amp;1\\1&amp;0&amp;0&amp;1\end{bmatrix}\begin{bmatrix}\mu\\\tau_1\\\tau_2\\\tau_3\end{bmatrix}\]</span></p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-4" class="example"><strong>示例 2.4  (单向处理设计，二项数据) </strong></span><br></p>
+<p>观测 <span class="math inline">\(y_{ij}=\text{Binomial}\Big(N_{ij},\pi_i\Big)\)</span>。线性预测器与<a href="chap2.html#exm:ex2-3">示例 2.3</a> 相同。默认连接为 logit 连接。表 2.14 显示了说明 SAS 所需表格的数据</p>
+<details><summary><font color="#8B2232">表 2.14</font>
+</summary><img src="figure/table%202.14.png#center" style="width:50.0%"></details><p><br>
+所需的 PROC GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class trt;
+ model Y_ij/N_ij = trt;</code></pre>
+<p>请注意，在数据集中，<span class="math inline">\(N_{ij}\)</span> 的变量名称为 N_ij，<span class="math inline">\(y_{ij}\)</span> 的变量名称为 Y_ij，因此在模型语句中创建二项响应变量和默认的 logit 连接。CLASS 语句中的变量 trt 以及 MODEL 语句中等号右侧的变量与<a href="chap2.html#exm:ex2-3">示例 2.3</a> 中的效果相同。</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-5" class="example"><strong>示例 2.5  (多批次线性回归 1) </strong></span><br></p>
+<p>如 <a href="chap1.html#sec1-3">1.3</a> 节所讨论的。数据示于表 1.2. 依次考虑两种线性预测器 <span class="math inline">\(\alpha_i+\beta_iX_{ij}\)</span> 和 <span class="math inline">\(\alpha+a_i+\left(\beta+b_i\right)X_{ij}\)</span>。</p>
+<details><summary><font color="#8B2232">表 1.2</font>
+</summary><img src="figure/table%201.2.png#center" style="width:90.0%"></details><br><details><summary><font color="#8B2232">表 1.3</font>
+</summary><img src="figure/table%201.3.png#center" style="width:90.0%"></details><p><br>
+表 1.3 给出了该模型的 LM 和 GLM 形式，其中 LM 的响应变量假定服从 <span class="math inline">\(N\left({\mu}_i,{\sigma}^2\right)\)</span> 分布并具有恒等连接，而 GLM 则假定服从 <span class="math inline">\(\text{Binomial}\left(N_{ij},\pi_i\right)\)</span> 分布并具有 logit 连接。首先考虑 LM. 为了让计算机理解我们想要的模型，我们需要做两件事：我们需要给每个批次一个唯一的截距（<span class="math inline">\(\alpha_i\)</span>），并且我们需要为每个批次指定一个单独的斜率。对于后者，我们引入嵌套效应命令，在本例中为 <code>X(A)</code>。SAS 将此命令理解为“X 对于因子 A 的每个水平都有不同的参数值”。它设置的矩阵命令是效应 <span class="math inline">\(x\)</span> 所调用的向量或矩阵与效应 A 所调用的向量或矩阵的直积。在这种情况下，<span class="math inline">\(x\)</span> 是一个直接变量，因此 <span class="math inline">\(\symbf X\)</span> 矩阵是 <span class="math inline">\(x\)</span> 值（0, 3, 6,…, 48）的 9 × 1 矩阵，<span class="math inline">\(\symbf \beta\)</span> 向量很简单：由斜率系数 <span class="math inline">\(\beta\)</span> 组成。在本例中，“因子 A”是 <code>Batch</code>，它是一个具有四个水平的分类变量。对于第 1 章 <a href="chap1.html#sec1-4">1.4</a> 节中 Batch 的 <span class="math inline">\(\symbf X\)</span> 矩阵和 <span class="math inline">\(\symbf \beta\)</span> 向量的形式，取直积得到</p>
+<div class="inline-figure"><img src="figure/matrix67.png#center" style="width:40.0%"></div>
+<p>考虑到这一点，此模型的 SAS 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y=batch x(batch) / noint;</code></pre>
+<p>请注意 MODEL 语句中的新选项：<code>noint</code>。回想一下，MODEL 语句默认创建截距。使用默认值（即不使用 <code>noint</code> 选项），上述语句将生成线性预测器 <span class="math inline">\(\mu+\alpha_i+\beta_iX_{ij}\)</span> ——即带有不需要的和多余的截距项 <span class="math inline">\(\mu\)</span> 的线性预测器。<code>noint</code> 选项会抑制截距的创建，从而产生所需的模型 <span class="math inline">\(\alpha_i+\beta_iX_{ij}\)</span>。</p>
+<p>对于使用 logit 连接函数的二项数据，将 MODEL 语句中等号左侧的 <code>y</code> 替换为 <code>Fav/N_ij</code>。如果我们想使用 probit 连接，请在 MODEL 语句中添加 <code>link=probit</code> 作为选项，就像我们在<a href="chap2.html#exm:ex2-2">示例 2.2</a> 中所做的那样。</p>
+<p>现在考虑模型的另一种形式 <span class="math inline">\(\alpha+a_i+\left(\beta+b_i\right)X_{ij}\)</span>。在这里，我们希望默认激活截距项，因为截距参数是 <span class="math inline">\(\alpha\)</span>。我们还希望将斜率分为总体的 <span class="math inline">\(\beta\)</span> 和特定于批次的 <span class="math inline">\(b_i\)</span> 部分。我们使用以下语句来实现这一点：</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y=batch x x*batch;</code></pre>
+<p>此处，缺少 <code>noint</code> 选项允许创建截距 <span class="math inline">\(\alpha\)</span>。变量 batch 由语句 <code>class batch</code> 定义为分类变量，因此为 <span class="math inline">\(\symbf \beta\)</span> 向量中的四个批次参数对应的 <span class="math inline">\(\symbf X\)</span> 矩阵创建一个 36 × 4 设计矩阵（如第 1 章 <a href="chap1.html#sec1-4">1.4</a> 节所示）。变量 <span class="math inline">\(x\)</span> 是直接变量，因此会创建一个 36 × 1 向量，其中包含每个观测的 <span class="math inline">\(x\)</span> 值，对应于总体斜率参数 <span class="math inline">\(\beta\)</span>。项 <code>x*batch</code> 创建一个 36 × 4 矩阵，等于批次设计矩阵与 <span class="math inline">\(x\)</span> 向量的直积。该模型的完整矩阵形式如第 1 章 <a href="chap1.html#sec1-4">1.4</a> 节所示。</p>
+<p>如果响应变量是二项，我们将进行与上面所示相同的更改。</p>
+<p>提问：以下语句将创建什么模型？</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y=batch x*batch / noint;</code></pre>
+<p>答案：模型：<span class="math inline">\(\alpha_i+\beta_iX_{ij}\)</span>。请注意，项 <code>x(batch)</code> 和 <code>x*batch</code> 都创建矩阵直积，因此它们实际上创建相同的模型。</p>
+<p>提问：考虑到这一点，以下语句将创建什么模型？</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y=batch x*batch;</code></pre>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-6" class="example"><strong>示例 2.6  (多批次线性回归 2) </strong></span><br></p>
+<p>与<a href="chap2.html#exm:ex2-5">示例 2.5</a> 相同的线性预测方程，但批次效应 <span class="math inline">\(a_i\)</span> 和 <span class="math inline">\(b_i\)</span> 是随机的。到目前为止，我们只看到了固定效应模型，因此只看到了 CLASS 和 MODEL 语句。回想一下，MODEL 语句定义了线性预测变量的 <span class="math inline">\(\symbf{X\beta}\)</span> 部分。RANDOM 语句定义 <span class="math inline">\(\symbf{Zu}\)</span> 部分。RANDOM 语句的基本语法与 MODEL 语句中等式右侧的语法本质上相同。</p>
+<p>编写具有随机批次效应的模型 <span class="math inline">\(\alpha+a_i+\left(\beta+b_i\right)X_{ij}\)</span> 的最简单方法是</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y = x;
+ random batch x*batch;</code></pre>
+<p>这将创建与<a href="chap2.html#exm:ex2-5">示例 2.5</a> 所示模型的固定效应版本相同的矩阵。但请注意，<span class="math inline">\(\alpha_i\)</span> 和 <span class="math inline">\(\beta_i\)</span> 效应会移至 RANDOM 语句。这同时创建了 <span class="math inline">\(\symbf Z\)</span> 矩阵和 <span class="math inline">\(\symbf u\)</span> 向量的适当分量——注意到</p>
+<p><span class="math display">\[\symbf{u}=\begin{bmatrix}\symbf{a}\\\symbf{b}\end{bmatrix}=\begin{bmatrix}a_1\\a_2\\a_3\\a_4\\b_1\\b_2\\b_3\\b_4\end{bmatrix}\]</span></p>
+<p>它创建隐含的 <span class="math inline">\(\symbf G\)</span> 矩阵，回想</p>
+<p><span class="math display">\[\symbf{G}=Var\begin{pmatrix}\symbf{u}\end{pmatrix}=Var\left(\begin{bmatrix}\symbf{a}\\\symbf{b}\end{bmatrix}\right)=\begin{bmatrix}\symbf{I}\sigma_A^2&amp;\symbf{I}\sigma_{AB}\\\symbf{I}\sigma_{AB}&amp;\symbf{I}\sigma_B^2\end{bmatrix}\]</span></p>
+<p>定义随机部分的另一种（也是更好的）方法是，线性预测器的 <span class="math inline">\(\symbf {Zu}\)</span> 部分使用 <code>SUBJECT=</code> 选项。此选项定义 <span class="math inline">\(\symbf Z\)</span> 和 <span class="math inline">\(\symbf G\)</span> 矩阵的分块对角结构。那么它是如何工作的，为什么它更可取？首先，它是如何工作的？</p>
+<p>请注意，每个批次都有一个截距和一个斜率。用矩阵术语来说，第 <span class="math inline">\(i\)</span> 批的 <span class="math inline">\(\symbf {Zu}\)</span> 为</p>
+<p><span class="math display">\[\begin{bmatrix}1&amp;0\\1&amp;3\\1&amp;6\\1&amp;9\\1&amp;12\\1&amp;18\\1&amp;24\\1&amp;36\\1&amp;48\end{bmatrix}\begin{bmatrix}a_i\\b_i\end{bmatrix}\]</span></p>
+<p>第 <span class="math inline">\(i\)</span> 批的 <span class="math inline">\(\symbf G\)</span> 矩阵为</p>
+<p><span class="math display">\[Var\begin{bmatrix}a_i\\b_i\end{bmatrix}=\begin{bmatrix}{\sigma}_A^2&amp;{\sigma}_{AB}\\{\sigma}_{AB}&amp;{\sigma}_B^2\end{bmatrix}\]</span></p>
+<p>分别表示 <span class="math inline">\(\symbf Z_i,\symbf u_i\)</span> 和 <span class="math inline">\(\symbf G_i\)</span>。现在请注意，我们可以将完整的 <span class="math inline">\(\symbf Z\)</span> 和 <span class="math inline">\(\symbf G\)</span> 构造为分别由 <span class="math inline">\(\symbf Z_i\)</span> 和 <span class="math inline">\(\symbf G_i\)</span> 形成的分块对角阵。即</p>
+<p><span class="math display">\[\symbf{Z}=\begin{bmatrix}\symbf{Z}_1&amp;0&amp;0&amp;0\\0&amp;\symbf{Z}_2&amp;0&amp;0\\0&amp;0&amp;\symbf{Z}_3&amp;0\\0&amp;0&amp;0&amp;\symbf{Z}_4\end{bmatrix}\text{and }\symbf{G}=\begin{bmatrix}\symbf{G}_1&amp;0&amp;0&amp;0\\0&amp;\symbf{G}_2&amp;0&amp;0\\0&amp;0&amp;\symbf{G}_3&amp;0\\0&amp;0&amp;0&amp;\symbf{G}_4\end{bmatrix}\]</span></p>
+<p>由此</p>
+<p><span class="math display">\[\symbf{u}=\begin{bmatrix}\symbf{u}_1\\\symbf{u}_2\\\symbf{u}_3\\\symbf{u}_4\end{bmatrix}\]</span></p>
+<p>我们可验证这些只是前面展示的 <span class="math inline">\(\symbf u\)</span> 向量以及 <span class="math inline">\(\symbf Z\)</span> 和 <span class="math inline">\(\symbf G\)</span> 矩阵重新排列的版本。使用这种方法定义线性预测器的 SAS 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class batch;
+ model y = x;
+ random intercept x / subject=batch;</code></pre>
+<p><code>subject=batch</code> 选项导致 <span class="math inline">\(\symbf Z\)</span> 和 <span class="math inline">\(\symbf G\)</span> 矩阵定义分块对角阵，并使用 <code>batch</code> 来定义分块。在矩阵的每个分块内，<span class="math inline">\(x\)</span> 都有一个截距和斜率系数，从而得到上面所示的矩阵 <span class="math inline">\(\symbf Z_i,\symbf u_i\)</span> 和 <span class="math inline">\(\symbf G_i\)</span>。</p>
+<p>现在第二个问题：为什么要这么麻烦呢？为什么最好使用 <code>SUBJECT=</code> 选项？首先，分块对角结构可以实现更高效的计算。这不仅适用于 SAS PROC GLIMMIX，而且通常适用于基于矩阵的统计计算算法。所有 GLMM 软件，无论是 SAS 还是其他软件，都必然是基于矩阵的。当我们在本文后面的章节中讨论更复杂的 GLMM 时，有些模型根本无法运行，除非我们使用 <code>SUBJECT=</code> 选项来简化所需的计算。当我们开始考虑固定效应和随机效应的线性组合的估计（“最佳线性无偏预测器”，“best linear
+unbiased predictors” 或 <strong>BLUP</strong>）时，第二个优点将变得清晰。在此示例中，<span class="math inline">\(\alpha+\beta X_{ij}\)</span> 给出总体平均 (population averaged) 回归方程，即这些批次所代表的整个总体的线性预测器的期望值。然而，在某些应用中，特定批次的预测值 <span class="math inline">\(\alpha+a_i+\left(\beta+b_i\right)X_{ij}\)</span>（称为特定于批次的 BLUP）是我们关注的。请注意，这是固定模型效应和随机模型效应的线性组合。如果我们使用 <code>subject=batch</code> 选项，我们就可以让程序相对方便地计算这些 BLUPs.</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-7" class="example"><strong>示例 2.7  (A × B 析因) </strong></span><br></p>
+<p>两因素，其中因素 <span class="math inline">\(A, B\)</span> 都有 <span class="math inline">\(\ge 2\)</span> 个水平，观察到所有可能的 <span class="math inline">\(A × B\)</span> 组合。在此示例中，我们重点定义线性预测器。这里的示例 SAS 语句都展示了正态分布的响应变量，但与前六个示例一样，我们可以很容易地通过之前演示的相同方法，将这些语句适应于二项或其他非正态分布的响应变量。</p>
+<p>首先要理解的是——这是实验设计入门课程经常忽略的一点——析因结构不只有一个模型。可能有几种模型。每种模型都有其用途，具体取决于情况和目标。本节将比前面的示例更简洁。SAS 如何“理解”模型形成命令的基本原理已经介绍完毕。在本节中，给出了 SAS 语句及其模型后果。</p>
+<p>我们鼓励你详尽地研究每个示例，以便你可以可视化并准确描述每个模型的 <span class="math inline">\(\symbf X\)</span> 矩阵和 <span class="math inline">\(\symbf\beta\)</span> 向量的内容。在<a href="chap2.html#exm:ex2-8">示例 2.8</a> 中，我们将回顾这些模型，其中包含由各种分块结构和裂区特征产生的额外随机效应。</p>
+<p><strong>7.1</strong> 经典的主效应和交互作用：<span class="math inline">\(\mu+\alpha_i+\beta_j+\left(\alpha\beta\right)_{ij}\)</span></p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y=a b a*b;</code></pre>
+<p>或等价地 <code>model y=a|b;</code>。</p>
+<p><strong>7.2</strong> 将每个 <span class="math inline">\(A_i × B_j\)</span> 组合视为“处理”，并将模型简化为单向处理效应模型：<span class="math inline">\(\mu+\left(\alpha\beta\right)_{ij}\)</span>。注意！！！！！在该模型中，效应 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 不是交互效应！！！它只是第 <span class="math inline">\(i\)</span> 个处理组合的效应（或关于截距的偏离）。</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y = a*b;</code></pre>
+<p><strong>7.3</strong> 单元格均值模型。抑制上一个模型（7.2）中的截距。这给出 <span class="math inline">\(\left(\alpha\beta\right)_{ij}\)</span>。请注意，这只是 <span class="math inline">\(\mu_{ij}\)</span>（即第 <span class="math inline">\(ij\)</span> 种处理的均值）的另一种书写方式，。</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y = a*b / noint;</code></pre>
+<p><strong>7.4</strong> 嵌套模型。在这种情况下首先给出 A 的主效应，然后是 A 中嵌套的 B 的效应。模型为 <span class="math inline">\(\mu+\alpha_i+\beta(\alpha)_{ij}\)</span>。当不关心 B 的主效应，只关心 B 在 A 的特定水平内的效应时，我们使用此模型。有时，研究目标会直接要求采用这种模型；通常，一旦建立了不可忽略的 <span class="math inline">\(A × B\)</span> 交互作用并且我们的关注点转移到简单效应（如 A 特定水平下 B 的效应）时，就会使用此模型。</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y = a b(a);</code></pre>
+<p>回顾我们对<a href="chap2.html#exm:ex2-5">示例 2.5</a> 的讨论，请注意以下语句</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y = a a*b;</code></pre>
+<p>产生完全相同的模型。这是因为两者都会计算相同的直积矩阵和相同的结果参数向量。如果不显示给出，SAS 不会假定 B 主效应。</p>
+<p><strong>7.5</strong> 回归模型。如果 B 是一个定量因素呢？那么就没有理由不将其视为回归（直接）变量——而且这样做也有充分的理由。我们可以使用与<a href="chap2.html#exm:ex2-5">示例 2.5</a> 基本相同的建模策略：</p>
+<pre class="sas"><code>proc glimmix;
+ class a;
+ model y =a b(a) / noint;</code></pre>
+<p>或等价地</p>
+<pre class="sas"><code>proc glimmix;
+ class a;
+ model y =a b a*b;</code></pre>
+<p>这些得到什么模型？小心！一定要准确表述每组语句所隐含的线性预测器！</p>
+<p>如果我们怀疑 B 存在二次效应，我们将如何修改这些语句？</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-8" class="example"><strong>示例 2.8  (学校专业发展成效研究) </strong></span><br></p>
+<p>根据 <a href="chap2.html#sec2-2">2.2</a> 节，回想一下，线性预测器为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+S_j\)</span>，其中学校效应 <span class="math inline">\(s_j\)</span> 是随机的。该模型假定我们在课堂层面进行观测。如果我们的观测是在学生层面，我们将表 2.1 修改为</p>
+<div class="inline-figure"><img src="figure/figure%2072.png#center" style="width:100.0%"></div>
+<p>“Resulting Observation” 分布假定高斯响应变量。我们可以修改非高斯观测的表，例如遵循表 2.4 所示的 Logit-normal 方法。</p>
+<details><summary><font color="#8B2232">表 2.4</font>
+</summary><img src="figure/table%202.4.png#center" style="width:80.0%"></details><p><br>
+MODEL 语句定义了<span class="math inline">\(\symbf X\)</span> 矩阵和用于截距 <span class="math inline">\(\mu\)</span> 以及专业发展 <span class="math inline">\(\rho_j\)</span> 的固定效应向量 <span class="math inline">\(\symbf\beta\)</span>，RANDOM 语句定义了学校和教师效应的 <span class="math inline">\(\symbf Z\)</span> 矩阵、<span class="math inline">\(\symbf u\)</span> 向量和协方差阵 <span class="math inline">\(\symbf G\)</span>。专业发展、学校和教师效应都是分类变量。使用与随机批次回归示例（<a href="chap2.html#exm:ex2-6">示例 2.6</a>）中相同的逻辑，以下 SAS 语句定义了线性预测器：</p>
+<pre class="sas"><code>proc glimmix;
+ class dp school classroom;
+ model y=dp;
+ random school classroom(school*dp);</code></pre>
+<p>变量 <code>dp</code> 表示专业发展计划的效应。请注意，与教师效应 <code>teacher(school*dp)</code> 相对应的 <span class="math inline">\(\symbf Z\)</span> 矩阵分量由分类变量 <code>teacher</code>, <code>school</code> 和 <code>dp</code> 的设计矩阵的直积定义。</p>
+<p>与前面的示例一样，如果我们将随机语句写为</p>
+<pre class="sas"><code>random school classroom*school*dp;</code></pre>
+<p>所得模型是相同的，因为 <code>teacher*school*dp</code> 创建了与 <code>classroom(school*dp)</code> 相同的 <span class="math inline">\(\symbf Z\)</span> 矩阵分量以及 <span class="math inline">\(\symbf u\)</span> 向量和 <span class="math inline">\(\symbf G\)</span> 矩阵的相关元素。</p>
+<p>或者，最好是，我们可以在 RANDOM 语句中使用 <code>SUBJECT=</code> 选项。与<a href="chap2.html#exm:ex2-6">示例 2.6</a> 一样，这会创建一种计算效率更高的模型形式，并允许我们计算特定于学校或教师的 BLUPs（如果研究目标需要）。相应的 SAS 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class dp school classroom;
+ model y=dp;
+ random intercept classroom*dp / subject=school;</code></pre>
+<p>回想一下，<code>subject=school</code> 为 <span class="math inline">\(\symbf Z\)</span> 矩阵定义了一个分块对角结构，每个学校一个分块，每个分块内的列对应于 <code>intercept</code>（全一列）以及 <code>classroom*dp</code>（由 <code>classroom</code> 和 <code>dp</code> 的直积定义的设计矩阵）。</p>
+<p>我们只能使用一个 MODEL 语句，但可以有多个 RANDOM 语句。为了使特定于课堂的 BLUPs 更加方便，我们可以将 SAS 语句重写为</p>
+<pre class="sas"><code>proc glimmix;
+ class dp school classroom;
+ model y=dp;
+ random intercept / subject=school;
+ random dp / subject=classroom(school);</code></pre>
+<p>或等价地 <code>random dp / subject=classroom*school;</code>。</p>
+<p>当我们开始详细讨论 BLUPs 时（从第 <a href="chap6.html#chap6">6</a> 章开始），我们将看到第二个 RANDOM 语句可以方便地计算特定于每个课堂的效应。</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex2-9" class="example"><strong>示例 2.9  (三个裂区场景) </strong></span><br></p>
+<p><a href="chap2.html#sec2-5">2.5</a> 节描述了三个裂区场景——进行 <span class="math inline">\(A ×B\)</span> 处理设计的不同方法。</p>
+<p><strong>场景 1</strong>. 裂区，无区组。线性预测器：<span class="math inline">\(\eta_{ijk}=\mu+\alpha_i+\beta_j+(\alpha\beta)_{ij}+u(\alpha)_{ik}\)</span>。SAS 语句：</p>
+<pre class="sas"><code>proc glimmix;
+ class a b exp_unit;
+ model y=a|b;</code></pre>
+<p>或等价地</p>
+<pre class="sas"><code>model y=a b a*b;
+ random exp_unit(a);</code></pre>
+<p>或等价地 <code>random exp_unit*a;</code>
+或等价地 <code>random intercept / subject=exp_unit(a);</code>
+或等价地 <code>random intercept / subject=exp_unit*a;</code></p>
+<p>变量 <code>exp_unit</code> 表示整区实验单元。请注意，它必须是分类变量。</p>
+<p>回顾我们在本节前面对 <span class="math inline">\(A ×B\)</span> 处理设计的讨论（<a href="chap2.html#exm:ex2-7">示例 2.7</a>），请记住 <span class="math inline">\(A ×B\)</span> 处理设计的分解 <span class="math inline">\(\mu+\alpha_i+\beta_j+\left(\alpha\beta\right)_{ij}\)</span> 不是强制的。我们可以使用单元格均值法 <span class="math inline">\(\mu_{ij}\)</span>，相关的 SAS 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class exp_unit a b;
+ model y = a*b / noint;
+ random intercept / subject=exp_unit(a);</code></pre>
+<p>RANDOM 语句的所有等价形式都已被跳过，但我们也可以在这里使用它们中的任何一个。</p>
+<p>或者，我们可以使用分解 <span class="math inline">\(\mu+\alpha_i+\beta(\alpha)_{ij}\)</span> 来关注 B 在因子 A 的特定水平内的简单效应。SAS 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class exp_unit a b;
+ model y = a b(a);</code></pre>
+<p>或等价地</p>
+<pre class="sas"><code>model y = a a*b;
+ random intercept / subject=exp_unit(a);</code></pre>
+<p><strong>场景 2</strong>. 裂区。整区实验单元（相对于因子 A 水平的重复单元）安排在区组中。线性预测器：<span class="math inline">\(\eta_{ijk}=\mu+\alpha_i+\beta_j+(\alpha\beta)_{ij}+r_k+r\alpha_{ik}\)</span>。SAS 语句：</p>
+<pre class="sas"><code>proc glimmix;
+ class block a b;
+ model y = a|b;
+ random intercept a / subject=block;</code></pre>
+<p>请注意，这等价于 <code>random block block*a;</code>。为什么？</p>
+<p>变量 <code>block</code> 表示区组因子。与场景 1 一样，我们可以在 MODEL 语句中使用 <span class="math inline">\(A× B\)</span> 处理设计的所有替代分解（单元格均值、嵌套等）。此外，还有几种等价的方法来编写 RANDOM 语句。MODEL 语句与场景 1 中所示的语句相同。RANDOM 语句类似，不同之处仅在于它们需要区组效应以及整区误差。留给读者作为练习来确定它们的确切形式。</p>
+<p><strong>场景 3</strong>. 条区。因子 <span class="math inline">\(A\)</span>、因子 <span class="math inline">\(B\)</span> 和 <span class="math inline">\(A × B\)</span> 组合各自具有不同尺寸的重复单元。线性预测器：<span class="math inline">\(\eta_{ijk}=\mu+\alpha_i+\beta_j+(\alpha\beta)_{ij}+r_k+r\alpha_{ik}+r\beta_{jk}\)</span>。SAS 语句：</p>
+<pre class="sas"><code>proc glimmix;
+ class block a b;
+ model y = a|b;
+ random intercept a b / subject=block;</code></pre>
+<p>请注意，这等价于 <code>random block block*a block*b;</code>。为什么？</p>
+<p>与场景 1 和 2 一样，我们可以在 MODEL 语句中使用 <span class="math inline">\(A × B\)</span> 处理设计的所有替代分解（单元格均值、嵌套等），并且生成的 MODEL 语句与场景 1 中所示的相同。同样，我们可以使用上面所示的 RANDOM 语句的任何一种形式。通过对高斯分布观测值的标准分析，我们使用哪种形式并没有太大区别。对于非高斯响应变量，出于计算原因，带有 <code>subject=block</code> 选项的形式更可取。</p>
+</div>
+</div>
+<div class="rmdtip">
+<p>第二章<a href="chap2.html#sec2-B">附录 B</a> 的关键思想：CLASS, MODEL 和 RANDOM 语句的功能。NOINT 选项的功能以及何时使用它？SUBJECT= OPTION 的功能是什么以及为什么使用它？MODEL 和 RANDOM 语句中各项隐含的矩阵运算。B(A) 和 A*B 语法有什么功能？</p>
+</div>
+
+</div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></div>
+<div class="next"><a href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap2"><span class="header-section-number">2</span> 设计要务</a></li>
+<li>
+<a class="nav-link" href="#sec2-1"><span class="header-section-number">2.1</span> 将设计和目标转译为模型的入门思想</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec2-1-1"><span class="header-section-number">2.1.1</span> 设计问题引起的建模问题概述</a></li>
+<li><a class="nav-link" href="#sec2-1-2"><span class="header-section-number">2.1.2</span> 源于设计要务的建模选择概述</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec2-2"><span class="header-section-number">2.2</span> 描述数据架构以促进模型指定</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec2-2-1"><span class="header-section-number">2.2.1</span> 每项研究都有一个蓝图</a></li>
+<li><a class="nav-link" href="#sec2-2-2"><span class="header-section-number">2.2.2</span> 两个研究蓝图示例</a></li>
+<li><a class="nav-link" href="#sec2-2-3"><span class="header-section-number">2.2.3</span> 研究关键要素的术语</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec2-3"><span class="header-section-number">2.3</span> 从研究蓝图到统计模型</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec2-3-1"><span class="header-section-number">2.3.1</span> Fisher 会怎么做？</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#sec2-4"><span class="header-section-number">2.4</span> 分布要务</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec2-4-1"><span class="header-section-number">2.4.1</span> 模型效应：固定或随机</a></li>
+<li><a class="nav-link" href="#sec2-4-2"><span class="header-section-number">2.4.2</span> 响应变量分布</a></li>
+<li><a class="nav-link" href="#sec2-4-3"><span class="header-section-number">2.4.3</span> 固定或随机——艰难抉择</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec2-5"><span class="header-section-number">2.5</span> 更复杂的设计蓝图：多水平多因素研究</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec2-5-1"><span class="header-section-number">2.5.1</span> 裂区示例</a></li>
+<li><a class="nav-link" href="#sec2-5-2"><span class="header-section-number">2.5.2</span> 多水平、多因素主题中的变异</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#exe2">练习</a></li>
+<li><a class="nav-link" href="#sec2-A">附录 A：响应变量 \(y\mid b\) 的常见分布</a></li>
+<li>
+<a class="nav-link" href="#sec2-B">附录 B：将你的模型传达给软件或“SAS® PROC GLIMMIX 是如何‘思考’的”</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec2-B-1">一般原理</a></li>
+<li><a class="nav-link" href="#sec2-B-2">示例</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

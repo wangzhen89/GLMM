@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>前言 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="第一版前言 曾几何时，“线性模型”的意思是 \(\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)。事实上当 \(\mathbf{e}\) 假定为具有高斯分布时，\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\) 通常称为“一般”线性模型 (“General” linear...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="前言 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="第一版前言 曾几何时，“线性模型”的意思是 \(\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)。事实上当 \(\mathbf{e}\) 假定为具有高斯分布时，\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\) 通常称为“一般”线性模型 (“General” linear...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前言 | 广义线性混合模型">
+<meta name="twitter:description" content="第一版前言 曾几何时，“线性模型”的意思是 \(\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)。事实上当 \(\mathbf{e}\) 假定为具有高斯分布时，\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\) 通常称为“一般”线性模型 (“General” linear...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="active" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="secpre" class="section level1 unnumbered">
+<h1>前言<a class="anchor" aria-label="anchor" href="#secpre"><i class="fas fa-link"></i></a>
+</h1>
+<div id="secpre1" class="section level2 unnumbered">
+<h2>第一版前言<a class="anchor" aria-label="anchor" href="#secpre1"><i class="fas fa-link"></i></a>
+</h2>
+<p>曾几何时，“线性模型”的意思是 <span class="math inline">\(\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span>。事实上当 <span class="math inline">\(\mathbf{e}\)</span> 假定为具有高斯分布时，<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 通常称为“一般”线性模型 (“General” linear model).</p>
+<p>曾几何时，已不复存在。</p>
+<p>按照当代标准，<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 只不过是一个特例。称其为“一般”似乎有些奇怪。这必然具有误导性。“线性模型”现在意味着：</p>
+<ul>
+<li>一个线性预测器 (linear predictor) <span class="math inline">\(\mathbf{\symbf\eta=X\symbf \beta+Zb}\)</span>，其中 <span class="math inline">\(\mathbf b\)</span> 是随机向量</li>
+<li>以 <span class="math inline">\(\mathbf b\)</span> 为条件的观测的分布（或至少是准似然）不必是高斯的</li>
+<li>一个连接函数 (link function) <span class="math inline">\(\mathbf{\symbf\eta}=g\left(\mathbf{\symbf\mu}\mid\mathbf{b}\right)\)</span> 其中 <span class="math inline">\({\symbf\mu}\mid\mathbf{b}\)</span> 是给定 <span class="math inline">\(\mathbf b\)</span> 的观测的条件期望。我们将线性模型拟合到连接函数，而不是直接拟合到数据</li>
+<li>除了高斯数据，残差项 <span class="math inline">\(\mathbf{e}\)</span> 没有任何作用。事实上，对于许多分布，它没有有效的定义</li>
+</ul>
+<p>换言之，截至 2010 年，“线性模型”是指“广义线性混合模型” (general<strong>ized</strong> linear <strong>mixed</strong> model, <strong>GLMM</strong>)，所有其他线性模型——线性混合模型（高斯数据的混合模型）、广义线性模型（线性预测器中不含 <span class="math inline">\(\mathbf{Zb}\)</span> 的用于非高斯数据的线性模型）以及线性模型（原先称为“一般”线性模型——线性预测器中不含 <span class="math inline">\(\mathbf{Zb}\)</span> 且仅针对高斯数据的线性模型）——都被视为 GLMM 的特殊情况。</p>
+<p>在过去的二十多年里，GLMM 课程，或线性混合模型或广义线性模型课程，已作为线性模型的第二门课程来教授，而第一门课程几乎完全针对“一般”线性模型。我在这个行业工作的时间越长，我就越坚信我们需要重新审视这种方法。我相信，我们正在做的是在刚开始学习统计学的研究生中牢牢地嵌入“<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 思维定式”，这恰恰是对当代线性模型错误的理解，并且对于许多学生而言，这似乎会干扰他们重新学习处理随机效应和非高斯数据的线性模型的能力，尽管这些模型仍适用于高斯固定效应模型。</p>
+<p>我有一位同事的座右铭是“永远不要故意教你以后必须不教的东西。” GLMM 课程的很大一部分内容都是在纠正学生学习 “<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 思维定式” 时积累的不良思维习惯。本教科书的前提是我们可以而且应当做得更好。因此，我尝试将本书写为线性模型的入门教材，而非用于线性模型第二门课程或 GLMM 专题课程的 GLMM 教材——尽管它也可用于这两类课程。我认为，初识线性模型的学生首先需要了解的是整体情况。我们试图实现什么目标？它如何与统计学的核心课程相契合？统计建模者需要考虑的主要问题有哪些？这些问题，连同随机模型效应和非高斯数据（这些也是本书的重要部分，而非留待日后讨论），应该从第一天起就主导我们的讨论。</p>
+<p>为什么这很重要？请考虑以下示例。</p>
+<p>想象一项研究，旨在比较两种治疗方案——方案“0”（“对照”方案）和方案“1”（“试验”方案）。研究兴趣在于有利结果的发生率。研究人员采用配对比较设计，其中每个配对中每种治疗方案都观察了 100 名个体，且每次观察都是一个二元响应——即给定个体的结果要么是“有利”的，要么是“不利”的。假设观察结果相互独立，那么每种配对-治疗方案组合的有利结果数量将服从二项分布，其中 <span class="math inline">\(N=100\)</span>，有利结果的概率用 <span class="math inline">\(\pi_{ij}\)</span> 表示，这里的 <span class="math inline">\(i\)</span> 表示治疗方案，<span class="math inline">\(j\)</span> 表示配对。该数据将在本前言的末尾提供。任何统计分析的目的都是估计 <span class="math inline">\(\pi_{ij}\)</span>，并利用这些估计来比较治疗方案，这是一项涉及到统计建模的工作。</p>
+<p>一种方法是采用正态近似。当 <span class="math inline">\(N=100\)</span> 时，这似乎是合理的。基础统计学课程通常会用逐渐增大的 <span class="math inline">\(N\)</span> 值来演示二项分布，以此验证中心极限定理。对二项分布进行重复抽样得到模拟数据的直方图，在 <span class="math inline">\(N=100\)</span> 且 <span class="math inline">\(\pi\)</span> 在 0.1 到 0.9 之间时，几乎无法与正态概率密度函数区分开来。即使 <span class="math inline">\(\pi\)</span> 等于 0.05 或 0.95，在这些模拟中，正态近似在视觉上也是令人信服的。采用正态近似，得到的线性模型可描述为：</p>
+<ul>
+<li>响应变量：令 <span class="math inline">\(p_{ij}=y_{ij}/{100}\)</span> 表示第 <span class="math inline">\(i\)</span> 个治疗和第 <span class="math inline">\(j\)</span> 对的样本比例，其中 <span class="math inline">\(y_{ij}\)</span> 表示 <span class="math inline">\(100\)</span> 个观测结果中的有利结果数。</li>
+<li>模型为 <span class="math inline">\(p_{ij}=\mu+\tau_{i}+\rho_{j}+e_{ij}\)</span>，其中 <span class="math inline">\(\mu\)</span> 表示总体均值或截距，<span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个治疗效应，<span class="math inline">\(\rho_j\)</span> 表示第 <span class="math inline">\(j\)</span> 对的效应，<span class="math inline">\(e_{ij}\)</span> 表示残差并假定为 <span class="math inline">\(\text{i.i.d } N(0,\sigma^2)\)</span>。</li>
+</ul>
+<p>我们知道，该模型得出的结果与考虑配对和治疗效应的方差分析相同，而方差分析的结果又与基础统计学课程中教授的配对 <span class="math inline">\(t\)</span> 检验相同。在此，样本比例的治疗均值，对于治疗“0”为 0.738，治疗“1”为 0.895，标准误为 0.062. 对于等治疗比例的检验，<span class="math inline">\(p\)</span> 值为 0.1132——按照大多数标准来看，这不足以得出治疗对有利结果的预期发生率具有统计显著性的结论。</p>
+<p>上述分析有一个明显的问题：尽管采用正态近似，但响应变量仍然是二项分布，这意味着方差取决于 <span class="math inline">\(\pi\)</span>。假定 <span class="math inline">\(\pi\)</span> 因治疗方案（或配对）而异，那么等方差假设自然就不成立。“传统”线性模型的“补救”要求采用方差稳定的转换方法。对于二项分布的响应变量，标准的转换方法是反正弦平方根变换。使用该方法，我们定义一个转换变量，<span class="math inline">\(p_{ij}^*=\sin^{-1}\left(\sqrt{p_{ij}}\right)\)</span>，并为其拟合上面相同的模型，即 <span class="math inline">\(p_{ij}^*=\mu+\tau_i+\rho_j+e_{ij}\)</span>，此时对于等治疗比例的检验，<span class="math inline">\(p\)</span> 值为 0.0605. 然后对每种治疗的平均 <span class="math inline">\(p_{ij}^*\)</span> 进行逆变换，对于治疗“0”得到 0.760±0.067，治疗“1”为 0.916±0.040.</p>
+<p>此时对于这个例子，我们已经达到了“一般”线性模型的极限。在 20 世纪 70 年代，这就是统计学艺术的现状。三十多年后，两个相辅相成的发展极大地改变了这一领域：线性混合模型和广义线性模型理论及方法的发展起初是平行的，后来则越来越交织在一起，同时计算机能力也在快速且持续地提升。因此，到了 2010 年，在这个例子中，广义线性混合模型会是什么样的？它会得出什么结果？所有这些发展有多重要？</p>
+<p>传统线性模型方程形式为“观测值 = (解释变量之和) + 残差以及残差的概率假设”，广义线性混合模型与之不同，其涉及三个部分：</p>
+<ul>
+<li>观测值的分布：此处 <span class="math inline">\(y_{ij}\mid\rho_j{\sim}\text{Binomial}\left(100,\pi_{ij}\right)\)</span>
+</li>
+<li>线性预测器：这里 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+\rho_j\)</span> 其中 <span class="math inline">\(\eta\)</span> 表示截距，其他项定义如前。请注意，没有残差项——这不是疏忽，而是就是如此。更多内容从第 <a href="chap1.html#chap1">1</a> 章开始。如果这些配对代表了更大的总体（通常是这样），那么模型必须包括它的假定分布。这里，假定配对效应 <span class="math inline">\(\rho_j\)</span> 是 <span class="math inline">\(\text{i.i.d } N(0,\sigma^2_P)\)</span>
+</li>
+<li>连接函数：对于非正态数据，分布的对数似然的典型参数 (canonical parameter) 通常比均值本身更适合拟合线性模型。对于二项分布，典型参数为 <span class="math inline">\(\log\!\left(\frac{\pi}{1-\pi}\right)\)</span>，因此连接函数为 <span class="math inline">\(\eta_{ij}=\log\left(\frac{\pi_{ij}}{1-\pi_{ij}}\right)\)</span>。当你估计线性模型的参数时，你就估计了连接函数——对于本例为对数几率 (log-odds). 因此，<span class="math inline">\(\pi_{ij}\)</span> 的估计为 <span class="math inline">\(\hat{\pi}_{ij}=1\Big/\left(1+e^{-\hat{\eta}_{ij}}\right)\)</span>
+</li>
+</ul>
+<p>对于本例，广义线性混合模型在检验两种治疗有利结果的等发生率时得到了 0.0355 的 <span class="math inline">\(p\)</span> 值。有利结果发生率对于治疗“0”和治疗“1”分别为 0.781±0.072 和 0.928±0.030.</p>
+<p>现在我们可以更具体地表述“为什么要用 GLMMs”的问题。</p>
+<p>本例中的三项分析对每种治疗有利结果的发生率得到了不同的估计。其中，只有 GLMM 得出的估计是对真实二项概率的估计。其他的则不然——尽管人们通常认为它们是。理解原因需要理解 GLMM 理论。GLMMs 有一个“你跑得了但躲不了”的方面。使用 ANOVA 或“一般”线性模型方法并不能免除 GLMM 相关问题——它只会让你忘记它们的存在。</p>
+<p>这三种分析还得出不同的 <span class="math inline">\(p\)</span> 值。事实上，所有三种方法都大致同等地控制了 I 类错误。然而，GLMMs 有更大的能力将模型效应识别出统计显著性。本例中 <span class="math inline">\(p\)</span> 值之间的差异说明了线性模型理论的预测。这是统计专业人员培训中必不可少的核心理解。</p>
+<p>“为什么要用 GLMMs？”。因为它明确地估计你认为它要估计的东西，而不是其他东西。如果存在非零的治疗效应，GLMM 至少具有与传统“一般”线性模型一样大的功效来识别它——当数据不呈正态分布时功效更强。本书的目的是帮助你理解原因。</p>
+<p>下表是我对 Locke 和 Devoe 在 2007 年 USCOTS 会议上所做报告的进一步阐述，提供了额外视角。</p>
+<div class="inline-figure"><img src="figure/table%20pre.1.png#center" style="width:100.0%"></div>
+<p>当我们将线性模型描述为“响应变量 = (解释变量列表) + 随机项”时，我们需要仔细思考我们实际上在说什么。我们知道，在当代统计实践中，响应变量有多种形式。上表提供了各种响应类型的概念，但并非详尽无遗。我们还知道，模型的右侧，即“解释变量+随机项”，涉及的也不仅仅是处理+误差。“一般”线性模型实际上将注意力局限于该矩阵的两个单元格上，并没有暗示当响应和模型位于该矩阵的其他 18<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：5 种响应变量（分类、计数、连续对称、连续比例、事件时间）× 4 种解释变量和误差结构（分类固定效应、随机固定效应、随机效应、相关误差）- 2 种“一般”线性模型（ANOVA 和回归） = 18.&lt;/p&gt;"><sup>2</sup></a> 个单元格时，尝试使用这种线性建模的有限观点所引发的问题（例如二项配对比较的示例）。</p>
+<div id="本书的编排" class="section level3 unnumbered">
+<h3>本书的编排<a class="anchor" aria-label="anchor" href="#%E6%9C%AC%E4%B9%A6%E7%9A%84%E7%BC%96%E6%8E%92"><i class="fas fa-link"></i></a>
+</h3>
+<p>我把这本教科书分为三个部分——在我的线性模型课程中，我称之为“篇”。</p>
+<ul>
+<li><strong>第一篇</strong></li>
+</ul>
+<p>“大局问题”。第一章涉及“什么是模型，模型应该做什么，模型的基本元素是什么？”最后介绍了如何用矩阵语言建立模型。</p>
+<p>第二章基于我多年来的观察，即建模困难在很大程度上源于设计问题。即使是样本调查和回顾性研究也涉及设计概念，尤其是当目标是评估预测变量对响应的效应时。如果不了解设计原则和建模之间的相互作用，就无法进行良好的建模。第 <a href="chap2.html#chap2">2</a> 章重点介绍有助于澄清这种相互作用的技术。</p>
+<p>第 <a href="chap2.html#chap2">2</a> 章介绍了两种根据数据集结构构建模型的技术。一种是我称为“实验单元是什么”的方法——它借鉴了Milliken and Johnson’s <a href="https://zhuanlan.zhihu.com/p/698586757"><em>The Analysis of Messy Data, 2nd ed.</em></a> (2008) 的思想。Dallas Johnson 在 Conference on Applied Statistics in Agriculture 的休息时间主持了一个名为 “Stump the Statistical Consultant” 的游戏——“实验单元是什么”模板是对他和 George Milliken 的方法的松散改编。另一种方法我称为“Fisher 会怎么做？”，这受到 Terence Speed 发表在 2010 年 5 月 IMS Bulletin 上的题为 “And ANOVA Thing” 的专栏的启发。Speed 描述了方差分析和统计建模的不安共存，以及 Fisher 对早期统计建模工作的非常消极的接受（用 Speed 的话来说是“愤怒”和“困惑”）。Speed 建议阅读 Fisher 在 Yates (1935) 发表于 <em>RSS</em> 的讨论论文 “Complex Experiments.” 之后的评论。阅读 Fisher 的评论后，我恍然大悟：原来如果正确理解了 ANOVA 的思维过程，它就可以成为构建适当 GLMM 的有效工具。另一方面，对 ANOVA 的错误理解——将其视为与普通最小二乘法和二次型相关的算术练习——是“<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 思维定式”阻碍理解当代建模的绝佳例子。我不知道 Fisher 如果真的运用现代理论和计算技术会做什么，但很容易相信，他之所以对建模感到苦恼，是因为建模最终走向了“一般”线性模型，而 Fisher 的直觉告诉他，这种方法的限制性太强了。</p>
+<p>第 <a href="chap3.html#chap3">3</a> 章是后来加入的，但可能是书中最重要的章节。它涵盖了在“一般”线性模型中根本不会出现的推断问题。前两个问题——广义线性模型的数据尺度与模型尺度以及混合模型的广义与狭义推断——已经在其他文献中讨论过，尽管这些问题仍然没有得到广泛的理解。第三个问题——条件推断和边际推断——是统计学界刚刚开始认识到的问题。让我说得更强烈一些。真正可用的 GLMM 软件才出现几年——例如，SAS<sup>®</sup>PROC GLIMMIX 直到 2005 年才出现——统计学界才刚刚开始理解条件-边际问题的影响。这是本前言中二项示例的根源。我们越深入探索这个问题，就越有说服力地证明，当我们在培训中向统计专业人员介绍线性模型时，应该首先介绍 GLMM 的概念。</p>
+<ul>
+<li><strong>第二篇</strong></li>
+</ul>
+<p>这些是涉及估计方程和推断的章节。</p>
+<p>第 <a href="chap4.html#chap4">4</a> 章为广义线性模型和线性混合模型开发估计方程，然后将它们“结合”为广义线性混合模型。总体方法是基于似然的。会实时引入所需的矩阵运算，例如矩阵的广义逆、矩阵导数。</p>
+<p>第 <a href="chap5.html#chap5">5</a> 章开发了推断工具——标准误、检验统计量、自由度近似、偏差校正（如 Kenward–Roger 调整）、三明治估计等。与第 <a href="chap4.html#chap4">4</a> 章一样，所需的分布理论以及 GLMMs 中出现的二次型，是实时引入的。</p>
+<p>随着这些章节的深入展开，我们会发现传统线性模型初级课程中的内容，即“一般”线性模型，很大程度上是由更为全面且包容广泛的线性模型理论的特殊情况构成的。</p>
+<p>我的经验表明，这部分内容在第一篇之后讲解更加合适。过去，当在课程初期就介绍估计方程时，学生们常常会说：“这些内容虽好，但我完全不明白我们为什么要这么做。相比于上学期我们学过的‘一般’线性模型课程内容，这些估计方程太复杂了。”而调整后的教学顺序得到了更好的反馈和效果。</p>
+<ul>
+<li><strong>第三篇</strong></li>
+</ul>
+<p>这些章节重点介绍 GLMMs 的常见应用。这包括高斯和非高斯数据的多因素裂区、聚类和多水平模型、重复测量和空间数据的相关误差模型、计数数据和过度离散、二分类数据出现的特殊问题、多项分类数据的模型、以及 GLMM 的其他应用。本书的这一部分必然是一项概述。关于 GLMM 的特定方面——如生存分析、分类数据、空间统计学等——有专门课程讲授。本书无意替代或与任何这些主题的深入教科书竞争。它旨在作为一本入门书，为新手提供足够的 GLMMs 知识，以便他们能够处理常见的 GLMMs，并在需要时学习或自学更专业的主题。</p>
+<p>本篇中的一个重要章节涉及功效和样本量。关于实验设计的传统观念在很大程度上植根于高斯数据的传统。用于功效和样本量计算的商业软件基本没有受到 GLMM 概念的影响。因此，基于传统设计观念或商业功效和样本量软件做出的功效、样本量和设计决策可能是不恰当的——有时甚至会造成灾难性的后果——尤其是在计划的研究涉及非高斯响应变量和随机模型效应时。GLMM 理论在设计规划和功效及样本量计算中的应用并不难——本章将展示如何做到这一点。</p>
+</div>
+<div id="本书使用的符号" class="section level3 unnumbered">
+<h3>本书使用的符号<a class="anchor" aria-label="anchor" href="#%E6%9C%AC%E4%B9%A6%E4%BD%BF%E7%94%A8%E7%9A%84%E7%AC%A6%E5%8F%B7"><i class="fas fa-link"></i></a>
+</h3>
+<p>撰写一本关于 GLMMs 的教科书，就像在用符号串起来的钢丝上行走。一方面，从“一般”线性模型文献中继承的惯例或多或少都是标准的。对于任何从事统计模型工作的人来说，它们都是熟悉的。另一方面，一些继承的惯例并不适用于 GLMMs，或者更糟糕，它们往往会强化“<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 思维定式”——这种思维定式会阻碍学习和真正理解 GLMMs.</p>
+<p>我觉得有必要在这里提及四个有关符号的决定，以提醒读者并解释为什么经过几年的尝试和错误，我在本书中使用它们。</p>
+<ol style="list-style-type: decimal">
+<li>我遵循 Searle 的惯例，在可能的情况下，用希腊字母表示固定模型效应，用拉丁字母表示随机模型效应。例如，表达式 <span class="math inline">\(\eta+\alpha_i+b_j+\left(ab\right)_{ij}\)</span> 意味着因子 A 是固定效应（<span class="math inline">\(\alpha_i\)</span>），因子 B 是随机效应（<span class="math inline">\(b_j\)</span>），因此 A×B 交互作用 <span class="math inline">\(ab_{ij}\)</span> 也是随机的。此外，我更喜欢对构成交互作用的因子使用的相同符号（在需要时从希腊字母切换到拉丁字母，如从 <span class="math inline">\(\alpha\)</span> 切换为 <span class="math inline">\(a\)</span>），而不是引入新符号。我认为这样更便于读者理解。</li>
+<li>粗体字符若为小写则为向量，若为大写则为矩阵。例如，<span class="math inline">\(y\)</span> 是一个标量随机变量；<span class="math inline">\(\mathbf y\)</span> 是一个随机向量；<span class="math inline">\(X\)</span> 是一个标量；<span class="math inline">\(\mathbf X\)</span> 是一个矩阵；<span class="math inline">\(\beta\)</span> 是一个固定效应参数；<span class="math inline">\(\symbf\beta\)</span> 是一个参数向量。</li>
+<li>线性模型教材几乎无一例外地将方差分析类型的模型方程表示为（例如） <span class="math inline">\(\mu+\alpha_i+b_j+\left(ab\right)_{ij}\)</span>，其中 <span class="math inline">\(\mu\)</span> 表示截距，或者如果对其他参数施加适当的约束，则表示总体均值。对于非高斯数据的广义模型，这会令人困惑。例如，对于二项数据，对于第 <span class="math inline">\(ij\)</span> 个 A×B 的组合的典型连接为 <span class="math inline">\(\eta_{ij}=\log\left(\frac{\pi_{ij}}{1-\pi_{ij}}\right)\)</span>。连接函数的标准表示法是 <span class="math inline">\(\eta_{ij}\)</span>。线性预测器（GLMM 中模型方程的类似物）为 <span class="math inline">\(\eta_{ij}=\text{intercept}+\alpha_i+b_j+\left(ab\right)_{ij}\)</span>。多年来，无论分布和连接函数如何，我都使用 <span class="math inline">\(\mu\)</span> 表示截距。但是听到有人说“<span class="math inline">\(\eta_{ij}\)</span> 是 <span class="math inline">\(\operatorname{logit}\)</span> 连接……其中 <span class="math inline">\(\mu\)</span> 是总体均值”后，我最终还是绝望了。连接尺度上的截距<strong>不是</strong>总体均值，但很明显该符号与信息相悖。当我开始使用 <span class="math inline">\(\eta\)</span> 来表示截距时，如 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+b_j+(ab)_{ij}\)</span>，学生们反馈说它远没有那么令人困惑。该符号贯穿本书。</li>
+<li>在整本书中，我使用通用符号 <span class="math inline">\(\mathbf{\symbf\eta=X\symbf\beta+Zb}\)</span> 来表示 GLMM 线性预测器的矩阵表示。一些教材使用 <span class="math inline">\(\symbf\gamma\)</span> 作为随机效应向量，但这违反了希腊语/拉丁语规则。一些教材使用 <span class="math inline">\(\mathbf u\)</span> 作为随机效应向量，但在介绍 GLMM 的边际分布时变得尴尬。此外，学生们告诉我，当我在黑板上写字时，我的手写字母 <span class="math inline">\(\symbf\mu\)</span> 和 <span class="math inline">\(\mathbf u\)</span> 很难区分，但我的 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\mathbf b\)</span> 容易区分。Harville 使用 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\mathbf b\)</span> 并且效果似乎很好。</li>
+</ol>
+</div>
+<div id="为什么用-glimmix" class="section level3 unnumbered">
+<h3>为什么用 GLIMMIX？<a class="anchor" aria-label="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-glimmix"><i class="fas fa-link"></i></a>
+</h3>
+<p>有人问我，当统计世界似乎正朝着 R 的方向发展时，为什么要将本书中的例子锚定在 SAS<sup>®</sup>PROC GLIMMIX 中。原因有三点。</p>
+<p>第一。这本教科书的一部分基础源于 Oliver Schabenberger 与我在 2008 年 Joint Statistical Meetings 上共同讲授的两日短期课程。Oliver 是 <code>GLIMMIX</code> 程序的开发者，多年来，他与我一直在思考 GLMM 课程应该是什么样的。嵌入在 <code>GLIMMIX</code> 中的思维过程反映了 Oliver 和我对 GLMMs 的看法。</p>
+<p>其次，我已经是 SAS 30 多年的老用户了，并从 2001 年到 2010 年担任系主任。当我同意写这本教科书时，我对 R 的回应是：“在任何给定的时间段内，我只能应对有限的学习曲线——如果你们希望尽快看到这部教科书，那么将以 <code>GLIMMIX</code> 为基础，而不是 R 语言。”</p>
+<p>第三点也是最重要的一点，<code>GLIMMIX</code> 有一种语法，一旦学会，就能以一致的（并且我认为是相当直接的）方式应用于本书中涵盖的所有 GLMMs. 另一方面，R 针对不同方法有不同的程序，对于某些方法是否具备相应程序也不够清晰，所有这些都没有形成一种将模型转化为软件指令的连贯思维架构。本书的目标是将包含随机模型效应和非高斯数据的线性模型的主要思想和方法论介绍给广大读者，这包括统计学研究生、寻求更新的统计学专业人士以及刚接触广义线性模型思维过程的研究人员。我希望思想是核心，而软件只是辅助而不是成为阻碍或问题本身。SAS 仍然是统计计算世界的通用语言。特别是 <code>GLIMMIX</code>，它是减少对计算细节的关注，并最大限度地关注 GLMM 概念和方法的最佳方式。</p>
+<p>顺便说一句，我忍不住要发表一下个人看法，我现在认为 <code>GLIMMIX</code> 既是一款软件，也是一件艺术品。它显然是为了辅助、支持和强化 GLMM 的学习过程而编写的。</p>
+</div>
+<div id="目标读者以及如何使用本书" class="section level3 unnumbered">
+<h3>目标读者以及如何使用本书<a class="anchor" aria-label="anchor" href="#%E7%9B%AE%E6%A0%87%E8%AF%BB%E8%80%85%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%9C%AC%E4%B9%A6"><i class="fas fa-link"></i></a>
+</h3>
+<p>就目标受众而言，我只能重复我前两段写的内容：我的目标受众是统计学研究生、希望跟上时代步伐的统计学专业人士，以及刚开始接触广义线性模型思维过程的研究人员。读者应具备线性代数的基础知识，对概率分布理论和基于似然的估计与推断有所了解，以及具备应用统计学的基础知识，特别是方差分析和回归分析。</p>
+<p>特别是，我写这本书的目的就是为了作为线性模型的第一门课程，我认为我们需要重新思考当前向学生灌输“<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 思维定式”的范式，然后——可能的话——再开设一门添加了“广义”和“混合”概念的线性模型课程。</p>
+<p>如果你的研究生课程（就像我曾经的一样）——被锁定在“<span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 优先”的路径中，这本书也可用于第二门以 GLMM 为重点的线性模型课程。</p>
+<p>此外，我也将本书写为一部参考书和继续教育教材，面向那些希望初步了解或想要深入了解广义线性模型、混合效应模型以及广义线性混合模型的研究者、实践者以及具备定量素养的非统计学家群体。</p>
+<p>如果你用这本书作为线性模型的第一门课程，我认为前两篇是必不可少的。如果你想偷工减料，那就在第三篇里偷工减料吧。</p>
+<p>如果你把这本书作为 GLMM 的参考，我认为第一篇和第三篇是必不可少的。专注于估计和推断理论的第二篇，可按需参阅。</p>
+<p>我认为在任何情况下都不可省略的是第一篇。正如我之前提到的，我们才开始意识到，当 <span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 是“一般”线性模型时，我们从未意识到存在一些基本的线性模型问题。我们才开始意识到，我们需要解决这些问题。我认为可以肯定地说，即使在统计学界内，我们也没有对这些问题形成普遍的认识，更不用说在更广泛的研究界了。在我看来，前三章可能是本书最重要的章节。</p>
+<p>玩的开心！</p>
+<p><br></p>
+<div class="rmdnote">
+<p><strong>数据集 0.1</strong> 配对比较的二项数据</p>
+<pre class="sas"><code>/* Binomial response variable */
+/* Treatment_0 is # favorable outcomes out of 100 for Trt=0 */
+/* Treatment_1 is # favorable outcomes out of 100 for Trt=1 */</code></pre>
+<div class="inline-figure"><img src="figure/table%20pre.2.png#center" style="width:60.0%"></div>
+</div>
+</div>
+</div>
+<div id="sec2" class="section level2 unnumbered">
+<h2>第二版前言<a class="anchor" aria-label="anchor" href="#sec2"><i class="fas fa-link"></i></a>
+</h2>
+<p>距本书第一版的编写已经过去十二年了。第一版的编写有两个主要目标：</p>
+<ol style="list-style-type: decimal">
+<li>作为 GLMM 线性模型家族的全面介绍，用于研究生水平的统计建模和统计方法课程，以及新接触广义线性混合模型的统计学家。</li>
+<li>为那些使用 GLMMs 进行数据分析或研究的人员提供参考。</li>
+</ol>
+<p>在本版中，我们力求忠于这些目标，同时还纳入：</p>
+<ul>
+<li>使用本书教授 GLMM 相关课程的经验教训。</li>
+<li>使用 GLMMs 的经验，特别是通过大学研究和工业研发早期阶段常见的小型数据集所获得的关于 GLMM 估计和推断行为的知识。</li>
+<li>在第一版编写时还未受到较高关注的与 GLMMs 相关的主题。</li>
+</ul>
+<p>该版本得益于两位合著者的加入，而他们也曾是受益于第一版的学生。他们不仅从学生视角出发，利用本书学习统计建模，还在毕业后积累了丰富的教授统计方法课程的经验，因此他们的贡献极具价值。</p>
+<p>为了更新本书所涵盖的材料并使其对学生和读者更加友好，我们添加了新的章节并大幅重写了其他章节。首先介绍一下新的章节。</p>
+<p>第 <a href="chap4.html#chap4">4</a> 章。该章是对经典线性模型术语、估计和推断理论以及方法论的概述。在编写第一版时，我们假定读者已修读过线性模型的第一门课程。这个假定与我们的初衷相悖，即让本书成为对 GLMM 家族中所有线性模型——仅含经典固定效应的线性模型、广义线性模型以及高斯和非高斯数据的混合模型——的全面介绍。在将第一版用于统计学专业研究生课程的全套建模序列时，很明显我们需要在介绍 GLMM 估计和推断之前，增加一章用于介绍基础知识。</p>
+<p>第 <a href="#chap13"><strong>??</strong></a> 章。第一版在计数数据章节中提供了零膨胀和栅栏 (hurdle) 模型的示例。在接下来的几年里，我们遇到了更多不同的例子，包括使用计数以外数据类型的应用。一个特别重要的应用是连续比例。我们决定在单独的章节中介绍零膨胀和栅栏模型。</p>
+<p>第 <a href="#chap16"><strong>??</strong></a> 章。一位对第一版提出批评的评论家遗憾地指出我们遗漏了加性模型。在使用第一版的过程中，我们逐渐认同了他的观点。从技术上讲，加性模型并不是 GLMM 家族的一个子集，但涉及平滑样条的应用会以重要方式增强 GLMM 的方法论。我们增加了本章来满足这一需求。</p>
+<p>第 <a href="#chap19"><strong>??</strong></a> 章和第 <a href="#chap20"><strong>??</strong></a> 章。在编写第一版时，我们有意排除 GLMMs 的贝叶斯方法。但现在忽视 GLMMs 的贝叶斯方法变得越来越困难。在许多 GLMM 的应用场景中，贝叶斯方法可为基于似然的方法的局限性提供了有效的解决方案。虽然我们并不打算深入介绍“贝叶斯与 GLMM”，但我们确实提供了一个介绍和一些示例，以让读者了解贝叶斯与 GLMM 之间的联系。我们鼓励学生通过参加专门讲解贝叶斯统计学的课程来深入学习。</p>
+<p>经大幅修订的章节如下。</p>
+<p>第 <a href="chap1.html#chap1">1</a> 章和第 <a href="chap2.html#chap2">2</a> 章。第 <a href="chap1.html#chap1">1</a> 章介绍了统计建模，并定义了 GLMM 家族的成员。第 <a href="chap2.html#chap2">2</a> 章向读者介绍了将数据集描述转化为适当模型的过程。这两章经过了大量的修订，以体现我们在运用本书对统计学专业的学生以及作为统计方法应用者的各学科的研究生教授统计方法和统计建模时，哪些教学内容效果良好，哪些不尽如人意。在修订的第 <a href="chap2.html#chap2">2</a> 章中，我们特别强调了一个过程，我们发现该过程能使用户可靠地将数据集描述转化为统计模型——这通常是初学者面临的一个大问题（有时即使是经验丰富的数据分析师也会觉得这是一个棘手的问题）。我们还增加了一个更清晰的准则列表，用以区分“合理”的模型与明显不适合特定情境的模型。</p>
+<p>第 <a href="#chap11"><strong>??</strong></a> 章和第 <a href="#chap12"><strong>??</strong></a> 章。这两章分别介绍了计数数据和比例数据，共同构成了 GLMM 应用入门的核心介绍。在编写第一版后的十多年里，我们积累了大量的经验。这包括一些在 2011 年普遍认为“最佳”的实践，但经验和持续的研究证明并非如此。一个核心问题是何时使用 SAS 默认的伪似然算法，何时使用积分近似算法，尤其是 Laplace 算法和自适应求积算法。2011 年的普遍观点是：“尽可能使用自适应求积算法。”但自从 Elizabeth Claassen 的论文 (2014) 开始，我们遇到了越来越多不符合这种情况的案例，以 Stroup 和 Claassen 于 2020 年发表在 <em>Journal of Agricultural, Biological, and Environmental Statistics</em> 上的文章 “Pseudo-Likelihood or Quadrature? What We Thought We Knew, What We Think We Know, and What We Are Still Trying to Figure Out” 作为高潮。虽然有许多情况可以使用求积法，但<strong>绝对</strong>不是最佳方法。第 <a href="#chap11"><strong>??</strong></a> 章和第 <a href="#chap12"><strong>??</strong></a> 章已经过修订，以反映我们目前的理解。</p>
+<p>有两章增加了额外的例子，以补充我们认为在第一版中的遗漏。第 <a href="#chap10"><strong>??</strong></a> 章增加了一个例子，基于 Green, Fellers and Stroup 于 2017 年在 <em>Statistics and Public Policy</em> 上发表的文章 “Defining Program Effects: A Distribution-Based Perspective”. 第 <a href="#chap14"><strong>??</strong></a> 章增加了两个关于多项数据的例子，一个是有序数据的例子，其中的标准比例几率模型——通常是 <code>GLM</code> 软件中处理多项数据的唯一选项——显然不合适；另一个是名义数据的例子，在第一版中遗漏了。回想起来，这是一个错误。</p>
+<p>关于软件，有一个反复出现的问题：为什么所有的例子都使用 SAS 程序？为什么在第二版中继续使用 SAS 而不是 R 呢？有两个回答。首先，SAS 有一个名为 PROC GLIMMIX 的单一程序，其功能允许我们实现本书中讨论的大多数应用，并允许用户选择伪似然、Laplace 和自适应求积算法。PROC GLIMMIX 无法实现的一些示例可以使用 PROC NLMIXED 来实现。这些程序的语法是一致的——一旦掌握，就能让读者专注于 GLMM 的概念、方法和应用。相反，R 拥有超过 80 个包，每个包仅实现了 GLMM 家族中的一部分模型，而非全部。至今为止，没有哪个 R 包能接近 PROC GLIMMIX 的多功能性。不同的 R 包采用不同的语法，其中一些语法相当独特。尽管存在 80 多个 R 包，但仍有一些 GLMM 模型目前无法通过任何 R 包来实现但可通过 SAS 的 PROC GLIMMIX 实现。有关此问题的深入探讨，读者可参考 Julia Piaskowski 的<a href="https://jpiaskowski.gitlab.io/posts/r-state-of-mlm/">网站</a>，提供了题为 “Mind the Gap: Mixed Models in R - What should be done about the sprawling mixed model ecosystem in R?” 的文章。在介绍贝叶斯方法的章节中，SAS 的 BGLIMM 和 MCMC 等程序分别采用了 GLIMMIX 和 NLMIXED 的语法结构，从而进一步减轻了读者应对软件语法的负担。简言之，我们之所以没有选择使用 R，是因为不想让众多具有各种不同语法约定和模型限制的 R 包成为读者理解和学习的障碍以及分散注意力的因素。同时，我们也不希望因为 R 中缺乏实现某些模型的能力而不得不省略相关实例。最后，尽管 Stroup and Claassen 在 2020 年发表于 <em>JABES</em> 上的文章提出了发现和建议，但至今为止，据作者所知，仍未有 R 包实现了伪似然算法。</p>
+<p>我们鼓励对 R 感兴趣的读者为本书中的示例编写 R 程序。若能将这些程序公开共享，将会是对 GLMM 世界的一大贡献。</p>
+<p>最后，有读者询问我们是否能为本书中的习题提供答案。我们的回答是“否”，这主要是因为，正如我们在本书中多次提到的那样，基于 GLMM 的习题通常有多种合理的答案。我们担心答案会限制读者的想象力。我们非常欢迎读者就“这种方法是否合理”等问题与我们联系，但我们不想提供可能导致思维受限的东西。</p>
+
+</div>
+</div>
+
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="%E7%9B%AE%E5%BD%95.html">目录</a></div>
+<div class="next"><a href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#secpre">前言</a></li>
+<li>
+<a class="nav-link" href="#secpre1">第一版前言</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#%E6%9C%AC%E4%B9%A6%E7%9A%84%E7%BC%96%E6%8E%92">本书的编排</a></li>
+<li><a class="nav-link" href="#%E6%9C%AC%E4%B9%A6%E4%BD%BF%E7%94%A8%E7%9A%84%E7%AC%A6%E5%8F%B7">本书使用的符号</a></li>
+<li><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8-glimmix">为什么用 GLIMMIX？</a></li>
+<li><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E8%AF%BB%E8%80%85%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%9C%AC%E4%B9%A6">目标读者以及如何使用本书</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec2">第二版前言</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

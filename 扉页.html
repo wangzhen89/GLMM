@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>扉页 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="广义线性混合模型：现代概念、方法和应用（第二版）介绍了使用广义线性混合模型 (GLMM) 作为总体概念框架的线性建模的更新介绍。对于刚开始接触统计建模的学生来说，这本书有助于他们看到大局——线性建模的广泛理解及其与统计设计和数理统计学的紧密联系。对于在统计实践中经验丰富但刚开始接触 GLMMs 的读者来说，本书提供了对 GLMM 方法及其基础理论的全面介绍。...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="扉页 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="广义线性混合模型：现代概念、方法和应用（第二版）介绍了使用广义线性混合模型 (GLMM) 作为总体概念框架的线性建模的更新介绍。对于刚开始接触统计建模的学生来说，这本书有助于他们看到大局——线性建模的广泛理解及其与统计设计和数理统计学的紧密联系。对于在统计实践中经验丰富但刚开始接触 GLMMs 的读者来说，本书提供了对 GLMM 方法及其基础理论的全面介绍。...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="扉页 | 广义线性混合模型">
+<meta name="twitter:description" content="广义线性混合模型：现代概念、方法和应用（第二版）介绍了使用广义线性混合模型 (GLMM) 作为总体概念框架的线性建模的更新介绍。对于刚开始接触统计建模的学生来说，这本书有助于他们看到大局——线性建模的广泛理解及其与统计设计和数理统计学的紧密联系。对于在统计实践中经验丰富但刚开始接触 GLMMs 的读者来说，本书提供了对 GLMM 方法及其基础理论的全面介绍。...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="active" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="扉页" class="section level1 unnumbered">
+<h1>扉页<a class="anchor" aria-label="anchor" href="#%E6%89%89%E9%A1%B5"><i class="fas fa-link"></i></a>
+</h1>
+<p><br>
+广义线性混合模型：现代概念、方法和应用（第二版）介绍了使用广义线性混合模型 (GLMM) 作为总体概念框架的线性建模的更新介绍。对于刚开始接触统计建模的学生来说，这本书有助于他们看到大局——线性建模的广泛理解及其与统计设计和数理统计学的紧密联系。对于在统计实践中经验丰富但刚开始接触 GLMMs 的读者来说，本书提供了对 GLMM 方法及其基础理论的全面介绍。</p>
+<p>与专注于经典线性模型、广义线性模型或混合模型的教科书不同，本书将上述所有内容都作为统一的 GLMM 家族的成员进行介绍。除了基本的理论和方法外，本书还通过丰富的使用 SAS<sup>®</sup> 软件的实例来展示 GLMM 的实践。第二版根据 GLMM 从业者所面对的最佳实践和建模选择方面的经验教训进行了更新。新版还增加了两章，重点介绍 GLMMs 的贝叶斯方法。</p>
+<p>主要特点：</p>
+<ul>
+<li>大多数统计建模书籍涵盖经典线性模型或高级的广义和混合模型；这本书涵盖 GLMM 家族的所有成员——经典模型和高级模型。</li>
+<li>结合实践经验与持续研究中的收获，提供了关于最佳实践的最新示例。</li>
+<li>阐明了统计设计与建模之间的联系：提供了将研究设计转化为适当模型的指导原则，并深入说明了如何实施这些指导原则；使用 GLMM 方法来改进规划和设计。</li>
+<li>讨论了边际模型和条件模型之间的区别，它们旨在解决的推断空间的不同之处，并讨论了每种模型适用的场合。</li>
+<li>除了基于似然的频率派的估计和推断之外，还简要介绍了 GLMM 的贝叶斯方法。</li>
+</ul>
+<p><br><strong>Walt W. Stroup</strong> 是统计学荣休教授。他在内布拉斯加大学统计系任教超过 40 年，专门研究统计建模和统计设计。他是美国统计协会的会员，内布拉斯加大学杰出教学和创新课程奖的获得者，同时也是三本关于混合模型及其扩展的书籍的作者或合著者。</p>
+<p><strong>Marina Ptukhina</strong> (Pa-<em><u>too<u></u></u></em>-he-nuh) 博士是惠特曼学院统计学副教授。她对研究的统计建模、设计和分析及其应用充满兴趣。她的研究领域包括统计学在经济学、生物统计学和统计教育中的应用。Ptukhina 在内布拉斯加大学林肯分校获得了统计学博士学位，在德克萨斯理工大学获得了数学理学硕士学位，并在美国国立技术大学“哈尔科夫理工学院”获得了管理学专家学位。</p>
+<p><strong>Julie Garai</strong> 博士是 Loop 公司的数据科学家。她在内布拉斯加大学林肯分校获得了统计学博士学位，并在多恩学院获得了数学和西班牙语的学士学位。Garai 博士积极与统计学家、心理学家、生态学家、森林科学家、软件工程师以及学术界和工业界的商业领袖合作。在业余时间，她喜欢与她的狗悠闲地散步，和孩子们一起参加舞会、吹长号。</p>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">译者序</a></div>
+<div class="next"><a href="%E7%9B%AE%E5%BD%95.html">目录</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#%E6%89%89%E9%A1%B5">扉页</a></li></ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

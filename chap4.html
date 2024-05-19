@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 4 章 GLMM 之前的估计和推断基础知识 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="4.1 介绍 本章开始本教材的第二篇：线性模型估计与推断的理论与方法。在第一篇——前三章——我们探讨了线性模型的基本结构、研究设计和模型构建之间的相互作用以及主要的推断问题，包括随机模型效应和非高斯响应变量引入的问题。到目前为止，我们一直故意对黑匣子里发生的事情含糊其辞。我们如何估计参数并构建推断统计？什么理论证明了这些方法的合理性？...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 4 章 GLMM 之前的估计和推断基础知识 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="4.1 介绍 本章开始本教材的第二篇：线性模型估计与推断的理论与方法。在第一篇——前三章——我们探讨了线性模型的基本结构、研究设计和模型构建之间的相互作用以及主要的推断问题，包括随机模型效应和非高斯响应变量引入的问题。到目前为止，我们一直故意对黑匣子里发生的事情含糊其辞。我们如何估计参数并构建推断统计？什么理论证明了这些方法的合理性？...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 4 章 GLMM 之前的估计和推断基础知识 | 广义线性混合模型">
+<meta name="twitter:description" content="4.1 介绍 本章开始本教材的第二篇：线性模型估计与推断的理论与方法。在第一篇——前三章——我们探讨了线性模型的基本结构、研究设计和模型构建之间的相互作用以及主要的推断问题，包括随机模型效应和非高斯响应变量引入的问题。到目前为止，我们一直故意对黑匣子里发生的事情含糊其辞。我们如何估计参数并构建推断统计？什么理论证明了这些方法的合理性？...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="active" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap4" class="section level1" number="4">
+<h1>
+<span class="header-section-number">第 4 章</span> GLMM 之前的估计和推断基础知识<a class="anchor" aria-label="anchor" href="#chap4"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec4-1" class="section level2" number="4.1">
+<h2>
+<span class="header-section-number">4.1</span> 介绍<a class="anchor" aria-label="anchor" href="#sec4-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>本章开始本教材的第二篇：线性模型估计与推断的理论与方法。在第一篇——前三章——我们探讨了线性模型的基本结构、研究设计和模型构建之间的相互作用以及主要的推断问题，包括随机模型效应和非高斯响应变量引入的问题。到目前为止，我们一直故意对黑匣子里发生的事情含糊其辞。我们如何估计参数并构建推断统计？什么理论证明了这些方法的合理性？</p>
+<p>本篇分为四章。在本章中，我们回顾了经典线性模型估计和推断理论的亮点，为本篇后续章节提供了必要的背景。在第 <a href="chap5.html#chap5">5</a> 章中，我们讨论了广义线性模型、线性混合模型和广义线性混合模型的估计。接下来的两章介绍了 GLMM 的推断理论和方法。第 <a href="chap6.html#chap6">6</a> 章介绍了模型效应的推断，第 <a href="chap7.html#chap7">7</a> 章介绍了协方差分量的推断。</p>
+<p>经典的，或“一般”线性模型，在本书中以当代缩写称为 LM 的模型，由以下特征定义：</p>
+<ul>
+<li><span class="math inline">\(E\left(\symbf{y}\right)=\symbf{\mu}\)</span></li>
+<li>
+<span class="math inline">\(Var\left(\symbf{y}\right)=\boldsymbol\Sigma\sigma^2\)</span>，其中 <span class="math inline">\(\boldsymbol\Sigma\)</span> 未知</li>
+<li>线性预测器：<span class="math inline">\(\symbf{X\beta}\)</span>
+</li>
+<li>连接：恒等，即 <span class="math inline">\(\symbf\eta=\symbf\mu\)</span>，因此 <span class="math inline">\(\symbf{X\beta}\)</span> 旨在估计 <span class="math inline">\(\symbf\mu\)</span>
+</li>
+</ul>
+<p>注：SAS PROC GLM 的名字来源于缩写词 “General Linear Model”. 1976 年，当 PROC GLM 首次出现时，我们现在所说的 LM 被认为是“一般的”——按照 1976 年的标准。它称为“一般的”，因为它允许我们指定 <span class="math inline">\(\symbf{X\beta}\)</span> 的方式具有完全的灵活性。按照 2023 年的标准，将这种模型称为“一般的”是过时的，因为我们现在的模型包括随机效应（混合模型, mixed models），并将线性预测因子拟合到 <span class="math inline">\(\symbf\mu\)</span> 的非线性函数（广义线性模型, generalized linear models）（勿将“一般”与“广义”混淆——它们不一样）。</p>
+<p>按照 2023 年的标准，真正的一般线性模型是广义线性混合模型 (generalized linear mixed model, GLMM). 在我们介绍 GLMM 的估计和推断之前，建立 LM（经典的“一般”线性模型）的基本结果和基本定理是有帮助的。这就是本章的目的。</p>
+</div>
+<div id="sec4-2" class="section level2" number="4.2">
+<h2>
+<span class="header-section-number">4.2</span> 普通最小二乘<a class="anchor" aria-label="anchor" href="#sec4-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>经典的 LM 估计使用最小二乘，最小二乘有两种形式：<strong>普通最小二乘</strong> (ordinary least squares, <strong>OLS</strong>) 和<strong>广义最小二乘</strong> (generalized least squares, <strong>GLS</strong>)，有时称为加权最小二乘 (weighted least squares). OLS 最小化了 <span class="math inline">\(\symbf y\)</span> 的观测值与模型下 <span class="math inline">\(\symbf y\)</span> 的预测值之差的平方，后者表示为 <span class="math inline">\(\hat{\symbf y}=\symbf X\hat{\symbf\beta}\)</span>。以矩阵表示，通过令导数 <span class="math inline">\(\partial{\left[\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)^{\prime}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)\right]}/\partial\symbf{\beta}\)</span> 等于零求出解 <span class="math inline">\(\hat{\symbf\beta}\)</span>，OLS 最小化了 <span class="math inline">\(\left(\symbf{y}-\symbf{X}\hat{\symbf{\beta}}\right)^{\prime}\left(\symbf{y}-\symbf{X}\hat{\symbf{\beta}}\right)\)</span>。该导数为</p>
+<p><span class="math display">\[\partial{\left[\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)^{\prime}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)\right]}/\partial\symbf{\beta}=\left(\symbf{y}^{\prime}\symbf{y}-\symbf{y}^{\prime}\symbf{X}\symbf{\beta}-\symbf{\beta}^{\prime}\symbf{X}^{\prime}\symbf{y}+\symbf{\beta}^{\prime}\symbf{X}^{\prime}\symbf{X}\symbf{\beta}\right)/\partial\symbf{\beta}=-2\symbf{X}^{\prime}\symbf{y}+2\symbf{X}^{\prime}\symbf{X}\symbf{\beta}=0\]</span></p>
+<p>由此得到 <strong>OLS 估计方程</strong> (estimating equation)：<span class="math inline">\(\symbf{X}^{\prime}\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\symbf{y}\)</span>。</p>
+<p>若 <span class="math inline">\(\symbf X\)</span> 满秩，我们可利用 <span class="math inline">\(\symbf X'\symbf X\)</span> 得到估计 <span class="math inline">\(\hat{\symbf{\beta}}=\left(\symbf{X}'\symbf{X}\right)^{-1}\symbf{X}'\symbf{y}\)</span>。</p>
+<p>另一方面，若 <span class="math inline">\(\symbf X\)</span> 不满秩，这是所有 ANOVA 型效应模型的情况，那么我们需要一种修改的方法。在计算机时代之前，<span class="math inline">\(\symbf X\)</span> 被修改为使用参数约束使其满秩。例如，具有线性预测器 <span class="math inline">\(\mu+\tau_i\)</span> 的单向 ANOVA 模型通常使用西格玛约束 (sigma-constraint)，这意味着处理效应和为零，正式写为 <span class="math inline">\(\sum_i\tau_i=0\)</span>。约束在简单的 LM 中工作得很好。然而，即使 LM 用于缺失数据的区组设计，约束的实现也不必要地复杂。对于混合模型，Nelder 的描述 “This way madness lies” 最好地形容了约束方法的不适用性。我们需要一个更好的方法。</p>
+</div>
+<div id="sec4-3" class="section level2" number="4.3">
+<h2>
+<span class="header-section-number">4.3</span> 广义逆和可估函数<a class="anchor" aria-label="anchor" href="#sec4-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>当 <span class="math inline">\(\symbf X\)</span> 不满秩时，计算机时代使用<strong>广义逆</strong> (generalized inverse) 方法，通常称为 “g-inverse”. 广义逆定义如下：</p>
+<br><center>
+<strong>定义</strong>：若 <span class="math inline">\(\symbf{A}{\symbf{A}^-}{\symbf{A}}=\symbf{A}\)</span> 则矩阵 <span class="math inline">\(\symbf A^-\)</span> 是 <span class="math inline">\(\symbf A\)</span> 的广义逆。
+</center>
+<p><br></p>
+<p>被称为 <strong>Penrose 条件</strong>的额外要求通常与广义逆一起用于线性模型估计和推断。Penrose 条件为</p>
+<ul>
+<li><span class="math inline">\({\symbf{A}^-}\symbf{A}{\symbf{A}^-}={\symbf{A}^-}\)</span></li>
+<li><span class="math inline">\(\left(\symbf{A}^-\symbf{A}\right)'=\symbf{A}^-\symbf{A}\)</span></li>
+<li><span class="math inline">\(\left(\symbf{A}\symbf{A}^-\right)'=\symbf{A}\symbf{A}^-\)</span></li>
+</ul>
+<p>附录 <a href="#chapA"><strong>??</strong></a><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：第二版原书未提供，可能之后会在原书的出版社网站上提供。不过译者在原书第一版中发现了，后续会更新。下同。&lt;/p&gt;"><sup>12</sup></a> 包含与广义逆相关的其他结果，这些结果对于本章和接下来的三章所示的估计和推断的推导非常重要。当 <span class="math inline">\(\symbf X\symbf X'\)</span> 存在真逆时，解 <span class="math inline">\(\hat{\symbf{\beta}}=\left(\symbf{X}'\symbf{X}\right)^{-1}\symbf{X}'\symbf{y}\)</span> 是唯一的，但当需要广义逆时，解 <span class="math inline">\(\hat{\symbf{\beta}}=\left(\symbf{X}'\symbf{X}\right)^{-1}\symbf{X}'\symbf{y}\)</span> 不是唯一的。遵循 Searle (1971)，我们将 <span class="math inline">\(\symbf\beta\)</span> 的解向量表示为 <span class="math inline">\(\tilde{\symbf{\beta}}=\left(\symbf{X}'\symbf{X}\right)^{-1}\symbf{X}'\symbf{y}\)</span>。</p>
+<p>当 <span class="math inline">\(\symbf X\)</span> 不满秩时，解不是唯一的，所以 <span class="math inline">\(\tilde{\symbf{\beta}}\)</span> 没有内在的解释。这就是如下定义的<strong>可估函数</strong> (estimable function) 的用武之地。</p>
+<br><center>
+<strong>定义</strong>：若 <span class="math inline">\(\symbf{K}'{\symbf{\beta}}=\symbf T'E(\symbf y)\)</span> 则 <span class="math inline">\(\symbf{K}'{\symbf{\beta}}\)</span> 是可估的。
+</center>
+<p><br></p>
+<p>换言之，为了使函数可估，我们必须能够将其写成观测期望值的线性组合。可估函数的常见例子是处理均值，例如单向处理设计中的 <span class="math inline">\(\eta+\tau_i\)</span>，以及处理差异，例如 <span class="math inline">\(\tau_1-\tau_2\)</span>。</p>
+<p><span class="math inline">\(\symbf K\)</span> 矩阵中也可以有多个元素。例如，在具有四种处理的单向处理设计中，</p>
+<p><span class="math display" id="eq:4-1">\[\begin{equation}
+\symbf{K'\beta}=\begin{bmatrix}0&amp;1&amp;0&amp;0&amp;-1\\0&amp;0&amp;1&amp;0&amp;-1\\0&amp;0&amp;0&amp;1&amp;-1\end{bmatrix}\begin{bmatrix}\eta\\\tau_1\\\tau_2\\\tau_3\\\tau_4\end{bmatrix}
+\tag{4.1}
+\end{equation}\]</span></p>
+<p>用于解决所有处理均值同时相等的问题。</p>
+<p>请注意，在 LM 中，<span class="math inline">\(E(\symbf y) =\symbf {X\beta}\)</span>，这意味着 <span class="math inline">\(\symbf{K'\beta} = \symbf{T'X\beta}\)</span>，因此 <span class="math inline">\(\symbf{K'} = \symbf{T'X}\)</span>。可估函数的首要重要之处在于，若 <span class="math inline">\(\symbf{K}'\tilde{\symbf{\beta}}\)</span> 可估，它就是可解释的，即使 <span class="math inline">\(\tilde{\symbf{\beta}}\)</span> 不可解释。原因如下：</p>
+<br><center>
+<strong>定理</strong>：可估函数的解对于广义逆的选择是不变的。
+</center>
+<p><br><strong>证明</strong>：<span class="math inline">\(\symbf{K}^{\prime}\tilde{\symbf{\beta}}=\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^{-}{\symbf{X}^{\prime}\symbf{y}}=\symbf{T}^{\prime}\symbf{X}(\symbf{X}'\symbf{X})^{-}{\symbf{X}^{\prime}\symbf{y}}\)</span>。附录 <a href="#chapA"><strong>??</strong></a> 证明了 <span class="math inline">\(\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\)</span> 对 <span class="math inline">\((\symbf {X^{\prime}X})^-\)</span> 的选择是不变的，从而得证。
+<br></p>
+</div>
+<div id="sec4-4" class="section level2" number="4.4">
+<h2>
+<span class="header-section-number">4.4</span> 最佳线性无偏估计和 OLS<a class="anchor" aria-label="anchor" href="#sec4-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>现在我们有了 OLS 估计方程和可估函数，我们将注意力转向 OLS 的性质。具体来说，OLS 有多好？判断估计有两个标准：估计是有偏的吗？估计的方差与其他估计相比如何？在线性模型理论中，如果一个估计是：</p>
+<ul>
+<li>观测的线性组合</li>
+<li>无偏</li>
+<li>方差小于任何其他基于观测的线性组合定义的估计</li>
+</ul>
+<p>那么它称为<strong>最佳线性无偏估计</strong> (Best Linear Unbiased Estimator)，通常使用缩写 <strong>BLUE</strong>. 与其关注参数向量 <span class="math inline">\(\symbf\beta\)</span> 的解，不如关注可估函数的 OLS 解。这是因为 <span class="math inline">\(\symbf K'\tilde{\symbf\beta}\)</span> 是可解释的，而 <span class="math inline">\(\tilde{\symbf\beta}\)</span> 不是。</p>
+<p><br><strong>定理</strong>：<span class="math inline">\(Var\left(\symbf{y}\right)=\symbf{I}\sigma^2\)</span>，也就是说，根据上面 LM 的定义，若 <span class="math inline">\(\boldsymbol\Sigma = \symbf I\)</span>，那么 OLS 解 <span class="math inline">\(\symbf{K'}\tilde{\symbf{\beta}}=\symbf{K}'(\symbf{X}'\symbf{X}){\symbf{X}'}\symbf{y}\)</span> 是 <span class="math inline">\(\symbf K'\symbf\beta\)</span> 的 BLUE.</p>
+<p><br><strong>证明</strong>，第一部分：我们首先证明 <span class="math inline">\(\symbf{K'}\tilde{\symbf{\beta}}\)</span> 是无偏的。<span class="math inline">\(E\left(\symbf{K}'\tilde{\symbf{\beta}}\right)=\symbf{K}'(\symbf{X}'\symbf{X})^-{\symbf{X}'}E(\symbf{y})=\symbf{K'}(\symbf{X}'\symbf{X})^{-}\symbf{X'}\symbf{X}\symbf{\beta}=\symbf{K}'\symbf{\beta}\)</span>。因此 OLS 估计是无偏的。</p>
+<p><br><strong>证明</strong>，第二部分：令 <span class="math inline">\(\symbf C\symbf y'\)</span> 是 <span class="math inline">\(\symbf K'\symbf\beta\)</span> 的任何其他无偏估计。因此 <span class="math inline">\(E\left(\symbf{C'\symbf y}\right)=\symbf{K'\beta}=\symbf{C^{\prime}}E(\symbf{y})=\symbf{C^{\prime}}\symbf{X}\symbf{\beta}\)</span>，因此 <span class="math inline">\(\symbf K'＝\symbf C'\symbf X\)</span>。此外，OLS 估计的方差为</p>
+<p><span class="math display">\[\begin{aligned}
+Var\left(\symbf{K^{\prime}\tilde{\beta}}\right)&amp; =\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^{-}\symbf{X}^{\prime}Var(\symbf{y})\symbf{X}(\symbf{X}'\symbf{X})^{-}\symbf{K}=\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^{-}\symbf{X}^{\prime}(\symbf{I}\sigma^{2})\symbf{X}(\symbf{X}'\symbf{X})^{-}\symbf{K}  \\
+&amp;=\symbf{K^{\prime}}(\symbf{X}'\symbf{X})^-{\symbf{K}}\sigma^2.
+\end{aligned}\]</span></p>
+<p>现在</p>
+<p><span class="math display">\[\begin{aligned}&amp;Var\left(\symbf{C^{\prime}y-K^{\prime}(X'X)^-{X^{\prime}y}}\right)\\=&amp;\,Var\left(\symbf{C'y}\right)+Var\left(\symbf{K'}\left(\symbf{X'X}\right)^{-}\symbf{X'y}\right)-2Cov\left(\symbf{C'y},\symbf{K'}\left(\symbf{X'X}\right)^{-}\symbf{X'y}\right)\end{aligned}\]</span></p>
+<p>注意到 <span class="math inline">\(Cov\left(\symbf{C}^{\prime}\symbf{y},\symbf{K}^{\prime}\left(\symbf{X}'\symbf{X}\right)^-\symbf{X}^{\prime}\symbf{y}\right)=\symbf{C}^{\prime}Var\left(\symbf{y}\right)\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^-\symbf{K}=\symbf{C}^{\prime}\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^-\symbf{K}\sigma^{2}\)</span></p>
+<p>回想 <span class="math inline">\(\symbf{K}^{\prime}=\symbf{C}^{\prime}\symbf{X}\)</span> 从而 <span class="math inline">\(Cov\Big(\symbf{C^{\prime}y},\symbf{K^{\prime}}(\symbf{X^{\prime}X})^-{\symbf{X^{\prime}y}}\Big)=\symbf{K^{\prime}}(\symbf{X'X})^-{\symbf{K}}\sigma^2\)</span></p>
+<p>那么</p>
+<p><span class="math display">\[\begin{aligned}
+Var\left(\symbf{C^{\prime}y-K^{\prime}(X'X)^-{X^{\prime}y}}\right)&amp; =\symbf{C}^{\prime}\symbf{C}\sigma^2+\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^-\symbf{K}\sigma^2-2\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^-\symbf{K}\sigma^2  \\
+&amp;=\symbf{C}^{\prime}\symbf{C}\sigma^2-\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^-\symbf{{K}}\sigma^2.
+\end{aligned}\]</span></p>
+<p>因为 <span class="math inline">\(Var\left(\symbf{C^{\prime}y-K^{\prime}(X'X)^-}{\symbf{X^{\prime}y}}\right)\geq0\)</span>，所以 <span class="math inline">\(Var\left(\symbf{C^{\prime}y}\right)=\symbf{C^{\prime}C}\sigma^2\)</span> 必大于等于 OLS 估计的方差 <span class="math inline">\(\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^{-}\symbf{K}\sigma^2\)</span>。从而得证。</p>
+</div>
+<div id="sec4-5" class="section level2" number="4.5">
+<h2>
+<span class="header-section-number">4.5</span> 广义最小二乘<a class="anchor" aria-label="anchor" href="#sec4-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>到目前为止，本章的结果适用于 OLS 以及 <span class="math inline">\(Var\left(\symbf{y}\right)=\symbf{I}\sigma^2\)</span> 的情况。我们现在问，当 <span class="math inline">\(Var\left(\symbf{y}\right)=\boldsymbol\Sigma\sigma^2\)</span> 且 <span class="math inline">\(\boldsymbol\Sigma\ne\symbf I\)</span> 时会发生什么。两个常见的例子是复合对称和一阶自回归【first-order autoregressive, AR(1)】协方差模型。我们首先问如果使用 OLS 会发生什么。首先，所得估计是无偏的，因为 OLS 估计不依赖于协方差模型。其次，可估函数 OLS 解的方差为</p>
+<p><span class="math display">\[\begin{aligned}Var\left(\symbf{K'\tilde{\beta}}\right)&amp;=Var\left(\symbf{K'}(\symbf{X}'\symbf{X})^-\symbf{X'}\symbf{y}\right)=\symbf{K'}(\symbf{X}'\symbf{X})^-\symbf{X'}Var\left(\symbf{y}\right)\symbf{X}(\symbf{X}'\symbf{X})^-\symbf{K}\\&amp;=\symbf{K'}(\symbf{X}'\symbf{X})^-{\symbf{X'}}\boldsymbol\Sigma\symbf{X}(\symbf{X'X})^-{\symbf{K}}\sigma^2\end{aligned}\]</span></p>
+<p>换句话说，我们有一个无偏估计，但这是我们能做到的最好的吗？答案是否定的。通过利用来自协方差阵 <span class="math inline">\(\boldsymbol\Sigma\)</span> 的信息的估计，我们可以做得更好。这称为<strong>广义最小二乘</strong> (generalized least squares, <strong>GLS</strong>).</p>
+<p>为了开发 GLS 估计并理解它何时为 BLUE，我们需要矩阵代数的结果。具体地，对于矩阵 <span class="math inline">\(\boldsymbol\Sigma\)</span>，存在一个矩阵 <span class="math inline">\(\symbf A\)</span>，使得 <span class="math inline">\(\symbf A'\symbf A=\boldsymbol \Sigma^-\)</span>。从而 <span class="math inline">\(\symbf{A}'\symbf{A}\boldsymbol\Sigma\symbf{A}'=\boldsymbol\Sigma^{-1}\boldsymbol\Sigma\symbf{A}'=\symbf{A}'\)</span> 那么有 <span class="math inline">\(\symbf{A}\boldsymbol\Sigma\symbf{A}^{\prime}=\symbf{I}\)</span>。因此，如果我们有一个观测向量 <span class="math inline">\(\symbf y\)</span>，使得 <span class="math inline">\(E\left(\symbf{y}\right)=\symbf{\mu}\)</span> 以及 <span class="math inline">\(Var(\symbf{y})=\boldsymbol\Sigma\sigma^2\)</span>。现在考虑向量 <span class="math inline">\(\symbf w =\symbf A\symbf y\)</span>。<span class="math inline">\(\symbf w\)</span> 的期望和方差分别为 <span class="math inline">\(E(\symbf w )=\symbf A\symbf\mu\)</span> 以及 <span class="math inline">\(Var(\symbf w)=\symbf A \boldsymbol\Sigma\symbf A'\sigma^2=\symbf I\sigma^2\)</span>。现在假设我们想要拟合线性模型 <span class="math inline">\(\symbf{X\beta}\)</span> 来估计 <span class="math inline">\(\symbf\mu\)</span>。等价地，我们可以使用线性预测器 <span class="math inline">\(\symbf {AX\beta}\)</span> 来估计 <span class="math inline">\(\symbf {A\mu}\)</span>。令 <span class="math inline">\(\symbf X_w=\symbf {AX}\)</span>。<span class="math inline">\(\symbf w\)</span> 的方差告诉我们 OLS 估计 <span class="math inline">\(\tilde{\symbf{\beta}}=\left(\symbf{X}_w^{\prime}\symbf{X}_w\right)^-{\symbf{X}}_w^{\prime}\symbf{w}\)</span> 是 BLUE. 用实际响应变量 <span class="math inline">\(\symbf y\)</span> 重写估计方程，我们得到 <span class="math inline">\({(\symbf{X}^{\prime}\symbf{A}^{\prime}\symbf{A}\symbf{X})^-}{\symbf{X}^{\prime}\symbf{A}^{\prime}\symbf{A}\symbf{y}}=\left(\symbf{X}^{\prime}\boldsymbol\Sigma^{-1}\symbf{X}\right)^-{\symbf{X}^{\prime}}\boldsymbol\Sigma^{-1}\symbf{y}\)</span>。以线性模型术语，<span class="math inline">\(\tilde{\symbf{\beta}}=\left(\symbf{X}'\boldsymbol\Sigma^{-1}\mathbf{X}\right)^-{\symbf{X}'}\boldsymbol\Sigma^{-1}\symbf{y}\)</span> 称为 <strong>GLS 估计方程</strong>。</p>
+<p>这个推导表明，当 <span class="math inline">\(Var\left(\symbf{y}\right)=\boldsymbol\Sigma\sigma^2\)</span> 时，GLS 解是 BLUE，或者更准确地说，可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 的 GLS 估计是 BLUE.</p>
+</div>
+<div id="sec4-6" class="section level2" number="4.6">
+<h2>
+<span class="header-section-number">4.6</span> OLS 和 GLS BLUE 的推断<a class="anchor" aria-label="anchor" href="#sec4-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>一旦我们有了感兴趣的参数向量和可估函数的解，我们该如何处理它们？这使我们从估计转向推断。正如本教科书中所理解的，推断是指假设检验和置信区间（或者，后文中的预测和置信区间）。</p>
+<p>让我们从最简单的、可用于统计推断的可解释项开始，即可估函数 <span class="math inline">\(\symbf {k'\beta}\)</span>，其中 <span class="math inline">\(\symbf k\)</span> 是一个向量。常见的例子包括处理均值、处理差异、对比、来自回归模型的预测值等。</p>
+<div id="sec4-6-1" class="section level3" number="4.6.1">
+<h3>
+<span class="header-section-number">4.6.1</span> 方差已知时的检验统计量<a class="anchor" aria-label="anchor" href="#sec4-6-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>让我们从最简单的估计方法—— OLS ——开始。估计及其方差分别为 <span class="math inline">\(\symbf{k'(X'X)^-X'y}\)</span> 和 <span class="math inline">\(\symbf{k'(X'X)^-k}\sigma^2\)</span>。对于原假设 <span class="math inline">\(H_0\colon\symbf {k'\beta}=0\)</span>（或其单侧版本），检验统计量是估计与标准误之比（或比值的平方），此时为</p>
+<p><span class="math display">\[\symbf{k^{\prime}(X'X)^-X^{\prime}y}\Big/\sqrt{\symbf{k^{\prime}(X^{\prime}X)^-k}\sigma^2}\]</span></p>
+<p>如果 <span class="math inline">\(\sigma^2\)</span> 已知，则将其称为 <span class="math inline">\(Z\)</span> 统计量。该统计量的平方，以矩阵形式表达为</p>
+<p><span class="math display" id="eq:4-2">\[\begin{equation}
+\symbf{y}^{\prime}\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^-{\symbf{k}}\left[\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\symbf{X}\right)^-{\symbf{k}}\right]^{-1}\symbf{k}^{\prime}\left(\symbf{X}'\symbf{X}\right)^-{\symbf{X}}^{\prime}\symbf{y}/\sigma^2
+\tag{4.2}
+\end{equation}\]</span></p>
+<p>这是我们对一种称为二次型的矩阵的介绍。如果 <span class="math inline">\(\symbf y\)</span> 是一个随机向量，那么可写为 <span class="math inline">\(\symbf{yA'y}\)</span> 的矩阵就称为<strong>二次型</strong> (quadratic form). 这里我们发现</p>
+<p><span class="math display" id="eq:4-3">\[\begin{equation}
+\symbf{A}=\symbf{X}(\symbf{X}^{\prime}\symbf{X})^-\symbf{k}{\left[\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{k}\right]}^{-1}\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\big/\sigma^2
+\tag{4.3}
+\end{equation}\]</span></p>
+<p>若检验统计量为具有已知方差的二次型，则称其为 <strong>Wald 统计量</strong>。</p>
+<p>如果 <span class="math inline">\(\symbf k\)</span> 是一个向量，那么 <span class="math inline">\(Z\)</span> 和 Wald 统计量同样有用。如果 <span class="math inline">\(\symbf K\)</span> 是一个矩阵，例如，式 <a href="chap4.html#eq:4-1">(4.1)</a> 所示的用于同时相等性的可估函数，则必须使用 Wald 统计量，在式 <a href="chap4.html#eq:4-2">(4.2)</a> 和 <a href="chap4.html#eq:4-3">(4.3)</a> 中用 <span class="math inline">\(\symbf K\)</span> 替换 <span class="math inline">\(\symbf k\)</span>。</p>
+</div>
+<div id="sec4-6-2" class="section level3" number="4.6.2">
+<h3>
+<span class="header-section-number">4.6.2</span> 方差未知时的检验统计量<a class="anchor" aria-label="anchor" href="#sec4-6-2"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="math inline">\(Z\)</span> 和 Wald 统计量都是用已知的 <span class="math inline">\(\sigma^2\)</span> 定义的。在大多数实际数据分析中，<span class="math inline">\(\sigma^2\)</span> 是未知的，必须进行估计。对于 LM 的 OLS 估计，我们可以使用观测向量 <span class="math inline">\(\symbf y\)</span> 和预测观测向量 <span class="math inline">\(\hat{\symbf{y}}=\symbf{X}\hat{\symbf{\beta}}=\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\symbf{y}\)</span> 之差的平方和来估计 <span class="math inline">\(\sigma^2\)</span>。这称为<strong>残差平方和</strong> (sums of squares for residual)，通常缩写为 SSR，写为
+<span class="math inline">\(SSR=\left(\symbf{y}-\hat{\symbf{y}}\right)^{\prime}\left(\symbf{y}-\hat{\symbf{y}}\right)=\symbf{y}^{\prime}\symbf{y}-\symbf{y}^{\prime}\hat{\symbf{y}}-\hat{\symbf{y}}^{\prime}\symbf{y}+\hat{\symbf{y}}^{\prime}\hat{\symbf{y}}=\symbf{y}^{\prime}\symbf{y}-\symbf{y}^{\prime}\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\symbf{y}\)</span>。项 <span class="math inline">\(\symbf{y'y}\)</span> 在线性模型理论中称为<strong>未校正总平方和</strong> (uncorrected total sum of squares)，
+<span class="math inline">\(\symbf{y}^{\prime}\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\symbf{y}\)</span> 称为<strong>模型平方和</strong> (sum of squares for the model). 因此，<span class="math inline">\(SSR=SS(\text{total})-SS(\text{model})\)</span>。<span class="math inline">\(SSR\)</span> 也可写为
+<span class="math inline">\(\symbf{y'}\left[\symbf{I-X}(\symbf{X'X})^{-}{\symbf{X'}}\right]\symbf{y}\)</span>，表明它是一个二次型，其中 <span class="math inline">\(\symbf{A}=\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\)</span>。</p>
+<p>为完成估计 <span class="math inline">\(\sigma^2\)</span> 的任务，我们必须确定 SSR 的期望值。为此，我们首先需要获得二次型期望值的一般结果。</p>
+<ul>
+<li>首先，<span class="math inline">\(E\left(\symbf{y'Ay}\right)=E\left[\operatorname{trace}\left(\symbf{y'Ay}\right)\right]=E\left[\operatorname{trace}\left(\symbf{Ayy'}\right)\right]=\operatorname{trace}\left[\symbf{A}E\left(\symbf{yy'}\right)\right]\)</span>
+</li>
+<li>其次，<span class="math inline">\(Var\left(\symbf{y}\right)=\symbf{V}=E\left[\left(\symbf{y}-\symbf{\mu}\right)\left(\symbf{y}-\symbf{\mu}\right)'\right]=E\left(\symbf{y}\symbf{y}'\right)-\symbf{\mu}\symbf{\mu}'\)</span> 从而 <span class="math inline">\(E\left(\symbf{y}\symbf{y}'\right)=\symbf{V}+\symbf{\mu}\symbf{\mu}'\)</span>
+</li>
+<li>最后，<span class="math inline">\(\operatorname{trace}\left[\symbf{A}E\left(\symbf{y}\symbf{y'}\right)\right]=\operatorname{trace}\left[\symbf{A}\left(\symbf{V}+\symbf{\mu}\symbf{\mu'}\right)\right]=\operatorname{trace}\left(\symbf{A}\symbf{V}\right)+\symbf{\mu'A}\symbf{\mu}=E\left(\symbf{y'A}\symbf{y}\right)\)</span>
+</li>
+</ul>
+<p>使用该结果，以及 <span class="math inline">\(\symbf{V}=Var\left(\symbf{y}\right)=\symbf{I}\sigma^2\)</span> 和 <span class="math inline">\(\symbf \mu=\symbf{X\beta}\)</span>，那么</p>
+<p><span class="math display">\[\begin{aligned}E(SSR)&amp;=E\left[\symbf y^{\prime}(\symbf{I}-\symbf{X}(\symbf{X}'\symbf{X}\right)^-{\symbf{X}}^{\prime})\symbf{y}]\\&amp;=\operatorname{trace}\left[\left(\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right)\symbf{V}\right]\\&amp;\quad+\symbf{\mu}^{\prime}\left(\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right)\symbf{\mu}\\&amp;=\operatorname{trace}\left[\left(\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right)\symbf{I}\sigma^{2}\right]+\symbf{\beta}^{\prime}\symbf{X}^{\prime}\\&amp;=\left(\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\right)\symbf{X}\symbf{\beta}\\&amp;=\sigma^2\left[N-\operatorname{rank}(\symbf{X})\right]\end{aligned}\]</span></p>
+<p>其中 <span class="math inline">\(N\)</span> 表示观测总数。因此，<span class="math inline">\(\sigma^2\)</span> 的估计为 <span class="math inline">\(\hat{\sigma}^2=SSR/\left[N-\operatorname{rank}(\symbf{X})\right]\)</span>。</p>
+<p>回到 Wald 统计量，如果我们用方差估计替换 <span class="math inline">\(\sigma^2\)</span>，我们现在有 <span class="math inline">\(\symbf{y}^{\prime}\symbf{X}(\symbf{X}^{\prime}\symbf{X})^-{\symbf{K}}\left[\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-{\symbf{K}}\right]^{-1}\symbf{K}^{\prime}(\symbf{X}\symbf{X})^-{\symbf{X}}^{\prime}\symbf{y}\Big/\hat{{\sigma}}^2\)</span>。将其与经典 ANOVA 相结合，Wald 统计量的分子称为<strong>假设平方和</strong> (sum of squares for the hypothesis)，缩写为 SSH. 我们将 <span class="math inline">\(\hat{\sigma}^2=SSR\Big/\left[N-\operatorname{rank}(\mathbf{X})\right]\)</span> 视为<strong>残差均方</strong> (mean square for residual)，即 MSR. 因此，具有方差估计的基于 Wald 的统计量为 <span class="math inline">\(SSH/MSR\)</span>。由 <span class="math inline">\(\symbf K\)</span> 指定的假设均方为 <span class="math inline">\(MSH＝SSH/\operatorname{rank}(\symbf K)\)</span>。因此，Wald 统计量除以 <span class="math inline">\(\operatorname{rank}(\symbf K)\)</span> 得到了经典的 <span class="math inline">\(F\)</span> 统计量，即 <span class="math inline">\(MSH/MSR\)</span>。</p>
+</div>
+<div id="sec4-6-3" class="section level3" number="4.6.3">
+<h3>
+<span class="header-section-number">4.6.3</span> 检验统计量的分布<a class="anchor" aria-label="anchor" href="#sec4-6-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>此时，有理由询问这些统计量是如何分布的。为了对它们所检验的假设得出结论，并且为了利用它们构建置信区间，我们需要这样做。关于检验统计量的分布，我们可以使用两种方法。首先，我们可以进行随机化检验 (randomization test)，这就是 Fisher 最初所做的，其优点是我们不需要对观测的分布做出假定。或者，我们可以对 <span class="math inline">\(\symbf y\)</span> 的分布做出假定，这是现代线性模型理论中几乎普遍采用的方法。我们现在采用后者，具体来说是遵循基于高斯分布的经典线性模型理论。</p>
+</div>
+</div>
+<div id="sec4-7" class="section level2" number="4.7">
+<h2>
+<span class="header-section-number">4.7</span> 基于高斯的二次型分布理论<a class="anchor" aria-label="anchor" href="#sec4-7"><i class="fas fa-link"></i></a>
+</h2>
+<p>到目前为止的所有结果都不需要对观测的分布做出假定。在没有任何此类假定的情况下，Fisher 使用对 <span class="math inline">\(MSH/MSR\)</span> 定义的随机化检验来导出 <span class="math inline">\(F\)</span> 分布。因此，<span class="math inline">\(MSH/MSR\)</span> 称为 <span class="math inline">\(F\)</span> 比。注意，<span class="math inline">\(F\)</span> 比等于基于 Wald 的统计量（用 MSR 替换 <span class="math inline">\(\sigma^2\)</span>）除以 <span class="math inline">\(\operatorname{rank}(\symbf X)\)</span>。</p>
+<p>尽管可以出于假设检验的目的来计算 <span class="math inline">\(F\)</span> 比，但假设检验本身只能告诉我们可估函数是否与指定的目标量不同；它没有告诉我们有多大差异，也没有告诉我们从实际角度来看这种差异是否重要。为此，我们需要一种基于分布的方法来构建置信区间。更重要的是，我们需要一种可以推广到不满足 OLS 甚至 GLS 估计所需假定的数据的方法。</p>
+<p>二次型的经典分布理论始于假定 <span class="math inline">\(\symbf{y}\thicksim N(\symbf{\mu},\symbf{V})\)</span>。在本节中，我们进一步假定 OLS 条件为 <span class="math inline">\(\symbf{V}=\symbf{I}\sigma^2\)</span>。</p>
+<p>以下结果建立了与 LM 相关的检验统计量的分布性质。</p>
+<ul>
+<li><p>对于 <span class="math inline">\(\symbf{y}\thicksim N(\symbf{\mu},\symbf{V})\)</span>，二次型 <span class="math inline">\(\symbf{y^{\prime}Ay}\sim\chi_{\operatorname{rank}(\symbf A),\symbf{\mu^{\prime}A\mu}}^2\)</span> 当且仅当 <span class="math inline">\(\symbf{AV}\)</span> 是幂等的（即 <span class="math inline">\(\symbf{AVAV}=\symbf{AV}\)</span>）。<span class="math inline">\(\symbf{\mu^{\prime}A\mu}\)</span> 称为非中心参数 (non-centrality parameter).</p></li>
+<li><p>若 <span class="math inline">\(\symbf{\mu^{\prime}A\mu}=0\)</span>，则二次型具有中心 <span class="math inline">\(\chi^2\)</span> 分布，否则具有非中心 <span class="math inline">\(\chi^2\)</span> 分布。符号 <span class="math inline">\(\chi^2_{{\operatorname{rank}(\symbf K)}}\)</span>（即只给出自由度，而没有给出非中心参数时）指的是中心 <span class="math inline">\(\chi^2\)</span> 分布。</p></li>
+<li><p>当 <span class="math inline">\(\symbf{AVB}=0\)</span> 时，二次型 <span class="math inline">\(\symbf{yA'y}\)</span> 和 <span class="math inline">\(\symbf{yB'y}\)</span> 是独立的。</p></li>
+<li><p>当 <span class="math inline">\(\symbf{AVB}=0\)</span> 时，二次型 <span class="math inline">\(\symbf{yA'y}\)</span> 和 <span class="math inline">\(\symbf{B'y}\)</span> 是独立的。</p></li>
+<li><p>若 <span class="math inline">\(Z\thicksim N(0,1)\)</span> 以及 <span class="math inline">\(\chi^2\thicksim \chi^2_\nu\)</span>，则 <span class="math inline">\(t=Z\big/\sqrt{X/\nu}\)</span> 具有 <span class="math inline">\(\nu\)</span> 个自由度的 <span class="math inline">\(t\)</span> 分布。</p></li>
+<li><p>若 <span class="math inline">\(X_1\sim\chi_{\nu_1,\varphi_1}^2,\; X_2\sim\chi_{\nu_2}^2\)</span>（即 <span class="math inline">\(X_2\)</span> 为中心 <span class="math inline">\(\chi^2\)</span> 分布）并且 <span class="math inline">\(X_1,X_2\)</span> 独立，那么 <span class="math inline">\(F=(X_1/\nu_1)\big/(X_2/\nu_2)\)</span> 为具有 <span class="math inline">\((\nu_1,\nu_2)\)</span> 个自由度且非中心参数为 <span class="math inline">\(\varphi_1\)</span> 的非中心 <span class="math inline">\(F\)</span> 分布。</p></li>
+</ul>
+<p>这里不加证明地给出了这些结果。证明可以在附录 <a href="#chapA"><strong>??</strong></a> 或经典线性模型文本中找到，例如 Searle (1971).</p>
+<p>例如，考虑用于估计 <span class="math inline">\(\sigma^2\)</span> 的残差平方和 SSR. 假定 <span class="math inline">\(\symbf V=\symbf I\sigma^2\)</span> 则 <span class="math inline">\(SSR/\sigma^2\sim \chi^2_{N-\operatorname{rank}(\symbf X)}\)</span>。要证明这一点，利用二次型 <span class="math inline">\(SSR/\sigma^2=\symbf{y}\left\{\left[\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right]\Big/\sigma^2\right\}\symbf{y}^{\prime}\)</span>，从而 <span class="math inline">\(\left[\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right]\Big/\sigma^2\)</span> 以及 <span class="math inline">\(\symbf{AV}=\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\)</span>。现在，</p>
+<p><span class="math display">\[\begin{aligned}\symbf{AVAV}&amp;=\left[\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right]\left[\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right]\\&amp;=\symbf{I-X}(\symbf{X}^{\prime}\symbf{X})^{\prime}\symbf{X}^{\prime}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{\prime}\symbf{X}^{\prime}+\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\\&amp;=\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\\&amp;=\symbf{A}\symbf{V}\end{aligned}\]</span></p>
+<p>也就是说，<span class="math inline">\(\symbf{AV}\)</span> 是幂等的，从而证明了 <span class="math inline">\(SSR/\sigma^2\sim\chi^2_{\operatorname{rank}(\symbf A)}\)</span>。回想 <span class="math inline">\({\operatorname{rank}(\symbf A)}=N-{\operatorname{rank}(\symbf X)}\)</span> 完成证明。</p>
+<p>继续本例，考虑用于检验 <span class="math inline">\(H_0\colon\symbf {k'\beta}=0\)</span> 的 <span class="math inline">\(t\)</span> 统计量</p>
+<p><span class="math display">\[t=\symbf{k}^{\prime}\tilde{\symbf{\beta}}/\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\hat{\symbf{\sigma}}^{2}}=\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\symbf{y}/\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\left[\left(\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\right)/\left(N-\operatorname{rank}\left(\symbf{X}\right)\right)\right]}\]</span></p>
+<p>可写为</p>
+<p><span class="math display">\[\frac{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{\prime}\symbf{X}^{\prime}\symbf{y}\Big/\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\sigma^{2}}}{\sqrt{\left[\left(1/\sigma^2\right)\left(\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^{-}\symbf{X}^{\prime}\right)\Big/\left(N-\operatorname{rank}\left(\symbf{X}\right)\right)\right]}}\]</span></p>
+<p>假定 <span class="math inline">\(\symbf y\sim N(\symbf{X\beta},\symbf I\sigma^2)\)</span>，<span class="math inline">\(\symbf{k'\beta}\)</span> 分布于 <span class="math inline">\(N\left(\symbf{k}^{\prime}\symbf{\beta},\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\sigma^2\right)\)</span>，这在 <span class="math inline">\(H_0\)</span> 下简化为 <span class="math inline">\(N\left(0,\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\sigma^2\right)\)</span>。那么 <span class="math inline">\(t\)</span> 统计量的分母 <span class="math display">\[\sqrt{\left[\left(1/\sigma^2\right)\left(\symbf{I}-\symbf{X}\left(\symbf{X}^{\prime}\symbf{X}\right)^-\symbf X'\right)\Big/\left(N-\operatorname{rank}\left(\symbf{X}\right)\right)\right]}\]</span> 为 <span class="math inline">\(\chi^2_\nu/\nu\)</span>，其中 <span class="math inline">\(\nu=N-\operatorname{rank}(\symbf X)\)</span>。我们可以通过证明 <span class="math inline">\(\symbf{AVB}=\symbf 0\)</span> 来证明分子和分母是独立的，其中 <span class="math inline">\(\symbf{A}=\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\)</span> 以及 <span class="math inline">\(\symbf{B}=\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}/\sigma^{2}\)</span>。因此，</p>
+<p><span class="math display">\[\begin{aligned}\symbf{A}\symbf{V}\symbf{B}&amp;=\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}(\symbf{I}\sigma^2)(\symbf{I}-\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime})/\sigma^2\\&amp;=\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}-\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\\&amp;=\symbf 0\end{aligned}\]</span></p>
+<p>因此 <span class="math inline">\(t\)</span> 统计量 <span class="math inline">\(\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{y}\Big/\sqrt{SSR/\left[N-\operatorname{rank}\left(\symbf{X}\right)\right]}\)</span> 为【标准正态随机变量】与【<span class="math inline">\(\chi^2\)</span> 随机变量除以其自由度 的平方根】之比，其中两随机变量独立。因此，该比具有 <span class="math inline">\(N-\operatorname{rank}(\symbf X)\)</span> 个自由度的 <span class="math inline">\(t\)</span> 分布。</p>
+<p>利用这些结果，可以很容易地建立 Wald 统计量（<span class="math inline">\(\chi^2\)</span>）和 <span class="math inline">\(F\)</span> 比的分布性质。此外，根据 <span class="math inline">\(t\)</span> 统计量很容易推导出可估函数的标准置信区间公式 <span class="math inline">\(\symbf{k}^{\prime}\tilde{\symbf{\beta}}\pm t_{\nu,\alpha}\times\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\hat{\sigma}^{2}}\)</span>。这些结果将作为练习。</p>
+</div>
+<div id="exe4" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe4"><i class="fas fa-link"></i></a>
+</h2>
+<p>对于下列练习，假定 <span class="math inline">\(\symbf{y}\sim N\left(\symbf{X}\symbf{\beta},\symbf{I}\sigma^2\right)\)</span></p>
+<ol style="list-style-type: decimal">
+<li><p>推导出可估函数的标准置信区间公式 <span class="math inline">\(\symbf{k}^{\prime}\tilde{\symbf{\beta}}\pm t_{\nu,\alpha}\times\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{k}\hat{\sigma}^{2}}\)</span></p></li>
+<li><p>证明 Wald 统计量 <span class="math inline">\(\symbf{y}^{\prime}\symbf{X}(\symbf{X}^{\prime}\symbf{X})^-{\symbf{K}}\left[\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-{\symbf{K}}\right]^{-1}\symbf{K}^{\prime}(\symbf{X}'\symbf{X})^-{\symbf{X}}^{\prime}\symbf{y}/\sigma^2\)</span> 具有 <span class="math inline">\(\chi^2_{\operatorname{rank}(\symbf K)}\)</span> 分布。</p></li>
+<li><p>证明具有估计方差的 Wald 统计量除以 <span class="math inline">\(\operatorname{rank}(\symbf K)\)</span>，即 <span class="math inline">\(\left\{\symbf{y}^{\prime}\symbf{X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{K}\left[\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{K}\right]^{-1}\symbf{K}^{\prime}(\symbf{X}\symbf{X})^{-}\symbf{X}^{\prime}\symbf{y}\big/\hat{\sigma}^{2}\right\}\Big/\operatorname{rank}(\symbf{K})\)</span>，具有 <span class="math inline">\(F_{(\nu_1,\nu_2)}\)</span> 分布，其中 <span class="math inline">\(\nu_1=\operatorname{rank}(\symbf K),\nu_2=N-\operatorname{rank}(\symbf X)\)</span></p></li>
+</ol>
+<p>对于下列练习，假定一个具有四种处理的单向处理设计的线性模型，<span class="math inline">\(\eta+\tau_i,i=1,2,3,4\)</span>。为每个函数写出隐含的 <span class="math inline">\(\symbf{k'\beta}\)</span>，并说明它是可估还是不可估的。</p>
+<ol start="4" style="list-style-type: decimal">
+<li><p><span class="math inline">\(\eta\)</span></p></li>
+<li><p><span class="math inline">\(2\tau_1-\tau_2-\tau_3\)</span></p></li>
+<li><p><span class="math inline">\(\left(\frac{1}{2}\right)\left(\tau_1+\tau_2\right)-\left(\frac{1}{2}\right)\left(\tau_3+\tau_4\right)\)</span></p></li>
+<li><p><span class="math inline">\(\eta+\left(\frac14\right)\sum_{i=1}^4\tau_i\)</span></p></li>
+<li><p><span class="math inline">\(2\eta+\tau_2+\tau_3\)</span></p></li>
+<li><p><span class="math inline">\(\sum_{i=1}^4\tau_i\)</span></p></li>
+<li><p><span class="math inline">\(\tau_1-\tau_2-\tau_3\)</span></p></li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></div>
+<div class="next"><a href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap4"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="nav-link" href="#sec4-1"><span class="header-section-number">4.1</span> 介绍</a></li>
+<li><a class="nav-link" href="#sec4-2"><span class="header-section-number">4.2</span> 普通最小二乘</a></li>
+<li><a class="nav-link" href="#sec4-3"><span class="header-section-number">4.3</span> 广义逆和可估函数</a></li>
+<li><a class="nav-link" href="#sec4-4"><span class="header-section-number">4.4</span> 最佳线性无偏估计和 OLS</a></li>
+<li><a class="nav-link" href="#sec4-5"><span class="header-section-number">4.5</span> 广义最小二乘</a></li>
+<li>
+<a class="nav-link" href="#sec4-6"><span class="header-section-number">4.6</span> OLS 和 GLS BLUE 的推断</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec4-6-1"><span class="header-section-number">4.6.1</span> 方差已知时的检验统计量</a></li>
+<li><a class="nav-link" href="#sec4-6-2"><span class="header-section-number">4.6.2</span> 方差未知时的检验统计量</a></li>
+<li><a class="nav-link" href="#sec4-6-3"><span class="header-section-number">4.6.3</span> 检验统计量的分布</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec4-7"><span class="header-section-number">4.7</span> 基于高斯的二次型分布理论</a></li>
+<li><a class="nav-link" href="#exe4">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

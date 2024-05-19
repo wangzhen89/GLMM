@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 1 章 建模基础 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="1.1 什么是模型 模型是对一组观测背后的产生过程的一种数学描述。统计模型包括一个描述解释变量假定影响的方程，并描述了我们假设的具有随机变异性质的过程各个方面相关的概率分布。遵循 McCullagh and Nelder (1989)，我们可以使用如下的通用形式来编写模型 观测 = 系统性 + 随机性 ...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 1 章 建模基础 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="1.1 什么是模型 模型是对一组观测背后的产生过程的一种数学描述。统计模型包括一个描述解释变量假定影响的方程，并描述了我们假设的具有随机变异性质的过程各个方面相关的概率分布。遵循 McCullagh and Nelder (1989)，我们可以使用如下的通用形式来编写模型 观测 = 系统性 + 随机性 ...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 1 章 建模基础 | 广义线性混合模型">
+<meta name="twitter:description" content="1.1 什么是模型 模型是对一组观测背后的产生过程的一种数学描述。统计模型包括一个描述解释变量假定影响的方程，并描述了我们假设的具有随机变异性质的过程各个方面相关的概率分布。遵循 McCullagh and Nelder (1989)，我们可以使用如下的通用形式来编写模型 观测 = 系统性 + 随机性 ...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="active" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap1" class="section level1" number="1">
+<h1>
+<span class="header-section-number">第 1 章</span> 建模基础<a class="anchor" aria-label="anchor" href="#chap1"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec1-1" class="section level2" number="1.1">
+<h2>
+<span class="header-section-number">1.1</span> 什么是模型<a class="anchor" aria-label="anchor" href="#sec1-1"><i class="fas fa-link"></i></a>
+</h2>
+<p><br><strong>模型</strong>是对一组观测背后的产生过程的一种数学描述。<strong>统计模型</strong>包括一个描述解释变量假定影响的方程，并描述了我们假设的具有随机变异性质的过程各个方面相关的概率分布。遵循 McCullagh and Nelder (1989)，我们可以使用如下的通用形式来编写模型</p>
+<br><center>
+观测 = 系统性 + 随机性
+</center>
+<p><br>
+为了解其工作原理，请考虑所有初学统计学的学生都熟悉的两个模型：两处理均值模型以及线性回归模型。</p>
+<div id="sec1-1-1" class="section level3" number="1.1.1">
+<h3>
+<span class="header-section-number">1.1.1</span> 两处理均值模型<a class="anchor" aria-label="anchor" href="#sec1-1-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>比较两均值的统计模型可写为</p>
+<p><span class="math display" id="eq:1-1">\[\begin{align}
+y_{ij}=\mu_i+e_{ij}
+\tag{1.1}
+\end{align}\]</span></p>
+<p>其中各项定义如下：</p>
+<ul>
+<li>下标 <span class="math inline">\(i = 1,2\)</span> 标识处理</li>
+<li>
+<span class="math inline">\(j= 1,2, \ldots,n_i\)</span> 标识第 <span class="math inline">\(j\)</span> 个观测</li>
+<li>
+<span class="math inline">\(n_i\)</span> 是第 <span class="math inline">\(i\)</span> 个处理的观测数</li>
+<li>
+<span class="math inline">\(y_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理的第 <span class="math inline">\(j\)</span> 个观测</li>
+<li>
+<span class="math inline">\(\mu_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理的均值</li>
+<li>
+<span class="math inline">\(e_{ij}\)</span> 表示与第 <span class="math inline">\(ij\)</span> 个观测相关的随机残差</li>
+</ul>
+<p><br>
+许多统计文章和教科书将 <span class="math inline">\(e_{ij}\)</span> 称为随机“误差” (error). 我们更喜欢“残差” (residual) 这个词，因为它避免了“错误” (error) 的贬义含义，即观测受到数据收集过程中所犯错误的影响。“残差”一词在开发广义线性模型构造的逻辑时也很有帮助。</p>
+<p>模型的第一个组成部分，即式子的左侧，为<strong>观测</strong> (observation). 对于模型 <a href="chap1.html#eq:1-1">(1.1)</a>，它是 <span class="math inline">\(y_{ij}\)</span>。统计模型的另外两个组成部分构成了式子的右侧。</p>
+<p>模型 <a href="chap1.html#eq:1-1">(1.1)</a> 的<strong>系统性</strong> (systematic) 部分是 <span class="math inline">\(\mu_i\)</span>，即观测的均值。或者，我们可以将 <span class="math inline">\(\mu_i\)</span> 称为模型的<strong>确定性</strong> (deterministic) 部分，因为它是由处理 <span class="math inline">\(i\)</span> 的应用决定的。无论我们称之为确定性还是系统性，模型的这一部分都是数学定律，不受随机变异性的影响。在混合模型术语中，模型的确定性部分称为<strong>固定效应</strong> (fixed effects).</p>
+<p>模型 <a href="chap1.html#eq:1-1">(1.1)</a> 的<strong>随机</strong> (random) 部分是 <span class="math inline">\(e_{ij}\)</span>。它告诉我们，假定观测围绕其均值随机变异。项 <span class="math inline">\(e_{ij}\)</span> 是对第 <span class="math inline">\(i\)</span> 次观测的独特性的全面表征。理论上，至少根据一些哲学流派的说法，如果我们知道每个观测的独特之处，我们就可以写出一个完全确定的模型。然而，我们不能。相反，我们描述了这些观测的概率分布。在经典线性模型中，我们假设高斯分布，表示为 <span class="math inline">\(e_{ij}\mathrm{~i.i.d.~}N(0,\sigma^2)\)</span><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：i.i.d. = independent and identically distributed，独立同分布。&lt;/p&gt;"><sup>3</sup></a>。对于广义线性模型，我们对模型的随机部分进行了更通用的刻画。</p>
+</div>
+<div id="sec1-1-2" class="section level3" number="1.1.2">
+<h3>
+<span class="header-section-number">1.1.2</span> 线性回归模型<a class="anchor" aria-label="anchor" href="#sec1-1-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>现在考虑线性回归模型</p>
+<p><span class="math display" id="eq:1-2">\[\begin{align}
+y_{ij}=\beta_0+\beta_1X_i+e_{ij}
+\tag{1.2}
+\end{align}\]</span></p>
+<p>其中</p>
+<ul>
+<li>
+<span class="math inline">\(\beta_0\)</span> 为截距</li>
+<li>
+<span class="math inline">\(\beta_1\)</span> 为斜率</li>
+<li>
+<span class="math inline">\(X_i\)</span> 为预测变量（又称自变量）的值</li>
+<li>
+<span class="math inline">\(y_{ij}\)</span> 表示 <span class="math inline">\(X_i\)</span> 第 <span class="math inline">\(i\)</span> 个水平的第 <span class="math inline">\(j\)</span> 次观测</li>
+<li>
+<span class="math inline">\(e_{ij}\)</span> 为残差</li>
+</ul>
+<p><br>
+线性回归模型类似于 <a href="chap1.html#eq:1-1">(1.1)</a>。唯一的区别是 <span class="math inline">\(\beta_0+\beta_1X_i\)</span> 取代 <span class="math inline">\(\mu_i\)</span> 成为模型的系统部分。项 <span class="math inline">\(y_{ij}\)</span> 和 <span class="math inline">\(e_{ij}\)</span> 保留了相同的定义和假设。</p>
+</div>
+<div id="sec1-1-3" class="section level3" number="1.1.3">
+<h3>
+<span class="header-section-number">1.1.3</span> 最终评注<a class="anchor" aria-label="anchor" href="#sec1-1-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>请记住，统计模型都是近似值。著名爵士乐手 Thelonius Monk 曾说: “There is no wrong note, it has to do with how you resolve it.” 我们可以这样转述: “There is no right model, it has to do with how you work with it.” 或者，正如 George Box 的名言: “All models are wrong, but some are useful” (Box, 1976). 即使在这些简单的例子中，也有很多关于我们所观察的单元的信息是我们不知道且不打算深究的。此外，我们也没有关于未从目标总体中抽取的单元的信息。我们必须满足于使用概率分布来近似这些个体之间的变异，并假定我们样本中的单元准确地代表了目标总体。这错了吗？从技术上讲是错的。但它有用吗？用我父亲最喜欢的一句话来回答: “Good enough for what it’s for.”</p>
+<p>如果目标是比较两个均值（如模型 <a href="chap1.html#eq:1-1">(1.1)</a>），或者估计斜率和截距，如模型 <a href="chap1.html#eq:1-2">(1.2)</a>，并且 <span class="math inline">\(y_{ij}\)</span> 是连续的、独立的、关于其均值或多或少地对称分布，并且方差不取决于均值，则本节定义的模型是“足够好的”。</p>
+<p>统计模型至少必须包括这两个例子中给出的三个元素，即</p>
+<ul>
+<li>观测；</li>
+<li>产生观测过程中的系统性或确定性部分；</li>
+<li>随机部分，包括假定概率分布的陈述。</li>
+</ul>
+<p><br>
+介绍性文本往往将重点局限于这三个要素。但正如我们将在以下章节中看到的那样，仅凭这些要素不足以描述当代统计中常用的模型。</p>
+<div class="rmdtip">
+<p><a href="chap1.html#sec1-1">1.1</a> 节的关键思想：模型的系统性/确定性与随机部分</p>
+</div>
+</div>
+</div>
+<div id="sec1-2" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> 模型的替代形式<a class="anchor" aria-label="anchor" href="#sec1-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>上一节的两个例子使用了我们所说的统计模型的<strong>模型方程</strong> (model equation) 形式。也就是说，基本形式是“观测 = 系统部分 + 随机部分”。从历史上看，线性模型的文献中主要采用模型方程的形式。尽管这对于相对简单的模型来说已经足够了，并且对于第一次看到模型的学生来说可能是可以接受的，但对于当代统计中常见情况有用的模型需要额外的考虑。我们将在接下来的两节中对此进行描述。要了解这一点，我们将重新访问模型 <a href="chap1.html#eq:1-1">(1.1)</a> 和 <a href="chap1.html#eq:1-2">(1.2)</a>。</p>
+<div id="sec1-2-1" class="section level3" number="1.2.1">
+<h3>
+<span class="header-section-number">1.2.1</span> 两种线性预测器形式：单元格均值和效应<a class="anchor" aria-label="anchor" href="#sec1-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>从两处理模型 <a href="chap1.html#eq:1-1">(1.1)</a> 开始，即 <span class="math inline">\(y_{ij}=\mu_i+e_{ij}\)</span>，它可重写为 <span class="math inline">\(y_{ij}=\mu+\tau_i+e_{ij}\)</span>，其中 <span class="math inline">\(\mu +\tau_i= \mu_i\)</span>。前者将模型的系统部分表示为处理均值，称为<strong>单元格均值</strong> (cell means) 模型；后者将模型的系统部分表示为由处理或预测器效应修正的截距，称为<strong>效应</strong> (effects) 模型。</p>
+<p>两个模型都隐式地描述了产生观测数据的过程。效应模型明确说明了生成观测的所有过程。即，个体是从总体中抽取的，我们假定这些个体在响应变量方面的概率分布是 <span class="math inline">\(\mathrm{i.i.d.~}N\left(\mu,\sigma^2\right)\)</span>。</p>
+<p>然后，我们将个体（可能是随机地）分配到处理 1 或处理 2 中。分配到第 <span class="math inline">\(i\)</span> 种处理会使平均响应改变 (“bumps”) <span class="math inline">\(\tau_i\)</span>。这导致观测的分布为 <span class="math inline">\(NI\left({\mu}+{\tau}_i,{\sigma}^2\right)\)</span>，我们将 <span class="math inline">\(NI\)</span> 读作“正态且独立”。在本书的后续内容中，我们将这种分布表示为 <span class="math inline">\(y_{ij} \sim N(\mu + \tau_i, \sigma^2)\)</span>，我们假定其是独立的，除非另有说明。</p>
+<p>单元格均值模型意味着分布 <span class="math inline">\(y_{ij} \sim N(\mu_i, \sigma^2)\)</span> 在过程的描述中并不那么明确。它只是说明了将处理结果应用于均值为 <span class="math inline">\(\mu_i\)</span> 和方差为 <span class="math inline">\(\sigma^2\)</span> 的高斯分布。虽然不是那么明确，但单元格均值模型在计算上更简单，这在本书后面介绍的许多应用中都是一个很大的优势。</p>
+<p>无论我们使用单元格均值模型还是效应模型，我们都可看出系统部分都是观测期望值的模型，即 <span class="math inline">\(E(y_{ij})=\mu_i=\mu+\tau_i\)</span>。类似地，线性回归模型 <a href="chap1.html#eq:1-2">(1.2)</a> 可表示为 <span class="math inline">\(y_{ij}\thicksim N(\beta_0+\beta_1X_i,\sigma^2)\)</span>。线性回归的系统部分将观测的期望值建模为 <span class="math inline">\(E(y_{ij})=\mu_{i}=\beta_{0}+\beta_{1}X_{i}\)</span>。请注意，线性回归是一个用 <span class="math inline">\(\beta_0\)</span> 取代 <span class="math inline">\(\mu\)</span>、<span class="math inline">\(\beta_1X_i\)</span> 取代 <span class="math inline">\(\tau_i\)</span> 的效应模型。</p>
+</div>
+<div id="sec1-2-2" class="section level3" number="1.2.2">
+<h3>
+<span class="header-section-number">1.2.2</span> 两种模型形式：模型方程和概率分布<a class="anchor" aria-label="anchor" href="#sec1-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>此处的一个要点是，只要我们假定高斯（正态）分布——这是一个重要的规定——就有两种方法来表达统计模型。</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>模型方程形式</strong>，即 <span class="math inline">\(y_{ij}=\mu_i+e_{ij}\)</span> 或等价地 <span class="math inline">\(y_{ij}=\mu+\tau_i+e_{ij}\)</span>
+</li>
+<li>
+<strong>概率分布形式</strong>，即 <span class="math inline">\(y_{ij}\sim N\left(\mu_i,\sigma^2\right)\)</span> 或等价地 <span class="math inline">\(y_{ij}\sim N\big(\mu+\tau_i,\sigma^2\big)\)</span>
+</li>
+</ol>
+<p><br>
+模型方程形式在统计文献中更为常见，但当我们尝试对非高斯数据建模时，其局限性使其不可接受。根据本节末尾显而易见的原因，我们在本书的剩余部分强调概率分布形式。</p>
+</div>
+<div id="sec1-2-3" class="section level3" number="1.2.3">
+<h3>
+<span class="header-section-number">1.2.3</span> 说明模型方程形式缺点的转折<a class="anchor" aria-label="anchor" href="#sec1-2-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>回到线性回归示例——模型 <a href="chap1.html#eq:1-2">(1.2)</a> ——但假设对第 <span class="math inline">\(ij\)</span> 个个体的观测来自 <span class="math inline">\(n_{ij}\)</span> 个独立的伯努利试验。也就是说，我们观测到“0/1”、“要么/或者”、“成功/失败”的结果。将“成功”的数量表示为 <span class="math inline">\(y_{ij}\)</span>。令 <span class="math inline">\(\pi_i\)</span> 表示预测变量为 <span class="math inline">\(X_i\)</span> 的个体每次伯努利试验“成功”的概率。因此，<span class="math inline">\(y_{ij}\thicksim\mathrm{Binomial}(n_{ij},\pi_i)\)</span>。</p>
+<p>现假设我们欲使用线性回归将 <span class="math inline">\(\pi_i\)</span> 的变化建模为 <span class="math inline">\(X_i\)</span> 的函数。模型方程法给出 <span class="math inline">\(y_{ij}=\beta_0+\beta_1X_i+e_{ij}\)</span>。我们便立马发现了问题：如何解释 <span class="math inline">\(e_{ij}\)</span>？对于高斯观测，在模型 <a href="chap1.html#eq:1-2">(1.2)</a> 中假定 <span class="math inline">\(e_{ij}\mathrm{~i.i.d.~}N(0,\sigma^2)\)</span> 得到 <span class="math inline">\(y_{ij}\thicksim N\left(\beta_0+\beta_1X_i,\sigma^2\right)\)</span>。然而，假定 <span class="math inline">\(e_{ij}\sim\mathrm{Binomial}\)</span> 并将其加入 <span class="math inline">\(\beta_0+\beta_1X_i\)</span> 并不会得到合理的结果，更不用说 <span class="math inline">\(y_{ij}\thicksim\mathrm{Binomial}(n_{ij},\pi_i)\)</span> 了。</p>
+<p>从数理统计中我们知道只有高斯分布是可加的。高斯分布有两个不同的参数，均值和方差。类似地，在模型方程中，系统部分和随机部分起着不同的作用：<span class="math inline">\(\beta_0+\beta_1X_i\)</span> 代表均值 <span class="math inline">\(\mu_i\)</span>，<span class="math inline">\(e_{ij}\)</span> 代表方差 <span class="math inline">\(\sigma^2\)</span>。对于二项观测，<span class="math inline">\(\beta_0+\beta_1X_i\)</span> 很可能涉及到成功概率 <span class="math inline">\(\pi_i\)</span> 的估计，但因为对于二项分布 <span class="math inline">\(Var\left(y_{ij}\right)\propto\pi_i\left(1-\pi_i\right)\)</span>，我们知道均值的同时也就知道了方差。没有单独的方差可估计，因此残差项在模型中不起作用。这就给我们留下了一个问题：<span class="math inline">\(\beta_0+\beta_1X_i\)</span> 是否提供了 <span class="math inline">\(\pi_i\)</span> 的精确估计？</p>
+<p>我们可将响应变量重新定义为第 <span class="math inline">\(ij\)</span> 个个体的样本比例 <span class="math inline">\(p_{ij}=\frac{y_{ij}}{n_{ij}}\)</span>。这给出候选模型 <span class="math inline">\(p_{ij}=\beta_0+\beta_1X_i+e_{ij}\)</span>。假定每个观测都有足够的 <span class="math inline">\(N_{ij}\)</span>，我们可援引中心极限定理，并声称 <span class="math inline">\(p_{ij}\)</span> 具有近似的高斯分布。然而，除非 <span class="math inline">\(\beta_1=0\)</span>——也就是说，对于所有 <span class="math inline">\(X_i\)</span>，<span class="math inline">\(\pi_i\)</span> 相同——否则我们不能假定等方差 <span class="math inline">\(\sigma^2\)</span>（为什么不能？）。鉴于我们的目标是估计 <span class="math inline">\(X\)</span> 对 <span class="math inline">\(\pi_i\)</span> 的影响，这似乎事与愿违。必然存在 <span class="math inline">\(\beta_1\ne 0\)</span> 的可能性，否则最初可能根本就不会收集到这些数据。</p>
+<p>如果我们仍然继续呢？请考虑表 1.1 中所示的示例数据。</p>
+<details><summary><font color="#8B2232">表 1.1</font>
+</summary><img src="figure/table%201.1.png#center" style="width:50.0%"></details><p><br>
+使用模型 <span class="math inline">\(p_{ij}=\beta_0+\beta_1X_i+e_{ij}\)</span> 我们得到 <span class="math inline">\(\hat{\beta}_0=-0.089\)</span> 以及 <span class="math inline">\(\hat{\beta}_1=0.1115\)</span>，与检验 <span class="math inline">\(H_0:{\beta}_1=0\)</span> 相关的 <span class="math inline">\(p&lt;0.0001\)</span> 以及决定系数 <span class="math inline">\(R^2=0.917\)</span>。乍一看很不错。然而，仔细观察，在 <span class="math inline">\(X=0\)</span> 时 <span class="math inline">\(p\)</span> 的预测值为 -0.089，在 <span class="math inline">\(X=10\)</span> 时则为 1.026. 我们如何看待小于 0 或大于 1 的预测概率？</p>
+<p>处理这种情况的传统方法是使用方差稳定变换。对于二项数据，标准变换为 <span class="math inline">\(\sin^{-1}\left(\sqrt{p_{ij}}\right)\)</span>。然而，这种方法有两个问题。首先，它本质上相当于“当你只有一把锤子时，试着让每个问题看起来都像钉子”的建模思维。换句话说，模型方程的形式遵循高斯思维；如果数据不是高斯的，我们必须使它们成为“高斯行为”。其二，它不适用于混合模型，除了 <span class="math inline">\(e_{ij}\)</span>，混合模型还有随机效应。</p>
+<p>如果我们知道我们有一个二项响应变量，那么最好将其作为二项变量来处理，而不是试图强行将其视为正态变量。应该如何做呢？概率分布形式提供了一种更为可行的方法。</p>
+</div>
+<div id="sec1-2-4" class="section level3" number="1.2.4">
+<h3>
+<span class="header-section-number">1.2.4</span> 非高斯数据建模的替代方法——初始概念<a class="anchor" aria-label="anchor" href="#sec1-2-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>使用概率分布方法对二项数据进行建模有许多替代方案。目前，我们认为这两种最常见：</p>
+<ol style="list-style-type: decimal">
+<li>检查概率分布以确定适合用于建立线性模型的 <span class="math inline">\(\pi_i\)</span> 的函数</li>
+<li>定义一个可以合理产生观测的过程，其中 <span class="math inline">\(\pi_i\)</span> 随 <span class="math inline">\(X_i\)</span> 变化</li>
+</ol>
+<p><br>
+对于这个例子，两种方法都预示了我们将在后续章节中充分展开的广义线性模型。目前，我们重点关注基本概念。</p>
+<div class="rmdimportant">
+<p>方法 1：检查概率分布</p>
+<p>二项随机变量 <span class="math inline">\(y_{ij}\)</span> 的 p.d.f.<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：p.d.f = probability density function，概率密度函数。&lt;/p&gt;"><sup>4</sup></a> 为 <span class="math inline">\(\binom{N_{ij}}{y_{ij}}\pi_i^{y_{ij}}\left(1-\pi_i\right)^{N_{ij}-y_{ij}}\)</span>，对数似然为 <span class="math inline">\(\log\binom{N_{ij}}{y_{ij}}+y_{ij}\log(\pi_i)+(N_{ij}-y_{ij})\log(1-\pi_i)\)</span>，它也可重写为 <span class="math inline">\(y_{ij}\log\left[\frac{\pi_i}{\left(1-\pi_i\right)}\right]+N_{ij}\log\left(1-\pi_i\right)+\log\left(\frac{N_{ij}}{y_{ij}}\right)\)</span>，其关键在于 <span class="math inline">\(y_{ij}\log\left[\frac{\pi_i}{\left(1-\pi_i\right)}\right]\)</span> —— 它揭示了随机变量 <span class="math inline">\(y_{ij}\)</span> 在 <span class="math inline">\(\log\left[\frac{\pi_i}{\left(1-\pi_i\right)}\right]\)</span> 中是线性的。在概率论中，均值的函数（此时为 <span class="math inline">\(\log\left[\frac{\pi_i}{\left(1-\pi_i\right)}\right]\)</span>）乘以 <span class="math inline">\(y_{ij}\)</span> 后称为<strong>典型参数</strong> (canonical parameter). 在统计建模中，<span class="math inline">\(\log\left[\frac{\pi_i}{\left(1-\pi_i\right)}\right]\)</span> 称为 <span class="math inline">\(\text{logit}\)</span>。一个可能的模型是令典则参数等于模型的系统部分，因此</p>
+<p><span class="math display">\[\mathrm{logit}(\pi_i)=\log\biggl[\frac{\pi_i}{\left(1-\pi_i\right)}\biggr]=\beta_0+\beta_1X_i\]</span></p>
+<p>这便是 <strong>logistic 回归模型</strong>，在许多统计应用中都很常见。使用第 <a href="chap5.html#chap5">5</a> 章充分讨论的方法，截距和斜率的估计分别为 <span class="math inline">\(\hat{{\beta}}_0=-4.109\)</span> 和 <span class="math inline">\(\beta_1=0.764\)</span>。给定 <span class="math inline">\(X_i\)</span>，我们可以将 <span class="math inline">\(\pi_i\)</span> 的估计确定为</p>
+<p><span class="math display">\[\hat{\pi}_i=\frac1{1+e^{-\left(\hat{\beta}_0+\hat{\beta}_1X_i\right)}}\]</span>
+对于 <span class="math inline">\(X=0\)</span>，<span class="math inline">\(\hat\pi=0.016\)</span>；对于 <span class="math inline">\(X=10\)</span>，<span class="math inline">\(\hat\pi=0.972\)</span>。图 1.1 显示了线性模型对 <span class="math inline">\(p_{ij}\)</span> 的拟合与 logistic 回归拟合的比较。</p>
+<details><summary><font color="#8B2232">图 1.1</font>
+</summary><img src="figure/figure%201.1.png#center" style="width:80.0%"></details><p><br>
+拟合 <span class="math inline">\(p_{ij}\)</span> 的线性模型中观测值和预测值之间的相关性为 0.957，而对于 logistic 回归模型为 0.982。根据任何适用的准则，logistic 模型都提供了更好的拟合，更重要的是，它避免了试图解释不可能的预测值的问题。</p>
+</div>
+<div class="rmdimportant">
+<p>方法 2：定义一个合理的过程</p>
+<p>设想存在一个由 <span class="math inline">\(X\)</span> 驱动的不可观测过程。我们无法看到该过程，只能看到其结果。若该过程超过某个值，我们将看到一次“失败”，否则我们将看到一次“成功”。现在，令 <span class="math inline">\(\eta\)</span> 表示成功与失败之间的边界，并假设它随 <span class="math inline">\(X\)</span> 线性变化，即 <span class="math inline">\(\eta=\beta_0+\beta_1X\)</span>。这是门槛模型 (threshold model) 的一个简单示例。如果我们进一步设想不可观测过程具有标准正态分布，那么在 <span class="math inline">\(X\)</span> 处“成功”的概率可建模为 <span class="math inline">\(\pi_i=\Phi\big(\beta_0+\beta_1X_i\big)\)</span>，其中 <span class="math inline">\(\Phi(\cdot)\)</span> 为逆正态或称为 probit. 图 1.2 说明了基本思想。如图所示，对于 <span class="math inline">\(X = 3\)</span>（右轴），<span class="math inline">\(\eta\cong-1\)</span><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：&lt;span class="math inline"&gt;\(\cong\)&lt;/span&gt; 表示恒等于。&lt;/p&gt;'><sup>5</sup></a>（水平轴）（一开始你可能会有些不适应——你可能习惯于看到 <span class="math inline">\(X\)</span> 在水平轴上，而响应变量在垂直（Y）轴上）。曲线 <span class="math inline">\(\Phi(-1)\)</span> 下的阴影面积是概率 <span class="math inline">\(\pi\)</span>。随着 <span class="math inline">\(X\)</span> 的增加，<span class="math inline">\(\eta\)</span> 也随之增加，与 <span class="math inline">\(\pi\)</span> 对应的正态曲线下面积也随之增加。图 1.2 显示了正斜率（<span class="math inline">\(\beta&gt;0\)</span>）。请注意，负斜率也是可能的，此时，随着 <span class="math inline">\(X\)</span> 的增加，<span class="math inline">\(\eta\)</span> 会减小，因此 <span class="math inline">\(\pi\)</span> 也会减少。回归线的位置和斜率取决于 <span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span>。</p>
+<details><summary><font color="#8B2232">图 1.2</font>
+</summary><img src="figure/figure%201.2.png#center" style="width:80.0%"></details><p><br>
+这就是 probit 回归模型。与 logistic 回归一样，它通常用于二项数据。</p>
+</div>
+<p>logistic 模型和 probit 模型都是线性模型概率分布形式的示例。两者有相同的步骤：</p>
+<ol style="list-style-type: decimal">
+<li>确定观测数据的概率分布。在 logistic 模型和 probit 模型中为 <span class="math inline">\(y_{ij}\thicksim\mathrm{Binomial}(n_{ij},\pi_i)\)</span>
+</li>
+<li>模型焦点为响应的期望值，即 <span class="math inline">\(E\left(y_i\right)=N_{ij}\pi_i\)</span>。由于 <span class="math inline">\(N_{ij}\)</span> 已知，模型将有效地关注于 <span class="math inline">\(\pi_i\)</span>
+</li>
+<li>说明线性预测器。在本例中，线性预测器为 <span class="math inline">\(\beta_0+\beta_1X_i\)</span>。<strong><u>现在<u></u></u></strong>，你可以把线性预测器看作模型方程形式的左手边，但不含 <span class="math inline">\(e_{ij}\)</span>。在这个例子中，线性预测器对应于模型的系统部分</li>
+</ol>
+<div class="rmdcaution">
+<p>请注意对于“<strong><u>现在<u></u></u></strong>”的强调。当我们在 <a href="chap1.html#sec1-3">1.3</a> 节中引入随机模型效应时，事情变得更加复杂。</p>
+</div>
+<ol start="4" style="list-style-type: decimal">
+<li>确定将期望值连接到线性预测器的函数。在 logistic 模型中，该函数为 <span class="math inline">\(\log\biggl(\frac{\pi_i}{1-\pi_i}\biggr)=\beta_0+\beta_1X_i\)</span>。在线性模型语言中，这称为<strong>连接函数</strong> (link function). 你还可以将 logistic 模型写为</li>
+</ol>
+<p><span class="math display">\[\pi_i=\frac1{\left\{1+\exp\left[-\left(\beta_0+\beta_1X_i\right)\right]\right\}}\]</span></p>
+<p>这称为<strong>逆连接函数</strong> (inverse link function)。在连接函数中，线性预测器是独立的，将期望值嵌入函数；而在逆连接函数中，期望值是独立的，将线性预测器嵌入函数。两者都是有效且充分的表达式。请注意，我们使用逆连接描述 probit 模型 <span class="math inline">\({\pi}_i={\Phi}\big({\beta}_0+{\beta}_1X_i\big)\)</span>。</p>
+<p>你可以将相同的步骤应用于 <a href="chap1.html#sec1-1">1.1</a> 节介绍的高斯模型。</p>
+<ol style="list-style-type: decimal">
+<li>分布：<span class="math inline">\(y_{ij}\sim NI\left(\mu_i,\sigma^2\right)\)</span>
+</li>
+<li>模型焦点：<span class="math inline">\(E\Big(y_{ij}\Big)=\mu_i\)</span>
+</li>
+<li>线性预测器：<span class="math inline">\(\beta_0+\beta_1X_i\)</span>
+</li>
+<li>连接：对于高斯模型，连接函数称为<strong>恒等连接</strong> (identity link)，即线性预测器本身预测了 <span class="math inline">\(E\Big(y_{ij}\Big)=\mu_i=\eta_i=\beta_0+\beta_1X_i\)</span>
+</li>
+</ol>
+<div class="rmdtip">
+<p><a href="chap1.html#sec1-2">1.2</a> 节的关键思想：模型方程形式与概率分布形式；线性预测器；连接和逆连接函数。</p>
+</div>
+</div>
+</div>
+<div id="sec1-3" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> 模型效应的类型<a class="anchor" aria-label="anchor" href="#sec1-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>在本节中，我们将介绍模型效应类型的两个重要区分。</p>
+<p>第一个区分，如 <a href="chap1.html#sec1-3-1">1.3.1</a> 节所述，为<strong>分类</strong> (classification) 效应（也称为类别 (class) 效应）和<strong>直接</strong> (direct) 效应之间的区分。第二个区分，如 <a href="chap1.html#sec1-3-2">1.3.2</a> 节所述，为<strong>固定</strong> (fixed) 效应和<strong>随机</strong> (random) 模型效应之间的区分。随机模型效应是线性预测器的一部分，勿与统计模型的模型方程形式中的残差项混淆。</p>
+<div id="sec1-3-1" class="section level3" number="1.3.1">
+<h3>
+<span class="header-section-number">1.3.1</span> 分类与直接效应<a class="anchor" aria-label="anchor" href="#sec1-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>在前几节中，我们考虑了两处理均值模型和线性回归模型。线性预测器对于前者为 <span class="math inline">\(\mu_i=\mu+\tau_i\)</span>，对于后者为 <span class="math inline">\(\beta_0+\beta_1X_i\)</span>。在两处理模型中，预测变量为处理，相应的模型效应为 <span class="math inline">\(\tau_i\)</span>。在回归模型中，预测变量为 <span class="math inline">\(X_i\)</span>，相应的模型效应为 <span class="math inline">\(\beta_1\)</span>。这说明了统计模型中的两种类型的效应。在前一个模型中，处理是作为分类变量的预测变量的一个例子；在后一个模型中，<span class="math inline">\(X_i\)</span> 是作为直接变量的预测变量的一个例子。分类变量按类别定义，例如处理 1 和处理 2，而直接变量由其确切的量定义。</p>
+<p>这种区分有时可能会令人困惑，因为将预测变量定义为直接变量或分类变量，具体取决于我们的目标以及我们想要的推断。例如，对于表 1.1 中的数据，我们可以将 <span class="math inline">\(X_i\)</span> 的水平定义为分类变量并拟合效应模型 <span class="math inline">\(\mu+\tau_i,i = 1,2,\ldots,10\)</span>，其中效应定义在 <span class="math inline">\(X\)</span> 的 10 个水平上。如果我们不知道响应是否根据 <span class="math inline">\(X\)</span> 的任何定义函数而变化，并且我们不期望响应遵循这样的函数，我们可能会这样做。如果我们对 <span class="math inline">\(y\)</span> 和 <span class="math inline">\(X\)</span> 之间的任何可能关系都没有先入为主的想法，那么将 <span class="math inline">\(X\)</span> 定义为分类变量可以让我们进行探索。</p>
+<details><summary><font color="#8B2232">表 1.1</font>
+</summary><img src="figure/table%201.1.png#center" style="width:40.0%"></details>
+</div>
+<div id="sec1-3-2" class="section level3" number="1.3.2">
+<h3>
+<span class="header-section-number">1.3.2</span> 固定与随机效应<a class="anchor" aria-label="anchor" href="#sec1-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>分类与直接效应是区分模型效应类型的一种方法。另一个也许是更根本的区分，与如何选择效应的水平以及预期推断的范围有关。要了解其工作原理，请考虑以下内容。</p>
+<p>线性回归示例的扩展，以说明模型效应类型之间的重要区分。</p>
+<p>在表 1.1 中，<span class="math inline">\(X\)</span> 的每个水平只有一个观测。相反，假设在多个位置 (locations) 或多个批次 (batches) 观测到 <span class="math inline">\(X\)</span> 的水平。表 1.2 显示了一组假想的数据。<span class="math inline">\(X\)</span> 有 11 个水平，取值为 0 到 48 不等。对于 4 个批次中的每一个，在 <span class="math inline">\(X\)</span> 的每个水平上都观察到一个连续变量 <span class="math inline">\(Y\)</span> 和一个二项变量，其中 <span class="math inline">\(N\)</span> 是伯努利试验的次数，<span class="math inline">\(Fav\)</span> 是“成功”的次数。</p>
+<details><summary><font color="#8B2232">表 1.2</font>
+</summary><img src="figure/table%201.2.png#center" style="width:90.0%"></details><p><br>
+这些数据该如何建模？图 1.3 显示了叠加线性回归线的数据图。</p>
+<details><summary><font color="#8B2232">图 1.3</font>
+</summary><img src="figure/figure%201.3.png#center" style="width:80.0%"></details><p><br>
+实线显示了所有批次的平均线性回归；虚线显示了每个单独批次的回归。该图表明假定线性回归是合理的，但假定所有批次具有一个共同的回归可能是不合理的。</p>
+<p>假定按批次进行单独的线性回归得到线性预测器 <span class="math inline">\(\beta_{0i}+\beta_{1i}X_{ij}\)</span>，其中 <span class="math inline">\(\beta_{0i}\)</span> 和 <span class="math inline">\(\beta_{1i}\)</span> 分别为第 <span class="math inline">\(i\)</span> 个批次的截距和斜率，<span class="math inline">\(i=1,2,3,4\)</span>，<span class="math inline">\(X_{ij}\)</span> 为第 <span class="math inline">\(i\)</span> 个批次 <span class="math inline">\(X\)</span> 的第 <span class="math inline">\(j\)</span> 个值。这可以等价地表示为</p>
+<p><span class="math display" id="eq:1-3">\[\begin{align}
+\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}
+\tag{1.3}
+\end{align}\]</span></p>
+<p>其中</p>
+<ul>
+<li>
+<span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span> 是总体截距和斜率（用实心黑线表示）</li>
+<li>
+<span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 分别是与特定于批次的截距和斜率（<span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span>）的偏差。</li>
+</ul>
+<p>我们如何对 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 进行估计和推断取决于产生批次的过程以及我们希望做出的推断。一方面，这些批次可以代表更多批次的样本。在这种情况下，我们可以任意抽取四个批次——至少在理论上是这样。由此可见，<span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{i1}\)</span> 是随机变量，因此具有概率分布。在这种情况下，模型 <a href="chap1.html#eq:1-3">(1.3)</a> 称为<strong>随机系数线性回归模型</strong>。</p>
+<p>另一方面，该数据集中的四个批次也可能是整个总体。例如，如果有四个批次的供应商，并且我们将“批次 <span class="math inline">\(i\)</span>”理解为“供应商 <span class="math inline">\(i\)</span>”就说得通了。这与根据单个供应商随机抽取四个批次不同。此时，模型 <a href="chap1.html#eq:1-3">(1.3)</a> 称为<strong>不等斜率线性回归模型</strong>。</p>
+<p>如果批次代表更大的总体，我们自然希望将推断重点放在总体上，而不仅仅是我们观察到的四个批次。我们需要考虑各批次之间的变异。如果批次是总体，我们希望将推断重点放在批次效应及其对关于 <span class="math inline">\(X\)</span> 的回归的影响。此时，我们将 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 视为模型参数，且与 <span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span> 具有相同的意义。</p>
+<p>作为样本的批次（因此将 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 作为随机变量）与作为总体的批次（因此将 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 作为模型参数）之间的区别引入了<strong>随机</strong>模型效应与<strong>固定</strong>模型效应的概念。如果批次是样本，<span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 是随机效应；如果批次是总体，因此 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 是参数，那么 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 就是固定效应。</p>
+<p>线性预测器仅包含固定效应的模型称为<strong>固定效应模型</strong>或仅固定效应模型 (fixed-effect-only models). 线性预测器同时包含固定和随机效应的模型称为<strong>混合模型</strong> (mixed models). 理论上，混合模型中的随机效应可具有任何合理的分布。例如，Lee and Nelder (1996) 以及 Lee et al. (2006) 讨论了双广义线性模型 (doubly-generalized linear models)，其中随机模型效应以及响应变量可能具有非高斯分布。在本书中，我们几乎只关注高斯分布的随机效应。这出于两个原因：</p>
+<ol style="list-style-type: decimal">
+<li>具有高斯随机效应的混合模型的计算方法和可用软件得到了更好的开发。专注于高斯案例使我们能够专注于概念，并最大限度地减少因计算问题分散注意力的风险。</li>
+<li>绝大多数具有混合模型的实际应用都假定了高斯随机效应——至少在编写本书时如此。</li>
+</ol>
+<div class="rmdcaution">
+<p>统计建模的最先进技术一直在进步。35<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：McCullagh and Nelder (1989) 至 2024（本书第二版出版）。&lt;/p&gt;"><sup>6</sup></a> 年前，广义线性模型基本上是未知的，线性混合模型被认为超出了最先进的水平。现在它们已经变得司空见惯，任何关于建模有见地的讨论都必须包括它们。在未来，非高斯随机效应可能也会同样普遍。但目前我们还未达到那个阶段。</p>
+</div>
+<p>总之，多批次回归例子产生了线性预测因子 <span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span>。如果我们假设固定的批次效应，那么 <span class="math inline">\(\beta_0,\beta_1,b_{i0}\)</span> 和 <span class="math inline">\(b_{i1}\)</span> 都是模型参数。如果我们假定随机的批次效应，那么只有 <span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span> 是模型参数，并且我们必须说明随机变量 <span class="math inline">\(\beta_1,b_{i0}\)</span> 和 <span class="math inline">\(b_{i1}\)</span> 的假定概率分布。通常，来自不同批次的 <span class="math inline">\((b_{0i},b_{1i})\)</span> 对假定为独立的，并且在每个批次中，<span class="math inline">\((b_{0i},b_{1i})\)</span> 对是二元正态的，即</p>
+<p><span class="math display">\[\begin{bmatrix}b_{0i}\\b_{1i}\end{bmatrix}\thicksim N\left(\begin{bmatrix}0\\0\end{bmatrix},\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\\sigma_{01}&amp;\sigma_1^2\end{bmatrix}\right)\]</span></p>
+<p>其中 <span class="math inline">\(\sigma^2_0\)</span> 和 <span class="math inline">\(\sigma^2_1\)</span> 分别为 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 的方差，<span class="math inline">\(\sigma_{01}\)</span> 是 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 之间的协方差。</p>
+<p>一旦我们确定了线性预测器，并确定了随机效应及其假定概率（如果有），那么我们就能够像在 <a href="chap1.html#sec1-2">1.2</a> 节中那样完成模型构建。也就是说，对于假定服从高斯分布的数据，线性预测器是<strong>给定随机效应</strong> <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 的条件下，数据期望值的估计值。正式地，我们将其表述为</p>
+<ul>
+<li>观测：<span class="math inline">\(y_{ij}\mid b_{0i},b_{1i}\thicksim N\left(\mu_{ij}\mid b_{0i},b_{1i},\sigma^2\right)\)</span>
+</li>
+<li>模型焦点：<span class="math inline">\(E\Big(y_{ij}\mid b_{0i},b_{1i}\Big)=\mu_{ij}\mid b_{0i},b_{1i}\)</span>
+</li>
+<li>线性预测器：<span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span>
+</li>
+<li>关于 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 的假定（如果是随机的）——例如上例</li>
+<li>连接：恒等的，即 <span class="math inline">\(\mu_{ij}\mid b_{0i},b_{1i}\)</span> 由 <span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span> 建模</li>
+</ul>
+<p><br>
+如果我们对表 1.2 中的变量 <span class="math inline">\(Fav\)</span> 建模，那么我们将相应地调整观测的分布以及连接。即</p>
+<ul>
+<li>观测：<span class="math inline">\(Fav_{ij}\mid b_{0i},b_{1i}\sim\text{Binomial}\bigg[N_{ij},\bigg(\pi_{ij}\mid b_{0i},b_{1i}\bigg)\bigg]\)</span>
+</li>
+<li>模型焦点：<span class="math inline">\(E\Big(Fav_{ij}\mid b_{0i},b_{1i}\Big)=\pi_{ij}\mid b_{0i},b_{1i}\)</span>
+</li>
+<li>线性预测器：<span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span>
+</li>
+<li>关于 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 的假定（如果是随机的）</li>
+<li>连接：Logist 或 Probit，例如，对于 Logit：
+<span class="math display">\[\log\left(\frac{\pi_{ij}}{1-\pi_{ij}}\right)\]</span>
+由 <span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span> 建模，其中 <span class="math inline">\(\pi_{ij}\)</span> 为 <span class="math inline">\(\pi_{ij}\mid b_{0i},b_{1i}\)</span> 的缩写</li>
+</ul>
+<p><br>
+假定高斯数据的模型是我们对线性模型的介绍。在本书中，我们使用以下缩写。</p>
+<ul>
+<li>如果批次效应是固定的，我们使用线性模型 (Linear Model) 的首字母缩写 <strong>LM</strong> 来指代。</li>
+<li>如果批次效应是随机的，则它是线性混合模型 (Linear Mixed Model)，其缩写为 <strong>LMM</strong>.</li>
+</ul>
+<p><br>
+假定二项数据的模型是我们对广义线性模型 (Generalized Linear Model, GLM) 的介绍。</p>
+<ul>
+<li>如果线性预测器中的所有效应都是固定的，例如模型 <a href="chap1.html#eq:1-4">(1.4)</a> 具有固定批次效应，则我们有一个仅固定效应的广义线性模型。这些模型使用缩写 <strong>GLM</strong>.</li>
+<li>如果批处理效应是随机的，则它是一个广义线性混合模型 (generalized linear mixed model)，缩写为 <strong>GLMM</strong>.</li>
+</ul>
+<p><br>
+请注意，GLMM 是一般情况；LM, GLM 和 LMM 都是特殊情况。在 <a href="chap1.html#sec1-4">1.4</a> 节中，我们将看到如何以矩阵形式编写这些模型，这对于开发第 <a href="chap4.html#chap4">4</a>, <a href="chap5.html#chap5">5</a> 和 <a href="chap6.html#chap6">6</a> 章中的估计和推断理论至关重要。在第 <a href="chap2.html#chap2">2</a> 章，我们将介绍一些技巧，以帮助将数据集描述和目标转化为合理的模型。在第 <a href="chap3.html#chap3">3</a> 章中，我们将讨论推断的基本概念以及在开始正式开发估计和推断理论之前需要理解的一些细节。到那时，我们将准备好充分发展用于处理 GLMMs（以及因此而来的 LM, GLM 和 LMM）所需的底层理论和方法论。</p>
+<div class="rmdtip">
+<p><a href="chap1.html#sec1-3">1.3</a> 节的关键思想：分类与直接预测变量；固定与随机模型效应；线性模型 (LM)；线性混合模型 (LMM)；广义线性模型 (GLM)；广义线性混合模型 (GLMM)</p>
+</div>
+</div>
+</div>
+<div id="sec1-4" class="section level2" number="1.4">
+<h2>
+<span class="header-section-number">1.4</span> 以矩阵形式编写模型<a class="anchor" aria-label="anchor" href="#sec1-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>在前几节中，我们推导了八个模型。表 1.3 对它们进行了总结。</p>
+<details><summary><font color="#8B2232">表 1.3</font>
+</summary><img src="figure/table%201.3.png#center" style="width:90.0%"></details><p><br>
+请注意，表 1.3 中的前两个模型是 <a href="chap1.html#sec1-1">1.1</a> 节中介绍的模型 <a href="chap1.html#eq:1-1">(1.1)</a> 和 <a href="chap1.html#eq:1-2">(1.2)</a>。为方便起见，在本章的剩余部分中，我们将此表中的型号称为模型 1 至模型 8，如表中首列所示。我们可以用矩阵形式来表达这些。事实上我们必须这样做，这有两个重要的原因。</p>
+<ol style="list-style-type: decimal">
+<li>这些模型估计和推断理论的开发——在第 <a href="chap4.html#chap4">4</a>, <a href="chap5.html#chap5">5</a> 和 <a href="chap6.html#chap6">6</a> 章中介绍——需要矩阵代数。</li>
+<li>这些模型的统计计算程序——在“黑匣子”中——本质上是矩阵代数处理器。当你在软件包（在本书中为 SAS<sup>®</sup> PROC GLIMMIX）中指定模型时，你实际做的就是指定定义响应变量、其线性预测器、其连接及其概率分布的矩阵。</li>
+</ol>
+<p><br>
+本节的目的是向你展示如何操作。我们从仅固定效应模型开始，然后考虑混合模型。</p>
+<div id="sec1-4-1" class="section level3" number="1.4.1">
+<h3>
+<span class="header-section-number">1.4.1</span> 仅固定效应模型<a class="anchor" aria-label="anchor" href="#sec1-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们从第一个模型开始，即两处理 LM. 假定每种处理有三个观测。我们可以将与每个观测及其线性预测器对应的连接函数写为方程组：</p>
+<p><span class="math display">\[\begin{gathered}
+\mu_{11} =\eta_{11}=\mu+\tau_1 \\
+\mu_{12} =\eta_{12}=\mu+\tau_1 \\
+\mu_{13} =\eta_{13}=\mu+\tau_1 \\
+\mu_{21} =\eta_{21}=\mu+\tau_2 \\
+\mu_{22} =\eta_{22}=\mu+\tau_2 \\
+\mu_{23} =\eta_{23}=\mu+\tau_2
+\end{gathered}\]</span></p>
+<p>这又可用矩阵形式表示为</p>
+<p><span class="math display">\[\begin{bmatrix}\eta_{11}\\\eta_{12}\\\eta_{13}\\\eta_{21}\\\eta_{22}\\\eta_{23}\end{bmatrix}=\begin{bmatrix}1&amp;1&amp;0\\1&amp;1&amp;0\\1&amp;1&amp;0\\1&amp;0&amp;1\\1&amp;0&amp;1\\1&amp;0&amp;1\end{bmatrix}\begin{bmatrix}\mu\\\tau_1\\\tau_2\end{bmatrix}\]</span></p>
+<p>这显示了一个仅考虑固定效应的线性模型的一般结构–使用前面定义的首字母缩写 LM 或 GLM. 仅固定效应线性预测器的一般形式为</p>
+<p><span class="math display" id="eq:1-4">\[\begin{align}
+\symbf\eta=\symbf X\symbf\beta
+\tag{1.4}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf\eta\)</span> 是数据集中 <span class="math inline">\(N\)</span> 个观测中每个观测的连接函数的 <span class="math inline">\(N × 1\)</span> 值向量，<span class="math inline">\(\symbf X\)</span> 是 <span class="math inline">\(N × p\)</span> 矩阵，<span class="math inline">\(p\)</span> 是线性预测器中的参数数量，<span class="math inline">\(\symbf\beta\)</span> 是固定效应模型参数的 <span class="math inline">\(p × 1\)</span> 向量。</p>
+<p>此时，为了建立一些一般原则，将 <span class="math inline">\(\symbf X\symbf\beta\)</span> 划分为多个分量是有用的。具体地</p>
+<p><span class="math display">\[\symbf X\symbf{\beta}=\begin{bmatrix}\symbf X_\mu&amp;\symbf X_\tau\end{bmatrix}\begin{bmatrix}\mu\\\symbf\tau\end{bmatrix}=\symbf X_\mu\mu+\symbf X_\tau\symbf{\tau}\]</span></p>
+<p>其中</p>
+<p><span class="math display">\[\symbf{\tau}=\begin{bmatrix}{\tau}_1\\{\tau}_2\end{bmatrix},\quad\symbf{X}_\tau=\begin{bmatrix}1&amp;0\\1&amp;0\\1&amp;0\\0&amp;1\\0&amp;1\\0&amp;1\end{bmatrix}\]</span></p>
+<p>请注意，<span class="math inline">\(\symbf X_\mu=\symbf 1_6\)</span>，即一个 <span class="math inline">\(6 × 1\)</span> 向量。换句话说，矩阵 <span class="math inline">\(\symbf X\)</span> 被划分为 “<span class="math inline">\(\mu\)</span>” 或“截距部分”和 “<span class="math inline">\(\tau\)</span>” 或“效应部分”，向量 <span class="math inline">\(\symbf\beta\)</span> 也是如此。矩阵 <span class="math inline">\(\symbf X\)</span> 的截距部分始终是一个 N × 1 的全一向量，矩阵的效应部分始终涉及每个效应水平的一列——本例中为两列，因为有两种处理。对于每个效应水平的列，在对应该水平的行中填入 1，否则填入 0 ——在本例中，<span class="math inline">\(\symbf X_\tau\)</span> 的第一列在前三行（对应接受处理 1 的观测）填入 1，而 <span class="math inline">\(\symbf X_\tau\)</span> 的第二列在接下来的三行（第 4 到 6 行，对应接受处理 2 的观测）填入 1. 回想一下，处理是一种分类效应——<span class="math inline">\(\symbf X_\tau\)</span> 展示了如何为分类效应构建矩阵 <span class="math inline">\(\symbf X\)</span> 的一部分。</p>
+<p>矩阵 <span class="math inline">\(\symbf X\)</span> 通常称为<strong>设计矩阵</strong> (design matirx)，特别是当模型包含分类效应时。这是因为你可以通过查看矩阵 <span class="math inline">\(\symbf X\)</span> 准确地知道哪些处理分配给了哪些观测——因此，矩阵 <span class="math inline">\(\symbf X\)</span> 描述了设计。矩阵 <span class="math inline">\(\symbf X\)</span> 又称为<strong>导数矩阵</strong> (derivative matrix)，因为 <span class="math inline">\(\symbf X\)</span> 的每个元素都是关于相应模型参数的导数。也就是说，<span class="math inline">\(\symbf X\)</span> 的每一行都由</p>
+<p><span class="math display">\[\begin{equation}\begin{bmatrix}\frac{\partial \symbf X_i\symbf{\beta}}{\partial\mu}&amp;\frac{\partial \symbf X_i\symbf{\beta}}{\partial\tau_1}&amp;\frac{\partial \symbf X_i\symbf{\beta}}{\partial\tau_2}\end{bmatrix}\end{equation}\]</span></p>
+<p>组成。其中 <span class="math inline">\(\symbf X_i\)</span> 表示矩阵 <span class="math inline">\(\symbf X\)</span> 的第 <span class="math inline">\(i\)</span> 行。将 <span class="math inline">\(\symbf X\)</span> 视为导数矩阵有助于过渡到非线性模型，虽然这超出了本书的范围，但在最后几章中我们简要介绍了某些非线性建模工具。然而，非线性模型是统计建模在 GLMM 之外的下一个扩展。</p>
+<p>现在考虑第二个模型，即，在 <span class="math inline">\(X_{ij}=0,1,\ldots,10\)</span> 的水平上的线性回归。与第一个模型一样，这建立了一组方程</p>
+<p><span class="math display">\[\begin{aligned}
+\eta_1&amp;=\beta_0  \\
+\eta_2&amp;=\beta_0+\beta_1  \\
+\eta_3&amp;=\beta_0+2\beta_1  \\
+{\eta}_{4}&amp;={\beta}_{0}+3{\beta}_{1}  \\
+{\eta}_{5}&amp;={\beta}_{0}+4{\beta}_{1}  \\
+{\eta}_{6}&amp;={\beta}_0+5{\beta}_1  \\
+{\eta}_{7}&amp;={\beta}_{0}+6{\beta}_{1}  \\
+\eta_{8}&amp; =\beta_{0}+7\beta_{1}  \\
+\eta_9&amp;=\beta_0+8\beta_1  \\
+{\eta}_{10}&amp;={\beta}_0+9{\beta}_1  \\
+\eta_{11}&amp;=\beta_{0}+10\beta  
+\end{aligned}\]</span></p>
+<p>这可写为矩阵形式</p>
+<p><span class="math display">\[\begin{bmatrix}\eta_1\\\eta_2\\\eta_3\\\eta_4\\\eta_5\\\eta_6\\\eta_7\\\eta_8\\\eta_9\\\eta_{10}\\\eta_{11}\end{bmatrix}=\begin{bmatrix}1&amp;0\\1&amp;1\\1&amp;2\\1&amp;3\\1&amp;4\\1&amp;5\\1&amp;6\\1&amp;7\\1&amp;8\\1&amp;9\\1&amp;10\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\end{bmatrix}\]</span></p>
+<p>与两处理模型一样，它具有方程 <a href="chap1.html#eq:1-4">(1.4)</a> 中给出的一般形式 <span class="math inline">\(\symbf\eta=\symbf X\symbf\beta\)</span>。对于回归模型，矩阵 <span class="math inline">\(\symbf X\)</span> 可以划分为“截距部分”和“效应部分”，即 <span class="math inline">\(\symbf X\symbf{\beta}=\symbf X_{\beta_0}{\beta}_0+\symbf X_{\beta_1}{\beta}_1\)</span>。与往常一样，截距部分 <span class="math inline">\(\symbf X_{\beta_0}\)</span> 只是一个全一向量。在该模型中，预测器是一个直接变量，因此矩阵 <span class="math inline">\(\symbf X\)</span> 中相应的列，即效应部分 <span class="math inline">\(\symbf X_{\beta_1}\)</span>，实际上是预测器变量的值（0 到 10）的向量。</p>
+<p>对于二项数据的两处理和回归模型，你可以以相同的方式设置矩阵。也就是说，模型 3 的设置与模型 1 相同，模型 4 的设置与模型 2 相同。仅连接函数 <span class="math inline">\(\symbf \eta_i\)</span> 的定义发生了变化。</p>
+<p>现在考虑固定效应、多批次模型（表 <a href="chap1.html#sec1-3">1.3</a> 中的模型 5 和 6）。令连接等于线性预测器得到形如式为 <span class="math inline">\(\eta_{ij}=\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span> 的一组方程。回想一下我们有四个批次，这就得到了矩阵方程</p>
+<div class="inline-figure"><img src="figure/matrix20.png#center" style="width:60.0%"></div>
+<p>我们可以将这些矩阵方程的逻辑概括如下。固定效应 LM 或 GLM 的一般形式为 <span class="math inline">\(\symbf\eta=\symbf X\symbf\beta\)</span>。将 <span class="math inline">\(\symbf X\symbf\beta\)</span> 划分为</p>
+<p><span class="math display">\[\begin{bmatrix}\symbf X_{\beta_0}&amp;\symbf X_{b_0}&amp;\symbf X_{\beta_1}&amp;\symbf X_{b_1}\end{bmatrix}\begin{bmatrix} \beta_0\\\symbf{b}_0\\\beta_1\\\symbf{b}_1\end{bmatrix}=\symbf X_{\beta_0}\beta_0+\symbf X_{b_0}\symbf{b}_0+\symbf X_{\beta_1}\beta_1+\symbf X_{b_1}\symbf{b}_1\]</span></p>
+<p>其中，<span class="math inline">\(\symbf X_{\beta_0}\)</span> 是 <span class="math inline">\(N×1\)</span> 全一向量，<span class="math inline">\(\symbf X_{b_0}\)</span> 是一个 <span class="math inline">\(N × 4\)</span> 矩阵，如果相应的观测在第 <span class="math inline">\(j\)</span> 批中，则其第 <span class="math inline">\(ij\)</span> 元素为 1，否则为 0.</p>
+<p><span class="math inline">\(\symbf X_{\beta_1}\)</span> 是一个 <span class="math inline">\(N × 1\)</span> 向量，其元素等于相应观测的协变量 <span class="math inline">\(X_{ij}\)</span> 的值，<span class="math inline">\(\symbf X_{b_1}\)</span> 是一个 <span class="math inline">\(N × 4\)</span> 向量，如果相应观测在第 <span class="math inline">\(j\)</span> 批中，则其元素为 <span class="math inline">\(X_{ij}\)</span>，否则为 0，<span class="math inline">\(\symbf b_1\)</span> 是 <span class="math inline">\(4 ×1\)</span> 向量，其元素为 <span class="math inline">\(b_{1i}\)</span>，<span class="math inline">\(i = 1, 2, 3, 4\)</span> 对应四个批次。请注意，矩阵 <span class="math inline">\(\symbf X_{b_1}\)</span> 是 <span class="math inline">\(\symbf X_{b_0}\)</span> 和 <span class="math inline">\(\symbf X_{\beta_1}\)</span> 的水平直积 (horizontal direct product). 另请注意，预测变量 <span class="math inline">\(X_{ij}\)</span> 是直接变量，因此矩阵 <span class="math inline">\(\symbf X\)</span> 中的列是由 <span class="math inline">\(X_{ij}\)</span> 确切值组成的向量，而批次是分类变量，因此每个批次有一列，并且这些列具有非零值当且仅当第 <span class="math inline">\(ij\)</span> 个观测位于与该列对应的批次中。</p>
+<p>该模型本质上包含了建立矩阵形式所涉及的主要决策的缩影。截距参数始终是标量，其在矩阵 <span class="math inline">\(\symbf X\)</span> 中的对应元素是一个全一列向量。直接变量始终具有标量参数，并且它们在矩阵 <span class="math inline">\(\symbf X\)</span> 中的相应元素是直接变量确切值的列向量。分类变量每个效应水平有一个参数，因此矩阵 <span class="math inline">\(\symbf X\)</span> 中每个效应水平都有一列，如果相应的观测在该水平，则其元素为 0，否则为 0. 矩阵 <span class="math inline">\(\symbf X\)</span> 的 <span class="math inline">\(\symbf X_{b_1}\)</span> 分量以及向量 <span class="math inline">\(\symbf b_1\)</span> 具有分类和直接变量的特征：因此，<span class="math inline">\(\symbf X_{b_1}\)</span> 被构造为元素的直积，在这种情况下，它是由 <span class="math inline">\(\symbf X_{\beta_0}\)</span> 和 <span class="math inline">\(\symbf X_{\beta_1}\)</span> 组成的。</p>
+<p>总之，所有仅固定效应模型都具有一般形式 <span class="math inline">\(\symbf\eta=\symbf X\symbf\beta\)</span>。所有概率陈述都位于观测向量 <span class="math inline">\(\symbf y\)</span> 的分布中。因此，仅固定效应模型的完整指定为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\symbf\eta=\symbf X\symbf\beta\)</span>
+</li>
+<li>
+<span class="math inline">\(\symbf y\)</span> 服从某种分布，记 <span class="math inline">\(E(\symbf y)=\symbf \mu\)</span>，<span class="math inline">\(Var(\symbf y)=\symbf R\)</span>
+</li>
+<li>连接函数：<span class="math inline">\(\symbf{\eta}=g\left(\symbf{\mu}\right)\)</span>
+</li>
+</ul>
+<p><br>
+现在我们转向将批次视为随机效应的多批次模型。</p>
+</div>
+<div id="sec1-4-2" class="section level3" number="1.4.2">
+<h3>
+<span class="header-section-number">1.4.2</span> 混合模型：具有固定效应和随机效应的模型<a class="anchor" aria-label="anchor" href="#sec1-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<details><summary><font color="#8B2232">表 1.3</font>
+</summary><img src="figure/table%201.3.png#center" style="width:90.0%"></details><p><br>
+表 1.3 中的最后两个模型是混合模型。线性预测器 <span class="math inline">\(\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_{ij}\)</span> 似乎与上面讨论的模型 5 和 6 的线性预测器完全相同。主要区别在于，在模型 5 和 6 中，与批次 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 相关的效应是固定参数，而在模型 7 和 8 中，它们具有概率分布。在矩阵表示法中，与随机效应相关的 <span class="math inline">\(\symbf X\symbf\beta\)</span> 的分量从 <span class="math inline">\(\symbf X\symbf\beta\)</span> 中移除并置于新的元素中，表示为 <span class="math inline">\(\symbf{Zb}\)</span>，其中向量 <span class="math inline">\(\symbf b\)</span> 由随机模型效应组成。</p>
+<p>正式地，线性预测器为 <span class="math inline">\(\symbf\eta=\symbf X\symbf\beta+\symbf{Zb}\)</span>，其中 <span class="math inline">\(\symbf b  \sim N (\symbf 0,\symbf G)\)</span>。对于模型 7 和 8，线性预测器的固定效应分量为 <span class="math inline">\({\beta}_{0i}+{\beta}_{1i}X_{ij}\)</span>。因此其矩阵形式为</p>
+<div class="inline-figure"><img src="figure/matrix22.png#center" style="width:20.0%"></div>
+<p>或</p>
+<p><span class="math display">\[\begin{bmatrix}\symbf X_{\beta_0}&amp;\symbf X_{\beta_1}\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\end{bmatrix}=\symbf X_{\beta_0}\beta_0+\symbf X_{\beta_1}\beta_1\]</span></p>
+<p>其中所有项的定义如前。模型 5 和 6 中 <span class="math inline">\(\symbf X\symbf\beta\)</span> 的其余元素变为模型 7 和 8 中的 <span class="math inline">\(\symbf{Zb}\)</span>，即</p>
+<div class="inline-figure"><img src="figure/matrix23.png#center" style="width:60.0%"></div>
+<p>其中</p>
+<p><span class="math display">\[\symbf{b}=\begin{bmatrix}{b}_0\\{b}_1\end{bmatrix}\thicksim N\left(\begin{bmatrix}0\\0\end{bmatrix},\begin{bmatrix}\symbf{I}{\sigma}_0^2&amp;\symbf{I}{\sigma}_{01}\\\symbf{I}{\sigma}_{01}&amp;\symbf{I}{\sigma}_1^2\end{bmatrix}\right)\]</span></p>
+<p>请注意，矩阵 <span class="math inline">\(\symbf Z\)</span> 的元素 <span class="math inline">\(\symbf Z_{b0}\)</span> 和 <span class="math inline">\(\symbf Z_{b1}\)</span> 的构造与模型 5 和 6 中的 <span class="math inline">\(\symbf X_{b0}\)</span> 和 <span class="math inline">\(\symbf X_{b1}\)</span> 完全相同。唯一的变化是，因为它们在模型 7 和 8 中是随机效应，所以它们置于矩阵 <span class="math inline">\(\symbf Z\)</span> 中，它们对应的模型效应置于 <span class="math inline">\(\symbf b\)</span> 中，而 <span class="math inline">\(\symbf b\)</span> 是随机效应向量，并且必须说明 <span class="math inline">\(\symbf b\)</span> 的概率分布。</p>
+<p>总之，所有混合模型都具有一般形式 <span class="math inline">\(\symbf\eta=\symbf X\symbf\beta+\symbf{Zb}\)</span>。需对观测向量 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 以及随机效应向量 <span class="math inline">\(\symbf b\)</span> 说明概率分布。请注意，在混合模型中，观测是以随机模型效应为条件的。为了更清楚地说明这一点，我们将在第 <a href="chap2.html#chap2">2</a> 章中给出几个示例。混合模型的完整指定如下：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\symbf\eta=\symbf X\symbf\beta+\symbf{Zb}\)</span>，其中 <span class="math inline">\(\symbf b\sim N(\symbf 0,\symbf G)\)</span>
+</li>
+<li>以随机效应为条件的观测 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 服从某种分布，并记 <span class="math inline">\(E(\symbf y\mid \symbf b)=\symbf \mu\mid \symbf b\)</span> 以及 <span class="math inline">\(Var(\symbf y\mid \symbf b)=\symbf R\)</span>。通常，为方便起见，我们会使用简写 <span class="math inline">\(E(\symbf y\mid \symbf b)=\symbf \mu\)</span> 来表示观测的条件均值。</li>
+</ul>
+<div class="rmdtip">
+<p><a href="chap1.html#sec1-4">1.4</a> 节的关键思想：模型的矩阵形式；矩阵 <span class="math inline">\(\symbf X\)</span> 和向量 <span class="math inline">\(\symbf \beta\)</span> 如何形成固定效应模型；分类与直接变量对矩阵组成的影响；在混合模型中 <span class="math inline">\(\symbf X\symbf\beta\)</span> 与 <span class="math inline">\(\symbf Z\symbf b\)</span> 有何不同？</p>
+</div>
+</div>
+</div>
+<div id="sec1-5" class="section level2" number="1.5">
+<h2>
+<span class="header-section-number">1.5</span> 小结：模型完整陈述的必要元素<a class="anchor" aria-label="anchor" href="#sec1-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>表 1.4 总结了我们在本章中考虑的模型类型。</p>
+<details><summary><font color="#8B2232">表 1.4</font>
+</summary><img src="figure/table%201.4.png#center" style="width:90.0%"></details><p><br>
+我们将表 1.4 中的各列称为统计模型的必要元素。此后，在本书中我们使用以下格式来指定统计模型。</p>
+<p><strong>统计模型的必要元素——标准格式</strong></p>
+<ul>
+<li>线性预测器：一般形式为“<span class="math inline">\(\eta=\)</span>…”，例如 <span class="math inline">\(\eta_i=\eta+\tau_i\)</span>。</li>
+<li>分布：必须指定观测和所有随机模型效应的分布。在混合模型中，观测的分布取条件于随机模型效应。</li>
+<li>连接函数：对于高斯模型（LM 和 LMM），连接（通常）是恒等的。对于 GLM 和 GLMM，连接是均值的某个函数，例如
+<span class="math display">\[\eta_i=\mathrm{logit}(\pi_i)=\log\biggl[\frac{\pi_i}{\left(1-\pi_i\right)}\biggr]\]</span>
+</li>
+</ul>
+<p>重复之前提出的观点：GLM, LM 和 LMM 都是 GLMM 的特殊情况。这一点在第 <a href="chap4.html#chap4">4</a>, <a href="chap5.html#chap5">5</a> 和 <a href="chap6.html#chap6">6</a> 章中需要牢记。这些章节开发了线性模型估计和推断的理论与方法。它们专注于 GLMM，因为 GLMM 的理论和方法也适用于 GLM, LM 和 LMM.</p>
+<p><br>
+从历史的角度来看，我们在第 <a href="chap4.html#chap4">4</a>, <a href="chap5.html#chap5">5</a> 和 <a href="chap6.html#chap6">6</a> 章中的发展与传统文本中线性模型理论和方法的开发有所不同，传统文本通常从线性模型 (LM) 开始，然后逐层增加复杂性。为理解这一理念的合理性，我们需要简要回顾线性建模思想的发展历程。</p>
+<p>线性模型在过去的五十年里经历了长足的发展。20 世纪 70 年代中期是对比本文方法和我们所说的“更传统”方法的一个很好的参照点。彼时，第一款广泛可用且真正全面的线性模型统计软件问世。同时，那十年期间也涌现了许多经典的线性模型教科书。这些教科书以矩阵代数为基础，构建了线性模型的理论和方法；它们重点讨论了二次型及其相关的分布理论。在此期间，本文中所称的 LM 是以模型方程而非概率分布的形式呈现的，并称为“一般线性模型” (“the General Linear Model”). 也就是说，“一般线性模型”定义为 <span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span>，其中 <span class="math inline">\(\symbf{e}\thicksim N\left(\symbf 0,\symbf{I}{\sigma}^2\right)\)</span>。SAS<sup>®</sup> 开发的程序 PROC GLM 实现了“一般线性模型”。该 SAS<sup>®</sup> 程序现在会引起混乱，因为它实际上只适用于我们使用的术语 “LM”，而不是真正的 “GLMs”——我们在本书中提到的广义线性模型。</p>
+<p>长期以来，“一般线性模型”一直被认为是线性建模的一个特例。LMM 和 GLM 的概念和方法已经存在很长时间了。</p>
+<p>在 20 世纪 30 年代，随着不完全区组设计的出现，引入了区组间信息的恢复 (recovery of inter-block information) ——即假定随机区组效应的 LMM 分析。自 20 世纪 40 年代以来，方差分量估计一直是线性建模的一部分。多个误差项的使用（例如用于多水平和裂区实验）——一种 LMM 程序——是方差分析 (analysis of variance, ANOVA) 的扩展，它在 20 世纪 20 年代 ANOVA 引入后不久出现，并自此成为标准的统计工具。早在 PROC GLM 程序出现之前，计量经济学家和地质统计学家就为专门的应用开发了具有相关误差 (correlated error) 的 LMMs. Harville 于 1976 年发表了 LMM 的统一理论。</p>
+<p>在 GLM 方面，logistic 回归和 probit 回归模型（与 <a href="chap1.html#sec1-2">1.2</a> 节中的二项回归示例类似）在 20 世纪 50 年代被广泛使用。列联表的对数线性模型于 20 世纪 60 年代引入。生存分析方法大约在这个时候出现。Nelder and Wedderburn (1972) 发表了 GLM 的统一理论。</p>
+<p>在 20 世纪 80 年代和 90 年代，两个主要的发展线索同时发生——事实上，它们相互推动和加强——改变了我们对线性模型的看法。首先，计算机变得更小、更快、更强大、更可用——这一点非常明显。LMM 和 GLM 的计算在 20 世纪 70 年代的标准下是令人望而却步的，到 1990 年代的标准下变得容易。其次，随着计算机的发展，GLM 和LMM 理论相互混合，到 20 世纪 90 年代中期，文献中出现了 GLMMs 的综合理论，例如 Breslow and Clayton (1993). 到 2000 年代中期，用于实现 GLMMs 的综合软件已经变得广泛可用，这种软件的语法对于任何了解 LMs 的人来说都很熟悉。</p>
+<p>那么，从 2023 年的角度来看，将 LM（尤其是将 <span class="math inline">\(Var(\symbf e)\)</span> 限制为 <span class="math inline">\(\symbf I\sigma^2\)</span> 的 LM）称为“一般”线性模型似乎很奇怪。按照当代标准，LM 根本不是“一般的”，这样称呼它是具有误导性的。此外，模型方程形式——仅固定效应模型的 <span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 以及混合模型的 <span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\symbf{Zb}+\mathbf{e}\)</span>——正如我们 <a href="chap1.html#sec1-2">1.2</a> 节中看到的那样，对于 GLM 和 GLMM 来说是无用且具有误导性的。</p>
+<p>因此本书的行文流程是这样的。我们没有先在模型方程形式下的 LM 模型 <span class="math inline">\(\require{symbf}\mathbf{y}=\mathbf{X}\symbf\beta+\mathbf{e}\)</span> 构建一套详尽的理论和方法论，然后再从头开始研究 GLMs, LMMs 和 GLMMs，而是从一开始就从一般情况入手。</p>
+<p>总之，模型的基本要素如表 1.4 所示。线性模型的任何表述都必须明确列出表 1.4 中每一列的要素。缺少任何一个要素的模型表述都是不完整。</p>
+<p>在第 <a href="chap2.html#chap2">2</a> 章中，我们将学习如何将数据集的描述转化为合理的模型表述。实际上，我们在本章的 <a href="chap1.html#sec1-2">1.2</a> 节和 <a href="chap1.html#sec1-3">1.3</a> 节已经开始了这个过程，但第 <a href="chap2.html#chap2">2</a> 章将把它提升到一个更高的层次。然后，在第 <a href="chap3.html#chap3">3</a> 章中，我们将开始开发处理这些模型所需的理论和方法的概念和工具。</p>
+</div>
+<div id="exe1" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe1"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>考虑两处理的配对比较。考虑两种可能的场景：</p>
+<ol style="list-style-type: lower-alpha">
+<li>响应变量是连续的，并可以假定具有高斯分布。</li>
+<li>对于第 <span class="math inline">\(j\)</span> 对（<span class="math inline">\(j  = 1, 2 ,..., p\)</span>）的第 <span class="math inline">\(i\)</span> 种处理（<span class="math inline">\(i = 1,2\)</span>），进行 <span class="math inline">\(N_{ij}\)</span> 个观测。每个观测都有有利或不利的结果。将 <span class="math inline">\(y_{ij}\)</span> 表示为在第 <span class="math inline">\(ij\)</span> 对中观察到的有利结果数。</li>
+</ol>
+<p>对于 a, b 两种情况：</p>
+<ol style="list-style-type: lower-roman">
+<li>编写模型的完整指定，包括所有必要元素。</li>
+<li>以矩阵形式写出 i. 中的模型。包括任何随机模型效应的协方差假定的矩阵指定。</li>
+<li>鉴于配对比较的目的是找出处理之间是否存在差异，请根据你在 i. 中定义的模型参数，正式地表述你将要检验的原假设。</li>
+</ol>
+<p>建议在课堂上实施此练习：</p>
+<ul>
+<li>两人一组，分别完成场景 a 和 b 的工作。</li>
+<li>两人对对方的工作进行同行评审。</li>
+<li>根据同行的建议修订对以上三个问题的回答。</li>
+<li>一旦两人对两个场景中的工作都感到满意，就提交工作。</li>
+<li>以上所有内容最多花 15 分钟。每个场景的演示和同行评审最多 5 分钟。最多修订 5 分钟。</li>
+<li>对于同行评审，重点关注：
+<ul>
+<li>模型陈述是清楚的吗？</li>
+<li>是否定义了所有的项？</li>
+<li>是否提供了所有必要元素？表达是清晰的吗？</li>
+<li>是否说明了假定？</li>
+<li>答案是否简洁（没有废话，没有死记硬背……）？</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>类似于图 1.2 所示的多批次情形，只不过现在有两种处理。每种处理都随机分配了三个批次。与图 1.2 中的情形一样，假定随时间的变化是线性的。考虑响应变量的以下情形：</p>
+<ol style="list-style-type: lower-alpha">
+<li>高斯响应变量。</li>
+<li>响应变量 <span class="math inline">\(y_{ijk}\)</span> 是第 <span class="math inline">\(ijk\)</span> 个处理-批次-时间组合中 <span class="math inline">\(N_{ijk}\)</span> 个观测中的有利结果数。</li>
+<li>响应变量是计数，假定具有泊松分布。
+<ol style="list-style-type: lower-roman">
+<li>对于每种情形：编写完整的模型指定，包括所有必要元素。</li>
+<li>假设随变化时间的线性响应对应于材料（例如食品、药物、农药）随时间的降解（例如失去效力、毒素积聚等）。研究人员想知道“哪种处理更好？”根据 i. 中的模型参数，编写一个正式的原假设，为该问题提供一个具有统计可操作性的定义，并回答研究者的问题。</li>
+</ol>
+</li>
+</ol>
+<p>第 ii. 部分只需要做一次。与模型指定不同，这里的答案应该同样适用于每个响应变量情形（如果你正确地完成了第 i. 部分）。</p>
+<p>提示：你的“假设”实际上可能是一系列假设以及一个相关的方案，通过这些假设和方案来回答研究问题。请尽可能简洁地完成，并尽可能清晰、简洁地解释。如果你的答案超过半页纸，那就说明你没有做到简洁、清晰或简明扼要。</p>
+</li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="secpre.html">前言</a></div>
+<div class="next"><a href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap1"><span class="header-section-number">1</span> 建模基础</a></li>
+<li>
+<a class="nav-link" href="#sec1-1"><span class="header-section-number">1.1</span> 什么是模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec1-1-1"><span class="header-section-number">1.1.1</span> 两处理均值模型</a></li>
+<li><a class="nav-link" href="#sec1-1-2"><span class="header-section-number">1.1.2</span> 线性回归模型</a></li>
+<li><a class="nav-link" href="#sec1-1-3"><span class="header-section-number">1.1.3</span> 最终评注</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec1-2"><span class="header-section-number">1.2</span> 模型的替代形式</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec1-2-1"><span class="header-section-number">1.2.1</span> 两种线性预测器形式：单元格均值和效应</a></li>
+<li><a class="nav-link" href="#sec1-2-2"><span class="header-section-number">1.2.2</span> 两种模型形式：模型方程和概率分布</a></li>
+<li><a class="nav-link" href="#sec1-2-3"><span class="header-section-number">1.2.3</span> 说明模型方程形式缺点的转折</a></li>
+<li><a class="nav-link" href="#sec1-2-4"><span class="header-section-number">1.2.4</span> 非高斯数据建模的替代方法——初始概念</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec1-3"><span class="header-section-number">1.3</span> 模型效应的类型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec1-3-1"><span class="header-section-number">1.3.1</span> 分类与直接效应</a></li>
+<li><a class="nav-link" href="#sec1-3-2"><span class="header-section-number">1.3.2</span> 固定与随机效应</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec1-4"><span class="header-section-number">1.4</span> 以矩阵形式编写模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec1-4-1"><span class="header-section-number">1.4.1</span> 仅固定效应模型</a></li>
+<li><a class="nav-link" href="#sec1-4-2"><span class="header-section-number">1.4.2</span> 混合模型：具有固定效应和随机效应的模型</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec1-5"><span class="header-section-number">1.5</span> 小结：模型完整陈述的必要元素</a></li>
+<li><a class="nav-link" href="#exe1">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

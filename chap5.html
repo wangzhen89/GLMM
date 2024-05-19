@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 5 章 GLMM 估计 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="5.1 介绍 在第 4 章中，我们介绍了经典 LM 基本的估计和推断概念。在接下来的三章中，我们将基于这些概念介绍 GLMM 的估计和推断理论和方法。本章的重点是估计。 回想，一个完全指定的线性模型包括 线性预测器 \(\symbf{X\beta}+\symbf{Zb}\)，或简单地为 \(\symbf{X\beta}\)（如果没有随机效应） 取条件于随机效应的观测 \(\symbf...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 5 章 GLMM 估计 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="5.1 介绍 在第 4 章中，我们介绍了经典 LM 基本的估计和推断概念。在接下来的三章中，我们将基于这些概念介绍 GLMM 的估计和推断理论和方法。本章的重点是估计。 回想，一个完全指定的线性模型包括 线性预测器 \(\symbf{X\beta}+\symbf{Zb}\)，或简单地为 \(\symbf{X\beta}\)（如果没有随机效应） 取条件于随机效应的观测 \(\symbf...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 5 章 GLMM 估计 | 广义线性混合模型">
+<meta name="twitter:description" content="5.1 介绍 在第 4 章中，我们介绍了经典 LM 基本的估计和推断概念。在接下来的三章中，我们将基于这些概念介绍 GLMM 的估计和推断理论和方法。本章的重点是估计。 回想，一个完全指定的线性模型包括 线性预测器 \(\symbf{X\beta}+\symbf{Zb}\)，或简单地为 \(\symbf{X\beta}\)（如果没有随机效应） 取条件于随机效应的观测 \(\symbf...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="active" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap5" class="section level1" number="5">
+<h1>
+<span class="header-section-number">第 5 章</span> GLMM 估计<a class="anchor" aria-label="anchor" href="#chap5"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec5-1" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> 介绍<a class="anchor" aria-label="anchor" href="#sec5-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap4.html#chap4">4</a> 章中，我们介绍了经典 LM 基本的估计和推断概念。在接下来的三章中，我们将基于这些概念介绍 GLMM 的估计和推断理论和方法。本章的重点是估计。</p>
+<p>回想，一个完全指定的线性模型包括</p>
+<ul>
+<li>线性预测器 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}\)</span>，或简单地为 <span class="math inline">\(\symbf{X\beta}\)</span>（如果没有随机效应）</li>
+<li>取条件于随机效应的观测 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 的分布（如果存在随机效应）</li>
+<li>连接函数 <span class="math inline">\(\symbf\eta=g(\symbf\mu\mid \symbf b)\)</span>，其中 <span class="math inline">\(\symbf\mu\mid \symbf b=E(\symbf y\mid \symbf b)\)</span>
+</li>
+<li>随机效应分布 <span class="math inline">\(\symbf b\sim N(\symbf 0,\symbf G)\)</span>
+</li>
+</ul>
+<p>我们的任务包括估计 <span class="math inline">\(\symbf\beta\)</span>，<span class="math inline">\(Var(\symbf{y}\mid\symbf{b})\)</span> 的任何不依赖于 <span class="math inline">\(\symbf\mu\mid \symbf b\)</span> 的分量，如果存在随机效应，则还需估计 <span class="math inline">\(\symbf b\)</span> 和 <span class="math inline">\(\symbf G\)</span>。</p>
+<p>与基于最小二乘的经典线性模型理论不同，广义线性混合模型估计使用最大似然。我们一次进行一项估计，从仅固定效应模型的 <span class="math inline">\(\symbf\beta\)</span> 开始，然后是仅高斯模型的 <span class="math inline">\(\symbf b\)</span> 及其方差和协方差分量，最后将其集成到成熟的 GLMM 估计程序中。在这次旅途中，在每步之前我们都会介绍基本背景；在每步之后，我们将暂停以展示基于似然的 GLMM 估计与经典的基于最小二乘的估计之间的关系。</p>
+</div>
+<div id="sec5-2" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> 基本背景<a class="anchor" aria-label="anchor" href="#sec5-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>Nelder and Wedderburn (1972) 在其基础广义线性模型论文中，将固定效应线性模型从假定具有高斯分布的响应变量扩展到属于指数族的响应变量。我们的第一站将是指数族。然后我们回顾最大似然估计的基本原理，包括 Newton-Raphson 和 Fisher 得分算法。这些方法扩展至拟似然，即使不能指定全似然，也可以指定期望和方差，从而允许使用广义线性模型来处理响应变量。</p>
+<div id="sec5-2-1" class="section level3" number="5.2.1">
+<h3>
+<span class="header-section-number">5.2.1</span> 指数族<a class="anchor" aria-label="anchor" href="#sec5-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>考虑一个随机变量 <span class="math inline">\(Y\)</span>，我们用 <span class="math inline">\(E(Y)=\mu\)</span> 表示其期望值，用 <span class="math inline">\(Var(Y)=\sigma^2\)</span> 表示其方差。正如许多数理统计学教材所介绍的那样，如果 <span class="math inline">\(Y\)</span> 的 p.d.f. 可写为</p>
+<p><span class="math display">\[f\begin{pmatrix}y\mid\theta\end{pmatrix}=m(y)r\begin{pmatrix}\theta\end{pmatrix}e^{s(\theta)t(y)}\]</span></p>
+<p>那么其分布就被认为是<strong>指数族</strong> (exponential family) 的一员。其中 <span class="math inline">\(\theta\)</span> 表示<strong>典型参数</strong> (canonical parameter). 遵循 Nelder 等人，这可以更方便地写为</p>
+<p><span class="math display">\[f\left(y\mid\theta\right)=\exp\left[\frac{y\theta-b\left(\theta\right)}{a\left(\phi\right)}+c\left(y,\phi\right)\right]\]</span></p>
+<p>或</p>
+<p><span class="math display" id="eq:5-1">\[\begin{equation}
+\log\left[f\left(y\mid\theta\right)\right]=\ell\left(\theta;y,\phi\right)=\frac{y\theta-b\left(\theta\right)}{a\left(\phi\right)}+c\left(y,\phi\right)
+\tag{5.1}
+\end{equation}\]</span></p>
+<p>其中 <span class="math inline">\(\phi\)</span> 表示<strong>尺度参数</strong> (scale parameter). 这种形式的优点是明确考虑了尺度参数，并可以很自然地适用于最大似然估计。</p>
+<p>例如，考虑我们在第 <a href="chap1.html#chap1">1</a> 章至第 <a href="chap3.html#chap3">3</a> 章中看到的高斯、二项和泊松概率密度/分布函数：</p>
+<ul>
+<li><p>高斯：<span class="math inline">\(\frac1{\sigma\sqrt{2\pi}}e^{-\frac1{2\sigma^2}\left(y-\mu\right)^2}\)</span></p></li>
+<li><p>二项：<span class="math inline">\(\binom nyp^y\left(1-p\right)^{n-y}\)</span></p></li>
+<li><p>泊松：<span class="math inline">\(\frac{e^{-\lambda}\lambda^y}{y!}\)</span></p></li>
+</ul>
+<p>它们的对数似然分别为</p>
+<ul>
+<li><p>高斯：<span class="math display">\[-\log\left(\sigma\sqrt{2\pi}\right)-\frac{y^2-2y\mu+\mu^2}{2\sigma^2}=\frac{y\mu-\left(\mu^2/2\right)}{\sigma^2}-\left\{\frac{y^2}{2\sigma^2}+\log\left(\sigma\sqrt{2\pi}\right)\right\}\]</span></p></li>
+<li><p>二项：<span class="math display">\[\log\binom{n}{y}+y\log(p)+(n-y)\log(1-p)=y\log\left(\frac{p}{1-p}\right)+n\log\left(1-p\right)+\log\binom n y\]</span></p></li>
+<li><p>泊松：<span class="math display">\[-\lambda+y\log\left(\lambda\right)-\log\left(y!\right)=y\log\left(\lambda\right)-\lambda-\log\left(y!\right)\]</span></p></li>
+</ul>
+<p>根据对数似然可看出，通过识别其中的元素，这些分布都属于指数族。</p>
+<div class="inline-figure"><img src="figure/figure%20148.png#center" style="width:80.0%"></div>
+<p>我们在这本书中将遇到的大多数分布，包括负二项、多项和伽马分布，都可以以类似的方法表示。有些分布（例如贝塔分布）也可表明属于指数族，只是必须使用标准数理统计教材中的表示形式，而不是 <a href="chap5.html#eq:5-1">(5.1)</a> 中所示的较简单的形式。</p>
+<div class="rmdnote">
+<p><strong>重要提示</strong>：典型参数始终是分布的期望值的函数。高斯分布、二项分布和泊松分布是这样的分布的例子：它们的典型参数恰好是涉及这些分布的广义线性模型的标准连接函数。</p>
+</div>
+</div>
+<div id="基本术语和结果" class="section level3 unnumbered">
+<h3>基本术语和结果<a class="anchor" aria-label="anchor" href="#%E5%9F%BA%E6%9C%AC%E6%9C%AF%E8%AF%AD%E5%92%8C%E7%BB%93%E6%9E%9C"><i class="fas fa-link"></i></a>
+</h3>
+<p>指数族的如下性质对于估计和推断是至关重要的。</p>
+<p><strong>得分函数</strong> (score function)，记作 <span class="math inline">\(S(θ)\)</span>，定义为对数似然的导数，即</p>
+<p><span class="math display">\[S\left(\theta\right)=\frac{\partial\ell\left(\theta;y,\phi\right)}{\partial\theta}\]</span></p>
+<p>得分函数的方差称为<strong>信息</strong> (information)，记为 <span class="math inline">\(Var\left[S\left(\theta\right)\right]=\mathcal J\left(\theta\right)\)</span>。得分函数具有一个重要的性质，即它的期望值为零。以下是几个重要的结果：</p>
+<p><span class="math display" id="eq:5-2">\[\begin{equation}
+E(Y)=\mu=\frac{\partial b(\theta)}{\partial\theta}
+\tag{5.2}
+\end{equation}\]</span></p>
+<details><summary><font color="#8B2232">点我看证明</font>
+</summary><p><br></p>
+<div class="rmdnote">
+<p>由于 <span class="math inline">\(E{\left[S\left(\theta\right)\right]}=E{\left[\frac{y-\left(\partial b\left(\theta\right)/\partial\theta\right)}{a\left(\phi\right)}\right]}=0\)</span> 因此 <span class="math inline">\(E(y)-(\partial b(\theta)/\partial\theta)=0\)</span> 从而得证。</p>
+</div>
+</details><p><span class="math display" id="eq:5-3">\[\begin{equation}
+E\binom{\partial S}{\partial\theta}=-E[S(\theta)]^2
+\tag{5.3}
+\end{equation}\]</span></p>
+<details><summary><font color="#8B2232">点我看证明</font>
+</summary><p><br></p>
+<div class="rmdnote">
+<p>根据定义，</p>
+<p><span class="math display">\[E\left(\frac{\partial S}{\partial\theta}\right)=E\left(\frac{\partial^2\log f\left(y;\theta\right)}{\partial\theta^2}\right)=\int\left[\partial\left(\frac{\partial\log f\left(y;\theta\right)}{\partial\theta}\right)\bigg/\partial\theta\right]f\left(y;\theta\right)dy\]</span></p>
+<p>这可写为</p>
+<p><span class="math display">\[\int\left[\partial\left(\frac{\partial f\left(y;\theta\right)/\partial\theta}{f\left(y;\theta\right)}\right)\bigg/\partial\theta\right]f\left(y;\theta\right)dy=\int-\frac{\partial f\left(y;\theta\right)/\partial\theta}{f\left(y;\theta\right)f\left(y;\theta\right)}\;\;\partial f\left(y;\theta\right)/\partial\theta\;\;f\left(y;\theta\right)dy\]</span></p>
+<p>重写后得到</p>
+<p><span class="math display">\[\int-\left(\frac{\partial f\left(y;\theta\right)/\partial\theta}{f\left(y;\theta\right)}\right)\left(\frac{\partial f\left(y;\theta\right)/\partial\theta}{f\left(y;\theta\right)}\right)f\left(y;\theta\right)dy\]</span></p>
+<p>或等价地</p>
+<p><span class="math display">\[-\int\biggl(\frac{\partial\log f\left(y;\theta\right)}{\partial\theta}\biggr)\biggl(\frac{\partial\log f\left(y;\theta\right)}{\partial\theta}\biggr)f\left(y;\theta\right)dy\]</span></p>
+<p>这就是 <span class="math inline">\(-E{\left[S\left(\theta\right)\right]}^2\)</span>。</p>
+</div>
+</details><p><span class="math display" id="eq:5-4">\[\begin{equation}
+Var\left[S(\theta)\right]=-E\left(\frac{\partial S}{\partial\theta}\right)
+\tag{5.4}
+\end{equation}\]</span></p>
+<details><summary><font color="#8B2232">点我看证明</font>
+</summary><p><br></p>
+<div class="rmdnote">
+<p>根据定义，<span class="math inline">\(Var\left[S\left(\theta\right)\right]=E\left[S\left(\theta\right)\right]^2-\left\{E\left[S\left(\theta\right)\right]\right\}^2\)</span>，根据 <span class="math inline">\(E{\left[S\left(\theta\right)\right]}=0\)</span>，这可简化为 <span class="math inline">\(E{\left[S\left(\theta\right)\right]}^2\)</span>。再根据之前的结果，<span class="math inline">\(E\bigl[S(\theta)\bigr]^2=-E\left(\frac{\partial S}{\partial\theta}\right)\)</span>，从而得证。</p>
+</div>
+</details><p><span class="math display" id="eq:5-5">\[\begin{equation}
+Var\left(Y\right)=a\left(\phi\right)\left[\frac{\partial^2b\left(\theta\right)}{\partial\theta^2}\right]
+\tag{5.5}
+\end{equation}\]</span></p>
+<details><summary><font color="#8B2232">点我看证明</font>
+</summary><p><br></p>
+<div class="rmdnote">
+<p>根据定义，<span class="math inline">\(Var(Y)=E(T-\mu)^2\)</span>，利用 <a href="chap5.html#eq:5-1">(5.1)</a> 这可写为</p>
+<p><span class="math display">\[E\left\{\left[a\left(\phi\right)\right]\frac{y-\left[\partial b\left(\theta\right)/\partial\left(\theta\right)\right]}{a\left(\phi\right)}\right\}^2=\left[a\left(\phi\right)\right]^2E\left[S\left(\theta\right)\right]^2\]</span></p>
+<p>再利用 <a href="chap5.html#eq:5-3">(5.3)</a> 得到</p>
+<p><span class="math display">\[-\left[a\left(\phi\right)\right]^2E\left[\frac{\partial S}{\partial\theta}\right]=\left[a\left(\phi\right)\right]^2\left[\frac{\partial^2b\left(\theta\right)/\partial\theta^2}{a\left(\phi\right)}\right]=a(\phi)\left[\frac{\partial^2b\left(\theta\right)}{\partial\theta^2}\right]\]</span></p>
+<p>从而得证。</p>
+</div>
+</details><p><br>
+二阶导 <span class="math inline">\(\frac{\partial^2b(\theta)}{\partial\theta^2}\)</span> 称为<strong>方差函数</strong> (variance function)，记作 <span class="math inline">\(V(\mu)\)</span>。这是因为 <span class="math inline">\(V(\mu)=\frac{\partial^2b\left(\theta\right)}{\partial\theta^2}\)</span> 描述了 <span class="math inline">\(Y\)</span> 的方差对其期望值的依赖性。例如，对于正态分布或高斯分布，<span class="math inline">\(V(\mu)=1\)</span>，这意味着方差根本不取决于均值。对于二项和泊松分布，方差函数分别为 <span class="math inline">\(V\left(p\right)=p\left(1-p\right)\)</span> 和 <span class="math inline">\(V(\lambda)=\lambda\)</span>；对于二项分布和泊松分布，尺度参数是已知常数，则方差完全由期望值决定。对于其他分布，例如贝塔、伽马和负二项，方差取决于均值和尺度参数（第 2 章的附录 <a href="chap2.html#sec2-A">A</a>）。</p>
+</div>
+<div id="sec5-2-2" class="section level3" number="5.2.2">
+<h3>
+<span class="header-section-number">5.2.2</span> 最大似然估计<a class="anchor" aria-label="anchor" href="#sec5-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p><strong>最大似然估计</strong> (maximum likelihood estimation) 的基本思想是确定使似然最大化的模型参数值。在指数族的背景中，给定观测 <span class="math inline">\(y\)</span> 和尺度参数 <span class="math inline">\(\phi\)</span>，通过关于典型参数 <span class="math inline">\(\theta\)</span> 最大化对数似然函数 <span class="math inline">\(\ell\left(\theta;y,\phi\right)\)</span> 来实现这一点。</p>
+<p>乍一看，这种最大化似乎与广义线性模型 <span class="math inline">\(\symbf\eta=\symbf{X\beta}\)</span> 有点脱节。然而经过思考，我们可以看到一个逻辑流程，在我们针对模型的每个细节逐步推导估计过程、最终达到广义线性混合模型的过程中，我们需要牢记这一流程。流程如下：根据模型定义，参数向量 <span class="math inline">\(\symbf\beta\)</span> 决定了连接函数 <span class="math inline">\(\symbf \eta\)</span>；反过来，连接函数又决定了均值 <span class="math inline">\(\symbf\mu = g^{-1}(\symbf\eta)\)</span>，这里 <span class="math inline">\(g^{-1}(\cdot)\)</span> 表示连接函数的逆函数。最后，回想一下，典型参数是均值的函数——典型参数更富信息的表示为 <span class="math inline">\(\theta\mu\)</span>。综合这些内容，我们发现指数族对数似然的一般形式 <a href="chap5.html#eq:5-1">(5.1)</a> 可重写为</p>
+<p><span class="math display" id="eq:5-6">\[\begin{equation}
+\ell\left(\beta;y,\phi\right)=\frac{y\left\{\theta{\left[g^{-1}\left(X\beta\right)\right]}\right\}-b\left(\left\{\theta{\left[g^{-1}\left(X\beta\right)\right]}\right\}\right)}{a\left(\phi\right)}+c\left(y,\phi\right)
+\tag{5.6}
+\end{equation}\]</span></p>
+<p>现在很明显，关于 <span class="math inline">\(\symbf\beta\)</span> 的最大化是有意义的。</p>
+<p>虽然式 <a href="chap5.html#eq:5-6">(5.6)</a> 捕获了对数似然的基本形式，但为了反映我们将对数据<strong>向量</strong>进行观测并根据这些数据估计参数<strong>向量</strong>，我们需要更准确地表述它。因此，对数似然需要使用矩阵语言来表述。具体地，</p>
+<p><span class="math display" id="eq:5-7">\[\begin{equation}
+\ell\left(\symbf{\theta};\symbf{y},\phi\right)=\symbf{y}^{\prime}\symbf{A}\symbf{\theta}-\symbf{1}^{\prime}\symbf{A}b\left(\symbf{\theta}\right)+c\left(\symbf{y},\phi\right)
+\tag{5.7}
+\end{equation}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf{A}=\operatorname{diag}\left[1/a(\phi_i)\right]\)</span> 为 <span class="math inline">\(n×n\)</span> 对角阵（假定有 <span class="math inline">\(n\)</span> 个观测），其第 <span class="math inline">\(i\)</span> 个元素是第 <span class="math inline">\(i\)</span> 个观测 <span class="math inline">\(y_i\)</span> 的尺度参数值，<span class="math inline">\(\symbf\theta\)</span> 是典型参数向量，<span class="math inline">\(\symbf 1'\)</span> 是 <span class="math inline">\(1×n\)</span> 全一向量，<span class="math inline">\(b(\symbf\theta)\)</span> 是通过将函数 <span class="math inline">\(b(\cdot)\)</span> 应用于 <span class="math inline">\(\symbf\theta\)</span> 的每个元素而定义的 <span class="math inline">\(n × 1\)</span> 向量，而 <span class="math inline">\(c (\symbf y,\phi)\)</span> 是不依赖于 <span class="math inline">\(\symbf\theta\)</span> 的剩余项。我们可以像 <a href="chap5.html#eq:5-6">(5.6)</a> 那样用 <span class="math inline">\(\symbf\beta\)</span> 表示 <span class="math inline">\(\symbf\theta\)</span>，只是此处没有展示。</p>
+<p>固定效应广义线性模型的最大似然估计涉及到令导数</p>
+<p><span class="math display">\[\frac{\partial\ell\left(\symbf{\theta};\symbf{y},\phi\right)}{\partial\symbf{\beta}^{\prime}}\]</span></p>
+<p>等于零（认识到 <span class="math inline">\(\symbf\theta\)</span> 取决于 <span class="math inline">\(\symbf\beta\)</span>）并求解 <span class="math inline">\(\symbf\beta\)</span>。</p>
+</div>
+<div id="sec5-2-3" class="section level3" number="5.2.3">
+<h3>
+<span class="header-section-number">5.2.3</span> Newton-Raphson 和 Fisher 得分<a class="anchor" aria-label="anchor" href="#sec5-2-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>从 <a href="chap5.html#sec5-3">5.3</a> 节开始，我们将认识到广义以及混合线性模型的估计需要迭代程序。为实现这一点，<strong>Newton-Raphson</strong> 和 <strong>Fisher 得分</strong> (Fisher scoring) 是两种在线性模型方法论中占有突出地位的方法。</p>
+<p>这两个程序都基于对数似然的二阶泰勒级数近似。方便起见，我们将对数似然简记为 <span class="math inline">\(\ell(\theta)\)</span>。其在 <span class="math inline">\(\tilde\theta\)</span> 处计算的泰勒级数近似为</p>
+<p><span class="math display" id="eq:5-8">\[\begin{equation}
+\ell\left(\theta\right)\cong\ell\left(\tilde{\theta}\right)+\frac{\partial\ell\left(\theta\right)}{\partial\theta}\Bigg|_{{\theta=\tilde{\theta}}}\left(\theta-\tilde{\theta}\right)+\left(\frac{1}{2}\right)\frac{\partial^{2}\ell\left(\theta\right)}{\partial\theta^{2}}\Bigg|_{{\theta=\tilde{\theta}}}\left(\theta-\tilde{\theta}\right)^{2}
+\tag{5.8}
+\end{equation}\]</span></p>
+<p>关于 <span class="math inline">\(\theta\)</span> 微分得到</p>
+<p><span class="math display">\[\begin{aligned}
+\frac{\partial\ell\left(\theta\right)}{\partial\theta}&amp; \cong\frac{\partial\left\{\ell\left(\tilde{\theta}\right)+\frac{\partial\ell\left(\theta\right)}{\partial\theta}\right|_{{\theta=\tilde{\theta}}}\left(\theta-\tilde{\theta}\right)+\left.\frac{\partial^{2}\ell\left(\theta\right)}{\partial\theta^{2}}\right|_{{\theta=\tilde{\theta}}}\left(\theta-\tilde{\theta}\right)^{2}}{\partial\theta}  \\
+&amp;=0+\frac{\partial\ell\left(\theta\right)}{\partial\theta}\Bigg|_{\theta=\tilde{\theta}}+\frac{\partial^2\ell\left(\theta\right)}{\partial\theta^2}\Bigg|_{\theta=\tilde{\theta}}\left(\theta-\tilde{\theta}\right)
+\end{aligned}\]</span></p>
+<p>令 <span class="math inline">\(\frac{\partial\ell(\theta)}{\partial\theta}=0\)</span> 并重写后得到</p>
+<p><span class="math display">\[\theta\equiv\tilde{\theta}-\left[\left.\frac{\partial\ell\left(\theta\right)}{\partial\theta}\right|_{\theta=\tilde{\theta}}\right]\left[\left.\frac{\partial^2\ell\left(\theta\right)}{\partial\theta^2}\right|_{\theta=\tilde{\theta}}\right]^{-1}\]</span></p>
+<p>上述推导可用矩阵写出（此处未显示——留作练习）。如此，我们将</p>
+<p><span class="math display">\[\left.\frac{\partial\ell\left(\symbf{\theta}\right)}{\partial\symbf{\theta}}\right|_{\symbf{\theta}=\tilde{\symbf{\theta}}}\]</span></p>
+<p>视为在 <span class="math inline">\(\tilde{\symbf\theta}\)</span> 处计算的<strong>得分向量</strong> (score vector)，并将</p>
+<p><span class="math display">\[\left.\frac{\partial\ell^2\left(\symbf\theta\right)}{\partial\symbf\theta\partial\symbf\theta^{\prime}}\right|_{\symbf\theta=\tilde{\symbf\theta}}\]</span></p>
+<p>视为在 <span class="math inline">\(\tilde{\symbf\theta}\)</span> 处计算的 <strong>Hessian 矩阵</strong>。</p>
+<p>将它们分别表示为 <span class="math inline">\(\symbf{s}\left(\tilde{\symbf{\theta}}\right)\)</span> 以及 <span class="math inline">\(\symbf{H}\left(\tilde{\symbf{\theta}}\right)\)</span> 我们有</p>
+<p><span class="math display" id="eq:5-9">\[\begin{equation}
+\symbf\theta\cong\tilde{\symbf\theta}-{\left[\symbf{H}{\left(\tilde{\symbf\theta}\right)}\right]}^{-1}\symbf{s}{\left(\tilde{\symbf\theta}\right)}
+\tag{5.9}
+\end{equation}\]</span></p>
+<p>这定义了基本的 Newton-Raphson 算法。为了实现它，我们采用 <span class="math inline">\(\symbf \theta\)</span> 的当前估计，记为 <span class="math inline">\(\tilde{\symbf\theta}\)</span>，使用它来更新得分向量和 Hessian 矩阵，使用式 <a href="chap5.html#eq:5-9">(5.9)</a> 计算新的 <span class="math inline">\(\symbf \theta\)</span> 值，在下一次更新中使用新值作为 <span class="math inline">\(\tilde{\symbf \theta}\)</span>。此过程一直持续到差值 <span class="math inline">\(\left(\symbf\theta-\tilde{\symbf\theta}\right)\)</span> 小到可接受为止。</p>
+<p>Fisher 得分使用信息矩阵代替 Hessian 矩阵。根据 <a href="chap5.html#eq:5-4">(5.4)</a> ，Hessian 矩阵的期望 <span class="math inline">\(E\left[\symbf{H}(\symbf{\theta})\right]=-Var\left[\symbf{s}(\symbf{\theta})\right]=-\symbf{\mathcal J}\left(\symbf\theta\right)\)</span>。代入 <a href="chap5.html#eq:5-9">(5.9)</a> 得到</p>
+<p><span class="math display" id="eq:5-10">\[\begin{equation}
+\symbf{\theta}\cong\tilde{\symbf{\theta}}+\left[\symbf{\mathcal J}\left(\tilde{\symbf{\theta}}\right)\right]^{-1}\symbf{s}\left(\tilde{\symbf{\theta}}\right)
+\tag{5.10}
+\end{equation}\]</span></p>
+<p>这定义了 Fisher 得分算法。它与 Newton-Raphson 算法完全一样，只是我们使用信息矩阵而不是 Hessian 矩阵。</p>
+<p>这两种算法都不适用于所有情况。对于我们将在本书中考虑的大多数例子，这两种程序在速度和结果方面是无法区分的。两者最终都会得到相同的解，但对于给定的模型或数据集，其中一种可能比另一种更快地收敛到解。计算机软件程序通常使用其中一个作为默认值，但允许你选择另一个，甚至允许你在迭代过程中的某个时刻切换。在给定情况下哪种算法效果最好通常需要反复试验。</p>
+</div>
+<div id="sec5-2-4" class="section level3" number="5.2.4">
+<h3>
+<span class="header-section-number">5.2.4</span> 拟似然<a class="anchor" aria-label="anchor" href="#sec5-2-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>最大似然估计依赖于</p>
+<p><span class="math display">\[\frac{\partial\ell\left(\symbf\theta;\symbf y,\phi\right)}{\partial\symbf\theta}\]</span></p>
+<p>其标量形式为</p>
+<p><span class="math display">\[\frac{y-\mu}{a(\phi)}\]</span></p>
+<p>因此，虽然项 <span class="math inline">\(c(y,\phi)\)</span> 是指数族似然的完整指定所必需的，但它不是最大似然估计所必需的。只有</p>
+<p><span class="math display">\[\frac{y\theta-b\left(\theta\right)}{a\left(\phi\right)}\]</span></p>
+<p>是必需的。</p>
+<p>Wedderburn (1974) 通过<strong>拟似然</strong> (quasi-likelihood) 理论正式化了该思想。</p>
+<p>拟似然定义为</p>
+<p><span class="math display">\[\int^\mu\frac{y-t}{v(t)a(\phi)}dt\]</span></p>
+<p>其中 <span class="math inline">\(v (t)\)</span> 对应于方差函数的形式，<span class="math inline">\(a(\phi)\)</span> 表示尺度参数函数。例如，令 <span class="math inline">\(v(t)=t\)</span> 以及 <span class="math inline">\(a(\phi)=1\)</span> 得到</p>
+<p><span class="math display">\[\int^\mu\frac{y-t}tdt=y\log(\mu)-\mu \]</span></p>
+<p>这是省略了 <span class="math inline">\(c(y,\phi)=-\log(y!)\)</span> 的泊松对数似然。类似地，令 <span class="math inline">\(v(t)=1\)</span> 以及 <span class="math inline">\(a(\phi)=\phi^2\)</span> 得到</p>
+<p><span class="math display">\[\int^\mu\frac{y-t}{\phi^2}dt=\frac{y\mu-{\mu^2}/2}{\phi^2}\]</span></p>
+<p>这是高斯对数似然的“拟似然”部分。</p>
+<p>Wedderburn (1974) 表明，为指数族开发的广义线性模型估计与推断理论，也适用于那些响应变量的均值和方差可以指定的模型，即使它们并不与一个已知的似然函数相关联。拟似然的重要应用包括针对非高斯重复测量数据的过度分散 (overdispersion) 以及相关误差 (correlated error) 模型，这两者都在本书第三篇讨论。</p>
+<p>例如，计数数据通常假定为具有泊松分布。泊松要求期望值和方差相等，即 <span class="math inline">\(E(y)=\lambda=Var(y)\)</span>。然而在实践中，我们经常观察到过度分散，即样本方差远大于均值，因此远大于理论表明的值。对过度分散的计数数据进行建模的一种常见方法是将假定的方差乘以尺度参数。以拟似然来说，我们定义了 <span class="math inline">\(\upsilon(t)=t\)</span>，就像定义泊松分布一样，但将尺度参数更改为 <span class="math inline">\(a(\phi)=\phi\)</span>。由此得到的拟似然为</p>
+<p><span class="math display">\[\int^\mu\frac{y-t}{t\phi}=\frac{y\log(\mu)-\mu}\phi\]</span></p>
+<p>因此，<span class="math inline">\(E(y)=\mu\)</span>，但 <span class="math inline">\(Var(y)=\phi\mu\)</span>。这种结构不存在实际的概率分布，但在许多情况下，它对计数数据的分布进行了充分的建模，并且拟似然对于广义线性模型估计和推断目的来说是良定的 (well-defined).</p>
+</div>
+</div>
+<div id="sec5-3" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> 仅固定效应<a class="anchor" aria-label="anchor" href="#sec5-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>本节开发的估计方程适用于具有线性预测器 <span class="math inline">\(\symbf\eta=\symbf{X\beta}\)</span> 的所有模型。虽然我们将这些称为广义线性模型 (GLM) 估计方程，但它们同样适用于经典的“一般”线性模型。回想一下，后者只是具有独立、同方差高斯数据的 GLM 的一个特例。类似地，第 <a href="chap4.html#chap4">4</a> 章中介绍的经典 OLS 估计方程只是 GLM 估计方程的特例。</p>
+<div id="标量形式" class="section level3 unnumbered">
+<h3>标量形式<a class="anchor" aria-label="anchor" href="#%E6%A0%87%E9%87%8F%E5%BD%A2%E5%BC%8F"><i class="fas fa-link"></i></a>
+</h3>
+<p>最终，我们想要一组矩阵方程来估计 <span class="math inline">\(\symbf\beta\)</span>，但简便起见，我们从对数似然的标量形式，式 <a href="chap5.html#eq:5-1">(5.1)</a>，或更好地，式 <a href="chap5.html#eq:5-6">(5.6)</a> 开始，它显示了模型参数如何嵌入典型参数。使用链式法则，我们可将用于最大似然估计的导数写为</p>
+<p><span class="math display">\[\frac{\partial\ell\left(\theta\left[g^{-1}\left(X\beta\right)\right];y,\phi\right)}{\partial\beta}=\frac{\partial\ell\left(\theta\right)}{\partial\theta}\frac{\partial\theta}{\partial\mu}\frac{\partial\mu}{\partial\eta}\frac{\partial\eta}{\partial\beta}\]</span></p>
+<p>现在我们注意到：</p>
+<ul>
+<li><p><span class="math display">\[\frac{\partial\ell\left(\theta\right)}{\partial\theta}=\frac{y-\left[\partial b\left(\theta\right)/\partial\theta\right]}{a\left(\phi\right)}=\frac{y-\mu}{a\left(\phi\right)}\]</span></p></li>
+<li><p><span class="math display">\[\frac{\partial\theta}{\partial\mu}=\left(\frac{\partial\mu}{\partial\theta}\right)^{-1}=\left(\frac{\partial\left[\partial b\left(\theta\right)/\partial\theta\right]}{\partial\theta}\right)^{-1}=\left(\frac{\partial^2b\left(\theta\right)}{\partial\theta^2}\right)^{-1}=\frac{1}{V\left(\mu\right)}\]</span></p></li>
+<li><p><span class="math display">\[\frac{\partial\eta}{\partial\beta}=\frac{\partial(X\beta)}{\partial\beta}=X\]</span></p></li>
+</ul>
+<p>注意，这些结果同样适用于拟似然。得到</p>
+<p><span class="math display">\[\frac{\partial\ell\left(\theta{\left[g^{-1}\left(X\beta\right)\right]};y,\phi\right)}{\partial\beta}=\frac{y-\mu}{a(\phi)}{\left(\frac1{V(\mu)}\right)}{\left(\frac{\partial\mu}{\partial\eta}\right)}X\]</span></p>
+<p>现在回想 <a href="chap5.html#eq:5-5">(5.5)</a>：<span class="math inline">\(a(\phi)V(\mu)=Var(y)\)</span> 从而给出</p>
+<p><span class="math display" id="eq:5-11">\[\begin{equation}
+\frac{\partial\ell\left(\theta{\left[g^{-1}\left(X\beta\right)\right]};y,\phi\right)}{\partial\beta}=(y-\mu){\left(\frac1{V(y)}\right)}{\left(\frac{\partial\mu}{\partial\eta}\right)}X
+\tag{5.11}
+\end{equation}\]</span></p>
+</div>
+<div id="矩阵形式" class="section level3 unnumbered">
+<h3>矩阵形式<a class="anchor" aria-label="anchor" href="#%E7%9F%A9%E9%98%B5%E5%BD%A2%E5%BC%8F"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们现在准备开发矩阵形式的估计方程。我们可将 <a href="chap5.html#eq:5-11">(5.11)</a> 写为</p>
+<p><span class="math display" id="eq:5-12">\[\begin{equation}
+\frac{\partial\ell(\symbf{\theta})}{\partial\symbf{\beta}'}=\symbf{X}\symbf{D}^{-1}\symbf{V}^{-1}\left(\symbf{y}-\symbf{\mu}\right)
+\tag{5.12}
+\end{equation}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf y\)</span> 为 <span class="math inline">\(n×1\)</span> 观测向量，<span class="math inline">\(\ell(\symbf\theta)\)</span> 是与观测相关的对数似然的 <span class="math inline">\(n×1\)</span> 值向量，<span class="math inline">\(\symbf{V}=\operatorname{diag}\left[Var(y_i)\right]\)</span> 为 <span class="math inline">\(n×n\)</span> 观测矩阵。<span class="math inline">\(\symbf{D}=\operatorname{diag}\left[\frac{\partial\eta_i}{\partial\mu_i}\right]\)</span> 为 <span class="math inline">\(n×n\)</span> 导数矩阵，<span class="math inline">\(\symbf\mu\)</span> 为 <span class="math inline">\(n×1\)</span> 均值向量。</p>
+<p>令 <span class="math inline">\(\symbf{W}=\left(\symbf{D}\symbf{V}\symbf{D}\right)^{-1}\)</span>。我们可将 <a href="chap5.html#eq:5-12">(5.12)</a> 重写为（同时注意到它是得分向量）</p>
+<p><span class="math display" id="eq:5-13">\[\begin{equation}
+\symbf{s}\left(\symbf{\theta}\right)=\frac{\partial\ell\left(\symbf{\theta}\right)}{\partial\symbf{\theta}^{\prime}}=\symbf{X}^{\prime}\symbf{D}^{-1}\symbf{V}^{-1}\left(\symbf{D}^{-1}\symbf{D}\right)\left(\symbf{y}-\symbf{\mu}\right)=\symbf{X}^{\prime}\symbf{W}\symbf{D}\left(\symbf{y}-\symbf{\mu}\right)
+\tag{5.13}
+\end{equation}\]</span></p>
+<p>我们使用 Fisher 得分来完成估计方程的构建。为此，我们需要信息矩阵。根据定义，信息矩阵为</p>
+<p><span class="math display" id="eq:5-14">\[\begin{align}
+Var\left[\symbf{s}\left(\symbf{\theta}\right)\right]&amp;=\symbf{X'WD}\left[Var\left(\symbf{y}-\symbf{\mu}\right)\right]\symbf{DWX}\\&amp;=\symbf{X'WDVDWX}\\&amp;=\symbf{X'WW}^{-1}\symbf{WX}=\symbf{X'WX}
+\tag{5.14}
+\end{align}\]</span></p>
+</div>
+<div id="sec5-3-1" class="section level3" number="5.3.1">
+<h3>
+<span class="header-section-number">5.3.1</span> GLM 估计方程<a class="anchor" aria-label="anchor" href="#sec5-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>将信息矩阵代入 Fisher 得分方程 <a href="chap5.html#eq:5-14">(5.14)</a> 得到 <span class="math inline">\(\symbf{\beta}=\tilde{\symbf{\beta}}+\left(\symbf{X}^{\prime}\tilde{\symbf{W}}\symbf{X}\right)^{-1}\symbf{X}^{\prime}\tilde{\symbf{W}}\tilde{\symbf{D}}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\)</span>，其中 <span class="math inline">\(\tilde{\symbf W},\tilde{\symbf D}\)</span> 和 <span class="math inline">\(\tilde{\symbf\mu}\)</span> 表示 <span class="math inline">\({\symbf W},{\symbf D}\)</span> 和 <span class="math inline">\({\symbf\mu}\)</span> 在 <span class="math inline">\(\tilde{\symbf\beta}\)</span> 处的值。将方程两边同时乘以 <span class="math inline">\(\symbf{X}^{\prime}\tilde{\symbf{W}}\symbf{X}\)</span> 得到 <span class="math inline">\(\symbf{X^{\prime}\tilde{W}X\beta=X^{\prime}\tilde{W}X\tilde{\beta}+X^{\prime}W\tilde{D}\left(y-\tilde{\mu}\right)}\)</span>。这就给出了 GLM 估计方程：</p>
+<p><span class="math display" id="eq:5-15">\[\begin{equation}
+\symbf{X^{\prime}\tilde WX\beta}=\symbf{X^{\prime}\tilde{W}y^*}
+\tag{5.15}
+\end{equation}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf{y}^*=\symbf{X}\tilde{\symbf{\beta}}+\tilde{\symbf{D}}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)=\tilde{\symbf{\eta}}+\tilde{\symbf{D}}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\)</span>。以 GLM 术语，<span class="math inline">\(\symbf y^*\)</span> 称为<strong>伪变量</strong> (pseudo-variable).</p>
+<p>我们通过迭代实现 GLM 估计方程 <a href="chap5.html#eq:5-15">(5.15)</a>. 一个起始的 <span class="math inline">\(\tilde{\symbf\beta}\)</span> 值允许我们初始化方程，得出 <span class="math inline">\({\symbf\beta}\)</span> 一个新的估计。我们将此作为更新的 <span class="math inline">\(\tilde{\symbf\beta}\)</span> 并以这种方式继续，直到差值 <span class="math inline">\(\left(\symbf\beta-\tilde{\symbf\beta}\right)\)</span> 可忽略不计，此时我们说估计过程已经收敛。</p>
+</div>
+<div id="sec5-3-2" class="section level3" number="5.3.2">
+<h3>
+<span class="header-section-number">5.3.2</span> 与最小二乘估计的关系<a class="anchor" aria-label="anchor" href="#sec5-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>这里有两个与最小二乘估计的重要关联。首先，它预示了我们将在 <a href="chap5.html#sec5-5">5.5</a> 节为广义线性混合模型开发的伪似然估计方程。其次，它指出了这样的事实：高斯线性模型的经典最小二乘估计实际上是广义线性模型估计的一个特例。</p>
+<div id="伪似然" class="section level4 unnumbered">
+<h4>伪似然<a class="anchor" aria-label="anchor" href="#%E4%BC%AA%E4%BC%BC%E7%84%B6"><i class="fas fa-link"></i></a>
+</h4>
+<p>考虑伪变量 <span class="math inline">\(\symbf y^*\)</span>。其期望和方差分别为</p>
+<ul>
+<li><p><span class="math inline">\(E\left(\symbf{y}^*\right)=E{\left[\symbf{X}\tilde{\symbf{\beta}}+\tilde{\symbf{D}}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\right]}=\symbf{X}\symbf{\beta}\)</span></p></li>
+<li><p><span class="math inline">\(Var\left(\symbf{y}^*\right)=Var\left[\symbf{X}\tilde{\symbf{\beta}}+\tilde{\symbf{D}}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\right]=\tilde{\symbf{D}}\left[Var\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\right]\tilde{\symbf{D}}=\tilde{\symbf{D}}\tilde{\symbf{V}}\tilde{\symbf{D}}=\tilde{\symbf{W}}^{-1}\)</span></p></li>
+</ul>
+<p>由此可从估计方程获得 <span class="math inline">\(\symbf\beta\)</span> 的<strong>广义最小二乘估计</strong> (generalized least squares estimator)，它由逆方差加权：</p>
+<p><span class="math display">\[\symbf{X}'\Big[Var\big(\symbf{y}^*\big)\Big]^{-1}\symbf{X}\symbf{\beta}=\symbf{X}'\Big[Var\big(\symbf{y}^*\big)\Big]^{-1}\symbf{y}^*\Rightarrow\symbf{X}'\symbf{W}\symbf{X}\symbf{\beta}=\symbf{X}'\symbf{W}\symbf{y}^*\]</span></p>
+<p>这与 <a href="chap5.html#eq:5-15">(5.15)</a> 中的 GLM 估计方程相同。</p>
+</div>
+<div id="高斯线性模型和普通最小二乘" class="section level4 unnumbered">
+<h4>高斯线性模型和普通最小二乘<a class="anchor" aria-label="anchor" href="#%E9%AB%98%E6%96%AF%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%99%AE%E9%80%9A%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98"><i class="fas fa-link"></i></a>
+</h4>
+<p>经典线性模型理论的发展是基于最小二乘的。具有独立、同方差数据的线性模型</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\symbf\eta=\symbf{X\beta}\)</span>
+</li>
+<li>连接：<span class="math inline">\(\symbf\eta=\symbf\mu\)</span>
+</li>
+<li>分布：<span class="math inline">\(\symbf y\sim N(\symbf \mu,\symbf I\sigma^2)\)</span>
+</li>
+</ul>
+<p>在经典线性模型文献中被称为“一般”线性模型。使用<strong>普通最小二乘</strong> (ordinary least squares)，即最小化 <span class="math inline">\(\symbf y\)</span> 与 <span class="math inline">\(\hat{\symbf y}\)</span> 之差的平方和进行估计。因为高斯模型使用恒等连接（尽管在前 GLM 时代，任何人都不会有连接函数这一概念），那么 <span class="math inline">\(\hat{\symbf{y}}=\symbf{X}\hat{\symbf{\beta}}\)</span>。普通最小二乘估计是通过最小化 <span class="math inline">\((\symbf{y}-\symbf{X}\symbf{\beta})^{\prime}(\symbf{y}-\symbf{X}\symbf{\beta})\)</span> 得到的，该过程得到<strong>普通最小二乘方程</strong> (ordinary least squares equations)</p>
+<p><span class="math display" id="eq:5-16">\[\begin{equation}
+\symbf{X^{\prime}X\beta}=\symbf{X^{\prime}y}
+\tag{5.16}
+\end{equation}\]</span></p>
+<p>在线性模型文献中也称为<strong>正规方程</strong> (normal equations). 注意，在恒等连接下，导数矩阵 <span class="math inline">\(\symbf D\)</span> 简化为单位矩阵。因此，<span class="math inline">\(\symbf W\)</span> 简化为 <span class="math inline">\((\symbf I \sigma^2)^{-1}\)</span>，<span class="math inline">\(\symbf y^*\)</span> 简化为 <span class="math inline">\(\symbf y\)</span>，GLM 估计方程成为 <span class="math inline">\(\symbf{X}^{\prime}\left(\symbf{I}\sigma^2\right)^{-1}\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\left(\symbf{I}\sigma^2\right)^{-1}\symbf{y}\)</span>，也就是 <span class="math inline">\(\symbf X^{\prime}\symbf X\beta=\symbf X^{\prime}\symbf y\)</span>。</p>
+<p>对于具有非平凡方差结构的高斯模型，即具有分布 <span class="math inline">\(\symbf y\sim N(\symbf\mu,\symbf V)\)</span>，我们知道普通最小二乘估计的效率不如广义最小二乘估计。由于高斯模型使用恒等连接，<span class="math inline">\(\symbf W\)</span> 简化为 <span class="math inline">\(\symbf V^{−1}\)</span>，<span class="math inline">\(\symbf y^*=\symbf y\)</span>，GLM 方程简化为高斯广义最小二乘 <span class="math inline">\(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{y}\)</span>。因此，我们可看出高斯最小二乘是更一般的 GLM 估计方程的一个特例。</p>
+</div>
+</div>
+</div>
+<div id="sec5-4" class="section level2" number="5.4">
+<h2>
+<span class="header-section-number">5.4</span> 高斯混合模型<a class="anchor" aria-label="anchor" href="#sec5-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>在本节中，我们开发了线性混合模型 (LMM) 的估计方程，即具有高斯数据以及线性预测器中具有随机效应的模型。回顾 LMM 的基本特征：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\symbf\eta=\symbf{X\beta}+\symbf{Zb}\)</span>
+</li>
+<li>分布：<span class="math inline">\(\symbf y\mid \symbf b\sim N(\symbf\mu\mid\symbf b,\symbf R);\;\symbf b\sim N(\symbf 0,\symbf G)\)</span>
+</li>
+<li>连接：<span class="math inline">\(\symbf\eta=\symbf\mu\mid\symbf b\)</span>（恒等连接）</li>
+</ul>
+<p>正如我们在第 <a href="chap3.html#chap3">3</a> 章中看到的，根据 LMM 的分布假设，<span class="math inline">\(\symbf y\)</span> 的边际分布为 <span class="math inline">\(N(\symbf\mu,\symbf V)\)</span>，其中 <span class="math inline">\(\symbf V=\symbf{ZGZ'}+\symbf R\)</span>，<span class="math inline">\(\symbf{X\beta}\)</span> 对 <span class="math inline">\(\symbf\mu\)</span> 进行建模。回想第 <a href="chap3.html#chap3">3</a> 章，LMM 是唯一如此的混合模型：完全指定的条件模型与边际模型具有相同的分布（高斯），并且条件模型与边际模型 <span class="math inline">\(\symbf\beta\)</span> 的估计相同。</p>
+<p>我们在本节中的任务是：1) 开发线性预测器效应 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的估计方程，以及 2) 开发方差-协方差阵 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 分量的估计方程。在这一过程中，我们将正式证明来自条件模型与边际模型的固定模型效应 <span class="math inline">\(\symbf\beta\)</span> 估计的等价性。</p>
+<div id="sec5-4-1" class="section level3" number="5.4.1">
+<h3>
+<span class="header-section-number">5.4.1</span> 混合模型方程<a class="anchor" aria-label="anchor" href="#sec5-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>根据分布假设（清晰起见，在符号表示上给予一些自由度），关于 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的对数似然方程分别为：</p>
+<p><span class="math display">\[\ell\left(\symbf{y}\mid\symbf{b}\right)=-\left(\frac n2\right)\mathrm{log}\left(2\pi\right)-\left(\frac12\right)\mathrm{log}\left(\left|\symbf{R}\right|\right)-\left(\frac12\right)\left(\symbf{y-X\beta-Zb}\right)^{\prime}\symbf{R}^{-1}\left(\symbf{y-X\beta-Zb}\right)\]</span></p>
+<p>以及</p>
+<p><span class="math display">\[\ell(\symbf{b})=-\biggl(\frac{b}{2}\biggr)\mathrm{log}\left(2\pi\right)-\biggl(\frac{1}{2}\biggr)\mathrm{log}\left(|\symbf{G}|\right)-\biggl(\frac{1}{2}\biggr)\symbf{b}'\symbf{G}^{-1}\symbf{b}\]</span></p>
+<p>其中 <span class="math inline">\(b\)</span> 表示随机效应的水平总数。关注“拟似然”部分，即忽略 <span class="math inline">\(c(y,\phi)\)</span>，我们可将联合对数似然写为</p>
+<p><span class="math display">\[\ell\left(\symbf{y},\symbf{b}\right)=-{\left(\frac12\right)}{\left(\symbf{y}-\symbf{X}\symbf{\beta}-\symbf{Z}\symbf{b}\right)}^{\prime}\symbf{R}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}-\symbf{Z}\symbf{b}\right)-{\left(\frac12\right)}\symbf{b}^{\prime}\symbf{G}^{-1}\symbf{b}\]</span></p>
+<p>现在我们试图获取 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的最大似然估计。首先分别取联合对数似然关于它们的导数</p>
+<p><span class="math display">\[\begin{aligned}\partial[\ell(\symbf{y},\symbf{b})]/\partial\symbf{\beta}^{\prime}&amp;=\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{y}-\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{X}\symbf{\beta}-\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{b}\\\\\partial[\ell(\symbf{y},\symbf{b})]/\partial\symbf{b}^{\prime}&amp;=\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{y}-\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{X}\symbf{\beta}-\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{b}-\symbf{G}^{-1}\symbf{b}\end{aligned}\]</span></p>
+<p>令它们等于零并求解 <span class="math inline">\(\symbf \beta\)</span> 和 <span class="math inline">\(\symbf b\)</span>，得到 LMM 估计方程，这在 LMM 文献中通常称为<strong>混合模型方程</strong> (mixed model equations)：</p>
+<p><span class="math display" id="eq:5-17">\[\begin{equation}
+\begin{bmatrix}\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{X}&amp;\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{Z}\\\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{X}&amp;\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\end{bmatrix}\begin{bmatrix}\symbf{\beta}\\\symbf{b}\end{bmatrix}=\begin{bmatrix}\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{y}\\\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{y}\end{bmatrix}
+\tag{5.17}
+\end{equation}\]</span></p>
+<p>若 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的分量是已知的，那么我们可以通过 <a href="chap5.html#eq:5-17">(5.17)</a> 的单次计算来获得 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的精确估计。但这种情况很少见，这意味着求解 <a href="chap5.html#eq:5-17">(5.17)</a> 还需要估计 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span>。这将求解混合模型方程转化为一个迭代过程：<span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的起始值能够实现 <a href="chap5.html#eq:5-17">(5.17)</a> 的初始解；我们使用 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的估计结果来更新 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span>。该过程一直持续到我们达到收敛为止。我们在 <a href="chap5.html#sec5-4-3">5.4.3</a> 节讨论 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的估计。</p>
+</div>
+<div id="sec5-4-2" class="section level3" number="5.4.2">
+<h3>
+<span class="header-section-number">5.4.2</span> 与最小二乘的联系<a class="anchor" aria-label="anchor" href="#sec5-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>LM（假设高斯数据的仅固定效应模型）最小二乘估计方程是 <a href="chap5.html#eq:5-17">(5.17)</a> 的特例。我们很容易看到这一点，回想 LM 的线性预测器为 <span class="math inline">\(\symbf\eta = \symbf{X\beta}\)</span>，LM 一般的分布形式为 <span class="math inline">\(\symbf y\sim N(\symbf\mu,\symbf V)\)</span>。请注意，在 LMM 中， <span class="math inline">\(Var\left(\symbf{y}\right)=\symbf{V}=\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}\)</span>。LM 就是移除 <span class="math inline">\(\symbf{Zb}\)</span> 和 <span class="math inline">\(\symbf G\)</span> 的 LMM，因此对于 LM 有 <span class="math inline">\(\symbf V =\symbf R\)</span>。从 <a href="chap5.html#eq:5-17">(5.17)</a> 中移除 <span class="math inline">\(\symbf{Zb}\)</span> 和 <span class="math inline">\(\symbf G\)</span> 得到 <span class="math inline">\(\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{y}\)</span>，或等价地，广义最小二乘估计 <span class="math inline">\(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{y}\)</span>。若假定观测独立且同方差，即经典的“一般”线性模型，即 <span class="math inline">\(\symbf V=\symbf R=\symbf I\sigma^2\)</span>，则 <a href="chap5.html#eq:5-17">(5.17)</a> 简化为“正规方程” <span class="math inline">\(\symbf{X'X\beta}=\symbf{X'y}\)</span>。</p>
+<p>对于 LMM 的边际形式，线性预测器为 <span class="math inline">\(\symbf η=\symbf{X\beta}\)</span>，假定分布为 <span class="math inline">\(\symbf V=\symbf{ZGZ'}+\symbf R\)</span>。因此，使用 LMM 的边际形式的 <span class="math inline">\(\symbf\beta\)</span> 的估计方程由广义最小二乘估计给出</p>
+<p><span class="math display" id="eq:5-18">\[\begin{equation}
+\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\symbf{\beta}=\symbf{X}\symbf{V}^{-1}\symbf{y}\text{ 或等价地 }\symbf{X}^{\prime}\left(\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}\right)^{-1}\symbf{X}\symbf{\beta}=\symbf{X}\left(\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}\right)^{-1}\symbf{y}
+\tag{5.18}
+\end{equation}\]</span></p>
+<p>这里的重要结果是，混合模型估计方程 <a href="chap5.html#eq:5-17">(5.17)</a> 与边际 LMM 的广义最小二乘 <a href="chap5.html#eq:5-18">(5.18)</a> 的 <span class="math inline">\(\symbf\beta\)</span> 估计是相同的。Searle (1971) 给出了证明，为了读者的方便，并考虑到其结果的重要性，本文给出了 Searle 证明的基本流程。</p>
+<p>我们可将混合模型方程 <a href="chap5.html#eq:5-17">(5.17)</a> 写为两个等式</p>
+<p><span class="math display" id="eq:5-19">\[\begin{equation}
+\begin{aligned}\symbf{X^{\prime}R}^{-1}\symbf{X\beta}+\symbf{X^{\prime}R}^{-1}\symbf{Zb}&amp;=\symbf{X^{\prime}R}^{-1}\symbf{y}\quad\quad\text(5.19.1)\\
+\symbf{Z'R}^{-1}\symbf{X\beta}+\left(\symbf{Z'R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)\symbf{b}&amp;=\symbf{Z'R}^{-1}\symbf{y}\quad\quad\text(5.19.2)
+\end{aligned}
+\tag{5.19}
+\end{equation}\]</span></p>
+<p>求解 (5.19.2) 中的 <span class="math inline">\(\symbf b\)</span> 得到 <span class="math inline">\(\symbf{b}=\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{y}-\symbf{Z}'\symbf{R}^{-1}\symbf{X}\symbf{\beta}\right)\)</span>。代入 (5.19.1) 得到 <span class="math inline">\(\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{X}\symbf{\beta}+\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{Z}\left[\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{y}-\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{X}\symbf{\beta}\right)\right]=\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{y}\)</span>。重新排列项，我们将其重写为</p>
+<p><span class="math display">\[\small\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{X\beta}-\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{X\beta}=\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{y}-\symbf{X}^{\prime}\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{y}\]</span></p>
+<p>或</p>
+<p><span class="math display">\[\small\symbf{X}^{\prime}\left[\symbf{R}^{-1}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}^{\prime}\symbf{R}^{-1}\right]\symbf{X}\symbf{\beta}=\symbf{X}^{\prime}\left[\symbf{R}^{-1}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}^{\prime}\symbf{R}^{-1}\right]\symbf{y}\]</span></p>
+<p>请注意，最后一个表达式是具有权重矩阵 <span class="math inline">\(\symbf{R}^{-1}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}'\symbf{R}^{-1}\)</span> 的广义最小二乘的形式。现在需要证明该权重矩阵就是 <span class="math inline">\(\symbf V^{−1}\)</span>。我们通过证明权重矩阵与 <span class="math inline">\(\symbf V\)</span> 之积是单位矩阵来实现。注意到 <span class="math inline">\(\symbf V=\symbf{ZGZ'}+\symbf R\)</span>，此乘积为</p>
+<p><span class="math display">\[\begin{aligned}
+&amp;\left[\symbf{R}^{-1}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z}^{\prime}\symbf{R}^{-1}\right](\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}) \\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}^{-1}\symbf{R}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}^{\prime}-\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{R}\right) \\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{GZ}^{\prime}+\symbf{I}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{Z}^{\prime}\right) \\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{I}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{G}+\symbf{I}\right)\symbf{Z}'\\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{I}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{G}^{-1}+\symbf{G}^{-1}\right)\symbf{G}\symbf{Z}^{\prime} \\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}'+\symbf{I}-\symbf{R}^{-1}\symbf{Z}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)\symbf{G}\symbf{Z}' \\
+=\;&amp;\symbf{R}^{-1}\symbf{Z}\symbf{GZ}^{\prime}+\symbf{I}-\symbf{R}^{-1}\symbf{Z}\symbf{GZ}^{\prime}=\symbf{I}
+\end{aligned}\]</span></p>
+<p>从而得证。</p>
+<p>类似的推导可应用于 <span class="math inline">\(\symbf b\)</span> 的估计方程。根据 (5.19.1)</p>
+<p><span class="math display">\[\symbf{b}=\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{y}-\symbf{Z}'\symbf{R}^{-1}\symbf{X}\symbf{\beta}\right)\]</span></p>
+<p>重新排列项并利用 <span class="math inline">\(\symbf{V}\symbf{V}^{-1}=\left(\symbf{Z}\symbf{G}\symbf{Z}'+\symbf{R}\right)\symbf{V}^{-1}\)</span> 得到</p>
+<p><span class="math display" id="eq:5-20">\[\begin{align}
+&amp;\left(\symbf{Z'R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\symbf{Z'R}^{-1}\left(\symbf{ZGZ'}+\symbf{R}\right)\symbf{V}^{-1}\left(\symbf{y}-\symbf{X\beta}\right) \\
+=&amp;\;\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}'\symbf{R}^{-1}\symbf{Z}\symbf{G}\symbf{Z}'+\symbf{G}^{-1}\symbf{G}\symbf{Z}'\symbf{I}\right)\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right) \\
+=&amp;\;\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)^{-1}\left(\symbf{Z}^{\prime}\symbf{R}^{-1}\symbf{Z}+\symbf{G}^{-1}\right)\symbf{G}\symbf{Z}^{\prime}\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right) \\
+=&amp;\;\symbf{GZ}^{\prime}\symbf{V}^{-1}\left(\symbf{y}-\symbf{X\beta}\right)
+\tag{5.20}
+\end{align}\]</span></p>
+<p>Searle et al. (1992), Robinson (1991) et al. 表明 <span class="math inline">\(\symbf b\)</span> 的最佳线性预测为</p>
+<p><span class="math display">\[E\left(\symbf{b}\mid\symbf{y}\right)=E\left(\symbf{b}\right)+Cov\left(\symbf{b},\symbf{y}'\right)\begin{bmatrix}Var\left(\symbf{y}\right)\end{bmatrix}(\symbf{y}-\symbf{X}\symbf{\beta})\]</span></p>
+<p>对于 LMM，<span class="math inline">\(\symbf y\)</span> 与 <span class="math inline">\(\symbf b\)</span> 的联合分布为</p>
+<p><span class="math display">\[\begin{bmatrix}\symbf{y}\\\symbf{b}\end{bmatrix}\sim N\left(\begin{bmatrix}\symbf{X\beta}\\\symbf{0}\end{bmatrix},\begin{bmatrix}\symbf{V}&amp;\symbf{ZG'}\\\symbf{GZ'}&amp;\symbf{G}\end{bmatrix}\right)\]</span></p>
+<p>由此可见，<span class="math inline">\(\symbf b\)</span> 的最佳线性预测为 <span class="math inline">\(\symbf{GZ}^{\prime}\symbf{V}^{-1}\left(\symbf{y}-\symbf{X\beta}\right)\)</span>。Goldberger (1962) 将混合模型解命名为“最佳线性无偏预测” (“best linear unbiased predictor”)，Henderson 使用缩写词 BLUP，这是混合模型领域广泛使用的缩写词。我们将在第 <a href="#chap10"><strong>??</strong></a> 章详细探讨 BLUP.</p>
+<p><span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的估计之间的差异源于以下事实：<span class="math inline">\(\symbf\beta\)</span> 的元素是固定参数，而 <span class="math inline">\(\symbf b\)</span> 是随机向量。对于前者，目标是产生关于固定目标的最小方差估计；对于后者，目标是最小化随机变量实现值的预测误差。Robinson (1991) 对最佳线性无偏预测所涉及的问题给出了精彩的讨论。</p>
+</div>
+<div id="sec5-4-3" class="section level3" number="5.4.3">
+<h3>
+<span class="header-section-number">5.4.3</span> 未知的 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span>：ML 和 REML 方差-协方差分量估计<a class="anchor" aria-label="anchor" href="#sec5-4-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>通常，必须估计 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的分量以获得混合模型方程的解。作为例子，请考虑第 <a href="chap3.html#chap3">3</a> 章中的两个 LMMs. <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 有四处理（固定效应）和八地点（随机效应）。线性预测器为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>，地点效应分布为 <span class="math inline">\(L_j\text{ i.i.d. }N\left(0,\sigma_L^2\right)\)</span>。<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-7">示例 3.7</a> 是一个随机系数回归，其线性预测器为 <span class="math inline">\(\eta_{ij}=\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_j\)</span> 以及随机回归系数分布为</p>
+<p><span class="math display">\[\begin{bmatrix}b_{0i}\\b_{1i}\end{bmatrix}\thicksim N{\left(\begin{bmatrix}0\\0\end{bmatrix},\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\&amp;\sigma_1^2\end{bmatrix}\right)}\]</span></p>
+<p>对于<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a>，<span class="math inline">\(\symbf{G}=\symbf{I}_8\sigma_L^2\)</span> 以及 <span class="math inline">\(\symbf{R}=\symbf{I}_{32}\sigma^2\)</span>。我们需要估计的方差分量为 <span class="math inline">\(\sigma_L^2\)</span> 和 <span class="math inline">\(\sigma^2\)</span>。在<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-7">示例 3.7</a> 中，</p>
+<p><span class="math display">\[\symbf{G}=\symbf{I}_4\otimes\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\&amp;\sigma_1^2\end{bmatrix}\]</span></p>
+<p>以及 <span class="math inline">\(\symbf{R}=\symbf{I}_{72}\sigma^2\)</span>。<span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的分量包括方差和协方差项：<span class="math inline">\(\sigma^2_0,\sigma_{01},\sigma^2_1\)</span> 和 <span class="math inline">\(\sigma^2\)</span>。</p>
+<p>最著名的方差分量估计程序（因为它在统计方法入门课程中广泛教授）使用基于 ANOVA 的期望均方。这些称为 <strong>ANOVA 估计</strong>。它们可用于<strong>仅方差分量</strong> (variance-component-only) 的 LMMs（随机效应均为 i.i.d. 的 LMM）。多地点<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 是仅方差分量模型的示例。如果多地点数据具有子抽样 (sub-sampling)，从而可能包括随机的处理 × 地点项，那么线性预测器将是 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j+\left(tL\right)_{ij}\)</span>，其中 <span class="math inline">\(L_j\text{ iid }N\left(0,\sigma_L^2\right)\)</span> 以及 <span class="math inline">\(\left(tL\right)_{ij}\text{ iid }N\left(0,\sigma_{TL}^2\right)\)</span>。这仍然是一个仅方差分量模型，因为两个随机模型效应都是 i.i.d.，每个效应对应一个方差分量。另一方面，随机系数 LMM 不是仅方差分量的模型，因为有一个协方差项 <span class="math inline">\(\sigma_{01}\)</span> 来解释随机截距和斜率系数之间的相关性。</p>
+<p>对于<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-7">示例 3.7</a> 或任何其他在 <span class="math inline">\(\symbf G\)</span> 或 <span class="math inline">\(\symbf R\)</span> 中具有协方差或相关项 (correlation terms) 的 LMM，我们不能使用 ANOVA 方法。显然，我们需要一种可用于所有 LMMs 的方法。理想情况下，该方法也可修改从而扩展并服务于 GLMMs. 与估计 <span class="math inline">\(\symbf \beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 一样，我们转向最大似然——但有所不同。正如我们将看到的，方差分量的最大似然估计是有偏的。当目标是推断方差分量本身时，这本身就是一个问题。然而，推断通常侧重于可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 或可预测函数 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span> 并且方差-协方差的分量只是达到目的——获得区间估计、检验假设等——的手段。在这种情况下，<span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 的有偏估计会产生连锁反应，使标准误和检验统计量都产生偏差。该问题的解决方案是<strong>受限（或残差）最大似然</strong> (restricted – or residual – maximum likelihood)，通常缩写为 REML.</p>
+<p>我们首先使用<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 中的多地点数据进行 ANOVA 和纯 ML 估计，然后介绍 REML 并展示它在实践中的实现方式。关于方差分量估计，有很多优秀的教材和独立的课程。我们这里的目标不是全面的阐述。我们只关注足够的背景和方法，使我们能够继续手头的任务——学习使用线性统计模型。对更多深度细节感兴趣的读者可参考 Searle et al. (1992) 或 Demidenko (2004) 等人的文本。</p>
+<div id="anova-估计" class="section level4 unnumbered">
+<h4>ANOVA 估计<a class="anchor" aria-label="anchor" href="#anova-%E4%BC%B0%E8%AE%A1"><i class="fas fa-link"></i></a>
+</h4>
+<p><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 中的四处理多地点数据的 ANOVA 表为</p>
+<div class="inline-figure"><img src="figure/figure%20161.png#center" style="width:80.0%"></div>
+<p>对于方差分量估计，我们只需要地点和残差的<strong>期望均方</strong> (expected mean squares, <strong>EMS</strong>)，因此这些是唯一展示的 EMS. 残差的均方的期望值为 <span class="math inline">\(\sigma^2\)</span>，因此残差方差的估计值为 <span class="math inline">\(\hat{\sigma}^2=MS(\text{residual})=2.877\)</span>。地点均方的估计为 <span class="math inline">\(\sigma^2+4\sigma_L^2\)</span>。求解 <span class="math inline">\(\sigma_L^2\)</span> 得到 <span class="math inline">\(\hat{\sigma}_{L}^{2}=\left(1/4\right)\left[MS\left(\mathrm{location}\right)-MS\left(\mathrm{residual}\right)\right]=1.7532\)</span>。这些是方差分量的 ANOVA 估计。对于无缺失均衡数据的仅方差分量 LMMs，EMS 中方差分量的系数非常简单。这些系数的规则出现在大多数介绍性统计方法教材中，其基本理由出现在前面提到的方差分量教材中。如果数据不均衡或缺失，系数会变得更加混乱，但原则上，ANOVA 方法可以与任何仅方差分量 LMM 一起使用。但它只能用于 LMMs 的这个子集。因此，我们接下来讨论基于似然的方差-协方差估计。</p>
+</div>
+<div id="最大似然" class="section level4 unnumbered">
+<h4>最大似然<a class="anchor" aria-label="anchor" href="#%E6%9C%80%E5%A4%A7%E4%BC%BC%E7%84%B6"><i class="fas fa-link"></i></a>
+</h4>
+<p>首先我们需要建立符号。方便起见，在本节中，术语“协方差分量”和“协方差矩阵”一般指方差和协方差。令 <span class="math inline">\(\symbf\sigma\)</span> 表示待估的协方差分量向量。对于我们刚刚考虑的多地点数据，<span class="math inline">\(\symbf\sigma'=\begin{bmatrix}\sigma_L^2&amp;\sigma^2\end{bmatrix}\)</span>。对于随机系数模型，<span class="math inline">\(\symbf\sigma'=\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}&amp;\sigma^2_1&amp;\sigma^2\end{bmatrix}\)</span>。令 <span class="math inline">\(\hat{\symbf\sigma}\)</span> 表示协方差分量向量估计，即，<span class="math inline">\(\hat{\symbf\sigma}^{\prime}=\begin{bmatrix}\hat{\sigma}_L^2&amp;\hat{\sigma}^2\end{bmatrix}\)</span>。由于每个协方差阵—— <span class="math inline">\(\symbf G, \symbf R\)</span> 和 <span class="math inline">\(\symbf V\)</span> ——依赖于 <span class="math inline">\(\symbf\sigma\)</span> 的分量，使用符号 <span class="math inline">\(\symbf G(\symbf\sigma), \symbf R(\symbf\sigma)\)</span> 和 <span class="math inline">\(\symbf V(\symbf\sigma)\)</span> 来表示具有已知协方差分量的 <span class="math inline">\(\symbf G, \symbf R\)</span> 和 <span class="math inline">\(\symbf V\)</span>。事实上 <span class="math inline">\(\symbf G(\symbf\sigma), \symbf R(\symbf\sigma)\)</span> 依赖于 <span class="math inline">\(\symbf\sigma\)</span> 部分但不是全部元素，但该符号对于我们的使用来说足够清晰。对于协方差分量估计，我们使用符号 <span class="math inline">\(\hat{\symbf{G}}=\symbf{G}\left(\hat{\symbf{\sigma}}\right),\hat{\symbf{R}}=\symbf{R}\left(\hat{\symbf{\sigma}}\right)\)</span> 和 <span class="math inline">\(\hat{\symbf{V}}=\symbf{V}\left(\hat{\symbf{\sigma}}\right)\)</span>，保持使用符号 <span class="math inline">\(\symbf\sigma\)</span>，例如 <span class="math inline">\(\symbf{G}\left(\hat{\symbf{\sigma}}\right)\)</span>，除非上下文允许在没有歧义或混淆的情况下使用 <span class="math inline">\(\hat{\symbf G}\)</span>。</p>
+<p>使用这种表示法，我们将 LMM 的边际对数似然写为</p>
+<p><span class="math display" id="eq:5-21">\[\begin{align}
+\ell\left(\symbf\sigma;\symbf\beta,\symbf{y}\right)=&amp;-\biggl(\frac n2\biggr)\mathrm{log}\left(2\pi\right)-\biggl(\frac12\biggr)\mathrm{log}\left(\left|\symbf{V}\left(\symbf{\sigma}\right)\right|\right)\\&amp;-\biggl(\frac12\biggr)\bigl(\symbf{y}-\symbf{X}\symbf{\beta}\bigr)^{\prime}\bigl[\symbf{V}\left(\symbf{\sigma}\right)\bigr]^{-1}\bigl(\symbf{y}-\symbf{X}\symbf{\beta}\bigr)
+\tag{5.21}
+\end{align}\]</span></p>
+<p>我们通过令得分向量 <span class="math inline">\(\frac{\partial\ell\left(\symbf\sigma;\symbf\beta,y\right)}{\partial\symbf\sigma}\)</span> 等于零并求解来获得 <span class="math inline">\(\symbf\sigma\)</span> 各分量的最大似然估计。注意到 <span class="math inline">\(\frac{\partial\ell\left(\symbf\sigma;\symbf\beta,y\right)}{\partial\symbf\sigma}\)</span> 是一个向量，其维度取决于待估协方差分量的总数。例如，对于随机系数 LMM：</p>
+<p><span class="math display" id="eq:5-22">\[\begin{align}
+\symbf{s}\left(\symbf{\sigma}\right)=\frac{\partial\ell\left(\symbf{\sigma};\symbf{\beta},y\right)}{\partial\symbf{\sigma}}=\begin{bmatrix}\frac{\partial\ell\left(\symbf{\sigma};\symbf{\beta},y\right)}{\partial\symbf{\sigma}_0^2}\\\frac{\partial\ell\left(\symbf{\sigma};\symbf{\beta},y\right)}{\partial\sigma_{01}}\\\frac{\partial\ell\left(\symbf{\sigma};\symbf{\beta},y\right)}{\partial\sigma_1^2}\\\frac{\partial\ell\left(\symbf{\sigma};\symbf{\beta},y\right)}{\partial\sigma^2}\end{bmatrix}
+\tag{5.22}
+\end{align}\]</span></p>
+<p>一般来说，<span class="math inline">\(\symbf{s}\left(\symbf{\sigma}\right)\)</span> 表示关于协方差估计的得分向量，其第 <span class="math inline">\(i\)</span> 个元素为 <span class="math inline">\(\frac{\partial\ell\left(\symbf\sigma;\symbf\beta,y\right)}{\partial\sigma_i}\)</span>，其中 <span class="math inline">\(\sigma_i\)</span> 表示向量 <span class="math inline">\(\symbf\sigma\)</span> 的第 <span class="math inline">\(i\)</span> 个元素。例如，对于随机系数模型，<span class="math inline">\(\sigma_1\equiv\sigma_0^2,\sigma_2\equiv\sigma_{01},\sigma_3\equiv\sigma_1^2\)</span> 以及 <span class="math inline">\(\sigma_4\equiv\sigma^2\)</span>。</p>
+<p>虽然仅方差分量 LMMs 的最大似然估计方程有特定的形式，但我们的目标是给出一种可用于 LMMs 的一般方法。为此，我们使用 Newton-Raphson 和 Fisher 得分算法。这意味着我们需要 Hessian 矩阵—— <span class="math inline">\(\symbf H(\symbf\sigma)\)</span> ——用于 Newton-Raphson 以及信息矩阵—— <span class="math inline">\(\symbf I(\symbf\sigma)\)</span> ——用于 Fisher 得分。Harville (1977) 推导了这些矩阵的元素。我们还需要得分向量的具体形式。它们都有两种形式，一种为最大似然（此处所示），另一种为 REML，如下所示。</p>
+<p>用于 <span class="math inline">\(\symbf\sigma\)</span> 最大似然估计的得分向量的第 <span class="math inline">\(i\)</span> 个元素为</p>
+<p><span class="math display" id="eq:5-23">\[\begin{align}
+s_{i}\left(\symbf\sigma\right)=&amp;\;\frac{\partial\ell\left(\symbf{\sigma};\symbf{y},\symbf{\beta}\right)}{\partial\sigma_i}\\=&amp;\;-\biggl(\frac{1}{2}\biggr)\operatorname{trace}\biggl[\symbf{V}^{-1}\biggl(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\biggr)\biggr]\\&amp;+\left(\frac12\right)(\symbf{y}-\symbf{X}\symbf{\beta})^{\prime}\symbf{V}^{-1}\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\right)\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)
+\tag{5.23}
+\end{align}\]</span></p>
+<p>用于 <span class="math inline">\(\symbf\sigma\)</span> 最大似然估计的 Hessian 矩阵的第 <span class="math inline">\(i\)</span> 个元素为</p>
+<p><span class="math display" id="eq:5-24">\[\begin{align}
+\frac{\partial^2\ell\left(\symbf{\sigma};\symbf{y},\symbf{\beta}\right)}{\partial\sigma_i\partial\sigma_j} =&amp;\;-\biggl(\frac{1}{2}\biggr)\operatorname{trace}\Biggl[\symbf{V}^{-1}\biggl(\frac{\partial^2\symbf{V}(\symbf{\sigma})}{\partial\sigma_i\partial\sigma_j}\biggr)-\symbf{V}^{-1}\biggl(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\biggr)\symbf{V}^{-1}\biggl(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\biggr)\Biggr]\\&amp;\;+\scriptsize\left(\frac12\right)\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)^{\prime}\symbf{V}^{-1}\left[\left(\frac{\partial^2\symbf{V}(\symbf{\sigma})}{\partial\sigma_i\partial\sigma_j}\right)-2\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\right)\symbf{V}^{-1}\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\right)\right]\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)
+\tag{5.24}
+\end{align}\]</span></p>
+<p>方便起见，我们可以将该元素表示为 <span class="math inline">\(H_{ij}(\symbf\sigma)\)</span> 。用于 <span class="math inline">\(\symbf\sigma\)</span> 最大似然估计的信息矩阵的第 <span class="math inline">\(i\)</span> 个元素为</p>
+<p><span class="math display" id="eq:5-25">\[\begin{align}
+\symbf{\mathcal J}_{ij}\left(\symbf{\sigma}\right)=-E\Bigg(\frac{\partial^2\ell\left(\symbf{\sigma};\symbf{y},\symbf{\beta}\right)}{\partial\sigma_i\partial\sigma_j}\Bigg)=\Bigg(\frac{1}{2}\Bigg)tr\Bigg[\symbf{V}^{-1}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\Bigg)\symbf{V}^{-1}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\Bigg)\Bigg]
+\tag{5.25}
+\end{align}\]</span></p>
+<p>如果我们对随机系数模型实施 Newton-Raphson 程序，则估计方程为</p>
+<p><span class="math display" id="eq:5-26">\[\begin{align}
+\begin{bmatrix}\sigma_1\\\sigma_2\\\sigma_3\\\sigma_4\end{bmatrix}=\begin{bmatrix}\tilde{\sigma}_1\\\tilde{\sigma}_2\\\tilde{\sigma}_3\\\tilde{\sigma}_4\end{bmatrix}-
+\begin{bmatrix}H_{11}\left(\tilde{\symbf\sigma}\right)&amp;H_{12}\left(\tilde{\symbf\sigma}\right)&amp;H_{13}\left(\tilde{\symbf\sigma}\right)&amp;H_{14}\left(\tilde{\symbf\sigma}\right)\\&amp;H_{22}\left(\tilde{\symbf\sigma}\right)&amp;H_{23}\left(\tilde{\symbf\sigma}\right)&amp;H_{24}\left(\tilde{\symbf\sigma}\right)\\&amp;&amp;H_{33}\left(\tilde{\symbf\sigma}\right)&amp;H_{34}\left(\tilde{\symbf\sigma}\right)\\&amp;&amp;&amp;H_{44}\left(\tilde{\symbf\sigma}\right)\end{bmatrix}^{-1}\begin{bmatrix}s_1\left(\tilde{\symbf\sigma}\right)\\s_2\left(\tilde{\symbf\sigma}\right)\\s_3\left(\tilde{\symbf\sigma}\right)\\s_4\left(\tilde{\symbf\sigma}\right)\end{bmatrix}
+\tag{5.26}
+\end{align}\]</span></p>
+<p><span class="math inline">\(\tilde{\symbf\sigma}\)</span> 及其元素 <span class="math inline">\(\tilde\sigma_i\)</span> 表示来自先前迭代的协方差分量值。对于 Fisher 得分，将每个 <span class="math inline">\(H_{ij}(\symbf\sigma)\)</span> 替换为 <span class="math inline">\(\mathcal J_{ij}(\symbf\sigma)\)</span>，并将符号从负改为正。建立程序的关键是确定导数。首先将随机系数模型的 <span class="math inline">\(\symbf V(\symbf\sigma)\)</span> 显式地写为矩阵项</p>
+<p><span class="math display">\[\symbf{V}(\symbf{\sigma})=\begin{bmatrix}\symbf{Z}_0&amp;\symbf{Z}_1\end{bmatrix}\Bigg(\symbf I_4\otimes\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\\sigma_{01}&amp;\sigma_1^2\end{bmatrix}\Bigg)\Bigg[\begin{matrix}\symbf{Z}_0'\\\symbf{Z}_1'\end{matrix}\Bigg]+\symbf{I}\sigma^2\]</span></p>
+<p>其中，<span class="math inline">\(\symbf Z_0\)</span> 和 <span class="math inline">\(\symbf Z_1\)</span> 分别是与随机截距效应和随机斜率效应相关的 <span class="math inline">\(\symbf Z\)</span> 的子矩阵（第 <a href="chap1.html#chap1">1</a> 章的矩阵部分推导过）。所得导数为：</p>
+<p><span class="math display">\[\begin{aligned}\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_1}&amp;=\symbf{Z}_0\symbf{Z}_0^{\prime},\quad\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_2}=\symbf{Z}_1\symbf{Z}_0^{\prime}+\symbf{Z}_0\symbf{Z}_1^{\prime}\\\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_3}&amp;=\symbf{Z}_1\symbf{Z}_1^{\prime},\quad\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_4}=\symbf{I}\end{aligned}\]</span></p>
+<p>所有二阶导均为零。</p>
+<p>继续四处理多地点示例，最大似然估计为 <span class="math inline">\(\hat{\sigma}_L^2=1.52\)</span> 和 <span class="math inline">\(\hat{\sigma}^2=2.52\)</span>（ANOVA 估计分别为 1.75 和 2.88）。回想第 <a href="chap3.html#chap3">3</a> 章，默认情况下，PROC GLIMMIX 生成的协方差参数估计等于 ANOVA 估计（这种情况发生在具有均衡数据的仅方差分量 LMM 中，但一般不会发生）。这是我们第一次说明与最大似然相关的向下偏差。回想你第一次遇到方差估计的情况：单个总体中随机样本的样本方差的常用公式：</p>
+<p><span class="math display">\[S^2=\frac{\sum_i\left(y_i-\bar{y}\right)^2}{n-1}\]</span></p>
+<p>可能会有人问，若样本均值为 <span class="math inline">\(\bar{y}=\frac{\sum_iy}n\)</span>，我们为什么不将样本方差除以 <span class="math inline">\(n\)</span>？碰巧的是 <span class="math inline">\(\frac{\sum_i\left(y_i-\bar{y}\right)^2}n\)</span> 是 <span class="math inline">\(y_i\mathrm{~i.i.d.~}N(\mu,\sigma^2)\)</span> 时的最大似然估计。若除以 <span class="math inline">\(n\)</span> 而非 <span class="math inline">\(n-1\)</span>，你会得到一个向下偏差的估计。</p>
+</div>
+<div id="受限最大似然" class="section level4 unnumbered">
+<h4>受限最大似然<a class="anchor" aria-label="anchor" href="#%E5%8F%97%E9%99%90%E6%9C%80%E5%A4%A7%E4%BC%BC%E7%84%B6"><i class="fas fa-link"></i></a>
+</h4>
+<p>事实证明，样本方差是你与 REML 估计的第一次相遇。</p>
+<p>最大似然方差估计的向下偏差有什么影响？置信区间和检验统计量都取决于标准误，而标准误又取决于方差分量估计。向下偏向的方差估计意味着向下偏差的标准误，这反过来又意味着过窄的可信区间（覆盖范围不足）和向上偏差的检验统计量（膨胀的 I 类错误率）。例如，在多地点示例中，使用 ANOVA 或 REML 方差估计对相等处理效应总体检验的 <span class="math inline">\(F\)</span> 值为 7.04，但如果使用最大似然方差估计，则 <span class="math inline">\(F\)</span> 值为 8.04. 虽然这两者的 <span class="math inline">\(p\)</span> 值在大多数 <span class="math inline">\(\alpha\)</span> 标准下都具有统计学意义，但 ANOVA 或 REML 估计显然有可能产生与基于 ML 的结果不同的结论。</p>
+<p>作为偏差影响严重性的一个例子，Littell et al. (2006) 以 Cochran and Cox (1957) 的一个不完全区组设计为例作为他们的 <em>SAS
+for Mixed Models, 2nd ed</em> 的开始。该不完全区组模型与本节的多地点示例相同：高斯数据、代替随机地点效应的随机区组效应以及固定处理。下表展示了方差估计以及由此产生的总体处理的 <span class="math inline">\(F\)</span> 和 <span class="math inline">\(p\)</span> 值。</p>
+<div class="inline-figure"><img src="figure/figure%20165.png#center" style="width:100.0%"></div>
+<p>使用 Cochran and Cox 示例中的设计运行 1000 次模拟，其中所有处理均值相等且方差比为 <span class="math inline">\(\sigma_B^2/\sigma^2=0.5\)</span> 或 <span class="math inline">\(\sigma_B^2/\sigma^2=5\)</span>，假定 <span class="math inline">\(\alpha = 0.05\)</span>，结果显示方差比对结果几乎没有影响，对于使用 ANOVA 和 REML 方差估计计算的 <span class="math inline">\(F\)</span> 检验，观测拒绝率范围为 4% 到 6%（ANOVA 和 REML 之间几乎没有差别），但当使用 ML 方差估计时，拒绝率总是大于 20%（高达 28%）。这是 ML 方差估计的向下偏差对 LMMs 的典型影响，也是 REML 成为 LMM 方差估计事实上的金标准的原因。</p>
+<p>REML 思想最早出现在 20 世纪 50 年代的统计文献中。Patterson and Thompson (1971) 提出了用于 LMMs 的综合 REML 理论。REML 的基本思想是考虑模型的固定效应后对似然进行最大化。我们不是最大化 <span class="math inline">\(\symbf{y}\sim N\big(\symbf{X\beta},\symbf{V}\big)\)</span> 的似然，而是根据 <span class="math inline">\(\symbf{K'y}\)</span> 的似然获得估计，其中 <span class="math inline">\(\symbf K\)</span> 是任何满足 <span class="math inline">\(E(\symbf{K'y})=\symbf 0\)</span> 的矩阵，因此 <span class="math inline">\(\symbf{K'y}\sim N\left(\symbf 0, \symbf{K'VK}\right)\)</span>。这在 <span class="math inline">\(\symbf\sigma\)</span> 的估计中有效地移除了固定效应。<span class="math inline">\(\symbf{K'y}\)</span> 的似然称为 <strong>REML 似然</strong>。通常使用普通最小二乘残差算子 <span class="math inline">\(\symbf{I-X}(\symbf{X}^{\prime}\symbf{X})^{-}\symbf{X}^{\prime}\)</span>，并注意到 <span class="math inline">\(E\left\{\left[\symbf{I-X}(\symbf{X'X})^-\symbf{X'}\right]\symbf{y}\right\}=\left[\symbf{I-X}(\symbf{X'X})^-\symbf{X'}\right]\symbf{X\beta}=0\)</span> 以及假定 <span class="math inline">\(\left(\symbf{X}^{\prime}\symbf{X}\right)^-\)</span> 为 <span class="math inline">\(\symbf{X}^{\prime}\symbf{X}\)</span> 的 <span class="math inline">\(\symbf G^{(2)}\)</span>（自反）广义逆<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：“G2” inverse 见：&lt;a href="https://blogs.sas.com/content/iml/2018/11/21/generalized-inverses-for-matrices.html" class="uri"&gt;https://blogs.sas.com/content/iml/2018/11/21/generalized-inverses-for-matrices.html&lt;/a&gt;.&lt;/p&gt;'><sup>13</sup></a>。REML 对数似然为</p>
+<p><span class="math display" id="eq:5-27">\[\begin{align}
+\ell_R\left(\symbf{\sigma};\symbf{y}\right)=&amp;\;-\biggl(\frac{n-p}{2}\biggr)\mathrm{log}\left(2\pi\right)-\biggl(\frac{1}{2}\biggr)\mathrm{log}\left(\left|\symbf{V}\left(\symbf{\sigma}\right)\right|\right)-\biggl(\frac{1}{2}\biggr)\mathrm{log}\left(\left|\symbf{X}^{\prime}\left[\symbf{V}\left(\symbf{\sigma}\right)\right]^{-1}\symbf{X}\right|\right)\\&amp;\;-\biggl(\frac{1}{2}\biggr)\symbf{r}'\left[\symbf{V}(\symbf{\sigma})\right]^{-1}\symbf{r}
+\tag{5.27}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(p=\operatorname{rank}(\symbf{X})\)</span> 以及 <span class="math inline">\(\symbf{r}=\symbf{y}-\symbf{X}\Big(\symbf{X}'\Big[\symbf{V}(\symbf{\sigma})\Big]^{-1}\symbf{X}\Big)^-\symbf{X}'\Big[\symbf{V}(\symbf{\sigma})\Big]^{-1}\symbf{y}\)</span>。请注意，<span class="math inline">\(\symbf r\)</span> 可视为 <span class="math inline">\(\symbf{y}-\symbf{X}\hat{\symbf{\beta}}_{ML}\)</span>，其中 <span class="math inline">\(\hat{\symbf{\beta}}_{ML}\)</span> 是 <span class="math inline">\(\symbf\beta\)</span> 的最大似然估计。</p>
+<p>与最大似然一样，我们使用 Newton-Raphson 或 Fisher 得分来实现 REML. 从 REML 对数似然导出的得分向量和 Hessian 矩阵以及信息矩阵（同样遵循 Harville, 1977）为：</p>
+<ul>
+<li>得分的第 <span class="math inline">\(i\)</span> 个元素：</li>
+</ul>
+<p><span class="math display" id="eq:5-28">\[\begin{align}
+s_{i}\left(\symbf{\sigma}\right)=&amp;\;\frac{\partial\ell_R\left(\symbf{\sigma};\symbf{y}\right)}{\partial\sigma_i}=-\Bigg(\frac12\Bigg)\operatorname{trace}\Bigg[\symbf{P}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\Bigg)\Bigg]\\&amp;+\left(\frac12\right)(\symbf{y}-\symbf{X}\symbf{\beta})^{\prime}\symbf{V}^{-1}\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\right)\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)
+\tag{5.28}
+\end{align}\]</span>
+其中 <span class="math inline">\(\symbf{P}=\begin{bmatrix}\symbf{V}(\symbf{\sigma})\end{bmatrix}^{-1}-\begin{bmatrix}\symbf{V}(\symbf{\sigma})\end{bmatrix}^{-1}\symbf{X}\bigg(\symbf{X}'\bigg[\symbf{V}(\symbf{\sigma})\bigg]^{-1}\symbf{X}\bigg)^{-}\symbf{X}'\bigg[\symbf{V}(\symbf{\sigma})\bigg]^{-1}\)</span>。</p>
+<ul>
+<li>Hessian 的第 <span class="math inline">\(ij\)</span> 个元素：</li>
+</ul>
+<p><span class="math display" id="eq:5-29">\[\begin{align}
+\frac{\partial^2\ell_R\left(\symbf{\sigma};\symbf{y}\right)}{\partial\sigma_i\partial\sigma_j} =&amp;\;-\Bigg(\frac{1}{2}\Bigg)\operatorname{trace}\Bigg[\symbf{P}\Bigg(\frac{\partial^2\symbf{V}(\symbf{\sigma})}{\partial\sigma_i\partial\sigma_j}\Bigg)-\symbf{P}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\Bigg)\symbf{P}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\Bigg)\Bigg]  \\
+&amp;\;\scriptsize+\left(\frac12\right)\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)^{\prime}\symbf{V}^{-1}\left[\left(\frac{\partial^2\symbf{V}(\symbf{\sigma})}{\partial\sigma_i\partial\sigma_j}\right)-2\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\right)\symbf{P}\left(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\right)\right]\symbf{V}^{-1}\left(\symbf{y}-\symbf{X}\symbf{\beta}\right)
+\tag{5.29}
+\end{align}\]</span></p>
+<ul>
+<li>信息的第 <span class="math inline">\(ij\)</span> 个元素：</li>
+</ul>
+<p><span class="math display" id="eq:5-30">\[\begin{align}
+\symbf{\mathcal J}_{ij}\left(\symbf{\sigma}\right)=-E\Bigg(\frac{\partial^2\ell_R\left(\symbf{\sigma};\symbf{y}\right)}{\partial\sigma_i\partial\sigma_j}\Bigg)=\Bigg(\frac12\Bigg)\operatorname{trace}\Bigg[\symbf{P}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_i}\Bigg)\symbf{P}\Bigg(\frac{\partial\symbf{V}(\symbf{\sigma})}{\partial\sigma_j}\Bigg)\Bigg]
+\tag{5.30}
+\end{align}\]</span></p>
+<p>除了在指定的地方用 <span class="math inline">\(\symbf P\)</span> 替换 <span class="math inline">\(\symbf V^{−1}\)</span> 之外，估计过程完全按照用于最大似然的 Newton-Raphson 或 Fisher 得分程序进行。</p>
+<p>总之，LMM 估计迭代地进行。该过程从 <span class="math inline">\(\symbf\sigma\)</span> 的初始值——记为 <span class="math inline">\(\hat{\symbf\sigma}\)</span> ——开始。由此，计算 <span class="math inline">\(\symbf G(\hat{\symbf\sigma})\)</span> 和 <span class="math inline">\(\symbf R(\hat{\symbf\sigma})\)</span>，这使我们能够构建混合模型方程并计算 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的解。我们使用它们来确定得分向量和 Hessian 矩阵或信息矩阵的新值，从而使我们能够更新 <span class="math inline">\(\hat{\symbf\sigma}\)</span>。以这种方式继续估计直到收敛。</p>
+</div>
+</div>
+</div>
+<div id="sec5-5" class="section level2" number="5.5">
+<h2>
+<span class="header-section-number">5.5</span> 广义线性混合模型<a class="anchor" aria-label="anchor" href="#sec5-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>现在我们来讨论本书中最具雄心的线性模型推广—— GLMM. 在这里，我们结合了广义线性模型和混合线性模型的基本特征。根据 LMM，我们允许线性预测器中存在随机模型效应。根据 GLM，我们放弃了经典线性模型的正态性假定——我们只假定以随机效应为条件的观测具有属于指数族的分布或至少具有拟似然。综上所述，GLMM 的基本特征是：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\symbf{\eta}=\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b}\)</span></p></li>
+<li><p>分布：<span class="math inline">\(\symbf{b}\sim N(\symbf{0},\symbf{G})\)</span></p></li>
+<li><p>分布或拟似然：<span class="math inline">\(E\big(\symbf{y}\mid\symbf{b}\big)=\symbf{\mu}\mid\symbf{b}\)</span>；<span class="math inline">\(Var\big(\symbf{y}\mid\symbf{b}\big)=\symbf V_\mu^{1/2}\symbf{A}\symbf{V}_\mu^{1/2}\)</span> 其中
+<span class="math display">\[\symbf{V}_\mu^{1/2}=\operatorname{diag}\bigg[\sqrt{V(\mu)}\bigg]=\operatorname{diag}\bigg[\sqrt{\frac{\partial^2b\left(\theta\right)}{\partial\theta^2}}\bigg]\]</span>
+以及
+<span class="math display">\[\symbf{A}=\operatorname{diag}\begin{bmatrix}1\Big/a(\phi)\end{bmatrix}\]</span>
+并且 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 要么具有属于指数族的分布，要么具有期望值且（协）方差可用拟似然来表征。</p></li>
+<li><p>连接：<span class="math inline">\(\symbf{\eta}=g\left(\symbf{\mu}\mid\symbf{b}\right)\)</span> 或等价地 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}=h(\symbf{\eta})\)</span>。通常 <span class="math inline">\(h(\cdot)=g^{-1}(\cdot)\)</span>。</p></li>
+</ul>
+<p>以随机效应为条件的观测的拟似然为 <span class="math inline">\(q\ell(\symbf y\mid\symbf b)=\symbf{y'A\theta}-1'\symbf{A}b(\symbf{\theta})\)</span> 以及随机效应分布的对数似然为</p>
+<p><span class="math display">\[\ell\left(\symbf{b}\right)=-{\left(\frac b2\right)}\mathrm{log}\left(2\pi\right)-{\left(\frac12\right)}\mathrm{log}\left(\left|\symbf{G}\right|\right)-{\left(\frac12\right)}\symbf{b}^{\prime}\symbf{G}^{-1}\symbf{b}\]</span></p>
+<p>因此，联合对数（拟）似然为 <span class="math inline">\(\ell(\symbf{b})+q\ell(\symbf{y}\mid\symbf{b})\)</span>，边际（拟）似然为</p>
+<p><span class="math display" id="eq:5-31">\[\begin{align}
+&amp;\;\iint_{\symbf{b}}[q\ell\left(\symbf{y}\mid\symbf{b}\right)+\ell\left(\symbf{b}\right)]\,d\symbf{b}=q\ell\left(\symbf{y}\right)\\=&amp;\;\iint_{\symbf{b}}\left[\symbf{y}^{\prime}\symbf{A}\symbf{\theta}-1^{\prime}\symbf{A}b\left(\symbf{\theta}\right)-\left(\frac{b}{2}\right)\mathrm{log}\left(2\pi\right)-\left(\frac{1}{2}\right)\mathrm{log}\left(\left|\symbf{G}\right|\right)-\left(\frac{1}{2}\right)\symbf{b}^{\prime}\symbf{G}^{-1}\symbf{b}\right]d\symbf{b}
+\tag{5.31}
+\end{align}\]</span></p>
+<p>如果 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 有一个真正的分布，我们可以加上 <span class="math inline">\(c(\phi,\symbf y)\)</span> 项以给出一个真对数似然。</p>
+<p>虽然 <span class="math inline">\(q\ell ( \symbf y)\)</span> 或 <span class="math inline">\(\ell (\symbf y)\)</span> 是良定的，但除了少数例外，进一步简化是不可能的。因此我们试图将一个本质上难以处理的函数最小化，这是一个棘手的问题。LMM 就是这样的例外——因为 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 是高斯分布，所以联合分布以及由此得到的边际分布也是高斯分布，正如我们在 <a href="chap5.html#sec5-4">5.4</a> 节中看到的那样。然而，一般来说，我们需要使用某种形式的近似。我们将在本文中使用的两种替代方案为：</p>
+<ul>
+<li>
+<strong>线性化</strong> (Linearization)：特别是 PROC GLIMMIX 所使用的<strong>伪似然</strong> (pseudo-likelihood) 法。</li>
+<li>
+<strong>积分近似</strong> (Integral approximation)：PROC GLIMMIX 实现的两种方法是<strong>拉普拉斯近似</strong> (Laplace
+approximation) 和<strong>自适应高斯-埃尔米特求积</strong> (adaptive Gauss-Hermite quadrature).</li>
+</ul>
+<p>在本节的其余部分，我们将详细介绍伪似然法。积分近似法的介绍则相对简略。后续章节将重点关注这些方法在实际建模中的使用（以及在了解其局限性后不使用）。</p>
+<div id="sec5-5-1" class="section level3" number="5.5.1">
+<h3>
+<span class="header-section-number">5.5.1</span> 伪似然<a class="anchor" aria-label="anchor" href="#sec5-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>Schall (1991) 以及 Breslow and Clayton (1993) 提出了用于 GLMM 估计的基于拟似然的线性化，在文献中称为<strong>惩罚拟似然</strong> (penalized-quasi-likelihood, <strong>PQL</strong>). Wolfinger and O’Connell (1993) 从拉普拉斯近似的角度出发，开发了伪似然法。两者的相似之处在于它们扩展了 <a href="chap5.html#sec5-3">5.3</a> 节中的伪变量 <span class="math inline">\(\symbf y^*\)</span> 的概念，并最终得到了混合模型方程 <a href="chap5.html#eq:5-17">(5.17)</a> 的广义线性模型版本。这里优选伪似然，因为当条件分布属于指数族时，其分布假设是明确的（我们没有拟似然），并且也许更重要的是，伪似然表达了一个思想，即近似函数在很大程度上保留了高斯对数似然的结构，这允许我们使用类似 LMM 的估计方程来估计协方差分量以及线性预测器效应。</p>
+<p>我们从在 <span class="math inline">\(\tilde{\symbf\eta}\)</span> 处计算逆连接函数的泰勒级数展开开始。这源于 GLMM 的目标：通过 <span class="math inline">\(h\big(\symbf{X\beta+Zb}\big)=h\big(\symbf{\eta}\big)\)</span> 对 <span class="math inline">\(E\left(\symbf{y}\mid\symbf{b}\right)=\symbf{\mu}\mid\symbf{b}\)</span> 建模。泰勒级数展开为</p>
+<p><span class="math display">\[h\left(\symbf{\eta}\right)\cong h\left(\tilde{\symbf{\eta}}\right)+\frac{\partial h\left(\symbf{\eta}\right)}{\partial\symbf{\eta}}\Bigg|_{\symbf{\eta}=\tilde{\symbf{\eta}}}\left(\symbf{\eta}-\tilde{\symbf{\eta}}\right)\]</span></p>
+<p>根据 <a href="chap5.html#eq:5-12">(5.12)</a> 引入的符号，定义</p>
+<p><span class="math display">\[\symbf{D}=\operatorname{diag}\biggl[\frac{\partial g\bigl(\symbf{\mu}|\symbf{b}\bigr)}{\partial\symbf{\mu}}\biggr]\]</span></p>
+<p>或等价地</p>
+<p><span class="math display">\[\symbf{D}^{-1}=\operatorname{diag}\biggl[\frac{\partial h(\symbf{\eta})}{\partial\symbf{\eta}}\biggr]\]</span></p>
+<p>我们可将泰勒级数展开重写为 <span class="math inline">\(h\left(\symbf{\eta}\right)\cong h\left(\tilde{\symbf{\eta}}\right)+\tilde{\symbf{D}}^{-1}\left(\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b}-\symbf{X}\tilde{\symbf{\beta}}-\symbf{Z}\tilde{\symbf{b}}\right)\)</span>，其中 <span class="math inline">\(\tilde{\symbf D}\)</span> 为 <span class="math inline">\(\symbf D\)</span> 在 <span class="math inline">\(\tilde{\symbf{\eta}}=\symbf{X}\tilde{\symbf{\beta}}+\symbf{Z}\tilde{\symbf{b}}\)</span> 处计算的值。重新排列项后得到 <span class="math inline">\(\tilde{\symbf{D}}\bigg[h(\symbf{\eta})-h\big(\tilde{\symbf{\eta}}\big)\bigg]+\symbf{X}\tilde{\symbf{\beta}}+\symbf{Z}\tilde{\symbf{b}}\cong\symbf{X\beta}+\symbf{Zb}\)</span>。由此：</p>
+<ul>
+<li><span class="math display" id="eq:5-32">\[\begin{align}
+E\left(\symbf{y}^*\mid\symbf{b}\right)=\tilde{\symbf{D}}{\left[h\left(\symbf{\eta}\right)-h\left(\tilde{\symbf{\eta}}\right)\right]}+\symbf{X}\tilde{\symbf{\beta}}+\symbf{Z}\tilde{\symbf{b}}\cong\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b}
+\tag{5.32}
+\end{align}\]</span></li>
+</ul>
+<p>以及</p>
+<ul>
+<li><span class="math display" id="eq:5-33">\[\begin{align}
+Var\left(\symbf{y}^*\mid\symbf{b}\right)=\symbf{D}\symbf{V}_\mu^{1/2}\symbf{A}\symbf{V}_\mu^{1/2}\symbf{D}
+\tag{5.33}
+\end{align}\]</span></li>
+</ul>
+<p>此时你既可以使用广义最小二乘参数，其中 <span class="math inline">\(Var\left(\symbf{y}^*|\symbf{b}\right)\)</span> 扮演 LMM 中 <span class="math inline">\(\symbf R\)</span> 的角色，也可以简单地将 <span class="math inline">\(\symbf y^*\)</span> 视为 LMM 中的响应变量。无论哪种方式，<strong>伪似然估计方程</strong> (pseudo-likelihood estimating equations)，也称为<strong>广义混合模型方程</strong> (generalized mixed model equations)，是用 <span class="math inline">\(\symbf y^*\)</span> 替换 <span class="math inline">\(\symbf y\)</span>、用 <span class="math inline">\(\symbf{DV}_\mu^{1/2}\symbf{AV}_\mu^{1/2}\symbf{D}\)</span> 替换 <span class="math inline">\(\symbf R\)</span> 的混合模型方程。回想，我们在 GLM 估计方程中定义了 <span class="math inline">\(\symbf W=\left(\symbf D\symbf V\symbf D\right)^{-1}=\left(\symbf D\symbf V_\mu^{1/2}\symbf A\symbf V_\mu^{1/2}\symbf D\right)^{-1}\)</span>，因此 <span class="math inline">\(\symbf W\)</span> 替换了 <span class="math inline">\(\symbf R^{−1}\)</span>，从而伪似然广义混合模型方程为：</p>
+<p><span class="math display" id="eq:5-34">\[\begin{align}
+\begin{bmatrix}\symbf{X'WX}&amp;\symbf{X'WZ}\\\symbf{Z'WX}&amp;\symbf{Z'WZ+G}^{-1}\end{bmatrix}\begin{bmatrix}\symbf{\beta}\\\symbf{b}\end{bmatrix}=\begin{bmatrix}\symbf{X'Wy}^*\\\symbf{Z'Wy}^*\end{bmatrix}
+\tag{5.34}
+\end{align}\]</span></p>
+</div>
+<div id="方差-协方差的伪似然估计-5-5-2" class="section level3" number="5.5.2">
+<h3>
+<span class="header-section-number">5.5.2</span> 方差-协方差的伪似然估计 {5-5-2}<a class="anchor" aria-label="anchor" href="#%E6%96%B9%E5%B7%AE-%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9A%84%E4%BC%AA%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1-5-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>以下几个结果对协方差分量估计是有用的。</p>
+<ul>
+<li><p>“边际”伪方差为 <span class="math inline">\(Var\left(\symbf{y}^*\right)=\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{W}^{-1}\)</span>，或 <span class="math inline">\(\symbf{ZGZ}^{\prime}+\symbf{DV_\mu}^{1/2}\symbf{AV_\mu}^{1/2}\symbf{D}\)</span>。记为
+<span class="math display" id="eq:5-35">\[\begin{align}
+V^*(\symbf\sigma)
+\tag{5.35}
+\end{align}\]</span>。</p></li>
+<li><p>伪对数似然函数为</p></li>
+</ul>
+<p><span class="math display" id="eq:5-36">\[\begin{align}
+p\ell\left(\symbf{\beta},\symbf{\sigma};\symbf{y}^*\right)&amp;=-\biggl(\frac n2\biggr)\mathrm{log}\left(2\pi\right)-\biggl(\frac12\biggr)\mathrm{log}\left(\left|\symbf{V}^*(\symbf{\sigma})\right|\right)\\&amp;-\biggl(\frac12\biggr)\bigl(\symbf{y}^*-\symbf{X}\symbf{\beta}\bigr)^{\prime}\bigl[\symbf{V}^*(\symbf{\sigma})\bigr]^{-1}\bigl(\symbf{y}^*-\symbf{X}\symbf{\beta}\bigr)
+\tag{5.36}
+\end{align}\]</span></p>
+<ul>
+<li>REML 伪对数似然为</li>
+</ul>
+<p><span class="math display" id="eq:5-37">\[\begin{align}
+p\ell_{_R}\left(\symbf\sigma;\symbf{y}^*\right)=\;&amp;-\biggl(\frac{n-p}{2}\biggr)\mathrm{log}\left(2\pi\right)-\left(\frac12\right)\mathrm{log}\left(\left|\symbf{V}^*(\symbf\sigma)\right|\right)\\\;&amp;-\left(\frac12\right)\mathrm{log}\left(\left|\symbf{X}^{\prime}\left[\symbf{V}^*(\symbf\sigma)\right]^{-1}\symbf{X}\right|\right)-\left(\frac12\right)\left(\symbf{r}^*\right)^{\prime}\left[\symbf{V}^*(\symbf\sigma)\right]^{-1}\symbf{r}^*
+\tag{5.37}
+\end{align}\]</span></p>
+<p>由此，式 <a href="chap5.html#eq:5-24">(5.24)</a> 至 <a href="chap5.html#eq:5-29">(5.29)</a> 中给出的 ML 和 REML 得分向量项以及 ML 和 REML Hessian 和信息矩阵项可用于 GLMM 协方差分量估计。与 ML 和 REML 伪对数似然一样，简单地将 <span class="math inline">\(\symbf y\)</span> 替换为 <span class="math inline">\(\symbf y^*\)</span>，将 <span class="math inline">\(\symbf V(\symbf\sigma)\)</span> 替换为 <span class="math inline">\(\symbf V^*(\symbf\sigma)\)</span>。</p>
+<p>PROC GLIMMIX 使用缩写 RSPL 来指代使用 REML 版本的得分向量以及用于协方差估计的 Hessian 或信息矩阵实现的伪似然 (PL). 其全称为 <em>R</em>estricted <em>S</em>ubject-specific <em>P</em>seudo-<em>L</em>ikelihood. 缩写 MSPL—— <em>M</em>aximum <em>S</em>ubject-specific <em>P</em>seudo-<em>L</em>ikelihood ——表示使用 ML 版本的得分向量以及 Hessian 或信息矩阵进行协方差估计来实现的 PL. 从现在起我们将使用缩写 PL，仅在专门提及 GLIMMIX 程序时才会使用 GLIMMIX 相应的缩写。</p>
+<p>PL 与 LMM 估计的相似性赋予了它一些理想的特性：易于实现，以及能够适应所有非高斯形式的线性混合模型。PL 可视为线性模型真正通用的估计算法。对于高斯混合模型，PL 简化为混合模型方程 <a href="chap5.html#eq:5-17">(5.17)</a>；对于仅固定效应的非高斯模型，PL 简化为 GLM 估计方程 <a href="chap5.html#eq:5-15">(5.15)</a>. 对于高斯仅固定效应模型，PL 简化为 GLS 估计方程，若 <span class="math inline">\(\symbf V =\symbf I \sigma^2\)</span> 则进一步简化为普通最小二乘方程。换言之，正如 LMM, GLM 和 LM 都是 GLMM 的特例一样，它们的估计方程都是 PL 的特例。</p>
+<p>在第 <a href="chap6.html#chap6">6</a> 章中我们还将看到，PL 允许我们将大多数与 LMM 相关的推断技术的推广到 GLMM. 在后续章节中，我们将更详细地探讨这些能力。</p>
+<p>不幸的是，PL 并不适用所有情况。PL 所依赖的线性化并不总能很好地逼近似然，从而得出可用的估计。当每个观察单元的伯努利试验数量较小时（极端情况是二进制数据），二项 GLMM 存在一个已知问题。另一类问题出现在参数接近分布极值时的双参数指数分布（例如贝塔和负二项）（例如，贝塔的期望比例接近 0 或 1，或者负二项的期望计数接近 0）。有关 PL 性能的深入评估，请参阅 Stroup and Claassen (2020). 当我们继续展开后续章节时，我们将给出更多细节。这里的要点是：PL 不能用作 GLMM 一刀切式的估计方法。积分近似法为问题模型提供了替代方案。</p>
+</div>
+<div id="sec5-5-3" class="section level3" number="5.5.3">
+<h3>
+<span class="header-section-number">5.5.3</span> 积分近似：拉普拉斯和求积<a class="anchor" aria-label="anchor" href="#sec5-5-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于问题模型，直接最大化似然提供了一种替代方案，它通常解决与基于 PL 的估计相关的问题。回想 <a href="chap5.html#eq:5-31">(5.31)</a>，边际似然涉及对高斯与指数族（拟）似然之积的积分，该乘积通常十分混乱且无法进一步简化。因此，虽然直接最大化通常是不可能的，但我们可用积分近似来逼近。两种有用的方法是<strong>高斯-埃尔米特求积</strong> (Gauss-Hermite quadrature) 和<strong>拉普拉斯近似</strong> (Laplace approximation).</p>
+<p>这些近似的基本思想如下：</p>
+<ul>
+<li><p>高斯-埃尔米特求积：
+<span class="math display">\[\int f(x)e^{-x^2}dx\cong\sum_kw_kf\left(x_k\right)\]</span>
+其中 <span class="math inline">\(w_k\)</span> 是权重，<span class="math inline">\(x_k\)</span> 是横坐标。对于给定的 <span class="math inline">\(k\)</span>，<span class="math inline">\(w_k\)</span> 和 <span class="math inline">\(x_k\)</span> 的值在标准数学表格参考书中给出，例如 Zwillinger (2018).</p></li>
+<li><p>拉普拉斯近似：
+<span class="math display">\[\int e^{h(x)}dx\cong(2\pi)^{-1/2}e^{h(\tilde{x})}\left|\frac{\partial^2h(x)}{\partial x^2}\Bigg|_{x=\tilde{x}}\right|^{-1/2}\]</span>
+其中 <span class="math inline">\(\tilde x\)</span> 表示最大化 <span class="math inline">\(h(x)\)</span> 的 <span class="math inline">\(x\)</span> 值。</p></li>
+</ul>
+<p>在第 <a href="chap1.html#chap1">1</a> — <a href="chap3.html#chap3">3</a> 章中，我们研究了几个 <span class="math inline">\(y\mid b\sim \text{Binomial}\)</span> 以及 <span class="math inline">\(b\sim\text{Gaussina}\)</span> 的 GLMM 示例。 让我们使用此设定的一个非常简单的版本，即 <span class="math inline">\(y\mid b\sim \text{Binary}(\pi)\)</span> 和 <span class="math inline">\(b\sim N(0,\sigma^2)\)</span> 来说明这些近似。随着 GLMM 复杂度的增加，每种近似都可能变得非常复杂并且计算量很大，但这个简单的说明将满足我们的目的——这只是为了对近似的工作原理有一个概念性的了解。</p>
+<p>我们从高斯埃尔米特求积开始。观测的条件 p.d.f. 为 <span class="math inline">\(f(y\mid b)=p^y(1-p)^{1-y}\)</span>，其中 <span class="math inline">\(y=0\)</span> 或 <span class="math inline">\(1\)</span> 以及 <span class="math inline">\(p=\Pr\{Y=1\}\)</span>。随机效应的 p.d.f 为<span class="math inline">\(f\left(b\right)=\left(2\pi\right)^{-1/2}\sigma^{-1}e^{\small-\frac{b^2}2}\)</span>。令 <span class="math inline">\(w\)</span> 表示对应于连接的随机变量，我们有 <span class="math inline">\(w\sim N\left(\eta,\sigma^2\right)\)</span> 和 <span class="math inline">\(p=\frac{e^w}{1+e^w}\)</span>。我们将所得联合 p.d.f. 写为</p>
+<p><span class="math display">\[\left(\frac{e^w}{1+e^w}\right)^y\left(\frac1{1+e^w}\right)^{1-y}\left(2\pi\right)^{-1/2}\sigma^{-1}e^{\small-\frac{(w-\eta)^2}{2\sigma^2}}\]</span></p>
+<p>现在令 <span class="math inline">\(z =\frac{w-\eta}{\sigma}\)</span>，代入上式得到</p>
+<p><span class="math display">\[\left(\frac{e^{\eta-\sigma z}}{1+e^{\eta-\sigma z}}\right)^{y}\left(\frac{1}{1+e^{\eta-\sigma z}}\right)^{1-y}\left(2\pi\right)^{-1/2}\sigma^{-1}e^{{-\frac{z^{2}}{2}}}\]</span></p>
+<p>现在我们可把边际似然写为</p>
+<p><span class="math display" id="eq:5-38">\[\begin{align}
+\int_{-\infty}^\infty\left(\frac{e^{(\eta-\sigma z)y}}{1+e^{\eta-\sigma z}}\right)(2\pi)^{-1/2}e^{-\frac{z^2}2}dz
+\tag{5.38}
+\end{align}\]</span></p>
+<p>最后，令 <span class="math inline">\(x^2=z^2/2\)</span>，这得到</p>
+<p><span class="math display">\[\int_{-\infty}^\infty\left(\frac{e^{\left(\eta-\sigma\sqrt{2}x\right)y}}{1+e^{\eta-\sigma\sqrt{2}x}}\right)(\pi)^{-1/2}e^{-x^2}dx\]</span></p>
+<p>我们现在认识到</p>
+<p><span class="math display">\[f\left(x\right)=\left(\frac{e^{\left(\eta-\sigma\sqrt{2}x\right)y}}{1+e^{\eta-\sigma\sqrt{2}x}}\right)\left(\pi\right)^{-1/2}\]</span></p>
+<p>是高斯-埃尔米特求积的必要函数：边际似然近似等于</p>
+<p><span class="math display">\[\sum_kw_k\left(\frac{e^{\left(\eta-\sigma\sqrt{2}x_k\right)y}}{1+e^{\eta-\sigma\sqrt{2}x_k}}\right)(\pi)^{-1/2}\]</span></p>
+<p>对于拉普拉斯近似，我们回到 <a href="chap5.html#eq:5-38">(5.38)</a> 给出的边际分布。令 <span class="math inline">\(h(z)=(\eta+\sigma z)y-\log(1+e^{\eta+\sigma z})-\frac12z^2\)</span> 给出拉普拉斯近似的理想形式，其中</p>
+<p><span class="math display">\[\frac{\partial^2h(z)}{\partial z^2}=-\left(\frac{\sigma^2e^{\eta+\sigma z}}{\left(1+e^{\eta+\sigma z}\right)^2}+1\right)\]</span></p>
+<p>随着求积点数 <span class="math inline">\(k\)</span> 的增加，高斯-埃尔米特求积的近似变得更加准确。然而，增加 <span class="math inline">\(k\)</span> 也会增加程序的计算负担以至于无法实现。此外，存在一个收益递减点，这取决于数据和拟合的模型。许多实现求积的软件包，包括 GLIMMIX 程序，都是自适应的，这意味着它们有数据驱动的决策规则来选择名义上最优的求积点数，并且在迭代过程中使用相关估计的当前值对横坐标进行中心化和缩放。有关详细信息，请参阅 Pinheiro and Bates (1995) 以及 SAS PROC GLIMMIX documentation (SAS Institute, 2019). 可在 SAS 中使用 PROC 语句中的 <code>QPOINT</code> 选项来覆盖求积点数的自适应规则。例如在某些情况下，模型的复杂性使得求积点选择程序在计算上不可行。在其他情况下，查看指定数量的求积点会发生什么是很有意义的。</p>
+<p>拉普拉斯近似可证明等价于具有一个求积点的高斯-埃尔米特程序。拉普拉斯程序的计算强度比求积程序小，并且在可使用的模型方面更加灵活。</p>
+</div>
+<div id="sec5-5-4" class="section level3" number="5.5.4">
+<h3>
+<span class="header-section-number">5.5.4</span> 在实践中选择伪似然还是积分近似？<a class="anchor" aria-label="anchor" href="#sec5-5-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>GLMM 实践者可使用伪似然法和积分近似法，但问题是：应该使用哪一种方法？答案取决于两个考虑因素。第一个是协方差分量估计中的偏差及其对用于假设检验和区间估计的推断统计量的影响。第二个问题是是否需要模型选择工具，例如信息准则（在第 <a href="chap7.html#chap7">7</a> 章中介绍并广泛用于具有序列或空间相关性的模型（第 <a href="#chap17"><strong>??</strong></a> 章和第 <a href="#chap18"><strong>??</strong></a> 章）。</p>
+<p>我们在 <a href="chap5.html#sec5-4-3">5.4.3</a> 节中看到，在具有高斯数据的线性混合模型中，REML 是估计协方差分量的首选方法，因为它避免了 ML 估计的向下偏差及其对推断统计量的后续影响。然而，残差似然仅与高斯数据结合才有意义。对于具有非高斯数据的GLMM，没有对应于残差似然的概念。两种积分近似法——高斯-埃尔米特求积法和拉普拉斯法——都从近似似然中获得参数估计，包括协方差分量。因此，两者仅产生最大似然估计。另一方面，伪似然的 REML 版本 (REML-PL) 模拟了残差似然并获得类似 REML 的协方差分量估计。对于具有非高斯数据的 GLMM，REML 与 LM 协方差分量估计存在相同的问题，但更微妙。请参阅 Stroup and Claassen (2020) 进行深入探索。Stroup and Claassen 通过模拟证明，如果条件分布 <span class="math inline">\(f ( \symbf y \mid \symbf b)\)</span> 相当对称，REML-PL 会产生更准确的协变量分量估计、更好的 I 类错误控制和置信区间覆盖（即在模拟实验中，95% 置信区间实际包含了所需参数估计的比例），而求积法和拉普拉斯法的表现与仅 ML 法对高斯混合模型的表现非常相似。然而，当 <span class="math inline">\(f ( \symbf y \mid \symbf b)\)</span> 强不对称时，例如，对于 1) 二进制数据，或 2) 负二项数据的期望计数接近零或尺度参数 <span class="math inline">\(\phi\)</span> 远大于 1，或 3) 期望比例接近 0 或 1 的连续比例（贝塔）数据，伪似然表现不佳，相对于正交和拉普拉斯，在协方差分量估计中表现出相当大的偏差。第 11 章 <a href="#sec11-2-1"><strong>??</strong></a> 节包含一个说明。</p>
+<p>由此得出的建议是：当有证据表明 <span class="math inline">\(f ( \symbf y \mid \symbf b)\)</span> 强不对称时，使用积分近似，若满足计算要求则使用求积法，否则使用拉普拉斯法。而当 <span class="math inline">\(f ( \symbf y \mid \symbf b)\)</span> 不是强不对称时，使用 REML-PL.</p>
+<p>最后一点，早期 GLMM 文献给人的印象是应始终首选积分近似法。参见，例如，Breslow and Lin (1995), Lin and Breslow (1996), Murray et al. (2004), Pinheiro and Chao (2006) 以及 Bolker et al. (2009)。此外，SAS PROC GLIMMIX documentation 重点关注“PL 的缺点” (“the down side of PL”). 对于 R 用户来说，R 的主要 GLMM 包 lme4 没有 PL 选项；自适应求积是唯一可用的计算算法。Stroup and Claassen (2020) 记录的后续经验表明了截然相反的情况——在许多实际应用中，REML-PL 在许多实际应用中是强烈首选的。本书第三篇中的例子将对这一点进行说明和阐述。</p>
+<p>对于可比的拟合模型，应使用求积法或拉普拉斯法，而不是伪似然法。由于积分近似程序关注的是真实似然，而不是伪似然线性化，因此从似然中得出的统计量（例如拟合统计量和似然比检验）是良定的，而 PL 则不是。这仅是非高斯 GLMM 的问题；对于 LMM, GLM 和 LM，所有似然都是良定的。然而，对于非高斯 GLMM，积分法和拉普拉斯法计算了似然的合理近似值（或至少它们试图这样做），而 PL 则没有。当我们考虑相关误差 GLMM 时，我们将会看到拉普拉斯近似特别有用，因为它可为某些 GLMM（通常对于求积法过于复杂的模型）定义适当的相关误差模型，并允许使用拟合统计量或似然比统计量比较竞争模型。</p>
+</div>
+</div>
+<div id="exe5" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe5"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>文件夹 “GLMM_2nd_Examples_and_Exercises/Files for Chapter 5 Exercises” 包含两个文件，每个文件中都有一个 IML 程序，用于说明混合模型的估计方程。这两个文件是：</p>
+<ul>
+<li>Two_way_MM_noAB.sas</li>
+<li>Two_way_MM_withAB.sas</li>
+</ul>
+<p>“noAB” 文件展示了一个无 blk × trt 交互作用的模型，而 “withAB” 文件中的模型则有。每个文件都包含了用于拟合模型的 PROC GLIMMIX 语句以及 IML 语句，这些 IML 语句说明了 GLIMMIX 程序实现的计算过程。（在编写矩阵程序以实现第 <a href="chap5.html#chap5">5</a> 章中介绍的估计方程时，你可以将 GLIMMIX 的运行结果作为“答案指南”来使用）。</p>
+<ol style="list-style-type: lower-alpha">
+<li>为每个文件中要拟合的模型写出所需的元素。所需元素包括：
+<ul>
+<li>线性预测器</li>
+<li>随机效应的假定分布以及给定随机效应的观测分布</li>
+<li>连接函数</li>
+</ul>
+</li>
+<li>修改每个程序，将用于 REML 方差分量估计的 Newton-Raphson 方程替换为 Fisher 得分算法。验证你的 IML/Fisher 得分程序中固定效应和方差分量估计的解与 GLIMMIX 程序和 IML/Newton-Raphson 程序的解是否一致。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch5_prob2_3.sas. 编写一个 IML 程序（或者如果你喜欢的话，编写一个等价的矩阵程序）来获取在 “Run 1” PROC GLIMMIX 程序中实现的模型的模型效应解和方差分量估计。</p>
+<ol style="list-style-type: lower-alpha">
+<li>编写 “Run 1” 实现的模型所需的元素。</li>
+<li>验证你的矩阵程序产生的解和估计与 GLIMMIX 程序产生的解和估计相等。</li>
+</ol>
+<p>【提示：对于本习题以及下面的 3, 4, 5 题，你可能会发现使用 1. 中的 IML 程序作为模板很有帮助，按需修改以适应你正在获取的模型中的响应变量和分布】</p>
+</li>
+<li>
+<p>使用文件 Ch5_prob2_3.sas. 编写一个 IML 程序（或者如果你喜欢的话，编写一个等价的矩阵程序）来获取在 “Run 2” PROC GLIMMIX 程序中实现的模型的模型效应解和方差分量估计。</p>
+<ol style="list-style-type: lower-alpha">
+<li>编写 “Run 2” 实现的模型所需的元素。</li>
+<li>验证你的矩阵程序产生的解和估计与 GLIMMIX 程序产生的解和估计相等。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch5_prob4_5.sas. 编写一个 IML 程序（或者如果你更喜欢，编写一个等价的矩阵程序）来获取在 “Run 1” PROC GLIMMIX 程序中实现的模型的模型效应解和方差分量估计。</p>
+<ol style="list-style-type: lower-alpha">
+<li>编写 “Run 1” 实现的模型所需的元素。</li>
+<li>验证你的矩阵程序产生的解和估计与 GLIMMIX 程序产生的解和估计相等。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch5_prob4_5.sas. 编写一个 IML 程序（或者如果你更喜欢，编写一个等价的矩阵程序）来获取在 “Run 2” PROC GLIMMIX 程序中实现的模型的模型效应解和方差分量估计。</p>
+<ol style="list-style-type: lower-alpha">
+<li>编写 “Run 2” 实现的模型所需的元素。</li>
+<li>验证你的矩阵程序产生的解和估计与 GLIMMIX 程序产生的解和估计相等。</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></div>
+<div class="next"><a href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap5"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="nav-link" href="#sec5-1"><span class="header-section-number">5.1</span> 介绍</a></li>
+<li>
+<a class="nav-link" href="#sec5-2"><span class="header-section-number">5.2</span> 基本背景</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec5-2-1"><span class="header-section-number">5.2.1</span> 指数族</a></li>
+<li><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%9C%AF%E8%AF%AD%E5%92%8C%E7%BB%93%E6%9E%9C">基本术语和结果</a></li>
+<li><a class="nav-link" href="#sec5-2-2"><span class="header-section-number">5.2.2</span> 最大似然估计</a></li>
+<li><a class="nav-link" href="#sec5-2-3"><span class="header-section-number">5.2.3</span> Newton-Raphson 和 Fisher 得分</a></li>
+<li><a class="nav-link" href="#sec5-2-4"><span class="header-section-number">5.2.4</span> 拟似然</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec5-3"><span class="header-section-number">5.3</span> 仅固定效应</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#%E6%A0%87%E9%87%8F%E5%BD%A2%E5%BC%8F">标量形式</a></li>
+<li><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E5%BD%A2%E5%BC%8F">矩阵形式</a></li>
+<li><a class="nav-link" href="#sec5-3-1"><span class="header-section-number">5.3.1</span> GLM 估计方程</a></li>
+<li><a class="nav-link" href="#sec5-3-2"><span class="header-section-number">5.3.2</span> 与最小二乘估计的关系</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec5-4"><span class="header-section-number">5.4</span> 高斯混合模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec5-4-1"><span class="header-section-number">5.4.1</span> 混合模型方程</a></li>
+<li><a class="nav-link" href="#sec5-4-2"><span class="header-section-number">5.4.2</span> 与最小二乘的联系</a></li>
+<li><a class="nav-link" href="#sec5-4-3"><span class="header-section-number">5.4.3</span> 未知的 \(\symbf G\) 和 \(\symbf R\)：ML 和 REML 方差-协方差分量估计</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec5-5"><span class="header-section-number">5.5</span> 广义线性混合模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec5-5-1"><span class="header-section-number">5.5.1</span> 伪似然</a></li>
+<li><a class="nav-link" href="#%E6%96%B9%E5%B7%AE-%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9A%84%E4%BC%AA%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1-5-5-2"><span class="header-section-number">5.5.2</span> 方差-协方差的伪似然估计 {5-5-2}</a></li>
+<li><a class="nav-link" href="#sec5-5-3"><span class="header-section-number">5.5.3</span> 积分近似：拉普拉斯和求积</a></li>
+<li><a class="nav-link" href="#sec5-5-4"><span class="header-section-number">5.5.4</span> 在实践中选择伪似然还是积分近似？</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#exe5">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

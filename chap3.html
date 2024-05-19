@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 3 章 搭建舞台 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="第 1 章介绍了线性统计模型的基本要素。模型至少必须指定线性预测器、观测的分布和连接函数。如果线性预测器是完全确定的，则我们只有固定效应线性预测器 \(\symbf{X\beta}\)。如果模型还包含随机效应，则线性预测变量为 \(\symbf {X\beta}+\symbf{Zb}\)，并且必须指定随机效应 \(\symbf b\) 的分布。 第 2...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 3 章 搭建舞台 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="第 1 章介绍了线性统计模型的基本要素。模型至少必须指定线性预测器、观测的分布和连接函数。如果线性预测器是完全确定的，则我们只有固定效应线性预测器 \(\symbf{X\beta}\)。如果模型还包含随机效应，则线性预测变量为 \(\symbf {X\beta}+\symbf{Zb}\)，并且必须指定随机效应 \(\symbf b\) 的分布。 第 2...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 3 章 搭建舞台 | 广义线性混合模型">
+<meta name="twitter:description" content="第 1 章介绍了线性统计模型的基本要素。模型至少必须指定线性预测器、观测的分布和连接函数。如果线性预测器是完全确定的，则我们只有固定效应线性预测器 \(\symbf{X\beta}\)。如果模型还包含随机效应，则线性预测变量为 \(\symbf {X\beta}+\symbf{Zb}\)，并且必须指定随机效应 \(\symbf b\) 的分布。 第 2...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="active" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap3" class="section level1" number="3">
+<h1>
+<span class="header-section-number">第 3 章</span> 搭建舞台<a class="anchor" aria-label="anchor" href="#chap3"><i class="fas fa-link"></i></a>
+</h1>
+<p>第 <a href="chap1.html#chap1">1</a> 章介绍了线性统计模型的基本要素。模型至少必须指定线性预测器、观测的分布和连接函数。如果线性预测器是完全确定的，则我们只有固定效应线性预测器 <span class="math inline">\(\symbf{X\beta}\)</span>。如果模型还包含随机效应，则线性预测变量为 <span class="math inline">\(\symbf {X\beta}+\symbf{Zb}\)</span>，并且必须指定随机效应 <span class="math inline">\(\symbf b\)</span> 的分布。</p>
+<p>第 <a href="chap2.html#chap2">2</a> 章探讨了从数据集结构到模型构建的过程。所得模型的基本特征是，它必须是对产生观测结果过程的合理描述。这里的措辞很重要：“合理的描述”而不是“唯一真实的描述”。在科学中，我们可以——而且经常会——对一个过程有两个（或多个）合理的描述。统计推断的目的至少在一定程度上是为了确定哪些相互竞争的解释与数据更一致。</p>
+<p>本章的目的是为线性模型的统计推断奠定基础。这涉及两个一般主题。</p>
+<p>首先，一旦我们指定了一个模型并估计了它的参数，我们该如何处理这些估计？我们如何使用它们来回答最初促使我们收集数据的问题？这本身就是一个重要且未被充分重视的建模主题。尽管听起来令人惊讶，但统计分析和科学探究往往被划分为两种方式，使两者都变得贫瘠。本章的一个目标是帮助减少这种划分。从科学问题的角度构建参数估计——反之亦然——是一个重要步骤。能够在“科学语言”和“统计语言”之间轻松切换是很重要的。</p>
+<p>本章的第二个主题涉及在一个只有固定效应、只有高斯数据的世界中我们不会想到的问题。这些是模型尺度与数据尺度、推断空间和条件与边际问题。所有这些都在某种程度上被低估了，但正如我们将看到的那样，这些是至关重要的。它们在 <a href="chap3.html#sec3-2">3.2</a> 节中介绍，并在 <a href="chap3.html#sec3-3">3.3</a> 节至 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5">3.5</a> 节中详细讨论。</p>
+<div id="sec3-1" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> 模型推断的目标：概述<a class="anchor" aria-label="anchor" href="#sec3-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>线性模型类型的一个有用的助记符是 (G)LM(M). 所有模型共有的是 LM，线性模型部分：每个线性模型都存在的线性预测器 <span class="math inline">\(\symbf{X\beta}\)</span> 的固定效应分量。(G) 前缀（表示“广义”）表示观测的分布可能是非正态的；(M) 后缀表示线性预测器包括随机效应，即 <span class="math inline">\(\symbf{Zb}\)</span> 项。固定线性预测器 <span class="math inline">\(\symbf{X\beta}\)</span> 很重要，因为正如我们在第 <a href="chap2.html#chap2">2</a> 章中看到的，固定效应通常描述处理设计，而处理设计又由研究目标决定——这是我们想要回答的基本问题。因此，如果我们在建模方面做得很好，我们应该能够将每个目标表达为关于模型参数或其线性组合的问题。</p>
+<p>考虑以下示例：</p>
+<ol style="list-style-type: decimal">
+<li><p>动机问题：药物的稳定性限制特性如何随时间变化？
+假定特性 <span class="math inline">\(Y\)</span> 随时间线性变化，则根据线性回归方程 <span class="math inline">\(Y={\beta}_0+{\beta}_1T\)</span> 可得 <span class="math inline">\(\symbf{X\beta}\)</span>，其中 <span class="math inline">\(T\)</span> 表示时间。关于“是否存在随时间的变化”或“<span class="math inline">\(Y\)</span> 随 <span class="math inline">\(T\)</span> 如何变化”的问题，都可以通过对斜率参数 <span class="math inline">\(\beta_1\)</span> 的推断来回答。但如果线性回归不能充分描述其随时间的变化该怎么办？我们可以用一个更适合的线性预测器来替代 <span class="math inline">\({\beta}_0+{\beta}_1T\)</span>，例如二次多项式或更高阶多项式，甚至是非线性函数。即便如此，推断的重点依然会集中在反映随时间变化的相关参数上。</p></li>
+<li>
+<p>动机问题：三种或更多关注的处理如何影响响应？这里 <span class="math inline">\(\symbf{X\beta}\)</span> 遵循单向模型 <span class="math inline">\(\eta+\tau_i\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 是第 <span class="math inline">\(i\)</span> 种处理的效应。科学问题可转译为一个或多个关于处理效应的陈述。关注点可能集中在评估处理的预期响应的总体相等性上，即 <span class="math inline">\(\tau_1=\tau_2=\tau_3\)</span>。或者，我们可能想要刻画各处理的预期平均性能。用模型术语来说，<span class="math inline">\(\eta+ \tau_i\)</span> 提供了预期处理性能的起点。如果数据是高斯的，<span class="math inline">\(\eta+ \tau_i\)</span> 也给出了处理均值的直接估计。如果数据是非高斯的，<span class="math inline">\(\eta+ \tau_i\)</span> 根据连接函数给出估计，但不直接估计处理均值。这预示了 <a href="chap3.html#sec3-3">3.3</a> 节中模型尺度与数据尺度的问题。</p>
+<p>对处理差异的关注点通常不仅仅是评估 <span class="math inline">\(\tau_1=\tau_2=\tau_3\)</span> 而是更具体的问题。通常，我们想要评估均值对之差 <span class="math inline">\(\tau_i-\tau_{i'}\)</span> 或均值的线性组合，例如 <span class="math inline">\(\tau_1-\frac12\big(\tau_2+\tau_3\big)\)</span>。与预期处理效应一样，这些直接估计高斯数据的均值之差。对于非高斯数据，它们是根据连接函数进行估计的，如果需要均值之差，则需要转换。</p>
+</li>
+<li><p>动机问题：在一项两处理生长曲线研究中，处理如何影响响应随时间的变化？
+简便起见，与第一个动机问题一样，假定响应随时间线性变化。<span class="math inline">\(\symbf{X\beta}\)</span> 的一般形式为 <span class="math inline">\(\beta_{0i}+\beta_{1i}T\)</span>，其中 <span class="math inline">\(\beta_{0i}\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理的截距，<span class="math inline">\(\beta_{1i}\)</span> 是第 <span class="math inline">\(i\)</span> 个处理的斜率。推断可能关注两处理的斜率之差 <span class="math inline">\(\beta_{1,1}-\beta_{1,2}\)</span>，或在特定时间下处理预期响应之差 <span class="math inline">\(\beta_{0,1}-\beta_{0,2}+\left(\beta_{1,1}-\beta_{1,2}\right)T\)</span>，等等。</p></li>
+<li>
+<p>动机问题：两因素如何单独或作为一个系统来影响响应？
+请注意，实现这一目标需要一个析因处理结构。简便起见，考虑一个 <span class="math inline">\(2×2\)</span> 析因——每个因素有 2 个水平，考虑所有可能的组合。这里 <span class="math inline">\(\symbf{X\beta}\)</span> 遵循具有交互作用的双向模型 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span>。与所有模型一样，线性预测器用连接函数表示——<span class="math inline">\(\eta_{ij}\)</span> 可能直接估计处理组合均值 <span class="math inline">\(\mu_{ij}\)</span>（与高斯数据一样），也可能不直接估计（与非高斯数据通常的情况一样）。
+推断可能集中在以下一个或多个方面：处理组合均值；主效应均值，例如因子 A 的水平跨 B 所有水平的均值，反之亦然；主效应之差；简单效应，即在 B 的给定水平上，A 的两个水平之差；在 A 的给定水平上，B 的两个水平之差等等。这些目标中的每一个都可以用线性预测器的参数来表示，如表 3.1 所示。</p>
+<details><summary><p><font color="#8B2232">表 3.1</font></p>
+</summary><div class="inline-figure"><img src="figure/table%203.1.png#center" style="width:100.0%"></div>
+</details><p>如果数据是高斯的，那么第二列中的表达式实际上会估计第三列中的期望。对于非高斯数据，只有当模型使用恒等连接时，第二列才直接估计第三列中的期望（通常情况并非如此）。对于非恒等连接函数，第二列中的估计需要转换，具体方法取决于连接函数。
+总之，我们应该从评估这两个因素之间的交互作用开始。根据定义，当简单效应不相等时，就会出现交互作用。如果交互作用可以忽略不计，则主效应提供了有用的信息；否则，主效应往往是误导性的，最好关注简单效应。</p>
+</li>
+</ol>
+<div class="rmdcaution">
+<p>没有统计规则规定必须进行上述任何检验。为了使上述任何一项成为统计推断的有效目标，我们必须能够根据激发研究的问题和进行研究的学科语言来严格解释它。</p>
+<p>建议练习：将上面定义的参数的每个线性组合表述为“学科语言”，而不是这里给出的“统计语言”的表述。</p>
+</div>
+<div class="rmdtip">
+<p><a href="chap3.html#sec3-1">3.1</a> 节的关键思想：将目标或动机问题表达为参数的线性组合；与回归、单向处理设计、析因处理结构相关的目标；简单效应、主效应、交互作用。</p>
+</div>
+</div>
+<div id="sec3-2" class="section level2" number="3.2">
+<h2>
+<span class="header-section-number">3.2</span> 推断的基本工具<a class="anchor" aria-label="anchor" href="#sec3-2"><i class="fas fa-link"></i></a>
+</h2>
+<p><a href="chap3.html#sec3-1">3.1</a> 节中的所有例子都说明了一个共同主题的变体。每个陈述都涉及估计或检验模型参数的线性组合。在本节中，我们介绍与这些线性组合相关的正式结构和术语。</p>
+<div id="sec3-2-1" class="section level3" number="3.2.1">
+<h3>
+<span class="header-section-number">3.2.1</span> 可估函数<a class="anchor" aria-label="anchor" href="#sec3-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p><a href="chap3.html#sec3-1">3.1</a> 节所示的参数线性组合的一般形式为 <span class="math inline">\(\symbf{K'\beta}\)</span>，其中 <span class="math inline">\(\symbf{K}\)</span> 是一个 <span class="math inline">\(p×k\)</span> 矩阵，<span class="math inline">\(\symbf\beta\)</span> 是固定效应的 <span class="math inline">\(p×1\)</span> 向量。我们要么估计 <span class="math inline">\(\symbf{K'\beta}\)</span>，要么检验 <span class="math inline">\(H_0:\symbf{K'\beta} =\symbf\theta\)</span> ，其中 <span class="math inline">\(\symbf\theta\)</span> 是 <span class="math inline">\(p × 1\)</span> 常数向量。通常我们会设计检验使得 <span class="math inline">\(\symbf\theta=\symbf 0\)</span>。在上述展示的大多数例子中，<span class="math inline">\(\symbf{K}\)</span> 是一个向量——我们将这样的向量记为 <span class="math inline">\(\symbf{k}\)</span>。</p>
+<p>在第一个例子中：</p>
+<p><span class="math display">\[\symbf{\beta}=\begin{bmatrix}{\beta}_0\\{\beta}_1\end{bmatrix}\]</span></p>
+<p>关注检验 <span class="math inline">\(H_0\colon\beta_1=0\)</span>，因此 <span class="math inline">\(\symbf{k}'=\begin{bmatrix}0&amp;1\end{bmatrix}\)</span>。</p>
+<p>在第二个例子中：</p>
+<p><span class="math display">\[\symbf{\beta}=\begin{bmatrix}\mu\\\tau_1\\\tau_2\\\tau_3\end{bmatrix}\]</span></p>
+<p>为估计处理均值，例如，处理 1，<span class="math inline">\(\symbf{k}'=\begin{bmatrix}1&amp;1&amp;0&amp;0\end{bmatrix}\)</span>。为估计或检验处理差异，例如处理 1 与处理 2，<span class="math inline">\(\symbf{k}'=\begin{bmatrix}0&amp;1&amp;-1&amp;0\end{bmatrix}\)</span>。对于处理 1 与处理 2 和 3 均值的对比<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：对比的定义在 &lt;a href="chap8.html#sec8-2-4"&gt;8.2.4&lt;/a&gt; 节。&lt;/p&gt;'><sup>7</sup></a> (contrast)：</p>
+<p><span class="math display">\[\symbf{k}'=\begin{bmatrix}0&amp;1&amp;-\frac{1}{2}&amp;-\frac{1}{2}\end{bmatrix}\]</span></p>
+<p>对于处理均值的总体相等性，<span class="math inline">\(\symbf K\)</span> 必须由两个向量组成，这两个向量是保证 <span class="math inline">\(\tau_1=\tau_2=\tau_3\)</span> 的任意向量。为什么是两个？因为有三种处理，因此处理之间的差异有两个自由度——每个自由度一个对比向量。</p>
+<p>矩阵 <span class="math inline">\(\symbf{K}'=\begin{bmatrix}0&amp;1&amp;0&amp;-1\\[0.3em]0&amp;0&amp;1&amp;-1\end{bmatrix}\)</span> 满足要求吗？为什么？矩阵 <span class="math inline">\(\symbf{K}'=\begin{bmatrix}0&amp;1&amp;-\frac12&amp;-\frac12\\[0.3em]0&amp;0&amp;1&amp;-1\end{bmatrix}\)</span> 呢？</p>
+<div class="rmdcaution">
+<p>建议练习：还有哪些矩阵可用来定义比较 (comparisons)？</p>
+</div>
+<p>总之，当研究目标集中在固定因素效应时，推断首先将这些目标转化为有关线性预测器固定参数线性组合的陈述。这些线性组合称为<strong>可估函数</strong> (estimable functions)，用 <span class="math inline">\(\symbf{K'\beta}\)</span> 表示。顾名思义，<span class="math inline">\(\symbf{K'\beta}\)</span> 必须是可估的——第 <a href="chap4.html#chap4">4</a> 章和第 <a href="chap6.html#chap6">6</a> 章介绍了与<strong>可估性</strong> (estimability) 相关的正式理论。目前，需要注意的是，当线性预测器中的 <span class="math inline">\(\symbf X\)</span> 矩阵满秩时，总是满足可估性要求。当 <span class="math inline">\(\symbf X\)</span> 不满秩时，条件 <span class="math inline">\(\symbf{K}'=(\symbf{X'X})^-(\symbf{X'X})\mathbf{K}'\)</span> 必须成立，其中 <span class="math inline">\((\symbf{X'X})^-\)</span> 表示广义逆。</p>
+</div>
+<div id="sec3-2-2" class="section level3" number="3.2.2">
+<h3>
+<span class="header-section-number">3.2.2</span> 固定效应和随机效应的线性组合：可预测函数<a class="anchor" aria-label="anchor" href="#sec3-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>参考 <a href="chap3.html#sec3-1">3.1</a> 节中的示例 2，比较三个或更多处理。现在我们增加一点：假设我们在多个地点应用每种处理。这些地点可以是不同的诊所、学校、实验室设施或农场——笼统地说，可以把它们当作不同的地点。此时线性预测器为 <span class="math inline">\(\eta+\tau_i+L_j\)</span>，其中 <span class="math inline">\(L_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个地点效应。假设有 <span class="math inline">\(L\)</span> 个地点，因此 <span class="math inline">\(j=1,2,...,L\)</span>。</p>
+<p>此时在构建模型时，我们需要决定地点效应是固定的还是随机的。这一决定对可估性标准以及我们如何解释由此产生的估计和检验具有重要意义。这些影响很重要，所以我们需要理解它们。为此两种情况都加以考虑，从固定的地点效应开始。</p>
+<p>如果地点效应是固定的，则线性组合 <span class="math inline">\(\eta+\tau_i\)</span> 不符合上面给出的可估性标准。估计处理的预期响应（处理均值）需要所有地点的均值——因此相应的可估函数为 <span class="math inline">\(\eta+\tau_i+\bar{L}_\cdot\)</span>，其中 <span class="math inline">\(\bar{L}_\cdot=\frac1L\sum_jL_j\)</span>。</p>
+<p>对于处理之间的比较，例如处理 1 与处理 2 或处理 1 与处理 2 和 3 均值的比较，所有地点的均值将会抵消，得到与该处理设计先前所示的相同的可估函数。地点效应出现在处理均值的可估函数中，但不出现在处理差异的可估函数中。</p>
+<p>如果地点效应是随机的，则 <span class="math inline">\(L_j\)</span> 不再是模型参数；它们是假定 <span class="math inline">\(\mathrm{i.i.d.}\quad N\left(0,\sigma_L^2\right)\)</span> 的随机变量。因此，<span class="math inline">\(L_j\)</span> 不再参与可估性议题：在具有随机地点效应的情况下，<span class="math inline">\(\eta+\tau_i\)</span> 是可估的，是评估处理均值的起点。然而，我们可能会问，如果我们确实试图估计 <span class="math inline">\(\eta+\tau_i+\bar{L}_\cdot\)</span>，那么在随机地点效应模型中会发生什么？这是可能的吗？如果可能，我们该如何解释？</p>
+<p>答案是可能的。函数 <span class="math inline">\(\eta+\tau_i+\bar{L}_\cdot\)</span> 现在是固定效应和随机效应的线性组合。线性模型推断中的一般表示法是 <span class="math inline">\(\symbf{K^{\prime}\beta+M^{\prime}b}\)</span>，这称为<strong>可预测函数</strong> (predictable function)，前提是 <span class="math inline">\(\symbf {K'\beta}\)</span> 满足上面给出的可估性要求。对于“我们该如何解释？”，我们推迟到第 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节讨论<strong>推断空间</strong> (inference space) 时再回答。</p>
+<p>当数据允许将地点 × 处理项添加到线性预测器时，即 <span class="math inline">\(\eta+\tau_i+L_j+\left(\tau L\right)_{ij}\)</span>，多地点多处理示例变得更加有趣，其中 <span class="math inline">\((\tau L)_{ij}\)</span> 表示地点 × 处理交互效应。现在可以根据跨所有地点的平均处理差异（例如处理 1 与处理 2）或特定地点的处理差异来设定目标。前者的可估函数，对于固定地点效应模型为 <span class="math inline">\(\tau_1-\tau_2+\overline{\left(\tau L\right)}_{1\cdot}-\overline{\left(\tau L\right)}_{2\cdot}\)</span>，对于随机地点效应模型为 <span class="math inline">\(\tau_1-\tau_2\)</span>。对于这两种模型，<span class="math inline">\(\tau_1-\tau_2+\left(\tau L\right)_{1j}-\left(\tau L\right)_{2j}\)</span> 估计地点 <span class="math inline">\(j\)</span> 处的处理 1 与处理 2 的差异，但对于固定地点模型，这是一个可估函数，而对于随机地点模型，它是固定和随机效应的线性组合——一个可预测函数。我们将在 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节中探讨其具体含义。</p>
+</div>
+<div id="sec3-2-3" class="section level3" number="3.2.3">
+<h3>
+<span class="header-section-number">3.2.3</span> 推断的三个问题<a class="anchor" aria-label="anchor" href="#sec3-2-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>在使用我们在本节中讨论的函数类型时，有三个主要问题。他们是</p>
+<div id="sec3-2-3-1" class="section level4" number="3.2.3.1">
+<h4>
+<span class="header-section-number">3.2.3.1</span> 模型尺度与数据尺度<a class="anchor" aria-label="anchor" href="#sec3-2-3-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>这是具有非恒等连接函数的模型独有的问题。对于高斯数据，或者更普遍地说，对于恒等连接，可估函数实际上估计的是期望值或期望之差。但是，对于通常与非高斯数据一起使用的非恒等连接函数，这并不成立。例如，在二项数据 logit 模型中，可估函数 <span class="math inline">\(\eta+\tau_i\)</span> 估计的是 logit 值，或等价地，是<strong>对数几率</strong> (log odds). 将这表达为接受第 <span class="math inline">\(i\)</span> 种处理的个体的预期估计，意味着将以概率而非 logit 的形式表达 <span class="math inline">\(\eta+\tau_i\)</span>。这需要使用逆连接将估计转换为概率，即</p>
+<p><span class="math display">\[\pi_i=1/\left[1+e^{-(\eta+\tau_i)}\right]\]</span></p>
+<p>因此，对于非恒等连接，有两种表达估计的方法：直接用模型参数（模型尺度）或响应变量的期望（数据尺度）。我们在 <a href="chap3.html#sec3-3">3.3</a> 节更详细地考虑这个问题。</p>
+</div>
+<div id="sec3-2-3-2" class="section level4" number="3.2.3.2">
+<h4>
+<span class="header-section-number">3.2.3.2</span> 推断空间<a class="anchor" aria-label="anchor" href="#sec3-2-3-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>只有当线性预测器包含随机效应时，才会出现这个问题。在这些模型中，仅由固定效应的线性组合产生的估计 <span class="math inline">\(\symbf{K'\beta}\)</span>，表示适用于随机模型效应所代表的整个总体的推断。这称为<strong>广义推断</strong> (broad inference) ——之所以如此命名，是因为它广泛适用于整个总体。一些作者也称之为“<strong>总体平均</strong>” (“population averaged”, <strong>PA</strong>) 推断，但是广义推断和 PA 推断并不相同。正如我们将在 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5">3.5</a> 节中看到的，PA 推断是广义推断的子集，但并非所有广义推断都是 PA 推断。</p>
+<p>可预测函数呢？对于 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span>，在 <span class="math inline">\(\symbf M\ne\symbf 0\)</span> 的情况下，<span class="math inline">\(\symbf M\)</span> 矩阵中的非零系数专门将推断限制在由 <span class="math inline">\(\symbf M\)</span> 矩阵定义的 <span class="math inline">\(\symbf b\)</span> 的那些水平上。三处理多地点示例说明了这种情况。可估函数 <span class="math inline">\(\tau_1−\tau_2\)</span> 为处理 1 和 2 之间的差异提供了广义推断，而可预测函数 <span class="math inline">\(\tau_1-\tau_2+\left(\tau L\right)_{1j}-\left(\tau L\right)_{2j}\)</span> 将处理 1 和处理 2 的推断范围限制在地点 <span class="math inline">\(j\)</span>。这称为<strong>狭义推断</strong> (narrow inference)，之所以如此命名，是因为 <span class="math inline">\(\symbf M\)</span> 的非零系数将推断范围从整个总体缩小到 <span class="math inline">\(\symbf M\)</span> 所确定的水平。在某些应用中，狭义推断称为<strong>特定个体</strong> (subject-specific, <strong>SS</strong>) 推断。</p>
+</div>
+<div id="sec3-2-3-3" class="section level4" number="3.2.3.3">
+<h4>
+<span class="header-section-number">3.2.3.3</span> 基于条件模型和边际模型的推断<a class="anchor" aria-label="anchor" href="#sec3-2-3-3"><i class="fas fa-link"></i></a>
+</h4>
+<p>这个问题是混合模型独有的，对于非高斯数据的混合模型来说更是如此，即使是有经验的统计从业者也普遍误解（或根本不理解）这个问题。</p>
+<p>我们根据两个概率分布指定了广义线性混合模型：给定随机效应的观测 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 的条件分布和随机效应 <span class="math inline">\(\symbf b\)</span> 的分布。如此指定的 GLMM 称为<strong>条件模型</strong> (conditional models). 条件模型中的两种分布都无法直接观察到。根据概率论可知，数据 <span class="math inline">\(\symbf y\)</span> 的边际分布可通过对 <span class="math inline">\(\symbf y\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的联合密度关于 <span class="math inline">\(\symbf b\)</span> 进行积分来得到，其概率密度函数可表示为</p>
+<p><span class="math display">\[f\left(\symbf{y}\right)=\int_{\symbf{b}}f\left(\symbf{y}\mid\symbf{b}\right)f\left(\symbf{b}\right)d\,\symbf{b}\]</span></p>
+<p>边际分布是我们唯一能直接观察到的分布。在非高斯混合模型设定中，许多看似合理的模型没有明确考虑 <span class="math inline">\(\symbf b\)</span> 的分布。这些模型隐式地将推断限制在 <span class="math inline">\(\symbf y\)</span> 的边际分布上。这些称为<strong>边际模型</strong> (marginal models). 边际模型产生的估计与条件模型的估计具有不同的期望——两模型估计的目标不同。决定哪种推断适合自己的目标是 GLMMs 工作的强制性部分。</p>
+<p>对边际/条件模型推断区分的无知常常会带来不良后果。当非高斯数据源于存在随机效应的场景时，观测数据服从边际分布。除条件 GLMM 之外的所有模型都会得到边际估计的某种变体，通常是边际分布的均值或均值的函数。然而，无论使用何种模型，数据分析师很可能按照条件 GLMM 的方式来理解问题。即使是为了“避免 GLMM 相关问题”而不使用 GLMM，情况也是如此。实际估计的与数据分析师认为自己估计的完全不同，这样的情况十分常见。如果这一点尚不清楚，<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5">3.5</a> 节给出了一个熟悉的例子以澄清该问题。</p>
+<div class="rmdtip">
+<p><a href="chap3.html#sec3-2">3.2</a> 节的关键思想：可估函数；可估性标准；可预测函数；GLMM 推断的三个问题：数据/模型尺度；推断空间；条件/边际。</p>
+</div>
+</div>
+</div>
+</div>
+<div id="sec3-3" class="section level2" number="3.3">
+<h2>
+<span class="header-section-number">3.3</span> 问题 1：数据尺度与模型尺度<a class="anchor" aria-label="anchor" href="#sec3-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>正如我们在上一节中看到的，推断从可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 开始。因为所有线性模型都是根据连接函数定义的 <span class="math inline">\(\symbf{\eta}=g\left(\symbf{\mu}\right)=\symbf{X}\symbf{\beta}\)</span>（<span class="math inline">\(+\symbf Z\symbf{b}\)</span> 如果存在随机效应），<span class="math inline">\(\symbf{K'\beta}\)</span> 得到关于连接函数的结果。</p>
+<p>对于高斯模型，LMs 和 LMMs，连接函数实际上是不可见的。这是因为这些模型使用恒等连接。模型参数的线性组合直接估计期望值、期望值之差以及期望值之间的对比。LM 的推断很简单。事实上，高斯情形的线性模型理论完全可以在没有连接函数概念的情况下进行。</p>
+<p>对于非高斯线性模型，GLMs 和 GLMMs，情况并非如此。这里，<span class="math inline">\(\symbf{K'\beta}\)</span> 的估计得到了 <span class="math inline">\(\symbf\eta\)</span> 元素的线性组合，即 <span class="math inline">\(g(\symbf\mu)\)</span> 的线性组合——通常是 <span class="math inline">\(\symbf\mu\)</span> 的非线性函数，而不是 <span class="math inline">\(\symbf\mu\)</span> 本身。例如，对于二项数据，<span class="math inline">\(\symbf{K'\beta}\)</span> 通常是 logits 或 probits 的函数；对于泊松数据，它是 logs 的函数。然而，在大多数情况下，研究人员和决策者希望看到以感兴趣结果的概率表示的二项结果和以计数表示的泊松结果。这是模型尺度/数据尺度，或连接尺度/平均尺度的问题。</p>
+<p>为了说明模型尺度/数据尺度的问题，我们考虑了五个例子。前两个例子来自两处理完全随机设计，一个使用高斯数据，另一个使用二项数据。接下来的两个例子说明了一个更复杂的数据结构：四处理和多地点，一个是高斯数据，另一个是二项数据。我们在二项数据中看到的问题是非高斯数据的典型问题，因此这些例子的教训适用于其他非高斯数据。第五个例子回顾了四种处理场景。在第三和第四个例子中，没有对四处理设计施加任何结构；而在第五个例子中，我们假定四处理具有 <span class="math inline">\(2×2\)</span> 析因结构。这使我们能够考虑一些有用的策略为析因处理设计建模。在此过程中，本节应提供额外的工具来处理可估函数以及理解模型尺度和数据尺度。</p>
+<div id="sec3-3-1" class="section level3" number="3.3.1">
+<h3>
+<span class="header-section-number">3.3.1</span> 一个模型尺度示例——高斯数据，两处理独立样本<a class="anchor" aria-label="anchor" href="#sec3-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-1" class="example"><strong>示例 3.1  (原书示例 3.3.1) </strong></span><br></p>
+<p>我们从一个熟悉的入门统计示例开始：比较两处理的独立样本，更正式地称为两处理完全随机设计。我们在前几章中开发了该模型。回顾一下，我们将其描述为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_i=\eta+\tau_i\)</span>（模型 3.3.1）</li>
+<li>分布：<span class="math inline">\(y_{ij}\thicksim N\left(\mu_i,\sigma^2\right)\)</span>
+</li>
+<li>连接：恒等 <span class="math inline">\(\eta_i=\mu_i\)</span>
+</li>
+</ul>
+<p>此示例的数据在 SAS Data and Program Library<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：在原书出版商&lt;a href="https://www.routledge.com/Generalized-Linear-Mixed-Models-Modern-Concepts-Methods-and-Applications/Stroup-Ptukhina-Garai/p/book/9781498755566"&gt;网站&lt;/a&gt; 的 “Support Material” 栏中，部分也收录于 R 包 &lt;code&gt;StroupGLMM&lt;/code&gt;（这是为第一版配套的 &lt;code&gt;R&lt;/code&gt; 包）。后同。&lt;/p&gt;'><sup>8</sup></a> 中显示为 Data Set 3.1. 请注意，Data Set 3.1 显示了假定为高斯的响应变量 <span class="math inline">\(Y\)</span> 和由变量 <span class="math inline">\(N\)</span> 和 <span class="math inline">\(F\)</span> 定义的另一个响应，将在本示例的二项版本中使用。</p>
+<p>在 SAS 中可以使用任何线性模型软件程序（GLM, GLIMMIX 或 MIXED）获得的参数估计值，为：</p>
+<div class="inline-figure"><img src="figure/figure%2085.png#center" style="width:50.0%"></div>
+<p>严格来说，我们应该将这些称为“解”而不是估计，除了 <span class="math inline">\(\hat\sigma^2\)</span>，因为这是一个过度参数化模型，必须使用广义逆——在这种情况下，必须使用将最后一个类别的效应设置为零的 SAS 扫描算子。参见第 <a href="chap4.html#chap4">4</a> 章以了解过度参数化模型和广义逆的介绍。</p>
+<p>在本示例中，考虑处理均值和处理均值差的可估函数。它们是“处理 0”（“对照”处理）的 <span class="math inline">\(\eta+\tau_0\)</span>，“处理 1”（“试验”处理）的 <span class="math inline">\(\eta+\tau_1\)</span>，以及均值差的 <span class="math inline">\(\tau_0-\tau_1\)</span>。根据这些解，我们可以很容易地看出，“处理 0”的估计为 <span class="math inline">\(12.188-1.664=10 524\)</span>，“处理 1”的估计为 <span class="math inline">\(12.188\)</span>，均值差为 <span class="math inline">\(-1.664\)</span>。在 SAS 中，我们可以使用 LSMEANS 或 ESTIMATE 语句来获取这些值。GLIMMIX 程序是</p>
+<pre class="sas"><code>proc glimmix data=CRD_2Trt_Ex;
+ class Trt;
+ model Y=Trt / solution;
+ lsmeans Trt / Diff e;
+ estimate 'LSM Trt 0' intercept 1 Trt 1 0;
+ estimate 'LSM Trt 1' intercept 1 Trt 0 1;
+ estimate 'overall mean' intercept 1 Trt 0.5 0.5;
+ estimate 'Overall Mean' intercept 2 Trt 1 1 / divisor=2;
+ estimate 'Trt diff' Trt 1 -1;
+ estimate 'reverse diff' Trt -1 1;</code></pre>
+<p>LSMEANS 语句足以计算处理均值和均值差。E 选项为你提供了 SAS 用于计算 LSMEANS 的可估函数的系数列表，因此你可以确保它正在执行你认为它正在执行的操作。ESTIMATE 语句更明确地指定了所需的项：INTERCEPT 的系数指的是 <span class="math inline">\(\eta\)</span>，TRT 的系数指的是 <span class="math inline">\(\tau_i\)</span>，其中第一个和第二个系数对应于它们在上述参数估计列表中列出的顺序。</p>
+<p>请注意，你可以以负系数开头，如在 <code>'reverse diff'</code> 中，这样可以让你在不考虑符号的情况下计算差异的大小。你还可以计算由可估函数 <span class="math inline">\(\eta+\frac12\big(\tau_0+\tau_1\big)\)</span> 定义的总均值</p>
+<p>这些语句的输出如下所示：</p>
+<div class="inline-figure"><img src="figure/figure%2086.png#center" style="width:80.0%"></div>
+<p>这里需要强调的重要一点是，所有这些估计都是模型参数本身的线性组合，它们都估计了观测变量期望值的线性组合—— <span class="math inline">\(\symbf{K'\hat\beta}\)</span>直接产生 <span class="math inline">\(\hat\mu_i\)</span> 的线性组合。</p>
+</div>
+</div>
+</div>
+<div id="sec3-3-2" class="section level3" number="3.3.2">
+<h3>
+<span class="header-section-number">3.3.2</span> 模型尺度估计<a class="anchor" aria-label="anchor" href="#sec3-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-2" class="example"><strong>示例 3.2  (原书示例 3.3.2；具有二项响应的两处理完全随机设计) </strong></span><br></p>
+<p>我们现在考虑由变量 <span class="math inline">\(N\)</span> 和 <span class="math inline">\(F\)</span> 定义的 Data Set 3.1 中的二项响应，其中 <span class="math inline">\(N\)</span> 表示在第 <span class="math inline">\(i\)</span> 个单元上观察的独立伯努利试验数（例如临床试验中的受试者数或参加测试的学生数），<span class="math inline">\(F\)</span> 表示“成功”数（如症状改善的受试者或通过考试的学生）。线性预测器与我们刚刚考虑的模型 3.3.1 相同，但分布和连接不同：</p>
+<ul>
+<li>分布：<span class="math inline">\(y_{ij}\thicksim \text{Binomial}\left(N_{ij},\pi_i\right)\)</span>（模型 3.3.2）</li>
+<li>连接：<span class="math inline">\(\eta_{ij}=\text{logit}\big(\pi_i\big)=\log\left(\frac{\pi_i}{1-\pi_i}\right)\)</span>
+</li>
+</ul>
+<p>可在 SAS 中使用 PROC GENMOD 或 GLIMMIX 获得的效应的解为</p>
+<div class="inline-figure"><img src="figure/figure%2087.png#center" style="width:50.0%"></div>
+<p>与高斯示例类似，我们可以通过 <span class="math inline">\(−1.2682-0=−1.2682\)</span> 来估计处理效应之差 <span class="math inline">\(\tau_0-\tau_1\)</span>，“处理 0”和“处理 1”线性预测器分别为 <span class="math inline">\(\hat{\eta}+\hat{\tau}_0=-0.886-1.2682=-2.1542\)</span> 和 <span class="math inline">\(\hat{\eta}+\hat{\tau}_1=-0.886-0=-0.886\)</span>，我们还可估计“总体总和” (“overall total”)：</p>
+<p><span class="math display">\[\hat{\eta}+\frac12\Big(\hat{\tau}_0+\hat{\tau}_1\Big)=-0.886+\frac12\Big(-1.2682+0\Big)=-1.5201\]</span></p>
+<p>问题是，这些实际上在估计什么？</p>
+<p>在“处理 0”和“处理 1”的情况下，我们从模型的线性预测器中可看出，根据定义，它们估计 <span class="math inline">\(\log\biggl[\pi_0\bigl/\bigl(1-\pi_0\bigr)\biggr]\)</span> 和 <span class="math inline">\(\log\biggl[\pi_1\bigl/\bigl(1-\pi_1\bigr)\biggr]\)</span>，处理 0 和 1 的对数几率。我们可以通过应用逆连接获得 <span class="math inline">\(\pi_0\)</span> 和 <span class="math inline">\(\pi_1\)</span> 的估计，即处理 0 和 1 有利结果的概率 <span class="math inline">\(\hat{\pi}_0=1\Big/\Big[1+e^{-(\eta+\hat{\tau}_0)}\Big]=1\Big/\Big(1+e^{2.1542}\Big)=0.104\)</span> 和 <span class="math inline">\(\hat{\pi}_1=1/\left(1+e^{0.886}\right)=0.292\)</span>。</p>
+<p>在处理 0 和处理 1 之间存在差异的情况下，我们可以看到 <span class="math inline">\(\tau_0-\tau_1\)</span> 估计 <span class="math inline">\(\log\begin{bmatrix}\pi_0/(1-\pi_0)\end{bmatrix}-\log\begin{bmatrix}\pi_1/(1-\pi_1)\end{bmatrix}=\log\left(\begin{bmatrix}\pi_0/(1-\pi_0)\end{bmatrix}/\begin{bmatrix}\pi_1/(1-\pi_1)\end{bmatrix}\right)\)</span>，<strong>对数几率比</strong> (log odds ratio). 然而，如果我们将逆连接应用于几率比，我们得到 <span class="math inline">\(1/\left[1+e^{-(\hat{\tau}_{0}-\hat{\tau}_{1})}\right]=1/\left(1+e^{1.2682}\right)=0.220\)</span>。尚还不清楚这是什么，但显然不是均值差 <span class="math inline">\(\hat{\pi}_0-\hat{\pi}_1\)</span>。在大多数情况下，将逆连接应用于定义差异的可估函数会得到无意义的结果。</p>
+</div>
+</div>
+</div>
+<div id="sec3-3-3" class="section level3" number="3.3.3">
+<h3>
+<span class="header-section-number">3.3.3</span> 数据尺度<a class="anchor" aria-label="anchor" href="#sec3-3-3"><i class="fas fa-link"></i></a>
+</h3>
+<p><a href="chap3.html#exm:ex3-2">示例 3.2</a> 清楚地表明，对于非高斯数据，估计和推断发生在两个不同的尺度上。线性预测器 <span class="math inline">\(\symbf{X\beta}\)</span> 和可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 用连接函数表示——<a href="chap3.html#exm:ex3-2">示例 3.2</a> 中的 logit. 这些称为模型尺度（或连接尺度）估计。在某些模型中，这些估计具有可识别的解释。logit 模型就是这样一种情况——给定处理的线性预测器估计对数几率，差异估计对数几率比，这都是分类数据分析中常见的工具。然而，logit 连接与其说是规则，不如说是例外。通常，如果不进行一些转换，则很难解释广义线性模型中的模型尺度估计。这就是数据尺度的用武之地。</p>
+<p>在最基本的形式中，数据尺度涉及将逆连接应用于可估函数，就像我们将每种处理的对数几率转换为概率一样。然而，正如我们在差异中看到的那样，逆连接不能不加区分地应用。一般地，我们使用逆连接将模型尺度的位置估计（连接尺度上的“均值”）转换为数据尺度的估计，但我们不使用逆连接来估计差异。连接函数通常是非线性的；差异在非线性函数中无法保留。将逆连接应用于差异通常会产生无意义的结果。要估计数据尺度上的差异——例如概率之差，而不是对数几率之差——我们必须变得更聪明。</p>
+<p>在 logit 模型中，考虑解决差异问题的两种方法。首先，在将逆连接应用于每种处理的线性预测器后，我们可以简单地取 <span class="math inline">\(\hat\pi_0\)</span> 和 <span class="math inline">\(\hat\pi_1\)</span> 之差。正式而言，我们通过 <span class="math inline">\(\left[1/\left(1+e^{-\left(\eta+\hat{\tau}_0\right)}\right)\right]-\left[1/\left(1+e^{-\left(\eta+\hat{\tau}_1\right)}\right)\right]\)</span> 来估计 <span class="math inline">\(\pi_0\)</span> 和 <span class="math inline">\(\pi_1\)</span> 之差，而非 <span class="math inline">\(1/\left(1+e^{-\left(\hat{\tau}_0-\hat{\tau}_1\right)}\right)\)</span>。这是方法一。</p>
+<p>或者，我们知道 <span class="math inline">\(\tau_0-\tau_1\)</span> 估计对数几率比，则 <span class="math inline">\(e^{\left(\tau_0-\tau_1\right)}\)</span> 是几率比的估计，这是分类数据分析中熟悉且常用的量。这是方法二。任何一种方法都可以辩护。你使用哪一个取决于特定研究的要求，在某种程度上也取决于进行数据分析的学科文化。</p>
+<p>表 3.2 总结了模型尺度/数据尺度的区别。</p>
+<details><summary><font color="#8B2232">表 3.2</font>
+</summary><img src="figure/table%203.2.png#center" style="width:100.0%"></details><p><br>
+在 SAS PROC GLIMMIX 中，可以使用 <code>ILINK</code>, <code>EXP</code> 和 <code>ODDSRATIO</code> 选项实现数据尺度。下面的 GLIMMIX 程序对此进行了说明，修改了完全随机设计高斯数据（<a href="chap3.html#exm:ex3-1">示例 3.1</a>）的程序以用于二项数据。</p>
+<pre class="sas"><code>proc glimmix data=CRD_2Trt_Ex;
+ class Trt;
+ model F/N=Trt / solution oddsratio;
+ lsmeans Trt / Diff ilink oddsratio e;
+ estimate 'LSM Trt 0' intercept 1 Trt 1 0/ilink;
+ estimate 'LSM Trt 1' intercept 1 Trt 0 1/ilink;
+ estimate 'overall mean' intercept 1 Trt 0.5 0.5 /ilink;
+ estimate 'Overall Mean' intercept 2 Trt 1 1 / divisor=2 ilink;
+ estimate 'Trt diff' Trt 1 -1 / oddsratio;
+ estimate 'reverse diff' Trt -1 1 / exp;</code></pre>
+<p><code>ILINK</code> 选项出现在 LSMEANS 语句和 ESTIMATE 语句中，其中计算的是均值而不是差值。在 LSMEANS 语句中，GLIMMIX 仅计算最小二乘均值的 <code>ILINK</code>，而不计算它们的差。对于“总体均值”，使用 <code>ILINK</code> 选项值得怀疑；此处显示它出于演示目的。均值的逆连接不等于逆连接的均值——免责声明。</p>
+<p><code>ODDSRATIO</code> 选项出现在 MODEL 和 LSMEANS 语句中，以及计算差异的 ESTIMATE 语句中。或者，你可以使用 <code>EXP</code> 选项——顾名思义，它计算 <span class="math inline">\(e^{\text{estimate}}\)</span>。这是与 <code>ODDSRATIO</code> 相同的计算：结果和输出列表都相同。</p>
+<p>以下显示了选定的 GLIMMIX 输出。</p>
+<ul>
+<li><p>MODEL 语句的 <code>ODDSRATIO</code> 输出。注意几率比的 95% 置信区间；置信区间是默认输出。</p></li>
+<li><p>least square means 中的 “Estimate” 是模型尺度 <span class="math inline">\(\hat{\eta}+\hat{\tau}_i\)</span>。“MEAN” 为逆连接估计 <span class="math inline">\(\hat{\pi}_i=1/\left[1+e^{-(\hat{\eta}+\hat{\tau}_i)}\right]\)</span></p></li>
+</ul>
+<div class="inline-figure"><img src="figure/figure%2089-1.png#center" style="width:80.0%"></div>
+<ul>
+<li>差异的 “Estimate” 是模型尺度 <span class="math inline">\(\hat\tau_0-\hat\tau_1\)</span>。“OddsRatio” 是 <span class="math inline">\(e^{\hat\tau_0-\hat\tau_1}\)</span>。我们可以添加 <code>CL</code> 选项来获得置信区间。默认不给出 CI.</li>
+</ul>
+<div class="inline-figure"><img src="figure/figure%2089-2.png#center" style="width:100.0%"></div>
+<ul>
+<li>在 “Estimates” 列表中，无论你在 Estimate 语句中使用 <code>ODDSRATIO</code> 还是 <code>EXP</code> 选项，几率比都显示为 “Exponentiated Estimate”. 请注意，应用于“总体平均”连接函数 <span class="math inline">\(\hat{\eta}+\frac12\big(\hat{\tau}_0+\hat{\tau}_1\big)\)</span> 的逆连接值 <span class="math inline">\(0.1795\)</span> 显然与每个处理 <span class="math inline">\(\hat\tau_i\)</span> 的平均 <span class="math inline">\((0.1039+0.2919)/2=0.1979\)</span> 不同。</li>
+</ul>
+<div class="inline-figure"><img src="figure/figure%2089-3.png#center" style="width:100.0%"></div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-3" class="example"><strong>示例 3.3  (原书示例 3.3.3) </strong></span><br></p>
+<p>在本示例中，有四种处理，记为 0, 1, 2 和 3. 这项研究在八个地点进行，在每个地点观察所有四种处理。从实验设计的角度来看，这是一个以地点为区组的随机完全区组设计。然而，具有如此结构的数据集可能来自非正式设计的实验研究。</p>
+<p>数据在 SAS Data and Program Library 中显示为 Data Set 3.2. 此数据集有多个响应变量。在本例中，我们考虑标记为 <span class="math inline">\(Y\)</span> 的高斯响应。</p>
+<p>这些数据的候选模型如下：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_{i}+L_{j}\)</span>，其中 <span class="math inline">\(\tau_i(i=0,1,2,3)\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应；<span class="math inline">\(L_j(j=1,2,\ldots,8)\)</span> 表示第 <span class="math inline">\(j\)</span> 个地点效应。</li>
+<li>分布 <span class="math inline">\(y_{ij}\sim N\left(\mu_{ij},\sigma^2\right)\)</span>
+</li>
+<li>连接：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>实验设计的学生会意识到，这是以“适合 GLMM”的形式呈现的随机区组设计的标准线性模型。在本例中，地点效应是固定的。在 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节中我们会重新讨论这个决定。实际上，我们需要询问这些地点是如何选择的，以及它们应该代表什么。这些问题引出了我们在下一节将要处理的推断空间问题。</p>
+<p>与<a href="chap3.html#exm:ex3-1">示例 3.1</a> 和<a href="chap3.html#exm:ex3-2">示例 3.2</a> 一样，我们从处理均值和处理差异开始。处理均值立即提出了一个问题。在前面的例子中，我们将其定义为 <span class="math inline">\(\eta+\tau_i\)</span>，然而在本例中它是不可估的。为什么？我们知道，我们通过 <span class="math inline">\(\bar{y}_{i\cdot}=1/8\sum_{j=1}^8y_{ij}\)</span> 估计处理均值，以模型项表示，<span class="math inline">\(\bar y_{i\cdot}\)</span> 估计 <span class="math inline">\(1/8\sum_{j=1}^8\left(\eta+\tau_i+L_j\right)=\eta+\tau_i+1/8\sum_jL_j\)</span>。对于最后一项 <span class="math inline">\(1/8\sum_jL_j\)</span>，我们可以使用简写符号 <span class="math inline">\(\bar L_\cdot\)</span>。该项在处理均值的可估函数中必须出现。</p>
+<p>对于处理均值差，我们通过取最小二乘均值之差来定义其可估函数，即</p>
+<p><span class="math display">\[diff=\eta+\tau_i+\bar{L}_\cdot-\left(\eta+\tau_{i'}+\bar{L}_\cdot\right)=\tau_i-\tau_{i'}\]</span></p>
+<p>根据目标，我们还可以定义几种均值的平均。例如，考虑处理 0, 2 和 3 的平均。首先使用 <span class="math inline">\(\bar{\eta}_{i\cdot}=1/8\sum_j\eta_{ij}\)</span> 来表示第 <span class="math inline">\(i\)</span> 种处理的最小二乘均值。取这些的平均，并用模型项表示为：</p>
+<p><span class="math display">\[avg=\frac{\bar{\eta}_{0\cdot}+\bar{\eta}_{2\cdot}+\bar{\eta}_{3\cdot}}3=\frac{\left(\eta+\tau_0+\bar{L}_\cdot\right)+\left(\eta+\tau_2+\bar{L}_\cdot\right)+\left(\eta+\tau_3+\bar{L}_\cdot\right)}3=\eta+\frac{\tau_0+\tau_2+\tau_3}3+\bar{L}_\cdot\]</span></p>
+<p>如果目标是将处理 1 与处理 0, 2 和 3 的均值进行比较，我们使用可估函数</p>
+<p><span class="math display">\[diff\left(\text{trt 1 vs. trts 0,2,3}\right)=\bar{\eta}_{1\cdot}-\left(\frac{\bar{\eta}_{0\cdot}+\bar{\eta}_{2\cdot}+\bar{\eta}_{3\cdot}}3\right)=\tau_1-\left(\frac{\tau_0+\tau_2+\tau_3}3\right)\]</span></p>
+<p>处理均值的总体相等性用可估函数可表示为</p>
+<p><span class="math display">\[\bar{\eta}_{0\cdot}=\bar{\eta}_{1\cdot}=\bar{\eta}_{2\cdot}=\bar{\eta}_{3\cdot}\Rightarrow\tau_0=\tau_1=\tau_2=\tau_3\]</span></p>
+<p>正如我们在本章前面看到的，可以构造几个 <span class="math inline">\(\symbf K\)</span> 矩阵，当 <span class="math inline">\(\symbf{K'\beta}=\symbf 0\)</span> 时，意味着 <span class="math inline">\(\tau_0=\tau_1=\tau_2=\tau_3\)</span>。举三个例子：</p>
+<p><span class="math display">\[\begin{aligned}\symbf{K'}&amp;=\begin{bmatrix}0&amp;1&amp;0&amp;0&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;0&amp;1&amp;0&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;0&amp;0&amp;1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\end{bmatrix}\\
+\symbf{K'}&amp;=\begin{bmatrix}0&amp;1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;0&amp;1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;0&amp;0&amp;1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\end{bmatrix}\\
+\symbf{K'}&amp;=\begin{bmatrix}0&amp;-1&amp;3&amp;-1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;2&amp;0&amp;-1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\\0&amp;0&amp;0&amp;1&amp;-1&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0&amp;0\end{bmatrix}\end{aligned}\]</span></p>
+<p>注意，对应于截距 <span class="math inline">\(\eta\)</span> 的第一列的系数总是为零，最后的对应与 <span class="math inline">\(L_1,L_2,\ldots,L_8\)</span> 的八列也是如此。只有 <span class="math inline">\(\tau_i\)</span> 可能具有非零系数。请注意，第三个 <span class="math inline">\(\symbf K\)</span> 矩阵仅仅是先前定义的“处理 1 与处理 0, 2 和 3 的均值”对比的一组正交对比的补全。<span class="math inline">\(\symbf K\)</span> 矩阵可以由正交对比组成但这不是必要条件，正如前两个 <span class="math inline">\(\symbf K\)</span> 矩阵所示。两个要求是：</p>
+<ol style="list-style-type: decimal">
+<li>
+<span class="math inline">\(\symbf K'\)</span> 的每行对应一个自由度</li>
+<li>行必须相互独立，但不必相互正交。</li>
+</ol>
+<p>相互独立意味着没有一行的比较可以由其他两行的结果决定。例如，在第二个矩阵中，第 1 行和第 2 行定义了 <span class="math inline">\(\tau_0-\tau_1\)</span> 和 <span class="math inline">\(\tau_1-\tau_2\)</span>。如果它们都等于零，那么 <span class="math inline">\(\tau_0=\tau_1=\tau_2\)</span> 必为真，但它不涉及 <span class="math inline">\(\tau_3\)</span>。必须添加一个额外的涉及 <span class="math inline">\(\tau_3\)</span> 的比较，且不与 <span class="math inline">\(\tau_0=\tau_1=\tau_2\)</span> 冲突。</p>
+<p>为什么要关注使用 <span class="math inline">\(\symbf K\)</span> 矩阵来定义通常与 ANOVA 总体处理效应检验相关的比较呢？首先，这是在仅包含固定效应的高斯线性模型软件（例如 SAS PROC GLM）中计算 ANOVA 平方和的一个常用策略。更重要的是，在其他线性模型—— GLM, LMM 和 GLMM 中，平方和失去了其通常的含义（事实上，在这些模型中的大多数情况下并无实际意义），因此我们需要寻找平方和的替代方法，以便构建检验处理效应总体相等性的检验。这里展示的可估函数方法是一个重要且广泛应用的策略。</p>
+<p>实现本例的 GLIMMIX 语句如下</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model Y=loc trt;
+ lsmeans trt / diff e;
+ estimate 'LSM Trt 0' intercept 8 Trt 8 0 0 0 Loc 1 1 1 1 1 1 1 1 / 
+   divisor=8;
+ estimate 'LSM Trt 0 alt' intercept 1 Trt 1 0 0 Loc 0 0 0 0 
+   0 0 0 0;
+ estimate 'Trt 0 v Trt 1 diff' Trt 1 -1 0 0;
+ estimate 'avg Trt 0+1' Intercept 8 Trt 4 4 0 0 Loc 1 1 1 1 1 
+   1 1 1 / divisor=8;
+ estimate 'avg Trt 0_2_3' Intercept 24 Trt 8 0 8 8 Loc 3 3 3 3 
+   3 3 3 3 / divisor=24;
+ estimate 'Trt 0 v Trt 1 diff' Trt 1 -1 0 0,
+          'Trt 2 v Trt 3 diff' Trt 0 0 1 -1,
+          'Trt 1 v Trt 2 diff' Trt 0 1 -1 0,
+          'Trt 1 v Trt 3 diff' Trt 0 1 0 -1,
+          'avg Trt 0+1 v avg Trt 2+3' Trt 1 1 -1 -1,
+          'trt 1 v avg Trt 0+1+2' Trt -1 3 -1 -1 / divisor= 
+   1,1,1,1,2,3 adjust=sidak;
+ contrast 'Type 3 Trt SS' Trt 1 -1 0 0,
+                          Trt 1 0 -1 0,
+                          Trt 1 0 0 -1;
+ contrast 'Type 3 Trt Test' Trt 1 -1 0 0,
+                            Trt 0 1 -1 0,
+                            Trt 0 0 1 -1;
+ contrast 'Type 3 Trt H_0' Trt -1 3 -1 -1,
+                           Trt 2 0 -1 -1,</code></pre>
+<p>该程序包含我们之前看到的常见的 CLASS, MODEL 和 LSMEANS 语句。ESTIMATE 语句明确定义了可估函数。前两个，“LSM Trt 0” 和 “LSM Trt 0 alt” 定义了处理 0 的均值。第一个是正确的可估函数；第二个显示了当我们试图将 <span class="math inline">\(\bar L_\cdot\)</span> 设置为零时会发生什么。语句 “Trt 0 v Trt 1” 不言自明。语句 “avg Trt 0+1” 和 “avg Trt 0_2_3” 分别定义了处理 0 和 1 的均值以及处理 0, 2 和 3 的均值的可估函数。回想我们之前是如何构建 “avg Trt 0_2_3” 的，方法是从 <span class="math inline">\(\left(\bar{\eta}_{0\cdot}+\bar{\eta}_{2\cdot}+\bar{\eta}_{3\cdot}\right)/3\)</span> 开始，然后用线性预测器中的效应来表示。当你不确定在 ESTIMATE 语句中分配什么系数时，请使用此策略。下一个 ESTIMATE 语句显示如何在一个语句中计算多个估计。如果我们想使用 <code>adjust=</code> 选项调整多重性（控制实验的 (experiment-wise) 而不是比较的 (comparison-wise) I 类错误），我们会这样做。最后是三个对比语句。这些实现了我们前面讨论的 <span class="math inline">\(\tau_0=\tau_1=\tau_2=\tau_3\)</span> 的三个 <span class="math inline">\(\symbf K\)</span> 矩阵。</p>
+<p>选定的输出显示如下。</p>
+<div class="inline-figure"><img src="figure/figure%2093-1.png#center" style="width:60.0%"></div>
+<p>为了技术上的正确，上面的 “parameter estimates” 实际上是使用 SAS 扫描算子来计算广义逆的解，该算子将最后一个效应设置为零。</p>
+<div class="inline-figure"><img src="figure/figure%2093-2.png#center" style="width:80.0%"></div>
+<p>“Coefficients for Trt Least Squares Means” 显示软件如何使用参数的解来计算处理均值。我们通过在最小二乘均值中使用 <code>E</code> 选项获得此列表。此列表验证了 <span class="math inline">\(\bar L_\cdot\)</span> 用于最小二乘均值可估函数。</p>
+<div class="inline-figure"><img src="figure/figure%2093-3.png#center" style="width:80.0%"></div>
+<p>请注意，“LSM Trt 0 alt” 对比标记为 “Non-est” —— 以 SAS 语言表示的不可估。回想一下，这是我们试图定义为 <span class="math inline">\(\eta+\tau_i\)</span> 的估计，其中 <span class="math inline">\(\bar L_\cdot=0\)</span>。GLIMMIX 估计表达式 <span class="math inline">\(\symbf{K}'=(\symbf{X'X})^-(\symbf{X'X})\mathbf{K}'\)</span>。如果等式不成立，我们在列表中得到 “Non-est”.</p>
+<div class="inline-figure"><img src="figure/figure%2093-4.png#center" style="width:100.0%"></div>
+<p>从具有多个可估函数和多重性调整的 ESTIMATE 语句中获得的估计出现在单独的表中。出现两列 <span class="math inline">\(p\)</span> 值。第一个 “Pr &gt; |t|” 是基于 21 个自由度的 <span class="math inline">\(t\)</span> 分布的未调整 <span class="math inline">\(p\)</span> 值。第二个 “Adj P” 使用 <code>ADJUST=</code> 选项中指定的多重性调整进行调整。</p>
+<div class="inline-figure"><img src="figure/figure%2093-5.png#center" style="width:60.0%"></div>
+<p>请注意，三个 <span class="math inline">\(\symbf{K}\)</span> 矩阵定义的对比与 “Type III tests of Fixed Effects” 列表中的 <span class="math inline">\(F\)</span> 值产生了相同的结果。</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-4" class="example"><strong>示例 3.4  (原书示例 3.3.4；二项响应的多地点四处理) </strong></span><br></p>
+<p>假设我们想对与前一个例子相同的四处理、多地点随机区组研究进行建模，但采用二项响应。相对于高斯情形，我们对模型所做的更改类似于两处理完全随机设计。分布和连接发生变化，线性预测器不变。因此模型为：</p>
+<ul>
+<li>线性预测器 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>，其中 <span class="math inline">\(\tau_i:i=0,1,2,3\)</span> 表示第 <span class="math inline">\(i\)</span> 种处理效应，<span class="math inline">\(L_j:j=1,2,\ldots,8\)</span> 表示第 <span class="math inline">\(j\)</span> 个地点效应。</li>
+<li>分布：<span class="math inline">\(y_{ij}\thicksim \text{Binomial}\left(N_{ij},\pi_{ij}\right)\)</span>。在本例中，简单起见，对于每个处理-地点组合，<span class="math inline">\(N_{ij} = 60\)</span>。</li>
+<li>连接：logit，<span class="math inline">\(\eta_{ij}=\log\biggl[\pi_{ij}\biggr/\biggl(1-\pi_{ij}\biggr)\biggr]\)</span>
+</li>
+</ul>
+<p>这里可以使用与<a href="chap3.html#exm:ex3-3">示例 3.3</a> 中为高斯响应定义的可估函数相同的函数。无需进一步讨论，只是提醒一下，所有可估函数都会得到模型尺度的估计，我们需要决定我们想要的数据尺度转换。以下是 GLIMMIX 程序中包含的高斯数据和适当的数据尺度转换的可估函数列表。注意，对于一些可估函数，没有适当的转换直接应用于 <span class="math inline">\(\symbf K' \hat{\symbf\beta}\)</span>：</p>
+<ul>
+<li>最小二乘均值：逆连接。</li>
+<li>最小二乘均值对之差：几率比。</li>
+<li>ESTIMATE “LSM trt 0”：逆连接。</li>
+<li>ESTIMATE “LSM trt 0 alt”：无——它不可估，所以放弃。</li>
+<li>ESTIMATE “Trt 0 v Trt 1”：指数（即 <span class="math inline">\(e^{\symbf K' \hat{\symbf\beta}}\)</span>）（或几率比）。</li>
+<li>多重 ESTIMATE 语句：有两个语句。第一个定义了处理差异，指数（或几率比转换）是合适的。第二个是两个或以上处理的均值，不适合直接转换，可根据最小二乘均值的逆连接变换对指定的估计 <span class="math inline">\(\hat\pi_i\)</span> 进行平均。</li>
+<li>Contrast：无需转换为数据尺度。这些只计算 <span class="math inline">\(F\)</span> 统计量。</li>
+</ul>
+<p>实现此模型的 GLIMMIX 程序是</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model S_1/N_Bin=loc trt / solution oddsratio;
+ lsmeans trt / diff oddsratio e;
+ estimate 'LSM Trt 0' intercept 8 Trt 8 0 0 0 Loc 1 1 1 1 1 1 1 1 / 
+   divisor=8 ilink;
+ *estimate 'LSM Trt 0 alt' intercept 1 Trt 1 0 0 Loc 0 0 0 0 
+   0 0 0 0;
+ estimate 'Trt 0 v Trt 1 diff' Trt 1 -1 0 0 / exp;
+ estimate 'avg Trt 0+1' Intercept 8 Trt 4 4 0 0 Loc 1 1 1 1 1 
+   1 1 1 / divisor=8;
+ estimate 'avg Trt 0_1_2' Intercept 24 Trt 8 0 8 8 Loc 3 3 3 3 
+   3 3 3 3 / divisor=24;
+ estimate 'Trt 0 v Trt 1 diff' Trt 1 -1 0 0,
+          'Trt 2 v Trt 3 diff' Trt 0 0 1 -1,
+          'Trt 1 v Trt 2 diff' Trt 0 1 -1 0,
+          'Trt 1 v Trt 3 diff' Trt 0 1 0 -1 / exp adjust=sidak;
+ estimate 'avg Trt 0+1 v avg Trt 2+3' Trt 1 1 -1 -1,
+          'trt 1 v avg Trt 0+1+2' Trt -1 3 -1 -1 / divisor=2,3;
+ contrast 'Type 3 Trt SS' Trt 1 -1 0 0,
+                          Trt 1 0 -1 0,
+                          Trt 1 0 0 -1;
+ contrast 'Type 3 Trt Test' Trt 1 -1 0 0,
+                            Trt 0 1 -1 0,
+                            Trt 0 0 1 -1;
+ contrast 'Type 3 Trt H_0' Trt -1 3 -1 -1,
+                           Trt 2 0 -1 -1,
+                           Trt 0 0 1 -1;</code></pre>
+<p>该程序使用 Data Set 3.2 中表示为 S_1 的二项响应变量。注意，我们可以使用 <code>ADJUST=</code> 选项来调整非高斯广义线性模型的多重性，就像我们对高斯线性模型所做的那样。除了在需要和适当的情况下添加 <code>ILINK</code>, <code>ODDSRATIO</code> 或 <code>EXP</code> 选项外，其他语句与高斯数据的程序一样。</p>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%2097-1.png#center" style="width:60.0%"></div>
+<p>广义逆的“末效应置零” (last-effect-set-to-zero) 约定适用于广义线性模型和高斯模型。这些是模型尺度的解：应用于它们的任何 <span class="math inline">\(\symbf K' \hat{\symbf\beta}\)</span> 将是模型尺度的估计。最后，没有出现 <span class="math inline">\(\hat\sigma^2\)</span>。二项分布的方差不是一个独立的参数，而是 <span class="math inline">\(\pi_{ij}(1-\pi_{ij})\)</span>。</p>
+<div class="inline-figure"><img src="figure/figure%2097-2.png#center" style="width:80.0%"></div>
+<p>这些是 MODEL 语句中 <code>ODDSRATIO</code> 选项产生的几率比估计。出现了两组估计，分别对应于模型中的 LOC 和 TRT 效应。所有这些都是第一列所示的水平与最后一个因子水平的几率比——这是获得 <span class="math inline">\(\symbf\beta\)</span> 解的置零约定的结果。对地点的几率比可能不感兴趣或根本没有兴趣，但对处理的几率比显然是感兴趣的。</p>
+<div class="inline-figure"><img src="figure/figure%2098-1.png#center" style="width:80.0%"></div>
+<p>标记为 “Estimate” 的列及其标准误给出了模型尺度估计 <span class="math inline">\(\hat{\eta}+\hat{\tau}_i+\hat{\bar{L}}_\cdot\)</span> 。标记为 “Mean” 和 “Standard Error Mean” 的列分别应用逆连接和 Delta 规则来获得 <span class="math inline">\(\hat\pi_i\)</span> 及其标准误。</p>
+<div class="inline-figure"><img src="figure/figure%2098-2.png#center" style="width:100.0%"></div>
+<p>标记为 “Estimate” 的列给出了 <span class="math inline">\(\hat\tau_i-\hat\tau_{i'}\)</span> 的模型尺度结果。应用 <span class="math inline">\(e^{\hat\tau_i-\hat\tau_{i'}}\)</span> 得到最后一列给出的几率比。</p>
+<div class="inline-figure"><img src="figure/figure%2098-3.png#center" style="width:100.0%"></div>
+<p>所有未经多重性调整的估计都显示在一个表中。只有在请求估计可估函数时，逆连接结果才会出现，几率比 “Exponentiated estimate” 也仅在请求时才出现。所有其他估计仅以模型尺度的形式出现。</p>
+<div class="inline-figure"><img src="figure/figure%2099-1.png#center" style="width:60.0%"></div>
+<p>多重性调整表中出现两个 <span class="math inline">\(p\)</span> 值：比较的 (comparison-wise) “Pr &gt; |t|” 和实验的 (experiment-wise) “Adj p”. 这些 <span class="math inline">\(p\)</span> 值同样适用于模型尺度估计和数据尺度几率比 (“Exponentiated estimate”).</p>
+<p>与高斯数据一样，所有三个 <span class="math inline">\(\symbf K\)</span> 矩阵的对比产生与 “Type III Tests for Fixed Effects” 相同的 <span class="math inline">\(F\)</span> 值。</p>
+</div>
+</div>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-5" class="example"><strong>示例 3.5  (原书示例 3.3.5；作为 2 × 2 析因的四处理多地点的回顾) </strong></span><br></p>
+<p>假设多地点 Data Set 3.2 的处理设计比简单的 0, 1, 2 和 3 处理更为复杂。具体地，假设处理具有以下析因结构</p>
+<div class="inline-figure"><img src="figure/figure%2099-2.png#center" style="width:70.0%"></div>
+<p>AB<sub>ij</sub> 表示第 <span class="math inline">\(ij\)</span> 个 <span class="math inline">\(A× B\)</span> 处理组合，其中 <span class="math inline">\(i=0,1,j=0,1\)</span>。为了适应这种结构，我们将线性预测器中的 <span class="math inline">\(\eta+\tau_i\)</span> 替换为 <span class="math inline">\(\eta_{ij}\)</span>，又可进一步分解为析因分量 <span class="math inline">\(\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span>。因此，全线性预测器为</p>
+<p><span class="math display">\[\eta_{ijk}=\eta_{ij}+L_k=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}+L_k\]</span></p>
+<p>将线性预测器的 <span class="math inline">\(\eta_{ijk}=\eta_{ij}+L_k\)</span> 形式视为广义线性模型的单元格均值模型版本。事实上，对于高斯数据或任何使用恒等连接的 GLM，<span class="math inline">\(\eta_{ijk}=\eta_{ij}+L_k=\mu_{ijk}=\mu_{ij}+L_k\)</span> 为单元格均值模型。</p>
+<p>回想一下，表 3.2 显示了析因处理设计的标准分析中感兴趣的可估函数。表 3.2 仅关注在 <span class="math inline">\(\eta_{ij}\)</span> 上定义的可估函数。对于多地点数据，在固定地点效应的情况下，我们也有地点效应。它们完全像<a href="chap3.html#exm:ex3-3">示例 3.3</a> 和<a href="chap3.html#exm:ex3-4">示例 3.4</a> 中那样进入可估函数。</p>
+<details><summary><font color="#8B2232">表 3.2</font>
+</summary><img src="figure/table%203.2.png#center" style="width:100.0%"></details><p><br>
+例如，根据表 3.2，<span class="math inline">\(A_0\)</span> 的主效应“均值”的可估函数为 <span class="math inline">\(\overline{\eta}_{0\cdot}=\eta+\alpha_0+1/2\sum_{j=0}^1\beta_j+1/2\sum_{j=0}^1\left(\alpha\beta\right)_{0j}\)</span>，<span class="math inline">\(\eta_{ij}\)</span> 部分，加上 <span class="math inline">\(\bar L_\cdot\)</span> 保证可估性要求。因此，完全可估函数为 <span class="math inline">\(\eta+\alpha_0+1/2\sum_{j=0}^1\beta_j+1/2\sum_{j=0}^1\left(\alpha\beta\right)_{0j}+1/8\sum_{k=1}^8L_k\)</span>。使用线性预测器的“单元格均值”形式，该可估函数为 <span class="math inline">\(1/2\sum_{j=0}^{1}\eta_{0j}+1/8\sum_{k=1}^{8}L_{k}=\bar{\eta}_{0\cdot}+\bar{L}_{\cdot}\)</span>。请注意，该可估函数仅仅是<a href="chap3.html#exm:ex3-3">示例 3.3</a> 和<a href="chap3.html#exm:ex3-4">示例 3.4</a> 中的 <span class="math inline">\(\eta+1/2\sum_{i=0}^1\tau_i+\bar{L}_\cdot\)</span>，只是用 <span class="math inline">\(\alpha_i+\beta_j+\left(\alpha\beta\right)_{ij}\)</span> 替换了 <span class="math inline">\(\tau_i\)</span>。该分析的其他可估函数也遵循相同的思路。与<a href="chap3.html#exm:ex3-3">示例 3.3</a> 和<a href="chap3.html#exm:ex3-4">示例 3.4</a> 一样，<span class="math inline">\(\bar L_\cdot\)</span> 出现在均值及其平均的可估函数中，但它通常在差异的可估函数中抵消。</p>
+<div class="rmdcaution">
+<p>如前所述，值得强调的一点是，解释析因处理结构有一个逻辑顺序。你应该始终首先评估交互。借用 Nelder 的一句话，在存在不可忽略的交互作用的情况下，主效应是“无趣的”可估函数。请注意短语“不可忽略” (“non-negligible”) 而不是“不显著” (“non-significant”). 单词的选择很重要。它们不是同义词。统计上显著但几乎没有实际后果的交互作用确实可能出现。这些并不妨碍评估主效应。然而，一般来说，如果你评估主效应，则不应评估简单效应，反之亦然——至少不要在同一个报告中同时评估两种效应：在考虑给定数据集中给定响应变量的分析时，主效应分析和简单效应分析应视为互斥的。</p>
+</div>
+<p>使用析因处理设计模型对 Data Set 3.2 中的高斯响应进行分析的 GLIMMIX 语句如下</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc a b;
+ model y=a|b loc;
+ lsmeans a b / diff e;
+ lsmeans a*b / slicediff=(a b);
+ lsmestimate a 'a0 marg mean' 1 0 / e;
+ lsmestimate b 'b0 marg mean' 1 0 / e;
+ lsmestimate a*b 'a|b0 simple effect' 1 0 -1 0,
+                 'b|a0 simple effect' 1 -1 0 0 / e;
+ estimate 'a0 marginal mean' intercept 2 a 2 0 b 1 1 a*b 1 1 0 0,
+          'b0 marginal mean' intercept 2 a 1 1 b 2 0 a*b 1 0 1 0,
+          'a|b0 simple effect' a 1 -1 a*b 1 0 -1 0,
+          'b|a0 simple effect' b 1 -1 a*b 1 -1 0 0 / e 
+          divisor=2,2,1,1;</code></pre>
+<p>与<a href="chap3.html#exm:ex3-3">示例 3.3</a> 相同数据的高斯分析相比，<code>A B</code> 替换了 CLASS 语句的 <code>TRT</code>，以及 <code>A|B</code>（<code>A B A*B</code> 的 SAS 简写）替换了 MODEL 语句中的 <code>TRT</code>。出现两个 LSMEANS 语句。一个是主效应 A 和 B 的均值，另一个是处理组合的均值，表示为 <code>A*B</code>。我们可以使用一个语句。事实上，我们可以写语句 <code>LSMEANS A|B / DIFF SLICEDIFF=(AB);</code>。我们将这两格语句分开的原因是，<code>LSMEANS A*B / DIFF</code> 不加区分地列出了所有可能的均值对，这在析因处理结构中通常不感兴趣。在标准析因分析中，<code>A*B</code> 处理组合的比较意味着，当对它们感兴趣时，只关注简单效应——保持 B 的水平不变比较 A 的水平，反之亦然——而不是所有可能的配对。SLICEDIFF 将 <code>A*B</code> 组合之间的差异仅限于简单效应，并相应地生成列表。LSMESTIMATE 允许我们根据最小二乘均值可估函数来定义估计，而不是根据模型效应明确地定义估计。例如，定义 <span class="math inline">\(\bar{\eta}_{ij\cdot}=1/8\sum\eta_{ijk}\)</span>，第 <span class="math inline">\(i\)</span> 个 AB 组合在 8 个地点上的平均可估函数，当用最小二乘法定义时，给定 B<sub>0</sub> 的简单效应的可估函数为 <span class="math inline">\(\bar{\eta}_{00\cdot}-\bar{\eta}_{10\cdot}\)</span>。LSMESTIMATE 允许你以这种方式指定可估函数。如果我们改为使用 ESTIMATE 语句，则必须写出模型中所有效应的系数。在所有效应上明确定义的可估函数为</p>
+<p><span class="math display">\[\eta+\alpha_0+\bar{\beta}_\cdot+\left(\overline{\alpha\beta}\right)_{0\cdot}+\bar{L}_\cdot-\left(\eta+\alpha_1+\bar{\beta}_\cdot+\left(\overline{\alpha\beta}\right)_{1\cdot}+\bar{L}_\cdot\right)\\=\alpha_0+\left(\overline{\alpha\beta}\right)_{0\cdot}-\left(\alpha_1+\left(\overline{\alpha\beta}\right)_{1\cdot}\right)=\alpha_0-\alpha_1+\left(\overline{\alpha\beta}\right)_{0\cdot}-\left(\overline{\alpha\beta}\right)_{1\cdot}\]</span></p>
+<p>SLICEDIFF 和 LSMESTIMATE 仅在 GLIMMIX 程序中可用。对于 SAS PROC GLM, MIXED 或 GENMOD，可以通过 PROC PLM 访问这些选项，尽管不太方便。</p>
+<p>最后，<code>E</code> 选项出现在整个程序中。SAS 的内部逻辑处理地点效应以实现可估性。<code>E</code> 选项使我们能够看到 GLIMMIX 在“黑盒内”如何处理地点效应。</p>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20101.png#center" style="width:70.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20102-1.png#center" style="width:80.0%"></div>
+<p>这些是 ESTIMATE 语句的结果。请注意，对于 A<sub>0</sub> 和 B<sub>0</sub> 的边际均值，我们需要给出处理相关效应 <span class="math inline">\(\eta,\alpha_i,\beta_j\)</span> 和 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 的所有系数，但程序的内部逻辑对地点效应进行平均——即添加 <span class="math inline">\(\bar L_\cdot\)</span> —— 这是可估性必需的。</p>
+<p>为进行比较，LSMESTIMATE 给出了 A<sub>0</sub> 边际均值的如下结果</p>
+<div class="inline-figure"><img src="figure/figure%20102-2.png#center" style="width:40.0%"></div>
+<p>出于篇幅考虑，此处未显示其他 LSMESTIMATE 系数。请注意，即使 LSMESTIMATE 语句只提到了模型效应 A，并将系数 1 和 0 分别分配给 A<sub>0</sub> 和 A<sub>1</sub>，但 GLIMMIX 从该语句中“理解”的系数（就模型效应而言）与明确写出所有系数的 ESTIMATE 语句相同。估计也相同。例如，对于 A<sub>0</sub> 的边际均值，我们得到</p>
+<div class="inline-figure"><img src="figure/figure%20102-3.png#center" style="width:80.0%"></div>
+<p>这与之前展示的 ESTIMATE 列表相同。</p>
+<p>SLICEDIFF 输出如下：</p>
+<div class="inline-figure"><img src="figure/figure%20103.png#center" style="width:80.0%"></div>
+<p>其他输出与在前面的示例中看到的类似。这里不展示并不是因篇幅所限，而是留作练习。</p>
+<p>最后需要注意，<span class="math inline">\(A×B\)</span> 交互作用检验的 <span class="math inline">\(p\)</span> 值为 0.6661. 此外，在上面的 SLICEDIFF 列表中，简单效应的差异似乎很小。在实践中，我们需要知道响应变量是什么，并寻求主题专家对于何种程度的差异被认为是重要或可忽略不计的判断。但根据我们对问题的了解以及缺乏统计学上令人信服的交互作用证据，我们的分析应侧重于这些数据的主效应。</p>
+</div>
+</div>
+<div class="rmdtip">
+<p><a href="chap3.html#sec3-3">3.3</a> 节的关键思想：模型或连接尺度；数据或逆连接尺度；逆连接；Delta 规则；位置度量（又称均值）；差异度量；数据/模型尺度因素如何影响均值估计与位置估计</p>
+</div>
+
+</div>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></div>
+<div class="next"><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap3"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="nav-link" href="#sec3-1"><span class="header-section-number">3.1</span> 模型推断的目标：概述</a></li>
+<li>
+<a class="nav-link" href="#sec3-2"><span class="header-section-number">3.2</span> 推断的基本工具</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec3-2-1"><span class="header-section-number">3.2.1</span> 可估函数</a></li>
+<li><a class="nav-link" href="#sec3-2-2"><span class="header-section-number">3.2.2</span> 固定效应和随机效应的线性组合：可预测函数</a></li>
+<li><a class="nav-link" href="#sec3-2-3"><span class="header-section-number">3.2.3</span> 推断的三个问题</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec3-3"><span class="header-section-number">3.3</span> 问题 1：数据尺度与模型尺度</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec3-3-1"><span class="header-section-number">3.3.1</span> 一个模型尺度示例——高斯数据，两处理独立样本</a></li>
+<li><a class="nav-link" href="#sec3-3-2"><span class="header-section-number">3.3.2</span> 模型尺度估计</a></li>
+<li><a class="nav-link" href="#sec3-3-3"><span class="header-section-number">3.3.3</span> 数据尺度</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

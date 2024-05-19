@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 8 章 处理和解释变量结构 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="8.1 处理结构类型 本章开始本书的第三篇。在本篇前三章中，我们为线性建模奠定了基础，并介绍了“广义”和“混合”给建模带来的主要问题。在接下来的四章中，我们阐述了广义线性建模的理论和方法基础。在本书的其余部分，我们将把注意力转向 GLMMs 的使用以及实际应用中的细节。 在本章中，我们重点关注处理类型，或者更一般地说，产生 \(\symbf{X\beta}\)...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 8 章 处理和解释变量结构 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="8.1 处理结构类型 本章开始本书的第三篇。在本篇前三章中，我们为线性建模奠定了基础，并介绍了“广义”和“混合”给建模带来的主要问题。在接下来的四章中，我们阐述了广义线性建模的理论和方法基础。在本书的其余部分，我们将把注意力转向 GLMMs 的使用以及实际应用中的细节。 在本章中，我们重点关注处理类型，或者更一般地说，产生 \(\symbf{X\beta}\)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 8 章 处理和解释变量结构 | 广义线性混合模型">
+<meta name="twitter:description" content="8.1 处理结构类型 本章开始本书的第三篇。在本篇前三章中，我们为线性建模奠定了基础，并介绍了“广义”和“混合”给建模带来的主要问题。在接下来的四章中，我们阐述了广义线性建模的理论和方法基础。在本书的其余部分，我们将把注意力转向 GLMMs 的使用以及实际应用中的细节。 在本章中，我们重点关注处理类型，或者更一般地说，产生 \(\symbf{X\beta}\)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="active" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap8" class="section level1" number="8">
+<h1>
+<span class="header-section-number">第 8 章</span> 处理和解释变量结构<a class="anchor" aria-label="anchor" href="#chap8"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec8-1" class="section level2" number="8.1">
+<h2>
+<span class="header-section-number">8.1</span> 处理结构类型<a class="anchor" aria-label="anchor" href="#sec8-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>本章开始本书的第三篇。在本篇前三章中，我们为线性建模奠定了基础，并介绍了“广义”和“混合”给建模带来的主要问题。在接下来的四章中，我们阐述了广义线性建模的理论和方法基础。在本书的其余部分，我们将把注意力转向 GLMMs 的使用以及实际应用中的细节。</p>
+<p>在本章中，我们重点关注处理类型，或者更一般地说，产生 <span class="math inline">\(\symbf{X\beta}\)</span> （线性预测器的固定效应部分）的解释变量结构，以及我们如何根据处理设计有意义地划分 <span class="math inline">\(\symbf{X\beta}\)</span>。<span class="math inline">\(\symbf{X\beta}\)</span> 的某些分解在数学上是有意义的，但在数据建模的上下文中却是不连贯的。从收集数据研究者的角度来看，其他分解可能看似合理，但在数学上并不可行。建模者的目标是确定一个既满足数学要求又满足数据背景的 <span class="math inline">\(\symbf{X\beta}\)</span>。</p>
+<p>广义上讲，我们可以用两种不同的方式对处理设计和解释变量进行分类：</p>
+<ul>
+<li>单因素或多因素结构</li>
+<li>定量或定性因素</li>
+</ul>
+<p>对于单因素结构，我们需要做出的关键决定是，我们是否有一个定性因子——在这种情况下，线性预测器将类似于 <span class="math inline">\(\eta + \alpha_i\)</span>，通常称为 ANOVA 型模型——或者一个定量因子——在这种情况下，我们通常应考虑使用基于回归的线性预测器，例如 <span class="math inline">\(\beta_0 + \beta_1 X\)</span>。当我们有超过两个水平的因素时，我们通常想要检验关于处理差异的多个假设。这对我们需要考虑的 I 类错误率有影响。</p>
+<p>对于多因素结构，除了决定如何根据每个因素是定量的还是定性的来建模之外，还需要考虑三个额外的问题。第一个涉及将线性预测变量划分为有意义的效应，以捕获每个因素对响应的影响以及其影响的独立性（或缺乏独立性）。第二个涉及拟合因子效应的顺序——我们首先拟合哪个效应，最后拟合哪个效应？这个顺序重要吗？如果是这样怎么办？有“正确”的顺序吗？如果没有，我们如何在后续推断中消除顺序的影响？最后，对于多因素研究，多重假设检验对 I 类错误率的影响变得更加复杂。</p>
+<p>在 <a href="chap8.html#sec8-2">8.2</a> 节中，我们从经典 ANOVA 和回归分析中的 GLMMs 根源开始考虑检验顺序问题。在 <a href="chap8.html#sec8-2">8.2</a> 节中，我们还简要介绍了多重性 (multiplicity)，这是当我们根据单个模型检验多个假设时出现的一种复杂情况。<a href="chap8.html#sec8-3">8.3</a> 节概述了由可能的因子组合产生的多因素模型的各种情况。然后我们将更详细地查看每种情况：全部为定性因素（<a href="chap8.html#sec8-4">8.4</a> 节），既有定性因素又有定量因素（<a href="chap8.html#sec8-5">8.5</a> 节），以及全部为定量因素（<a href="chap8.html#sec8-6">8.6</a> 节）。</p>
+<p>最后的评论：我们在本章中讨论的线性预测器可以与任何线性模型一起使用—— GLMM 或其任何特殊情况：LMM、GLM 或 LM。本章中的讨论都不是特定于 LMM、GLM 或 LM 的。</p>
+</div>
+<div id="sec8-2" class="section level2" number="8.2">
+<h2>
+<span class="header-section-number">8.2</span> 可估函数的类型<a class="anchor" aria-label="anchor" href="#sec8-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>在本节中，我们关注两个问题。前三部分重点介绍两种检验策略——部分检验策略和序贯检验策略，也称为 1 型, 2 型和 3 型 (type 1, 2, 3) ——这些检验策略是线性模型，广义的、混合的（无论是单独还是组合使用）从经典的最小二乘理论中继承而来的。最后一节将讨论在同一分析中检验多个假设时控制 I 类错误的替代方法。</p>
+<div id="sec8-2-1" class="section level3" number="8.2.1">
+<h3>
+<span class="header-section-number">8.2.1</span> 经典 ANOV 缩减平方和的关系<a class="anchor" aria-label="anchor" href="#sec8-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>可估函数理论源于经典线性模型的 ANOVA 和回归根源。这些根源在于使用平方和和均方（更正式的术语是二次型）作为检验统计量的组成部分。评估多因素模型的经典方法使用<strong>缩减平方和</strong> (reduction sums of squares). Searle (1971) 对这种方法进行了全面的阐述，PROC GLM（SAS 的综合普通最小二乘 LM 程序）深受 Searle 的影响。当“广义”和“混合”出现后，例如 PROC GENMOD, PROC MIXED 和最近的 PROC GLIMMIX，虽然平方和不再具有任何有用的含义，但它们保留了缩减平方和的思维过程来定义 1 型, 2 型 和 3 型可估函数。我们需要了解这些是什么才能继续。</p>
+<p>按照 Searle 的方法，假设我们有一个三因素模型，可以产生线性预测器划分 <span class="math inline">\(\symbf{X\beta}=\symbf{X}_A\symbf{\beta}_A+\symbf{X}_B\symbf{\beta}_B+\symbf{X}_C\symbf{\beta}_C\)</span>，即 <span class="math inline">\(\symbf X=\begin{bmatrix}\symbf X_A&amp;\symbf X_B&amp;\symbf X_C\end{bmatrix}\)</span> 以及 <span class="math inline">\(\symbf\beta'=\begin{bmatrix}\symbf \beta_A&amp;\symbf \beta_B&amp;\symbf \beta_C\end{bmatrix}\)</span>。如果我们拟合全模型，模型的平方和对应于二次型 <span class="math inline">\(\symbf{y}'\symbf{X}(\symbf{X}'\symbf{X})'\symbf{X}'\symbf{y}\)</span>。Searle 用 <span class="math inline">\(R\left(\symbf{\beta}_A,\symbf{\beta}_B,\symbf{\beta}_C\right)\)</span> 表示全模型的平方和。回想，这是第 <a href="chap6.html#chap6">6</a> 章中讨论的 Wald 统计量的关键组成部分。从因素 A 开始，我们得到 A 的缩减平方和，<span class="math inline">\(R\left(\symbf{\beta}_{A}\right)=\symbf{y}^{\prime}\symbf{X}_{A}\left(\symbf{X}_{A}^{\prime}\symbf{X}_{A}\right)^-{\symbf{X}}_{A}^{\prime}\symbf{y}\)</span>。然后拟合 B，我们定义在拟合 A 之上或在给定 A 的情况下拟合 B 的缩减平方和：</p>
+<p><span class="math display">\[R\big(\symbf{\beta}_B\mid\symbf{\beta}_A\big)=R\big(\symbf{\beta}_B,\symbf{\beta}_A\big)-R\big(\symbf{\beta}_A\big)=\symbf{y}'\symbf{X}_{AB}\big(\symbf{X}'_{AB}\symbf{X}_{AB}\big)^{-}\symbf{X}'_{AB}\symbf{y}-\symbf{y}'\symbf{X}_A\big(\symbf{X}'_A\symbf{X}_A\big)^{-}\symbf{X}'_A\symbf{y}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf{X}_{AB}=\begin{bmatrix}\symbf{X}_A&amp;\symbf{X}_B\end{bmatrix}\)</span>。通过一些运算，我们可将 <span class="math inline">\(R\left(\symbf{\beta}_B\mid\symbf{\beta}_A\right)\)</span> 写为 <span class="math inline">\(\symbf{y}'\symbf{X}_B\left[\symbf{X}'_B\left(\symbf{I}-\symbf{X}_A\left(\symbf{X}'_A\symbf{X}_A\right)^-{\symbf{X}}_A\right)X_B\right]^-{\symbf{X}}_B'\symbf{y}\)</span>。</p>
+<p>继续该过程，我们最终会得到两种评估与每个子模型相关参数的策略。它们分别为：</p>
+<p><strong>序贯检验</strong> (sequential tests)：</p>
+<ul>
+<li><span class="math display" id="eq:8-1">\[\begin{align}
+&amp;\mathrm{A}{:}\;R\left(\symbf{\beta}_A\right) \notag\\
+&amp;\mathrm{B}\mid\mathrm{A}{:}\;R\left(\symbf{\beta}_B\mid\symbf{\beta}_A\right) \tag{8.1}\\
+&amp;\mathrm C\mid \mathrm{A,B}{:}\;R\left(\symbf{\beta}_C\mid\symbf{\beta}_A,\symbf{\beta}_B\right)=R\left(\symbf{\beta}_A,\symbf{\beta}_B,\symbf{\beta}_C\right)-R\left(\symbf{\beta}_A,\symbf{\beta}_B\right)\notag
+\end{align}\]</span></li>
+</ul>
+<p><strong>部分检验</strong> (partial tests)：</p>
+<ul>
+<li><span class="math display" id="eq:8-2">\[\begin{align}
+\mathrm A\mid\mathrm B,\mathrm C{:}\;R\left(\symbf{\beta}_A|\symbf{\beta}_B,\symbf{\beta}_C\right)\notag\\
+\mathrm B\mid \mathrm A,\mathrm C{:}\;R\left(\symbf{\beta}_B|\symbf{\beta}_A,\symbf{\beta}_C\right) \tag{8.2}\\
+\mathrm C\mid \mathrm A, \mathrm B{:}\;R\left(\symbf{\beta}_C|\symbf{\beta}_A,\symbf{\beta}_B\right)\notag
+\end{align}\]</span></li>
+</ul>
+</div>
+<div id="sec8-2-2" class="section level3" number="8.2.2">
+<h3>
+<span class="header-section-number">8.2.2</span> 我们如何知道我们正在检验什么？<a class="anchor" aria-label="anchor" href="#sec8-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>通过获取各缩减平方和的期望值，我们可以确定每个检验策略中隐含的可估函数的形式。这些可以总结如下。</p>
+<p>定义 <span class="math inline">\(\symbf{M}_A=\symbf{I}-\symbf{X}_A\left(\symbf{X}_A^{\prime}\symbf{X}_A\right)^-\symbf{{X}}_A\)</span> 以及 <span class="math inline">\(\symbf{M}_B=\symbf{M}_A\left[\symbf{I}-\symbf{X}_B\left(\symbf{X}_B^{\prime}\symbf{M}_A\symbf{X}_B\right)^-\symbf{X}_B\right]\symbf{M}_A\)</span>。那么序贯策略产生以下隐式可估函数的生成器 (generator)，用于比较因子内的水平</p>
+<ul>
+<li><span class="math display" id="eq:8-3">\[\begin{align}&amp;\mathrm{A}{:}\;\left(\symbf{X}_A^{\prime}\symbf{X}_A\right)^-\left(\symbf{X}_A^{\prime}\symbf{X}_A\right)\symbf{\beta}_A+\left(\symbf{X}_A^{\prime}\symbf{X}_A\right)^-\left(\symbf{X}_A^{\prime}\symbf{X}_B\right)\symbf{\beta}_B+\left(\symbf{X}_A^{\prime}\symbf{X}_A\right)^-\left(\symbf{X}_A^{\prime}\symbf{X}_C\right)\symbf{\beta}_C\\
+&amp;\mathrm{B}\mid\mathrm{A}{:}\;\left(\symbf{X}_B^{\prime}\symbf{M}_A\symbf{X}_B\right)^{-}\symbf{X}_B^{\prime}\symbf{M}_A\symbf{X}_B\symbf{\beta}_B+\left(\symbf{X}_B^{\prime}\symbf{M}_A\symbf{X}_B\right)^{-}\symbf{X}_B^{\prime}\symbf{M}_A\symbf{X}_C\symbf{\beta}_C \tag{8.3}\\
+&amp;\mathrm C\mid\mathrm{A,B}{:}\;\left(\symbf{X}_C^{\prime}\symbf{M}_B\symbf{X}_C\right)^-\symbf{X}_C^{\prime}\symbf{M}_B\symbf{X}_C\symbf{\beta}_C
+\end{align}\]</span></li>
+</ul>
+<p>通过适当的替换，我们可得到利用部分检验策略、用于检验 A 和 B 的隐式可估函数，即 <span class="math inline">\(A\mid B,C\)</span> 和 <span class="math inline">\(B \mid A,C\)</span>。</p>
+<p>注意，当我们使用序贯方法时，除了完全均衡数据外，A 效应之间的可估比较将包含一些我们无法消除的 B 和 C 的分量，因子 B 水平之间的可估比较包含我们无法消除的 C 的分量。</p>
+<p>例如，回想我们在第 6 章 <a href="chap6.html#sec6-4-2">6.4.2</a> 节中讨论的不均衡主效应设计。如果我们使用序贯方法，用于因子 A 比较的母函数 (generating function) 为 <span class="math inline">\(\eta+\alpha_1+\begin{pmatrix}1/3\end{pmatrix}\begin{pmatrix}\beta_1+2\beta_2\end{pmatrix}+\begin{pmatrix}1/3\end{pmatrix}\begin{pmatrix}2\gamma_1+\gamma_2\end{pmatrix}\)</span> 以及 <span class="math inline">\(\eta+\alpha_2+\begin{pmatrix}1/3\end{pmatrix}\begin{pmatrix}2\beta_1+\beta_2\end{pmatrix}+\begin{pmatrix}1/3\end{pmatrix}\begin{pmatrix}2\gamma_1+\gamma_2\end{pmatrix}\)</span>。取差值，A 效应的序贯检验为 <span class="math inline">\(\alpha_1-\alpha_2+\left(1/3\right)\left(-\beta_1+\beta_2\right)\)</span>。A 效应的序贯检验与 B 效应混淆。对于模型的每次重新排序，我们都会重新定义 <a href="chap8.html#eq:8-3">(8.3)</a> 中的母方程，这就是为什么根据我们拟合效应的顺序以及我们使用的是序贯检验还是部分检验策略，模型效应的检验结果会千差万别。</p>
+<p>我们可将 <a href="chap8.html#eq:8-3">(8.3)</a> 中的母函数应用于 GLM, LMM 和 GLMM 以及普通的最小二乘线性模型。它们的定义特征是线性预测器的固定效应分量。所有线性模型的 1 型可估函数都使用 <a href="chap8.html#eq:8-3">(8.3)</a> 为可估函数 <span class="math inline">\(\symbf{K\beta}\)</span> 生成 <span class="math inline">\(\symbf K\)</span> 矩阵。2 型和 3 型可估函数使用部分策略中隐含的生成器—— <span class="math inline">\(C\mid A,B\)</span>，<span class="math inline">\(A\mid B,C\)</span> 和 <span class="math inline">\(B \mid A,C\)</span> 生成器。在许多模型中，2 型和 3 型策略是相同的。而对于具有交互作用的模型，存在差异。我们将在 <a href="chap8.html#sec8-3">8.3</a> 节中讨论这些问题。</p>
+</div>
+<div id="sec8-2-3" class="section level3" number="8.2.3">
+<h3>
+<span class="header-section-number">8.2.3</span> 如何决定要检验什么，而不是让它为我们决定<a class="anchor" aria-label="anchor" href="#sec8-2-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>请注意，只有部分策略能够产生不与其他因子相混淆的因子效应假设。这对于检验不均衡的定性效应数据尤为重要，例如我们刚刚考虑的主效应示例。但你不应该将其解读为我们应该总是使用部分检验。我们在第 <a href="chap6.html#chap6">6</a> 章的回归示例（Data Set 6.1）中看到，部分检验得出了无意义的结果。请记住建模的主要操作原则：一刀切的方法 = 不良的统计实践。</p>
+<p>一个更好的一般规则为：如果存在明显的模型拟合顺序（例如，单因子的多项式回归），则使用该顺序；否则，从有意义的可估函数的角度来考虑问题。这才是更好的统计实践。巧了，对于那些缺乏明显模型拟合顺序的情况，当你从有意义的可估函数的角度来考虑问题时，我们通常会得到 3 型检验。但并非总是如此。通过深思熟虑来得出 3 型检验的结果，比不了解其含义就盲目地选择部分检验或序贯检验要好得多。</p>
+<p>回顾我们在第 <a href="chap6.html#chap6">6</a> 章中讨论的主效应设计，我们最后总结说应该定义在上下文中合理的可估函数。具体来说，就是要利用边际均值，这些均值是在其他因素的效应估计上平均得到的，并且所得差异不与其它因素混淆。如此做时，我们实质上是在采用一种部分检验的策略。然而，我们通过一个更透明的思维过程来清楚地阐明“我们为什么要这样做？”当我们将其扩展到具有交互项的多因素模型时，这种方法会变得更加复杂。我们将在 <a href="chap8.html#sec8-4">8.4</a> 节到 <a href="chap8.html#sec8-6">8.6</a> 节中讨论多因素模型的变体。</p>
+</div>
+<div id="sec8-2-4" class="section level3" number="8.2.4">
+<h3>
+<span class="header-section-number">8.2.4</span> 多重性<a class="anchor" aria-label="anchor" href="#sec8-2-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于任何具有两种以上处理的处理设计，我们可以通过两种不同的方式来理解 I 类错误率。一个称为<strong>比较错误率</strong> (comparison-wise error rate)，重点关注每个单独检验发生 I 类错误的概率。另一个称为<strong>实验错误率</strong> (experiment-wise error rate)，重点关注我们进行的整组检验中至少发生一个 I 类错误的概率。</p>
+<p>举例说明，假设我们有三种处理，一种是对照或参考处理，另两种是我们希望评估的实验处理。将对照的均值表示为 <span class="math inline">\(\mu_C\)</span>，两个实验处理的均值表示为 <span class="math inline">\(\mu_A\)</span> 和 <span class="math inline">\(\mu_B\)</span>。假设我们检验两实验处理的相等性，<span class="math inline">\(H_0\colon \mu_A=\mu_B\)</span>，如果存在证据表明它们相等，那么我们检验它们的均值与对照的相等性，<span class="math inline">\(H_0\colon\left(\mu_A+\mu_B\right)/2=\mu_C\)</span>。</p>
+<p>现在，我们根据对犯 I 类错误严重性的评估来设定 <span class="math inline">\(\alpha\)</span> 水平（或者，更典型的情况是，我们根据规定的方案来设定）。使用比较错误率，<span class="math inline">\(\alpha\)</span> 水平定义了每次检验拒绝 <span class="math inline">\(H_0\)</span> 的准则，一次检验一个假设。如果我们这样做，在 <span class="math inline">\(H_0\)</span> 下，不拒绝原假设的概率等于 <span class="math inline">\(1−\alpha\)</span>。如果我们做两次独立的检验（正如我们在这里所做的——关于独立检验，也就是正交检验，下文有更多介绍），不犯任何 I 类错误的概率等于 <span class="math inline">\((1-\alpha)^2\)</span>，因此，至少犯一个 I 类错误的概率是 <span class="math inline">\(1−(1-\alpha)^2\)</span>；这就是本例的实验错误率。</p>
+<p>一般来说，如果我们的处理设计有 <span class="math inline">\(t\)</span> 种处理，我们就有 <span class="math inline">\(t−1\)</span> 个自由度。这意味着我们可以定义多达 <span class="math inline">\(t-1\)</span> 个个相互独立的比较 (comparisons)，或者，用可估函数术语来说，如果我们根据相互独立的处理差异来定义 <span class="math inline">\(\symbf{K'\beta}\)</span>，那么 <span class="math inline">\(\operatorname{rank}({\symbf K})\le t-1\)</span>，并且当我们恰好按照每个自由度定义一个比较时，不等式取等号。如果我们这样做，实验错误率将等于 <span class="math inline">\(1-(1-\alpha)^{t-1}\)</span>。将比较的数量限制在 <span class="math inline">\(t-1\)</span> 并不保证它们之间的相互独立。无论如何，相互独立性本身并不能作为一组对比 (contrasts) 有价值的标准。正如我们将在下文看到的，可能存在更多科学上连贯但并非相互独立的比较。实验错误率的一个更普遍表述为：若将每次比较的错误率记为 <span class="math inline">\(\alpha_C\)</span>，则对于 <span class="math inline">\(k\)</span> 次比较，实验错误率 <span class="math inline">\(\alpha_{\small EW}\ge 1-(1-\alpha_{\small C})^k\)</span>。</p>
+<p>我们如何知道比较是否独立？在这里，我们引入正交对比 (orthogonal contrasts). 对于单向处理设计，我们有以下定义：</p>
+<ul>
+<li><p>对比：若 <span class="math inline">\(\symbf {k'\beta}\)</span> 可写为 <span class="math inline">\(\sum_i k_i\mu_i=0\)</span> 且 <span class="math inline">\(\sum_i k_i=0\)</span>，则可估函数是一个<strong>对比</strong> (contrast). 对于 GLMs 和 GLMMs，需将 <span class="math inline">\(\mu_i\)</span> 替换为 <span class="math inline">\(\mu_i^*\)</span> （第 <span class="math inline">\(i\)</span> 种处理的伪变量均值），定义才成立。请注意，在对比的定义中，<span class="math inline">\(\symbf k\)</span> 必须为向量。</p></li>
+<li><p>正交对比：令 <span class="math inline">\(\symbf{k}'_1\symbf\beta\)</span> 和 <span class="math inline">\(\symbf{k}'_2\symbf\beta\)</span> 为两个对比。它们是正交的当且仅当 <span class="math inline">\(\symbf k'_1 \symbf k_2=0\)</span>。</p></li>
+</ul>
+<p><span class="math display" id="eq:8-4">\[\begin{align}
+记正交对比的定义为式 (8.4)\tag{8.4}
+\end{align}\]</span></p>
+<p>在单向处理设计中，<strong>一组完全正交对比</strong> (a complete set of orthogonal contrasts) 必须恰好具有 <span class="math inline">\(t − 1\)</span> 个相互正交的对比，每个对比对应一个处理自由度。这是实验错误率取等号 <span class="math inline">\(\alpha_{\small EW}= 1-(1-\alpha_{\small C})^k\)</span> 的唯一情形。否则对于 <span class="math inline">\(k\)</span> 个比较，<span class="math inline">\(\alpha_{\small EW}\ge 1-(1-\alpha_{\small C})^k\)</span>。</p>
+<p>举例说明，让我们考虑两种四处理设计。首先，四种处理分别为：</p>
+<div class="inline-figure"><img src="figure/figure%20240-1.png#center" style="width:30.0%"></div>
+<p>假设目标要求检验以下三个假设：</p>
+<ul>
+<li>
+<span class="math inline">\(H_0\colon\left(\mu_1+\mu_2\right)/2=\left(\mu_3+\mu_4\right)/2\)</span>，即，对照药与实验药的平均响应相等</li>
+<li>
+<span class="math inline">\(H_0\colon\mu_1=\mu_2\)</span>，即，对照药没有剂量效应</li>
+<li>
+<span class="math inline">\(H_0\colon\mu_3=\mu_4\)</span>，即，实验药没有剂量效应</li>
+</ul>
+<p>这是一组完全正交对比的例子。你可以检查：</p>
+<ul>
+<li><span class="math inline">\(\symbf{k'}_1=\begin{pmatrix}1/2\end{pmatrix}\begin{bmatrix}1&amp;1&amp;-1&amp;-1\end{bmatrix}\)</span></li>
+<li><span class="math inline">\(\symbf{k'}_2=\begin{bmatrix}1&amp;-1&amp;0&amp;0\end{bmatrix}\)</span></li>
+<li><span class="math inline">\(\symbf{k'}_3=\begin{bmatrix}0&amp;0&amp;1&amp;-1\end{bmatrix}\)</span></li>
+<li>对于所有 <span class="math inline">\(c=1,2,3\)</span> 有 <span class="math inline">\(\symbf{k}_c^{\prime}\symbf{1}=0\)</span>，那么这三个都是对比</li>
+<li>对于所有 <span class="math inline">\(c\ne c'=1,2,3\)</span> 有 <span class="math inline">\(\symbf{k}_c^{\prime}\symbf{k}_{c^{\prime}}=0\)</span>，那么这些对比相互正交</li>
+</ul>
+<p>正交对比虽然在数学上很整洁，但也可能不合适。对于许多实验来说，其目标违背了正交对比所施加的限制。以我们的第二个四处理设计为例：</p>
+<div class="inline-figure"><img src="figure/figure%20240-2.png#center" style="width:30.0%"></div>
+<p>这里，一组明显的均值比较为</p>
+<p><span class="math display">\[\begin{aligned}H_{0}{:}\mu_{{\mathrm{control}}}&amp;=\mu_{{\mathrm{exp~1}}}\\H_{0}{:}\mu_{{\mathrm{control}}}&amp;=\mu_{{\mathrm{exp~2}}}\\H_{0}{:}\mu_{{\mathrm{control}}}&amp;=\mu_{{\mathrm{exp~3}}}\end{aligned}\]</span></p>
+<p>每个都是对比，这组比较不符合正交标准 (eq:8-4)。</p>
+<p>即使在上述药物剂量的例子中，我们也可以合理地提、问：“为什么不比较两种药物在低（或高）剂量下的效应呢？”或者“为什么只比较药物在剂量上的平均值，而不是反过来？”在很多情况下，目标是更广泛的发现——我们只是想比较所有的处理对，并观察它们之间是否有任何不同。这种需求的一个极端情况出现在微阵列测试 (micro-array testing) 中，我们会测试成千上万的基因，以查看是否有任何基因产生了效应。</p>
+<p>这种检验提出了<strong>多重性</strong> (multiplicity) 问题。如果我们在实验中只检验一个假设，我们可以将第一类错误率设为 <span class="math inline">\(\alpha\)</span>。然而，这种情况很少发生。通常，我们有 <span class="math inline">\(t &gt; 2\)</span> 个处理，这意味着如果有意义的话我们可以定义 <span class="math inline">\(t −1 &gt;1\)</span> 个正交对比，如果处理设计允许（例如我们的第二个四处理设计），我们可以定义 <span class="math inline">\(t-1\)</span> 个有意义但非正交的对比，或者，如果我们想比较所有可能的处理对，则总共有 <span class="math inline">\(t(t−1)/2\)</span> 对需要比较。</p>
+<p>即使采用正交对比，实验错误率也大于比较错误率。如果我们想要进行所有可能的比较，很容易看出实验错误率会急剧增加。</p>
+<p>在实际数据分析中，问题是我们应该控制哪种类型的错误率：比较错误率还是实验错误率？没有一刀切的答案。这里有几个策略。当然还有其他的。我们列出这些是因为它们可用于 PROC GLIMMIX，我们将在本书的其余部分使用这些程序来实现大多数示例。</p>
+<ul>
+<li><p><strong>Protected LSD</strong>。LSD 检验<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：这里的 LSD 检验指的是未受保护的 LSD 检验 (Unprotected LSD)，它不需要前置的总体处理假设被拒绝。当该假设被拒绝才继续 LSD 检验时，就成为了受保护的 LSD 检验程序。&lt;/p&gt;"><sup>23</sup></a>实际上就是第 <a href="chap6.html#chap6">6</a> 章定义的 <span class="math inline">\(t\)</span> 检验，用于成对的处理均值，对于 GLMM, LMM, GLM 和 LM 有不同的变体。我们使用比较错误率来实施每个检验，但我们在这些检验之前有一个决策规则：如果我们未能以指定的 <span class="math inline">\(\alpha\)</span> 水平拒绝总体处理的 <span class="math inline">\(F\)</span> 检验，即 <span class="math inline">\(H_{0}\)</span>：所有 <span class="math inline">\(\mu_i\)</span> 相等，我们就会停止。只有当我们拒绝总体处理假设时，我们才会进行单个配对 <span class="math inline">\(t\)</span> 检验。</p></li>
+<li><p><strong>Bonferroni</strong>。我们将比较拒绝标准设为 <span class="math inline">\(\alpha/k\)</span>，其中 <span class="math inline">\(k\)</span> 是我们计划进行的比较总数。如果我们只有一项比较，未受保护的 LSD 和经过 Bonferroni 调整的拒绝标准是相同的。如果我们有 10 种处理并进行所有 45 对比较，经 Bonferroni 调整的拒绝标准就是 <span class="math inline">\(\alpha/45\)</span>。对于 <span class="math inline">\(\alpha = 0.05\)</span>，LSD 的比较错误率是 0.05，而使用 Bonferroni 的比较错误率是 0.0011.</p></li>
+<li><p><strong>Tukey’s “Honestly Significant Difference”</strong>。使用学生化极差。大多数统计方法入门教科书都涵盖了这些内容，例如 Snedecor and Cochran (1989) 以及 Steel et al. (1996).</p></li>
+<li><p><strong>Scheffé’s Procedure</strong>。它使用基于 <span class="math inline">\(F\)</span> 的整体临界值的检验。详情请参见 Westfall et al. (1999).</p></li>
+<li><p><strong>Sidak’s Procedure</strong>。他本质上从所需的实验错误率开始，并求解隐含的比较标准。当所有比较都相互正交时，这很容易做到。当比较不正交时，情况就更复杂了。详情请参见 Sidak (1967).</p></li>
+</ul>
+<p>出于特殊目的，还有另外两项调整：</p>
+<ul>
+<li><p><strong>Dunnett’s Procedure</strong>。这是一种特定的校正，旨在用于“对照”和每种处理之间的一组比较，例如上面的第二个处理设计。许多应用程序，包括 PROC GLIMMIX，都使用 Dunnett (1955) 和 Hsu (1992) 开发的校正。Dunnett 法仅适用于对照组与每个处理组的比较集。</p></li>
+<li><p><strong>Nelson’s Procedure</strong>。它将各处理与给定处理所有水平的均值进行检验。不直接对均值进行相互比较。详情见 Nelson (1982, 1991, 1993).</p></li>
+</ul>
+</div>
+</div>
+<div id="sec8-3" class="section level2" number="8.3">
+<h2>
+<span class="header-section-number">8.3</span> 多因素模型：概述<a class="anchor" aria-label="anchor" href="#sec8-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>我们现在将讨论扩展到多因素处理（或解释变量）设计。这些是涉及两个或多个因素的研究，我们通常将以字母命名，即因素 A、因素 B 等。这些设计包括具有交叉分类、嵌套或两者兼有的解释变量结构，特别是当我们有三个或更多因素时。在本节中，我们将回顾基本概念、符号表示和术语，并概述了根据上下文对线性预测器进行有意义划分的方法。这些划分可以归类为全定性、定性-定量和全定量三类。<a href="chap8.html#sec8-4">8.4</a> 节、<a href="chap8.html#sec8-5">8.5</a> 节和 <a href="chap8.html#sec8-6">8.6</a> 节将依次讨论。</p>
+<p>为讨论析因结构，我们使用以下常用术语。我们按字母顺序用大写字母表示因素：双因素结构的因素 A 和因素 B，如果添加第三个因素则有因素 C，等等。斜体的小写字母表示因素的水平数：因素 A 有 <span class="math inline">\(a\)</span> 个水平、因素 B 有 <span class="math inline">\(b\)</span> 个水平等。拉丁字母 <span class="math inline">\(\alpha,\beta,\gamma\)</span> 分别指因素 A, B, C 对应的模型效应。当我们从 ANOVA 型效应转换为回归型效应时（从 <a href="chap8.html#sec8-5">8.5</a> 节开始），我们用回归符号替换 ANOVA 型符号，例如用 <span class="math inline">\(\beta_0 +\beta_1X\)</span> 代替 <span class="math inline">\(\eta+\alpha_i\)</span>。“<strong>多因素</strong>” <strong>效应</strong> (“multi-factor” effect) 是指涉及多个因素的任何效应。多因素效应可以是交互作用，例如 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 或嵌套效应，例如 <span class="math inline">\(\beta(\alpha)_{ij}\)</span>。</p>
+<p>我们将大部分讨论集中在双因素模型上。在大多数情况下，使用三因素模型涉及对我们用于双因素模型的方法的直接扩展。当扩展不直接时，会有一些讨论。</p>
+<p>我们使用两种策略（或三种策略，具体取决于我们的观点）来划分多因素模型。尽管存在广泛的误解，但并没有包罗万象的“正确”方法来划分多因素模型中的线性预测器。两种主要策略是交叉分类 (cross-classification) 和嵌套。我们在前几章中已经定义了这两种策略并给出了实例。如果从另一个角度看，还有第三种策略——即根本不进行划分，而是直接使用因素 A 与因素 B 第 <span class="math inline">\(ij\)</span> 个组合的线性预测器 <span class="math inline">\(\eta_{ij}\)</span>，并将所有感兴趣的推断定义为可估函数的形式。采用交叉分类策略时，我们将 <span class="math inline">\(\eta_{ij}\)</span> 分解为主效应和交互效应，例如 <span class="math inline">\(\eta = \alpha_i + \beta_j + (\alpha\beta)_{ij}\)</span>。对于嵌套策略，划分的一般形式是 <span class="math inline">\(\eta = \alpha_i + \beta(\alpha)_{ij}\)</span>。请注意，这意味着 <span class="math inline">\(\beta(\alpha)_{ij} = \beta_j + (\alpha\beta)_{ij}\)</span>。</p>
+<p>当我们想要通过询问两个因素是否独立地影响响应，或者因素之间是否存在不可忽略的交互作用以进行推断时，交叉分类模型更有意义。嵌套模型在以下两种情况下有意义：1) 处理结构不是交叉分类的；2) 处理结构是交叉分类的，但我们知道存在交互作用，并且我们想要关注简单效应。对于后者，我们利用这样一个事实，即我们可以将嵌套效应解释为简单效应——例如，<span class="math inline">\(\beta(\alpha)_{ij}\)</span> 是给定 A 时 B 的简单效应的模型参数化。</p>
+<div class="rmdcaution">
+<p><strong>要点</strong>：对于交叉分类和嵌套线性预测器，对主效应 <span class="math inline">\(\alpha_i\)</span>（以及 <span class="math inline">\(\beta_j\)</span>，如果存在的话）的推断都取决于多因素效应 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 或 <span class="math inline">\(\beta(\alpha)_{ij}\)</span> 是否可忽略。如果多因素效应不可忽略——例如如果我们拒绝 <span class="math inline">\(H_0\colon (\alpha\beta)_{ij}=0\)</span> 或 <span class="math inline">\(H_0\colon \beta(\alpha)_{ij}=0\)</span> ——那么对主效应的推断将包括，用 Nelder (1968) 的优雅措辞来说，一组“无趣的假设” (“uninteresting hypotheses”)。更直白地说，在存在不可忽略的多因素效应的情况下，对主效应的推断是无意义的。</p>
+</div>
+<p>根据给定因素是定性的还是定量的，以及特定研究的目标，交叉分类和嵌套的划分有几种变体。对于交叉分类和嵌套，根据某些特定背景，不对截距显式建模可能是合理的，如此，交叉分类的线性预测器就成为 <span class="math inline">\(\alpha_i+\beta_j+\left(\alpha\beta\right)_{ij}\)</span>，而嵌套线性预测器则成为 <span class="math inline">\(\alpha_i+\beta(\alpha)_{ij}\)</span>。对于定量因素，进一步的调整是合理的。对于定性因素 A 和定量因素 B，线性预测器 <span class="math inline">\(\eta+\alpha_i+\left(\beta_1+\delta_i\right)X_j\)</span> 或 <span class="math inline">\(\beta_{0i}+\beta_{1i}X_j\)</span> 可能更为合适。注意到这些是 <span class="math inline">\(\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span> 和 <span class="math inline">\(\alpha_i+\beta(\alpha)_{ij}\)</span> 的变体，其中涉及 <span class="math inline">\(X_j\)</span>（因素 B 的定量水平）的回归系数取代了 ANOVA 型模型效应。如果两个因素都是定量的，那么我们可能会选择一个完全多元回归模型，例如 <span class="math inline">\(\beta_0+\beta_1X_1+\beta_2X_2+\beta_1X_1^2+\beta_{22}X_2^2+\beta_{12}X_1X_2\)</span>，其中 <span class="math inline">\(X_1\)</span> 和 <span class="math inline">\(X_2\)</span> 分别代表因素 A 和 B 的水平。注意到 <span class="math inline">\(\beta_1X_1+\beta_{11}X_1^2\)</span> 取代了 <span class="math inline">\(\alpha_i\)</span>，<span class="math inline">\(\beta_2X_2+\beta_{22}X_2^2\)</span> 取代了 <span class="math inline">\(\beta_j\)</span>，而 <span class="math inline">\({\beta}_{12}X_1X_2\)</span> 取代了 <span class="math inline">\((\alpha\beta)_{ij}\)</span>。</p>
+<p>最后，谈谈 2 型和 3 型检验。我们之前看到，1 型检验对应于序贯检验。对于仅主效应模型，2 型和 3 型检验是等价的——都指的是部分检验。但对于析因效应有一个细微的差异。就缩减平方和而言，它们为：</p>
+<div class="rmdimportant">
+<p><strong>2 型检验</strong>：</p>
+<ul>
+<li><span class="math display">\[\begin{align}
+&amp;\mathrm A{:}\;R\big(A\mid B\big) \\
+&amp;\mathrm B{:}\;R\left(B\mid A\right) \\
+&amp;\mathrm{A*B}{:}\;R\left(A*B\mid A,B\right)
+\end{align}\]</span></li>
+</ul>
+<p>对于 2 型检验，在拟合其他主效应后检验感兴趣的主效应；交互效应是在所有涉及交互效应的主效应都已被拟合的情况下进行检验的。这是析因 ANOVA 模型中部分平方和的经典定义。</p>
+</div>
+<div class="rmdimportant">
+<p><strong>3 型检验</strong>：</p>
+<ul>
+<li><span class="math display">\[\begin{align}
+&amp;\mathrm A{:}\;R\big(A\mid B,A*B\big) \\
+&amp;\mathrm B{:}\;R\left(B\mid A,A*B\right) \\
+&amp;\mathrm{A*B}{:}\;R\left(A*B\mid A,B\right)
+\end{align}\]</span></li>
+</ul>
+<p>当 PROC GLM 推出时，这引起了极大的混乱，更不用说在某些方面引起了极大的恐慌。根据我们之前对仅主效应设计所描述的可估函数，可以更好地理解 3 型检验以及 3 型可估函数的方法。首先，写出调整主效应后边际均值的可估函数——即 SAS 所称的最小二乘均值——也就是说，要对模型中的所有其他效应进行平均，以获得一个理想化的描述：如果数据完美均衡，均值会是多少。假设缺失数据要么是偶然发生的，要么是由于故意设计的不完全设计（如正交主效应设计）造成的，3 型可估函数实质上代表了处理缺失数据的首选方法，这也是它们成为 GLMM 模型默认检验的原因。</p>
+</div>
+<p>请注意，对于双因素模型，2 型和 3 型检验仅在主效应方面有所不同，并且仅在数据不均衡时有所不同。你可以使用 <a href="chap8.html#sec8-2">8.2</a> 节中讨论的方法来准确地确定 2 型方法检验的内容，并决定它或 3 型检验是否最能满足你的目标。同样，解决此类问题的最佳方式不是问哪种缩减方法最有意义，而是你最终得到了什么可估函数。</p>
+</div>
+<div id="sec8-4" class="section level2" number="8.4">
+<h2>
+<span class="header-section-number">8.4</span> 全定性因素多因素模型<a class="anchor" aria-label="anchor" href="#sec8-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>对于全定性因素模型，我们只使用效应模型（回归模型在这里没有意义——为什么？）。如果我们有两个因素，表示为因素 A 和因素 B，我们可能有一个析因或交叉分类结构，表示为 <span class="math inline">\(A ×B\)</span>，或一个嵌套结构，记为 <span class="math inline">\(B (A)\)</span>。回想第 <a href="chap2.html#chap2">2</a> 章的结构性差异。如果所有 AB 组合要么有观测、要么本可以有观测时，我们就有了析因设计；而如果在给定因素 A 的某个水平下观测到因素 B 的某个水平，并排除了在 A 的其他任何水平下观测到该相同 B 水平的可能性，这时的结构就是嵌套结构。视觉上，下图描述了析因或交叉分类结构</p>
+<div class="inline-figure"><img src="figure/figure%20244-1.png#center" style="width:30.0%"></div>
+<p>而若假定 B1 与 A1 被同时观测到时，B1 与 A2 就不能被同时观测到，则下图描述了嵌套结构</p>
+<div class="inline-figure"><img src="figure/figure%20244-2.png#center" style="width:30.0%"></div>
+<p>例如，在育种试验中，如果因素 A 是公畜，因素 B 是母畜，那么在特定的繁殖季节，一只母畜只能与一只公畜交配。我们说 B 嵌套在 A 中，因为给定的 B 水平只能分配给 A 的一个水平，但反之则不然。</p>
+<p>当有三个因素时，可能所有三个因素是交叉分类的，我们将其表示为 <span class="math inline">\(A ×B×C\)</span>，或者一个因素可能嵌套在另一个因素中但与第三个因素交叉，例如 <span class="math inline">\(A ×B(C)\)</span>，或者我们可能有一个因素嵌套在另外两个因素的因子组合中，例如 <span class="math inline">\(C (A × B)\)</span>，或者我们可能有一个严格的嵌套层次结构，例如 <span class="math inline">\(C (B( A))\)</span>。我们可以此方式继续考虑四个或更多因素。超过三个因素时，可能性太多，无法一一列出。这些结构需要关注一些细节，但它们是我们用于两因素和三因素结构的原理的直接扩展。</p>
+<p>交叉分类结构使用因子效应模型——对于双因素为 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span> ——或此形式的某种变体。在某些设计中，我们可能需要删除交互项。例如，在本章前面讨论的主效应设计（Data Set 6.2）中，设计的构建不允许估计交互效应。嵌套结构使用嵌套效应模型 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta(\alpha)_{ij}\)</span> 或此形式的某种变体。我们将在本节的其余部分中更详细地研究我们如何使用这些模型。我们用高斯数据的双因素 <span class="math inline">\(2 ×3\)</span> 析因结构进行说明。当我们讨论这个示例的过程中，我们将清楚地了解到嵌套模型的使用。此外，虽然该示例使用高斯数据，但所示过程适用于所有线性模型—— GLMs, LMMs, GLMMs 以及 LMs.</p>
+<div id="sec8-4-1" class="section level3" number="8.4.1">
+<h3>
+<span class="header-section-number">8.4.1</span> 选项的回顾<a class="anchor" aria-label="anchor" href="#sec8-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们的基础构建模块是定义在交互效应、简单效应和主效应上的对比。推断过程是有序进行的。首先，我们确定是否存在不可忽略的交互作用。接下来的步骤取决于第一步的结果。如果交互作用可以忽略不计，则推断集中在主效应上。在没有交互作用的情况下，对简单效应的推断构成了 Nelder 所描述的“无趣的假设”。如果交互作用是不可忽略的，则推断重点转向简单效应。在存在不可忽略交互作用的情况下，对主效应的推断则构成了“无趣的假设”，并且在许多情况下可能导致完全无意义的结论。</p>
+<p>三因素设计的推断遵循相同路径的扩展。我们从三向交互开始。如果可以忽略不计，我们将进行双向交互。如果它们都可以忽略不计，那么我们才开始研究主效应。对于任何不可忽略的交互作用，我们将注意力集中在该交互作用中包含的简单效应上，选择那些最能针对促使我们进行研究的目标提供信息的简单效应。</p>
+<p>对于具有多个水平的因素，我们需要使用对比来划分变异，或者如 <a href="chap8.html#sec8-2">8.2</a> 节所述，使用成对或多重比较检验。这必须包括对交互作用的划分。为什么？考虑一个双因素模型，其中因素 A 有 <span class="math inline">\(a\)</span> 个水平，因素 B 有 <span class="math inline">\(b\)</span> 个水平。因此，<span class="math inline">\(A×B\)</span> 交互作用拥有 <span class="math inline">\((a-1)(b-1)\)</span> 个自由度——也就是说，它由 <span class="math inline">\((a-1)(b-1)\)</span> 个独立的单自由度对比组成。随着 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(b\)</span> 的增加，交互作用的自由度呈乘性增长。如此，即使是非常显著的交互作用也可能集中在一两个或少数几个交互对比中，如果构成整体交互效应的其余对比本质上都接近于零，那么这些重要的交互作用很可能被掩盖。除非我们明确地查看这些对比，否则我们可能会错过一个重要的交互，并导致后续推断走上错误的道路。</p>
+<p>最后，在多个因素的情况下，多重性问题可以以不同的方式产生。在存在不可忽略的交互作用时，在每组简单效应比较中应用多重性调整可能是合适的。在其他情况下，将多重性调整应用于所有处理组合中可能更为合理。在没有交互作用的情况下，当使用多重性调整时，通常是对每个因素内的主效应进行比较。</p>
+<p>接下来的两小节说明了这些思想。<a href="chap8.html#sec8-4-2">8.4.2</a> 节介绍了各种推断工具。<a href="chap8.html#sec8-4-3">8.4.3</a> 节讨论了适用于本例的多重性调整。</p>
+</div>
+<div id="sec8-4-2" class="section level3" number="8.4.2">
+<h3>
+<span class="header-section-number">8.4.2</span> 定性因素推断工具：“SLICE”, “SLICEDIFF” 等工具<a class="anchor" aria-label="anchor" href="#sec8-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>本节的工作示例数据显示为 Data Set 8.1 中。处理结构为 <span class="math inline">\(2×3\)</span> 析因。数据是高斯的，设计结构是完全随机的。我们使用标准的析因线性模型：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span>
+</li>
+<li>分布：<span class="math inline">\(y_{ij}\sim NI\left(\mu_{ij},\sigma^2\right)\)</span>
+</li>
+<li>连接：恒等，<span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>我们从总体模型效应的近似 <span class="math inline">\(F\)</span> 检验开始，首先关注 <span class="math inline">\(A× B\)</span> 交互作用。使用 GLIMMIX 进行计算，所需的语句为：</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y=a b a*b;</code></pre>
+<p>相关输出为</p>
+<div class="inline-figure"><img src="figure/figure%20246.png#center" style="width:50.0%"></div>
+<p>对于 <span class="math inline">\(A ×B\)</span> 交互作用的检验，<span class="math inline">\(p = 0.0099\)</span>。这使得 A 和 B 主效应的结果毫无意义。</p>
+<div class="rmdcaution">
+<p>同学们请注意！帮自己一个忙。当有证据表明存在不可忽略的交互作用时，你就已经完成了近似 <span class="math inline">\(F\)</span> 检验了。许多学生似乎无法在家庭作业和考试中约束自己，并继续详细总结主效应结果，即便这些结果是无意义且“无趣的”。为自己节省一些写作上的困扰，也为读者节省一些时间和麻烦：如果交互作用不可忽略——请停止！</p>
+</div>
+<p>给定交互的结果，我们需要对其进行描述。这些数据的均值和交互图 (interaction plot) 为：</p>
+<div class="inline-figure"><img src="figure/figure%20247.png#center" style="width:50.0%"></div>
+<p>我们将 B 水平的均值与 A 的每个水平的联系起来，即使因素 B 不是定量的，以可视化交互。对于 B2 似乎没有平均 A 效应，但对于 B1 有很大的 A 效应，而对于 B0 有更大的 A 效应。从不同的角度来看，A1 内 B 的水平似乎没有平均差异，但 A0 内 B 的水平有显著差异。两种观点都是正确的，但通常选择其一来说明研究目标。</p>
+<p>有两种工具可用于分解与定性因素的交互作用：总体简单效应 <span class="math inline">\(F\)</span> 检验和成对简单效应差异。SAS 线性模型程序分别将其称为 SLICE 和 SLICEDIFF。 SLICEDIFF 仅在 GLIMMIX 中可用。假设我们想要得到给定 A 时 B 各个水平之间的简单效应统计量。所需的 GLIMMIX 语句为（我们将其包含在上述给出的 MODEL 语句之后）：</p>
+<pre class="sas"><code>lsmeans a*b / slice=a slicediff=a;</code></pre>
+<p>相关的 SLICE 输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20248-1.png#center" style="width:50.0%"></div>
+<p>SCLICEDIFF 的输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20248-2.png#center" style="width:70.0%"></div>
+<p>正式地，两个 SLICE 检验由原假设 <span class="math inline">\(H_0\colon \mu_{i0}=\mu_{i1}=\mu_{i2}(i=0,1)\)</span>。我们可以使用任意这样的两个对比——这样两个对比放在一起意味着 <span class="math inline">\(H_0\)</span> ——来构造可估函数。例如：</p>
+<p><span class="math display">\[\symbf{T'\mu}=\begin{bmatrix}1&amp;0&amp;-1&amp;0&amp;0&amp;0\\0&amp;1&amp;-1&amp;0&amp;0&amp;0\end{bmatrix}\begin{bmatrix}\mu_{00}\\\mu_{01}\\\mu_{02}\\\symbf\mu_{1}\end{bmatrix}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf\mu\)</span> 表示包含所有 <span class="math inline">\(\mu_{ij}\)</span> 的向量，<span class="math inline">\(\symbf\mu_1\)</span> 表示所有包含 <span class="math inline">\(\symbf\mu_{1j}\)</span> 的向量。SLICEDIFF 的假设和可估函数由所有可能的成对差值 <span class="math inline">\(\mu_{ij}-\mu_{ij'}\)</span> 产生，其中 <span class="math inline">\(j\ne j\)</span>。</p>
+<p>输出证实了我们在交互图中看到的内容。实质性的 B 效应出现在 A0 内，但不出现在 A1 内。</p>
+<p>给定交互作用，关注简单效应的另一种方式是重新将线性预测器表达为嵌套模型。如果我们想关注给定 A 时 B 的简单效应，我们使用 <span class="math inline">\(\eta_{ij}=\eta+\alpha_{i}+\beta(\alpha)_{ij}\)</span>（其中 <span class="math inline">\(i\)</span> 和 <span class="math inline">\(j\)</span> 是索引）。使用 GLIMMIX，我们通过以下语句来实现这个模型：</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model y=a b(a);
+ contrast ‘slice: B | A0’ b(a) 1 0 -1,
+                          b(a) 0 1 -1; 
+ contrast ‘slice: B | A1’ b(a) 0 0 0 1 0 -1,
+                          b(a) 0 0 0 0 1 -1;
+ lsmeans b(a) / slicediff=a;</code></pre>
+<p>关注的输出：</p>
+<div class="inline-figure"><img src="figure/figure%20249.png#center" style="width:50.0%"></div>
+<p>B(A) 的总体检验平均了 B|A0 和 B|A1 的简单效应切片。这是一个过度聚合统计量 (overly aggregated statistic) 的例子：通过平均两个感兴趣的检验，得到的统计量没有提供任何我们可以使用的信息。另一方面，请注意，在线性预测器的析因参数化中，对比结果与 SLICE 检验是相同的。这是达到同一目的的两种不同方法。嵌套参数化通常有助于数据分析师更清楚地看到他们正在检验的确切内容。当存在缺失的 AB 组合时，使用嵌套模型可以避免可估计问题。</p>
+<div class="rmdcaution">
+<p>读者练习：如果你使用析因参数化并尝试计算 GLIMMIX 语句定义的对比：</p>
+<pre class="sas"><code>contrast ‘slice: B | A0’ a*b 1 0 -1,
+                         a*b 0 1 -1;
+contrast ‘slice: B | A1’ a*b 0 0 0 1 0 -1,
+                         a*b 0 0 0 0 1 -1;</code></pre>
+<p>会发生什么？为什么会发生这种情况？如果你继续使用析因参数化，那么需要如何修改对比语句以使它们可估？</p>
+</div>
+</div>
+<div id="sec8-4-3" class="section level3" number="8.4.3">
+<h3>
+<span class="header-section-number">8.4.3</span> 多重性调整<a class="anchor" aria-label="anchor" href="#sec8-4-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们在上一节中看到，工作示例中的推断针对的是简单效应。如果我们关注给定 A 的 B 的简单效应，则对于 A 的每个水平，我们在 B 的水平之间有 3 种可能的成对比较。我们在上一节中看到给定 A 的 B “SLICEDIFF”结果，使用比较错误率。事实上，它们是经过选择的 LSD 检验。如果我们想控制实验错误率，我们需要决定如何定义它。我们可以将其定义为适用于所有可能的处理组合，但这似乎有点矫枉过正。有 15 种可能的成对比较，但我们只打算进行 6 个，即两组，每组三个成对比较。一种适当但不那么严厉的方法是在每组简单效应检验中应用多重性校正。例如，我们可以使用以下 GLIMMIX 语句结合我们使用的析因参数化来实现 Bonferroni 校正。</p>
+<pre class="sas"><code>lsmeans a*b / slicediff=a adjust=bonferroni;</code></pre>
+<p>所得结果：</p>
+<div class="inline-figure"><img src="figure/figure%20250-1.png#center" style="width:80.0%"></div>
+<p>此输出与我们之前看到的唯一区别是最后一列。这些是 Bonferroni 调整的 <span class="math inline">\(p\)</span> 值。在这种情况下，它们不影响 A1 内的简单效应检验——它们本来就不显著——但它确实缓和了我们关于给定 A0 的情况下 B0 和 B1 之间的平均差异的结论。</p>
+<p>在这种情况下，GLIMMIX 算法将 Bonferroni 调整分别应用于 A 水平内的每组三个简单效应。使用 LSMESTIMATE 语句定义相同简单效应的另一种方法可与之进行比较：</p>
+<pre class="sas"><code>lsmestimate a*b ‘b1 v b2 | a1’ 1 -1 0 0 0 0,
+                ‘b1 v b3 | a1’ 1 0 -1 0 0 0, 
+                ‘b2 v b3 | a1’ 0 1 -1 0 0 0,
+                ‘b1 v b2 | a2’ 0 0 0 1 -1 0,
+                ‘b1 v b3 | a2’ 0 0 0 1 0 -1, 
+                ‘b2 v b3 | a2’ 0 0 0 0 1 -1 / adjust=bonferroni;</code></pre>
+<p>这得到了如下输出：</p>
+<div class="inline-figure"><img src="figure/figure%20250-2.png#center" style="width:80.0%"></div>
+<p>这里，GLIMMIX 算法将多重性调整应用于整个六均值比较集。请注意，这会导致更保守的调整 <span class="math inline">\(p\)</span> 值，例如，A1 条件下 B1 与 B2 的简单效应比较得到的调整 <span class="math inline">\(p\)</span> 值为 0.1196，相比使用 SLICEDIFF 选项获得的 0.0598 更为保守。无论你使用的是 GLIMMIX 还是其他软件，都需要了解应用多重性调整的规则。</p>
+<p><strong>如果在析因组合中有一个是“对照”或参考处理怎么办？</strong></p>
+<p>到目前为止，在我们讨论的例子中，因素 A 和 B 所代表的身份是通用的。我们假设 A0 和 A1 实际上是一种植物的品种或一种动物的品系。假设 A0 是普通品种，容易感染某种疾病或害虫。假设 A1 是新开发的具有抗病性的品种。假设 B1 和 B2 是用于控制害虫或疾病的两种化学物质，而 B0 表示“未处理” (“untreated) ——即未施用任何化学物质。最后，响应 Y 是植物健康状况的一些指标——或者更可能是形成复制单元的区中植物的平均健康状况。</p>
+<p>现在，想象一下，按照目前的做法，生产者种植品种 A0，并使用 B2 来控制疾病或害虫。然而，越来越多的证据表明使用 B2 可能存在问题——例如，对环境或健康造成危害。假设 B1 据称更安全，尽管其有效性尚未得到证实。那么，这项研究的目标就是确定我们是否可以使用 B1 从易感品种 A0 中获得可接受的性能，或者更好的是，我们是否可以从抗性品种 A1 中获得同等的性能，而无需使用任何化学品（B0）。</p>
+<p>在这种情况下，完全忽略处理的析因结构是有意义的。相反，我们可以将处理组合 <span class="math inline">\(A0× B2\)</span> 定义为“对照”或参考处理，并实施 Dunnett 检验，即每个处理组合与 <span class="math inline">\(A0× B2\)</span> 进行比较，并使用 Dunnett-Hsu 多重性校正。与析因参数化一起使用的所需 GLIMMIX 语句为</p>
+<pre class="sas"><code>lsmeans a*b / diff=control(‘0’ ‘2’) adjust=dunnett;</code></pre>
+<p>所得结果：</p>
+<div class="inline-figure"><img src="figure/figure%20251.png#center" style="width:80.0%"></div>
+<p>最后一列显示 Dunnett-Hsu 调整的 <span class="math inline">\(p\)</span> 值。倒数第二列显示未调整的 <span class="math inline">\(p\)</span> 值。在这里，它们的结果基本相同：无论使用哪种化学物质（B 的水平），都没有统计上显著的证据表明抗病品种与对照处理之间存在平均差异，但易感品种（A0）在没有 B2 的情况下表现不佳。</p>
+</div>
+</div>
+<div id="sec8-5" class="section level2" number="8.5">
+<h2>
+<span class="header-section-number">8.5</span> 多因素：部分定性，部分定量<a class="anchor" aria-label="anchor" href="#sec8-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>定量因素水平通常允许我们利用回归关系来简化线性预测器。我们在第 <a href="chap1.html#chap1">1</a> 章中看到了这种方法的简单形式，并在第 <a href="chap3.html#chap3">3</a> 章中基于 Data Set 3.3 的多批次示例中进行了研究。在本节中，我们将以这些示例为基础。</p>
+<p>许多有关设计的书籍相当重视使用正交多项式对比来划分定量因素变异。这在前计算机时代是有意义的（正交多项式是在 20 世纪 40 年代开发的），但在一个很容易获得当代建模技术的时代，这是徒劳的。Littell et al. (2002) 和 Stroup et al. (2018) 举例说明了更可取的替代办法。</p>
+<p>在本节中，我们将定性-定量线性预测器的三种应用结合在一起，这些应用通常以单独和分开的形式呈现。学生和线性建模从业者经常忽略的一点是，这些都是同一主题的变体。</p>
+<div id="sec8-5-1" class="section level3" number="8.5.1">
+<h3>
+<span class="header-section-number">8.5.1</span> 线性预测器的通用形式<a class="anchor" aria-label="anchor" href="#sec8-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>假设我们有一个双因素结构，其中因素 A 是定性的，因素 B 是定量的。这种结构的例子比比皆是。通常，因素 A 的水平取决于不同的处理（例如对照或实验）或条件（例如暴露或未暴露于环境危害）。因素 B 的水平可以是时间、年龄、剂量、温度、降雨量、实验单元初始条件的某种度量等。</p>
+<p>通常，响应与 B 的定量水平之间的关系可以通过回归来描述。在这种情况下，我们可以用一个更简洁的模型来捕捉回归关系，从而取代因素 B 的效应模型。如果因素 B 与响应之间的关系是线性的，我们可以使用类似 Data Set 3.3 中多批次示例的模型。我们已经看过线性预测器的两种有用形式：</p>
+<p><span class="math display" id="eq:8-6">\[\begin{align}
+\eta_{ij}&amp;=\eta+\alpha_i+\left(\beta_1+\delta_i\right)X_j \tag{8.5}\\
+\eta_{ij}&amp;=\beta_{0i}+\left(\beta_{1i}\right)X_j \tag{8.6}
+\end{align}\]</span></p>
+<p>请注意，<a href="chap8.html#eq:8-5">(8.5)</a> 是 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}\)</span> 的特例，其中 <span class="math inline">\({\beta}_j={\beta}_1X_j\)</span> 且 <span class="math inline">\(\left(\alpha\beta\right)_{ij}=\delta_iX_j\)</span>，<a href="chap8.html#eq:8-6">(8.6)</a> 是 <span class="math inline">\(\eta_{ij}=\alpha_i+\beta(\alpha)_{ij}\)</span> 的特例，其中 <span class="math inline">\(\alpha_i=\beta_{0i}\)</span> 且 <span class="math inline">\(\beta(\alpha)_{ij}=\beta_{1i}X_j\)</span>。</p>
+<p>当因素 B 的定量水平与响应之间的关系比线性回归更复杂时，我们可以简单地用额外的多项式回归项来扩展 <a href="chap8.html#eq:8-5">(8.5)</a> 或 <a href="chap8.html#eq:8-6">(8.6)</a>，假设多项式模型合适，或者替换为另一种回归模型——例如样条或非线性模型——如果它们更适合作为拟合模型。我们将在 <a href="chap8.html#sec8-6">8.6</a> 节中分别查看每种情况的例子。</p>
+<p>线性预测器 <a href="chap8.html#eq:8-5">(8.5)</a> 和 <a href="chap8.html#eq:8-6">(8.6)</a> 描述了潜在增长曲线模型、协方差模型分析以及定量-定性析因设计分析。虽然这些往往是分开的，但从建模的角度来看，它们只是同一模型的不同解释方式。</p>
+</div>
+<div id="sec8-5-2" class="section level3" number="8.5.2">
+<h3>
+<span class="header-section-number">8.5.2</span> 通用线性预测器的多种用途<a class="anchor" aria-label="anchor" href="#sec8-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<div id="sec8-5-2-1" class="section level4" number="8.5.2.1">
+<h4>
+<span class="header-section-number">8.5.2.1</span> 潜在增长曲线模型<a class="anchor" aria-label="anchor" href="#sec8-5-2-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>诸如医学和药物科学、社会学和心理学、教育、工程和农业等各种各样的学科都采用了这种模型的变体。以药物稳定性测试为例，我们想要了解稳定性限制特征如何随时间变化，可能针对不同的药物。让因素 A 代表不同的药物，因素 B 代表时间，我们显然有一个可以用线性预测器<a href="chap8.html#eq:8-5">(8.5)</a> 或 <a href="chap8.html#eq:8-6">(8.6)</a>，或 <a href="chap8.html#eq:8-5">(8.5)</a> 和 <a href="chap8.html#eq:8-6">(8.6)</a> 的多项式或非线性扩展对处理结构进行建模。在教育领域，我们可能想要追踪学生的学习进度，并进一步比较不同小组或不同课程下的进度。同样，让小组或课程定义因素 A，年级水平定义因素 B，我们就有了一个可以用 <a href="chap8.html#eq:8-5">(8.5)</a> 或 <a href="chap8.html#eq:8-6">(8.6)</a> 建模的结构。</p>
+<p>潜在增长曲线分析的细节遵循第 <a href="chap3.html#chap3">3</a> 章基于 Data Set 3.3 的示例，因此这里无需重复。</p>
+</div>
+<div id="sec8-5-2-2" class="section level4" number="8.5.2.2">
+<h4>
+<span class="header-section-number">8.5.2.2</span> 协方差分析<a class="anchor" aria-label="anchor" href="#sec8-5-2-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>我们使用协方差分析——通常称为 <strong>ANCOVA 模型</strong>——来考虑伴随变量 (concomitant variables). 我们利用它们与响应变量的关系来提高推断的准确性。通常，伴随变量，更常被称为协变量，是我们在研究开始时测量的重复单元的特征。例如初始土壤肥力、能力或成绩测试的预测试得分、临床试验的基线测量等。</p>
+<p>大多数 ANCOVA 模型都建立在响应与协变量之间线性关系的假设之上。令 <span class="math inline">\(y\)</span> 表示响应，<span class="math inline">\(X\)</span> 表示协变量，我们使用线性预测器 <span class="math inline">\(\eta_j=\beta_0+\beta_1X_j\)</span> 来估计连接 <span class="math inline">\(\eta_j=g\left({\mu}_j\right)\)</span>，其中 <span class="math inline">\(\mu_j=E\Big(y_j\Big)\)</span>，当我们将 ANCOVA 推广到混合模型时，称为条件均值。如果我们假定 <span class="math inline">\(y\)</span> 的分布是高斯的，那么我们就像在其他例子中一样，使用恒等连接。通过添加处理效应，这一简单线性回归成为 ANCOVA 模型。ANCOVA 区分了发生这种情况的两种方式：1）处理影响截距，但对斜率没有影响； 2) 处理同时影响斜率和截距。前者称为等斜率 ANCOVA (equal slopes ANCOVA) 模型；后者称为不等斜率 ANCOVA (unequal slopes ANCOVA) 模型。请注意，不等斜率 ANCOVA 模型只是 <a href="chap8.html#eq:8-5">(8.5)</a> 或 <a href="chap8.html#eq:8-6">(8.6)</a>，具体取决于我们参数化的方式。</p>
+<div id="sec8-5-2-2-1" class="section level5" number="8.5.2.2.1">
+<h5>
+<span class="header-section-number">8.5.2.2.1</span> 等斜率示例<a class="anchor" aria-label="anchor" href="#sec8-5-2-2-1"><i class="fas fa-link"></i></a>
+</h5>
+<p>本示例使用 Data Set 8.2. 使用完全随机设计观察了四种处理。响应变量是高斯变量。在实验开始时，对研究中的每个重复单元测量了一个协变量（表示为 <span class="math inline">\(X\)</span>）。此时，我们不命名处理、响应和协变量——读者可以随意发挥你的想象力并提供你自己的场景。</p>
+<p>所有 ANCOVA 程序都首先使用不等斜率模型检验斜率的相等性。正式地，我们从线性预测器 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\left(\beta_1+\delta_i\right)X_{ij}\)</span> 开始，其中 <span class="math inline">\(X_{ij}\)</span> 是在第 <span class="math inline">\(ij\)</span> 个重复单元测量的协变量。我们可以使用以下 GLIMMIX 语句来实现此检验。</p>
+<pre class="sas"><code>proc glimmix;
+ class trt;
+ model y=trt x x*trt;</code></pre>
+<p>其中 TRT 标识处理，X 指协变量。模型项 X*TRT 对应模型中的 <span class="math inline">\(\delta_i X_{ij}\)</span>；相应的 <span class="math inline">\(F\)</span> 值检验 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\delta_i = 0\)</span>。输出</p>
+<div class="inline-figure"><img src="figure/figure%20254-1.png#center" style="width:60.0%"></div>
+<p>关键输出 <span class="math inline">\(p\)</span> 值为 0.2889；我们无法拒绝 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\delta_i =0\)</span>，这意味着我们可以假定斜率相等。我们使用等斜率模型 <span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta_1X_{ij}\)</span> 继续对处理进行推断。所需的 GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class trt;
+ model y=trt x;
+ lsmeans trt / diff;</code></pre>
+<p>我们添加 LSMEANS 语句是因为，在解决了等/不等斜率问题后，我们想要继续推断处理效应。相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20254-2.png#center" style="width:60.0%"></div>
+<p>我们可以看到 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(alpha_i\)</span> 都相等的 <span class="math inline">\(p&lt;0.0001\)</span>；我们拒绝在任何合理的 <span class="math inline">\(\alpha\)</span> 水平上等处理均值的假设。“最小二乘均值”在某种意义上进行了调整，即如果在协变量完全相等的单元上观察到每个处理，则它们预测处理的均值。正式地，<span class="math inline">\(\mathrm{LSMean}_i=\hat{\eta}+\hat{\alpha}_i+\hat{\beta}_1\bar{X}_{\cdot\cdot}\)</span>，其中 <span class="math inline">\(\bar X_{\cdot\cdot}\)</span> 是协变量的总体均值。</p>
+<p>如果我们不考虑协变量，会发生什么？换句话说，如果我们对完全随机设计简单地使用通常的线性预测器 <span class="math inline">\(\eta+\alpha_i\)</span>，将如何影响处理效应的检验和处理均值估计？以下是从模型中删除协变量的结果：</p>
+<div class="inline-figure"><img src="figure/figure%20255-1.png#center" style="width:60.0%"></div>
+<p>请注意，处理效应的 <span class="math inline">\(p\)</span> 值现在为 0.0518，而不是 &lt;0.0001，这可能会改变有关处理效应的结论。ANCOVA 模型处理均值的标准误在 1.17 到 1.26 之间，现在为 2.83，精度损失很大。均值的相对值变化很大：例如，使用 ANCOVA 模型，处理 1 和 2 的均值分别为 47.7 和 54.6，而在未调整的模型中它们基本上交换了位置。这是什么原因造成的？未调整均值实际上估计 <span class="math inline">\(\text{Unadjusted LSMean}_i=\hat{\eta}+\hat{\alpha}_i+\hat{\beta}_1\bar{X}_{i\cdot}\)</span> 其中 <span class="math inline">\(\bar{X}_{i\cdot}\)</span> 表示仅在接受第 <span class="math inline">\(i\)</span> 种处理的单元上观察到的协变量均值。除非随机化导致所有 <span class="math inline">\(\bar{X}_{i\cdot}\)</span> 完全相等（其概率基本上为零），否则未调整的均值会与协变量混淆，因此处理差异的估计也会混淆。这是观测协变量的图形：</p>
+<div class="inline-figure"><img src="figure/figure%20255-2.png#center" style="width:60.0%"></div>
+<p>我们可以很容易地看到，处理 1 和 4 的协变量均值明显高于处理 2 和 3。估计的协变量回归系数为 <span class="math inline">\(\hat\beta_1=-2.67\)</span>，这意味着如果没有随机化导致协变量值的均匀分布，那么第 1 种和第 4 种处理的未调整均值将远低于第 2 种和第 3 种处理。</p>
+<p>重要的是，我们要强调，我们在上图中看到的协变量并不意味着随机化过程出现了错误。随机化必然发生在收集协变量数据之前。研究人员和统计学家需要了解这一点并保持现实：我们在这里看到的随机化是普遍存在的现象：它往往是常态而不是例外。因此，ANCOVA 调整的价值就体现出来了。</p>
+</div>
+<div id="sec8-5-2-2-2" class="section level5" number="8.5.2.2.2">
+<h5>
+<span class="header-section-number">8.5.2.2.2</span> 不等斜率 ANCOVA<a class="anchor" aria-label="anchor" href="#sec8-5-2-2-2"><i class="fas fa-link"></i></a>
+</h5>
+<p>让我们考虑一个类似的设定，但数据集不同。该示例作为 Data Set 8.3 出现在附录中。我们从与上一个示例相同的模型和相同的检验开始：<span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\left(\beta_1+\delta_i\right)X_{ij}\)</span>，检验等斜率假设 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\delta_i=0\)</span>。结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20256.png#center" style="width:50.0%"></div>
+<p>回想 <code>x*trt</code> 的 <span class="math inline">\(F\)</span> 值检验 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\delta_i=0\)</span>，<span class="math inline">\(p\)</span> 值为 0.0028，这有力地证明了斜率不相等。对处理的推断必须使用不等斜率模型进行。这意味着，对于任何处理效应的检验，可估函数必须是 <span class="math inline">\({\alpha}_{i}-{\alpha}_{i^{\prime}}+\left({\delta}_{i}-{\delta}_{i^{\prime}}\right)X\)</span>：没有其他方法可以产生可估函数。</p>
+<p>所有处理差异的估计和检验都与协变量混淆。这意味着有关处理的任何结论都是特定于协变量的。这也提出了一个问题：有关处理的 <span class="math inline">\(F=6.62,p = 0.0069\)</span> 是在 <span class="math inline">\(X\)</span> 的什么值下计算出来的？两个明显的值是 <span class="math inline">\(X = 0\)</span>（如果 <span class="math inline">\(F\)</span> 仅基于 <span class="math inline">\(\alpha_i\)</span> 之间的差异计算）和协变量的总体均值 <span class="math inline">\(\bar X_{\cdot\cdot}\)</span>。让我们从 <span class="math inline">\(X = 0\)</span> 开始。</p>
+<p>检验所有 <span class="math inline">\(\alpha_i\)</span> 是否相等的对比为</p>
+<pre class="sas"><code>contrast ‘trt at x=0’ trt 1 0 0 -1,
+                      trt 0 1 0 -1,
+                      trt 0 0 1 -1;</code></pre>
+<p>该对比的 <span class="math inline">\(F\)</span> 值为 6.62，与上面给出的 <span class="math inline">\(F\)</span> 值相同。另一方面，对于这些数据，<span class="math inline">\(\bar X_{\cdot\cdot} = 9 65\)</span>。在 <span class="math inline">\(X\)</span> 的总体均值上对处理进行检验的可估函数需要以下对比语句</p>
+<pre class="sas"><code>contrast ‘trt at x mean’ trt 1 0 0 -1 x*trt 9.65 0 0 -9.65,
+                         trt 0 1 0 -1 x*trt 0 9.65 0 -9.65,
+                         trt 0 0 1 -1 x*trt 0 0 9.65 -9.65;</code></pre>
+<p>得到的 <span class="math inline">\(F\)</span> 值为 7.53，<span class="math inline">\(p\)</span> 值为 0.0043. 我们应该使用哪个？对于这些数据，根据处理绘制的协变量图形为：</p>
+<p>我们可看到协变量的范围大约在 6 到 13 之间。如果我们在 <span class="math inline">\(X=0\)</span> 处进行检验，我们的检验将在该数据集中从未出现过的协变量值上进行。而在 <span class="math inline">\(\bar X_{\cdot\cdot}=9.65\)</span> 处进行检验看起来要合理得多。</p>
+<div class="rmdcaution">
+<p>线性建模的学生请注意：当你使用任何软件时，你必须训练自己提出此类问题。</p>
+</div>
+<p>一些额外信息。这些数据（在盲化数据后）来自对母猪产后应激治疗方法的比较。协变量是窝仔数。产后应激会随着窝仔数的增加而增加，这意味着我们必须调整窝仔数以获得治疗之间的公平比较。斜率的不等性告诉我们，窝仔数增加的影响在治疗方法之间有所不同，或者更具体地说，从动物健康研究人员的角度来看，一些治疗方法在缓解较大窝仔数的负面影响方面比其他治疗方法更有效——这本身就是重要的信息。这也意味着在 <span class="math inline">\(X=0\)</span> 时检验处理的相等性，即检验产后应激药物对“母亲”（窝仔数为 0 的母猪，即还不是真正的母亲）的有效性是毫无意义的。建模不仅仅是数学或统计理论——你还必须关注所建模的主题！</p>
+<p>我们可以使用参数化 <a href="chap8.html#eq:8-6">(8.6)</a> 来获得每种治疗的协变量回归的估计。在 GLIMMIX 语言中，<a href="chap8.html#eq:8-6">(8.6)</a> 为：</p>
+<pre class="sas"><code>proc glimmix;
+ class trt;
+ model y=trt x(trt) / noint solution;</code></pre>
+<p>选项 <code>NOINT</code> 抑制截距 <span class="math inline">\(\eta\)</span>，使得 <code>TRT</code> 对应于 <span class="math inline">\(\beta_{0i}\)</span> 且 <code>X(TRT)</code> 对应于 <span class="math inline">\(\beta_{1i}X_{ij}\)</span>。解为：</p>
+<div class="inline-figure"><img src="figure/figure%20258-1.png#center" style="width:80.0%"></div>
+<p>例如，治疗 1 的回归方程估计为 <span class="math inline">\(52.3-0.675X\)</span>，治疗 2 为 <span class="math inline">\(74.3 − 3.75X\)</span>，依此类推。治疗 1 下产仔数增加的影响似乎比其他治疗的影响要小得多。</p>
+<p>我们可以比较不同 <span class="math inline">\(X\)</span> 值的治疗。实际上，这意味着与主题专家进行对话，以查明是否有特别感兴趣的 <span class="math inline">\(X\)</span> 值。为了便于说明，我们确定 <span class="math inline">\(X = 7\)</span> 和 <span class="math inline">\(X = 12\)</span>（接近 <span class="math inline">\(X\)</span> 范围的上下限）处的调整均值。获得这些的 GLIIMIX 语句是：</p>
+<pre class="sas"><code>lsmeans trt / at x=7;
+lsmeans trt / at x=12;</code></pre>
+<p>所得输出：</p>
+<div class="inline-figure"><img src="figure/figure%20258-2.png#center" style="width:50.0%"></div>
+<p>我们可以看到，在 <span class="math inline">\(X=7\)</span> 时，治疗 1 到治疗 3 之间的差异相对较小，与我们在 <span class="math inline">\(X=12\)</span> 时看到的差异相比。与斜率估计一致，治疗 1 受 <span class="math inline">\(X\)</span> 变化的影响明显小于其他治疗。这里并未展示这些结果，但在实践中，我们也会在感兴趣的 <span class="math inline">\(X\)</span> 值下获得治疗之间的均值比较检验。</p>
+</div>
+<div id="sec8-5-2-2-3" class="section level5" number="8.5.2.2.3">
+<h5>
+<span class="header-section-number">8.5.2.2.3</span> 析因处理设计<a class="anchor" aria-label="anchor" href="#sec8-5-2-2-3"><i class="fas fa-link"></i></a>
+</h5>
+<p>定性-定量析因设计是线性预测器的第三种主要应用，其形式源自 <a href="chap8.html#eq:8-5">(8.5)</a> 和 <a href="chap8.html#eq:8-6">(8.6)</a>。我们用 Data Set 8.4 来说明该方法。这些数据来自 <span class="math inline">\(3 ×6\)</span> 析因处理结构。与本章中的其他示例一样，响应变量具有高斯分布，并且数据是使用完全随机设计收集的。定性因素（A）具有标记为 C, E1 和 E2 的三个水平（表示对照和实验处理 1 和 2）。定量因素（B）的六个水平简单地标记为 1 到 6. 根据过去的经验，已知对照处理对 B 的水平的响应呈近似线性关系，斜率为正。研究人员有理由相信，实验处理在 B 的水平上的增长更快（即它们在 B 的较低水平上就能达到目标响应）——他们想查明这种情况是否确实发生，以及两种实验处理中的哪一种看起来更好（在给定的 B 水平上具有更高的平均响应，则“更好”）。</p>
+<p>这些数据的交互图为：</p>
+<div class="inline-figure"><img src="figure/figure%20259.png#center" style="width:60.0%"></div>
+<p>正如预期的那样，实线（因子 A 的水平 C）近似线性。虚线是 E1 和 E2 在 B 水平上的均值轮廓，看起来稍微呈曲线状。E2 的轮廓似乎始终大于 E1.</p>
+<p>对于对这些数据有用的线性预测器，它必须能够解释对 B 水平的曲线响应。可能的线性预测器为：</p>
+<p><span class="math display">\[\eta_{ij}=\eta+\alpha_i+\left(\beta_1+\delta_i\right)X_j+\left(\beta_2+\gamma_i\right)X_j^2+\beta_j+\left(\alpha\beta\right)_{ij}\]</span></p>
+<p>其中 <span class="math inline">\(\beta_2\)</span> 是二次回归系数，<span class="math inline">\(\gamma_i\)</span> 表示二次回归的第 <span class="math inline">\(i\)</span> 个处理效应，<span class="math inline">\(\beta_j\)</span> 是除了线性和二次回归之外，因子 B 主效应的总和 (catch-all)，<span class="math inline">\((\alpha\beta)_{ij}\)</span> 是除了 <span class="math inline">\(\delta_{ij}X\)</span> 和 <span class="math inline">\(\gamma_{ij}\)</span> 之外，AB 交互效应的总和。你可以将总和项视为二次回归欠拟合的部分。实现该模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=a;
+ class a b;
+ model y=a|x|x a|b/htype=1;</code></pre>
+<p>语句 <code>A|X|X</code> 是 SAS 建模中 <code>A X A*X X*X A*X*X</code> 的简写，是 <span class="math inline">\(\alpha_i+\begin{pmatrix}\beta_1+\delta_i\end{pmatrix}X_j+\begin{pmatrix}\beta_2+\gamma_i\end{pmatrix}X_j^2\)</span> 的 SAS 建模语言。而项 <code>A|B</code> 则定义了线性预测器的 <span class="math inline">\(\beta_j+\left(\alpha\beta\right)_{ij}\)</span> 分量。选项 <code>HTYPE=1</code> 要求进行本章前面定义的“ 1 型”检验，即序贯检验。在这里，它们显然是必要的，因为我们要首先检验截距和 A 主效应项，然后是线性回归，然后是二次等等。如果你愿意，你可以尝试默认的 3 型检验，你会立即明白为什么它对我们没有用。1 型检验的结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20260.png#center" style="width:60.0%"></div>
+<p>我们看到两个欠拟合项 <code>B</code> 和 <code>A*B</code> 的 <span class="math inline">\(p\)</span> 值远未达到统计显著性，因此我们可以放心地得出结论，不等系数二次回归模型提供了足够的拟合。<code>X*X*A</code> 的 <span class="math inline">\(F\)</span> 值检验 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\gamma_i = 0\)</span>，即 B 水平回归的二次分量对于所有三种处理都是相同的。</p>
+<p><span class="math inline">\(p\)</span> 值为 0.1264 表明我们缺乏证据来拒绝这一假设。如果我们接受它，我们将从模型中移除 <span class="math inline">\(\gamma_i\)</span>，从而使用一个具有不等线性回归分量、相等二次分量的模型进行推断。然而，这似乎存在问题，原因有二。首先，这与关于处理在 B 的不同水平上的响应的研究动机不一致。其次，它与我们在交互图中看到的视觉证据相矛盾。可能是 <code>X*X*A</code> 的两个自由度分解为一个基本上为零的对比和一个相当显著的对比。考虑到交互图和预先研究的理论，一个合理的猜测是 E1 和 E2 的二次分量几乎相同，但它们的平均值与 C 的二次分量相差很大。</p>
+<p>为评估这一点，我们需要定义分别检验 <span class="math inline">\(H_0\colon\gamma_{\small E1}=\gamma_{\small E2}\)</span> 和 <span class="math inline">\(H_0\colon\gamma_C=\frac{\gamma_{\small E1}+\gamma_{\small E2}}{2}\)</span> 的对比。或者，我们可以按照 <a href="chap8.html#eq:8-6">(8.6)</a> 的方式重新参数化模型：<span class="math inline">\(\eta_{ij}=\beta_{0i}+\beta_{1i}X_j+\beta_{2i}X_j^2\)</span> 并检验 <span class="math inline">\(H_0\colon\beta_{2,E1}=\beta_{2,E2}\)</span> 和 <span class="math inline">\(H_0\colon\beta_{2,C}=\left(\frac{\beta_{2,E1}+\beta_{2,E2}}{2}\right)\)</span>。后者的优点是它还允许我们直接估计二次回归方程，而不是以过度参数化、难以解释的形式获得估计，相应的 GLIMMIX 语句是：</p>
+<pre class="sas"><code>proc glimmix data=a;
+ class a b;
+ model y=a x(a) x2(a)/noint solution;
+ contrast ‘quad c vs quad e1+e2’ x2(a) 2 -1 -1;
+ contrast ‘quad e1 v e2’ x2(a) 0 1 -1;</code></pre>
+<p>术语 <code>X2</code> 是 <code>X*X</code> ——你必须在数据步骤中定义该项。项 <code>A</code> 和 <code>X(A)</code> 与我们之前在不等斜率 ANCOVA 模型中看到的含义相同；<code>X2(A)</code> 对应于 <span class="math inline">\(\beta_{2i}X_j^2\)</span>。输出：</p>
+<div class="inline-figure"><img src="figure/figure%20261.png#center" style="width:70.0%"></div>
+<p>参数估计给出了每种处理的截距、线性和二次回归系数的估计。请注意，对于处理 C 的二次分量检验，<span class="math inline">\(p = 0.7114\)</span>。对于处理 E1 和 E2，<span class="math inline">\(p\)</span> 值均 <span class="math inline">\(&lt;0.01\)</span>。
+这提供了支持最初信念的证据，即处理 C 的响应呈线性增加，而处理 E1 和 E2 的响应呈曲线增加。对比结果提供了这样的证据：E1 和 E2 的二次系数彼此相似，但与 C 不同。</p>
+<p>推断将沿着与不等斜率 ANCOVA 模型中的处理比较相同的线路继续进行。我们可能想要通过回归估计来确定在 B 的哪个水平上，E2 的平均响应大于等于 C 的平均响应。我们也想知道 E1 和 E2 是否有差异，如果有，差异有多大。我们首先通过比较它们的线性分量来做到这一点，如果它们没有显著差异，我们再比较它们的截距。如果回归分量没有差异，那么回归线是平行的；如果再加上截距不同，那么这些线不仅平行，并且一种处理在所有 B 的观测水平上始终高于另一种处理。</p>
+</div>
+</div>
+</div>
+</div>
+<div id="sec8-6" class="section level2" number="8.6">
+<h2>
+<span class="header-section-number">8.6</span> 多因素：全定量因素<a class="anchor" aria-label="anchor" href="#sec8-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>在所有处理或解释因素都是定量的结构中，我们扩展了上一节所使用的策略。假定我们能够确定解释变量和响应变量之间的函数关系，我们就可以根据多元回归来定义线性预测器。</p>
+<p>在许多情况下，二阶多项式回归就足够了。二阶多项式包括最高到主效应的二次项和仅包含线性-线性的双向交互项。这是经典的<strong>响应曲面模型</strong> (response surface model)，由 Myers, Montgomery and Anderson-Cook (2009)，Box, Hunter and Hunter (2005)，Khuri and Cornell (1996)，以及 Box and Draper (1987) 进行了深入的描述。通常，多项式方法是不够的，我们必须使用其他方法。重要的替代方法包括样条函数和非线性均值模型。</p>
+<p>有完整的课程专门介绍响应曲面方法，还有其他课程完全致力于非线性模型。这不是我们此处的目的。在本节中，我们通过两个因素的例子来介绍这些基本方法。在 <a href="chap8.html#sec8-6-1">8.6.1</a> 节中，我们考虑二阶多项式。在 <a href="chap8.html#sec8-6-2">8.6.2</a> 节中，我们考虑其他多元回归模型。同样，虽然所有的例子都使用了高斯数据，但我们的重点是线性预测器。我们讨论的每一个线性预测器都可以适应具有“广义”和“混合”特征或两者兼有的模型。</p>
+<div id="sec8-6-1" class="section level3" number="8.6.1">
+<h3>
+<span class="header-section-number">8.6.1</span> 二阶多项式，又称经典响应面线性预测器<a class="anchor" aria-label="anchor" href="#sec8-6-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>本示例的数据显示在 Data Set 8.5 中。我们在析因安排中因素 A 和 B，各有五个水平，总共 25 个处理组合。每个处理有来自完全随机设计的三个观测。以下显示了 25 种处理组合均值的三维图形。</p>
+<div class="inline-figure"><img src="figure/figure%20262.png#center" style="width:60.0%"></div>
+<p>此图显示了与二阶多项式回归相关的特征形状——具有视觉上可识别的最大或最小响应的穹顶或倒穹顶形状。二次主效应回归解释了曲线型分布，线性×线性项解释了倾斜度。通常，估计使响应最大化或最小化的因素组合是数据分析的主要目标。在本例中，假定响应值越低越好，我们发现在 A 轴和 B 轴上，在 3 附近似乎都存在一个最小值。二阶多项式线性预测器使我们能够通过普通微积分确定使响应最小化（或最大化）的处理组合，假设模型提供了适当的拟合，这是一个明显的优势。</p>
+<p>当我们将二次定性定量模型拟合到 Data Set 8.3 时，我们开始使用与上一节中看到的相同策略。在这里，我们从线性预测器开始：</p>
+<p><span class="math display" id="eq:8-7">\[\begin{align}
+\eta_{ij}=\beta_0+\beta_{1A}X_A+\beta_{1B}X_B+\beta_{2A}X_A^2+\beta_{2B}X_B^2+\beta_{12}X_AX_B+(\alpha\beta)_{ij}
+\tag{8.7}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(X_k; k = A,B\)</span> 表示因素 A 和 B 的定量水平，<span class="math inline">\(\beta_{1,k}\)</span> 表示线性回归系数，<span class="math inline">\(\beta_{2,k}\)</span> 表示二次回归系数，<span class="math inline">\(\beta_{12}\)</span> 表示线性交互系数，<span class="math inline">\((\alpha\beta)_{ij}\)</span> 作为所有高阶主效应（此时为三次和四次）和除线性相互作用项以外的所有相互作用项的总和项。我们将 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 解释为<strong>欠拟合</strong> (lack of fit) 项。虽然这里没有显示，但与上一节中的定性定量示例一样，我们可以划分 <span class="math inline">\((\alpha\beta)_{ij}\)</span>。</p>
+<p><a href="chap8.html#eq:8-7">(8.7)</a> 所需的 GLIMMIX 语句为</p>
+<pre class="sas"><code>proc glimmix;
+ class a b;
+ model response=xa|xa|xb|xb@2 a*b/htype=1;</code></pre>
+<p>语法 <code>xa|xa|xb|xb@2</code> 是 <code>xa xb xa*xa xb*xb xa*xb</code> 的 SAS 建模简写，其中 <code>XA</code> 和 <code>XB</code> 分别表示与因素 A 和 B 水平相对应的量。选项 <code>@2</code> 将可能的 <code>XA</code> 与 <code>XB</code> 的组合限制为二阶项——否则 SAS 会将命令解释为包括三阶和四阶项，例如二次-二次交互作用 <code>xa*xa*xb*xb</code>。模型中的 CLASS A B 和 <code>a*b</code> 定义了欠拟合项。与上一节中的定性定量示例一样，我们希望在这里使用 1 型或序贯拟合检验——使用默认的 3 型方法会产生无意义的结果。</p>
+<div class="rmdcaution">
+<p>为什么在这个例子中，3 型检验会给出无意义的结果？3 型检验，或称为部分检验，根据定义，是在拟合了其他所有效应之后检验每个效应。对于回归效应，这意味着首先拟合所有 A×B 效应 <span class="math inline">\((\alpha\beta)_{ij}\)</span>，然后再拟合回归效应。但如果你首先拟合了所有 A×B 效应，那么就没有剩余的要拟合的内容了！这与首先拟合所有回归效应，然后再拟合 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 的做法非常不同。对于后者，<span class="math inline">\((\alpha\beta)_{ij}\)</span> 拟合的是拟合回归方程后剩余的部分。</p>
+</div>
+<p>1 型检验结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20264.png#center" style="width:60.0%"></div>
+<p>这里最重要的结果是与欠拟合项 A*B 相关的 <span class="math inline">\(F\)</span> 值和 <span class="math inline">\(p\)</span> 值；<span class="math inline">\(p=0.67\)</span> 告诉我们，二阶多项式回归没有欠拟合的证据。</p>
+<p>然后我们从线性预测器中删除 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 以估计二阶回归方程，等等。这些留作练习。</p>
+</div>
+<div id="sec8-6-2" class="section level3" number="8.6.2">
+<h3>
+<span class="header-section-number">8.6.2</span> 其他定量-定量模型<a class="anchor" aria-label="anchor" href="#sec8-6-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>在许多情况下，二阶多项式不能提供足够的拟合。此外，即使我们最终能够确定一个在数学上提供足够拟合的高阶多项式，这样的模型通常也几乎无法提供与研究目标相关的有用见解。上例中所示的一般策略仍然适用：如果可能，我们希望使用某种形式的回归，而不是基于效应的线性预测器。其他回归函数包括正弦和余弦函数、非线性函数和样条函数。当因子水平有规律地、周期性变化时，正弦和余弦函数非常有用，例如在每日、每月、季节和其他时间序列中。本节给出了两个例子；一个涉及非线性形式的响应曲面建模，另一个涉及样条函数。寻求时间序列入门的读者可以参考 Box and Jenkins (2008)；非线性模型可以参考 Watts and Bates (1988)、Gallant (1987) 或 Davidian et al. (1995)；样条回归参见 Rupert、Carroll and Wand (2003) 和 Gu (2002).</p>
+<div id="sec8-6-2-1" class="section level4" number="8.6.2.1">
+<h4>
+<span class="header-section-number">8.6.2.1</span> 非线性均值模型<a class="anchor" aria-label="anchor" href="#sec8-6-2-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>从 GLMM 的角度来看，这些模型是线性的，因为我们通过固定效应和随机效应部分的加性函数对链接进行建模。然而，我们有 <span class="math inline">\(\eta=f(\symbf{X},\symbf\beta)+\symbf{Zb}\)</span>，而不是线性预测器 <span class="math inline">\(\eta=\symbf{X\beta}+\symbf{Zb}\)</span>，其中 <span class="math inline">\(f(\symbf{X},\symbf\beta)\)</span> 不一定是线性的。</p>
+<p>例如，Data Set 8.6 包含来自一项研究的数据，该研究的设计结构与 Data Set 8.5 类似，但这两个因素水平上的响应轮廓似乎并不适合多项式回归。这些是模拟数据，但响应轮廓受到了 Landes et al. (1999), Paparozzi et al. (2005), Stroup et al. (2006) 和 Frenzel et al. (2010) 讨论的非线性植物营养剂量响应轮廓的驱动。</p>
+<div class="inline-figure"><img src="figure/figure%20265.png#center" style="width:100.0%"></div>
+<p>散点图（左）显示了实际数据点；纵轴是响应；下方的两个轴表示因素 A 和 B 的水平。右图显示了连接这些点的线，从而更容易看到数据的响应轮廓。右下角对应于 A 和 B 的最低水平。沿着 A 和 B 轴，我们看到响应突然上升，随后是一个较长的平稳期。如果我们拟合一个二阶多项式，我们得到一个响应面估计，如下图所示。</p>
+<div class="inline-figure"><img src="figure/figure%20266.png#center" style="width:70.0%"></div>
+<p>二次回归无法捕捉到突然上升和随后的长期平稳期。相反，它模糊了这两个特征，并产生了对曲面的不良近似。显然，我们预计使用二阶近似会导致不准确的结论和不恰当的建议。</p>
+<p>Olson et al. (2001) 提出了一种使用 Hoerl 函数线性化形式的替代二阶响应面模型。在 GLMM 术语中，线性预测器为：</p>
+<p><span class="math display" id="eq:8-8">\[\begin{align}
+\eta_{ij}=\beta_{0}+\beta_{1,A}X_{A}+\beta_{1,B}X_{B}+\beta_{11}X_{A}X_{B}+\beta_{2,A}L_{A}+\beta_{2,B}L_{B}+\beta_{22}L_{A}L_{B}
+\tag{8.8}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(L_k=\log\bigl(X_k\bigr);k=A,B\)</span>。在 <a href="chap8.html#eq:8-8">(8.8)</a> 中，我们通过对数而不是二次项对响应面的曲线分量进行建模，并使用对数和线性项的乘积对交互作用进行建模。所得的响应面估计为</p>
+<div class="inline-figure"><img src="figure/figure%20267-1.png#center" style="width:70.0%"></div>
+<p>拟合有明显的改进。Guo et al. (2006) 表明，这种方法允许我们使用有效的不完全析因设计，特别适合在资源高度受限时估计 Nelson and Anderson (1975) 所说的“线性平台”响应轮廓。</p>
+<p>我们也可以使用显式非线性 <span class="math inline">\(\eta_{ij}\)</span>。同样来自 Guo 等人的一个例子是 Gompertz 函数的二元扩展：</p>
+<p><span class="math display" id="eq:8-9">\[\begin{align}
+\eta_{ij}=\alpha+\exp\left\{-\beta\times\exp\left[-\gamma_1X_A-\gamma_2X_B-\gamma_{12}X_AX_B\right]\right\}
+\tag{8.9}
+\end{align}\]</span></p>
+<p>Gompertz 得到了如下的响应面估计：</p>
+<div class="inline-figure"><img src="figure/figure%20267-2.png#center" style="width:70.0%"></div>
+<p>线性化的 Hoerl 和 Gompertz 函数为这些数据产生了相似的拟合。Hoerl 方法的主要优势在于易于识别合适的有效设计和能够使用线性模型软件进行估计。Gompertz 等非线性模型的优势在于建模非标准响应轮廓的灵活性更大，以及非线性模型的参数本身更易于进行有意义的解释。例如，在 Gompertz 模型中，<span class="math inline">\(\alpha,\beta\)</span> 和 <span class="math inline">\(\gamma\)</span> 分别定义了截距、响应的渐近线或平台值以及因素 A 和 B 水平上的增加率。</p>
+</div>
+<div id="sec8-6-2-2" class="section level4" number="8.6.2.2">
+<h4>
+<span class="header-section-number">8.6.2.2</span> 样条或分段回归<a class="anchor" aria-label="anchor" href="#sec8-6-2-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>一些响应轮廓无法通过单一函数形式来表征。<strong>分段</strong>或<strong>样条</strong> (segmented or spline) 回归将响应轮廓划分为可修改为更简单的回归模型的部分。第 <a href="#chap16"><strong>??</strong></a> 章详细介绍了平滑样条，它为我们提供了一种处理不规则回归曲线的有用方法。这种方法特别适合 GLMM. Ruppert et al. (2003) 给出线性样条函数为 <span class="math inline">\(\beta_0+\beta_1X_i+\sum_{j=1}^K\gamma_jI\Big(X_i&gt;t_j\Big)\Big(X_i-t_j\Big)\)</span>，其中 <span class="math inline">\(I(X_i&gt;t_j)\)</span> 为定义在 <span class="math inline">\(X_i&gt;t_j\)</span> 上的指示函数。平滑样条程序通过最小化下式获得参数估计</p>
+<p><span class="math display" id="eq:8-10">\[\begin{align}
+\left(\symbf{y}^{*}{-}\symbf{X}\symbf{\beta}{-}\symbf{Z\gamma}\right)^{\prime}\left(\symbf{y}^{*}{-}\symbf{X}\symbf{\beta}{-}\symbf{Z\gamma}\right)+\lambda^{2}\symbf\gamma^{\prime}\symbf\gamma
+\tag{8.10}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf y^*\)</span> 对应于 PL 估计中的伪变量，<span class="math inline">\(\symbf{X\beta}\)</span> 表示样条模型的 <span class="math inline">\(\beta_0+\beta_1 X\)</span> 分量，<span class="math inline">\(\symbf{Z\gamma}\)</span> 表示其余部分，<span class="math inline">\(\lambda\)</span> 是一个调整常数 (tuning constant). 如果我们将线性样条视为伪模型 (pseudo-model) <span class="math inline">\(\symbf{y}^*=\symbf{X}\symbf{\beta}+\symbf{Z}\gamma+\symbf{e}\)</span> 的特例，其中 <span class="math inline">\(Var\left(\symbf{e}\right)=\phi\symbf{I}\)</span> 且 <span class="math inline">\(Var\left(\gamma\right)=\sigma^2\symbf{I}\)</span>，Schabenberger (2008) 表明调整常数 <span class="math inline">\(\lambda=\phi/\sigma\)</span>，并且可以使用 PL 估计算法来估计线性样条。</p>
+<p>作为示例，Data Set 8.7 包含了在 X 轴上的多个点进行观测的两种处理的数据。在用于估计模型的 GLIMMIX 语句之后，下面展示了数据的图形以及平滑样条回归的估计。这些 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=spline;
+ class a;
+ effect spline_x=spline(x /knotmethod=rangefractions 
+    (0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9));
+ model y=a|spline_x / /*noint*/ solution;
+ output out=gmxout pred=p;
+run;
+proc sgplot data=gmxout;
+ series y=p x=x / group=a name=“fit”;
+ scatter y=y x=x / group=a;
+ keylegend “fit” / title=”A”;
+run;</code></pre>
+<p>因素 A 为定性处理因子；X 是定量因素。EFFECT 语句定义 X 上的样条，并使用 <code>RANGEFRACTION</code> 选项定义回归分段的 <span class="math inline">\(t_j\)</span> 值。对于 <code>RANGEFRACTION</code>，这些点是根据 X 值范围的小数形式的百分比来定义的。在实践中，在选择范围分数时需要进行一些试验和错误，以在简约性和响应曲线的充分表征之间取得平衡。</p>
+<p>在这里，我们展示了检验模型效应的结果以及样条回归关于观测数据的拟合图。</p>
+<div class="inline-figure"><img src="figure/figure%20269-1.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20269-2.png#center" style="width:60.0%"></div>
+<p>从图中我们可以看到，随着 X 水平的变化，响应似乎在 X 轴上呈间断性的激增，并且这些激增的位置和幅度在因素 A 的两个水平之间有所不同。</p>
+</div>
+</div>
+</div>
+<div id="sec5-7" class="section level2" number="8.7">
+<h2>
+<span class="header-section-number">8.7</span> 总结<a class="anchor" aria-label="anchor" href="#sec5-7"><i class="fas fa-link"></i></a>
+</h2>
+<p>这就结束了我们对处理和解释变量结构的线性预测器和推断策略的初步考虑。你从本章中应该掌握的主要思想是：</p>
+<ul>
+<li><p>线性预测器的 <span class="math inline">\(\symbf{X\beta}\)</span> 分量的形式需要反映解释变量或处理设计中的因素类型以及研究目标。精心选择的 <span class="math inline">\(\symbf{X\beta}\)</span> 可以实现清晰的分析。选择不当的 <span class="math inline">\(\symbf{X\beta}\)</span> 往往会带来混乱而不是启发。</p></li>
+<li><p>避免一刀切的规则。食谱（走得太远）是不好的——深思熟虑更难，但效果会好很多。当你发现食谱开始阻碍你的思考，或者当你不再思考而只是“套用公式”时，你就知道你已经走得太远了。</p></li>
+<li><p>检验顺序会对你检验的内容会产生巨大影响。对于不均衡的数据，你实际检验的内容可能与你认为正在检验的内容大相径庭。</p></li>
+<li><p>确保你知道你正在检验什么。如果你无法以可估函数形式表达你正在检验的内容，那就停下来，直到你能表达为止。</p></li>
+<li><p>多因素模型提出了有关 <span class="math inline">\(\symbf{X\beta}\)</span> 的最具挑战性的建模问题。</p></li>
+<li>
+<p>共同主题有：</p>
+<ul>
+<li>首先检验交互作用。</li>
+<li>不可忽略的交互作用要求仅对简单效应进行推断。</li>
+<li>交互作用的缺失要求仅对主效应进行推断。</li>
+<li>当多重性问题出现时，需要予以处理。</li>
+<li>有时，研究的具体背景会凌驾于上述所有内容之上。</li>
+</ul>
+</li>
+<li>
+<p>出发点：</p>
+<ul>
+<li>一般来说，定性效应需要效应模型。</li>
+<li>只要有可能，尝试用回归模型来表达定量因素的效应。</li>
+<li>回归不仅仅意味着多项式回归。</li>
+</ul>
+</li>
+</ul>
+<p>在本书的其余部分中，我们将再次讨论本章中的大多数模型形式。请参考本章以了解线性预测器中处理设计部分的基本模板和动机。其余章节主要关注线性预测器中随机部分 <span class="math inline">\(\symbf{Zb}\)</span> 的各种形式、<span class="math inline">\(\symbf R\)</span>（对于 LMMs）或工作相关结构（对于 GLMMs 的边际推断）、观测的分布以及连接的各种形式。</p>
+
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></div>
+<div class="next"><a href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap8"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="nav-link" href="#sec8-1"><span class="header-section-number">8.1</span> 处理结构类型</a></li>
+<li>
+<a class="nav-link" href="#sec8-2"><span class="header-section-number">8.2</span> 可估函数的类型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec8-2-1"><span class="header-section-number">8.2.1</span> 经典 ANOV 缩减平方和的关系</a></li>
+<li><a class="nav-link" href="#sec8-2-2"><span class="header-section-number">8.2.2</span> 我们如何知道我们正在检验什么？</a></li>
+<li><a class="nav-link" href="#sec8-2-3"><span class="header-section-number">8.2.3</span> 如何决定要检验什么，而不是让它为我们决定</a></li>
+<li><a class="nav-link" href="#sec8-2-4"><span class="header-section-number">8.2.4</span> 多重性</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec8-3"><span class="header-section-number">8.3</span> 多因素模型：概述</a></li>
+<li>
+<a class="nav-link" href="#sec8-4"><span class="header-section-number">8.4</span> 全定性因素多因素模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec8-4-1"><span class="header-section-number">8.4.1</span> 选项的回顾</a></li>
+<li><a class="nav-link" href="#sec8-4-2"><span class="header-section-number">8.4.2</span> 定性因素推断工具：“SLICE”, “SLICEDIFF” 等工具</a></li>
+<li><a class="nav-link" href="#sec8-4-3"><span class="header-section-number">8.4.3</span> 多重性调整</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec8-5"><span class="header-section-number">8.5</span> 多因素：部分定性，部分定量</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec8-5-1"><span class="header-section-number">8.5.1</span> 线性预测器的通用形式</a></li>
+<li><a class="nav-link" href="#sec8-5-2"><span class="header-section-number">8.5.2</span> 通用线性预测器的多种用途</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec8-6"><span class="header-section-number">8.6</span> 多因素：全定量因素</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec8-6-1"><span class="header-section-number">8.6.1</span> 二阶多项式，又称经典响应面线性预测器</a></li>
+<li><a class="nav-link" href="#sec8-6-2"><span class="header-section-number">8.6.2</span> 其他定量-定量模型</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec5-7"><span class="header-section-number">8.7</span> 总结</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

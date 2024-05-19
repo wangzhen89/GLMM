@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 6 章 推断（一） | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="6.1 介绍 在第 5 章中，我们重点讨论了 GLMM 估计。在第 6 - 7 章中，我们将注意力转向推断。第 6 章涉及在线性预测器效应 \(\symbf\beta\) 和 \(\symbf b\) 上定义的可估和可预测函数。第 7 章涉及 \(\symbf\sigma\) 的元素：方差和协方差分量。...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 6 章 推断（一） | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="6.1 介绍 在第 5 章中，我们重点讨论了 GLMM 估计。在第 6 - 7 章中，我们将注意力转向推断。第 6 章涉及在线性预测器效应 \(\symbf\beta\) 和 \(\symbf b\) 上定义的可估和可预测函数。第 7 章涉及 \(\symbf\sigma\) 的元素：方差和协方差分量。...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 6 章 推断（一） | 广义线性混合模型">
+<meta name="twitter:description" content="6.1 介绍 在第 5 章中，我们重点讨论了 GLMM 估计。在第 6 - 7 章中，我们将注意力转向推断。第 6 章涉及在线性预测器效应 \(\symbf\beta\) 和 \(\symbf b\) 上定义的可估和可预测函数。第 7 章涉及 \(\symbf\sigma\) 的元素：方差和协方差分量。...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="active" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap6" class="section level1" number="6">
+<h1>
+<span class="header-section-number">第 6 章</span> 推断（一）<a class="anchor" aria-label="anchor" href="#chap6"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec6-1" class="section level2" number="6.1">
+<h2>
+<span class="header-section-number">6.1</span> 介绍<a class="anchor" aria-label="anchor" href="#sec6-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap5.html#chap5">5</a> 章中，我们重点讨论了 GLMM 估计。在第 <a href="chap6.html#chap6">6</a> - <a href="chap7.html#chap7">7</a> 章中，我们将注意力转向推断。第 <a href="chap6.html#chap6">6</a> 章涉及在线性预测器效应 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 上定义的可估和可预测函数。第 <a href="chap7.html#chap7">7</a> 章涉及 <span class="math inline">\(\symbf\sigma\)</span> 的元素：方差和协方差分量。</p>
+<p>我们所说的推断是指区间估计（置信区间的构建和解释）以及假设检验。对于线性预测器效应，所有推断都始于可估和可预测函数。这些在第 <a href="chap3.html#chap3">3</a> 章介绍过。第 <a href="chap4.html#chap4">4</a> 章正式定义了经典 LM 设定的可估函数。</p>
+<p>在本章中，我们将经典 LM 概念扩展到 GLMM 设定中的可估和可预测函数。其中包括处理均值、差异、几率比、对比、回归模型的预测值、析因处理结构的主/简单/交互效应等。对于混合模型，所有模型都具有总体平均、广义推断形式和个体特定或狭义推断形式。对于具有非恒等连接的模型，以上所有这些都被定义，并且在模型尺度上进行推断。然而，推断结果既可在模型尺度上表达，也可在数据尺度上表达。</p>
+<p>本章的目标是对“GLMM 黑匣子内部”所发生的事情形成一种强烈的、面向实际应用的意识。在许多情况下，我们会发现存在替代方法，还会发现熟练使用 GLMM 推断要求知晓哪些工具适用于哪种应用场景——以及何时即使可以使用但也不应使用某些工具。我们重点关注证明用于线性模型工作中区间估计和假设检验程序的基本思维过程，但我们会避免严格正式的、基于定理证明的数理统计学和概率论。在其中几个方面，我们借鉴了重要的矩阵理论与方法，其中一些在第 <a href="chap4.html#chap4">4</a> 章中已介绍，其余部分则在附录“线性模型的矩阵代数”<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：第二版原书未提供，可能之后会在原书的出版社网站上提供。不过译者在原书第一版中发现了，后续会更新。下同。&lt;/p&gt;"><sup>14</sup></a>中给出。</p>
+</div>
+<div id="sec6-2" class="section level2" number="6.2">
+<h2>
+<span class="header-section-number">6.2</span> GLMM 背景下的可估性<a class="anchor" aria-label="anchor" href="#sec6-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>回想第 <a href="chap3.html#chap3">3</a> 章，若 <span class="math inline">\(\symbf{K'\beta}\)</span> 可估，则表示为 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span> 的模型效应线性组合称为可预测函数。对于仅固定效应模型，我们只能构造可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span>。对于混合模型，我们可以构造可估或可预测函数；令 <span class="math inline">\(\symbf M =\symbf 0\)</span> 产生可估函数。我们使用可预测函数进行狭义或特定个体推断，这由 <span class="math inline">\(\symbf M\)</span> 所定义。我们使用可估函数进行广义或总体平均推断。在本节中，我们将扩展在 GLMM 设定中，<span class="math inline">\(\symbf{K'\beta}\)</span> 必须满足的条件才能视为可估的正式标准。在后续小节中，我们将概述用于可估和可预测函数的两种最常见推断形式的策略：区间估计和假设检验。</p>
+<div id="sec6-2-1" class="section level3" number="6.2.1">
+<h3>
+<span class="header-section-number">6.2.1</span> 确定可估性的标准<a class="anchor" aria-label="anchor" href="#sec6-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>所有可估函数都有形如 <span class="math inline">\(\symbf{K'\beta}\)</span> 的一般形式。然而，并不是所有 <span class="math inline">\(\symbf{K'\beta}\)</span> 都是可估的。回想第 <a href="chap4.html#chap4">4</a> 章，为了使 <span class="math inline">\(\symbf{K'\beta}\)</span> 可估，我们必须能够将其写为 <span class="math inline">\(E(\symbf y )\)</span> 的线性组合；正式地</p>
+<p><span class="math display" id="eq:6-1">\[\begin{align}
+\text{若存在矩阵}\;\;\symbf T \;\;使得\;\;\symbf{T}′E(\symbf y) = \symbf{K'\beta}\;\;则\;\; \symbf{K'\beta}\;\;可估
+\tag{6.1}
+\end{align}\]</span></p>
+<p>GLMM 使用同一概念的扩展。考察候选矩阵可估性的一种方法是使用以下结果</p>
+<p><span class="math display" id="eq:6-2">\[\begin{align}
+\symbf{K'\beta}\;\;可估当且仅当\;\;\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{X}=\symbf{K}^{\prime}
+\tag{6.2}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\((\symbf{X}^{\prime}\symbf{X})^-\)</span> 表示 <span class="math inline">\(\symbf{X}^{\prime}\symbf{X}\)</span> 的广义逆。遵循 Searle (1971) 我们证明该结论。首先，假设 <span class="math inline">\(\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{X}=\symbf{K}^{\prime}\)</span>。令 <span class="math inline">\(\symbf T'=\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\)</span> 得到 <span class="math inline">\(\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{X}=\symbf{T}^{\prime}\symbf{X}=\symbf{K}^{\prime}\)</span>，由定义可得 <span class="math inline">\(\symbf{K'\beta}\)</span> 可估。现假设 <span class="math inline">\(\symbf{K'\beta}\)</span> 可估，那么 <span class="math inline">\(\symbf K'=\symbf{T'X}\)</span>，两边同时右乘 <span class="math inline">\((\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{X}\)</span> 得到 <span class="math inline">\(\symbf{K^{\prime}}(\symbf{X^{\prime}}\symbf{X})^-(\symbf{X^{\prime}}\symbf{X})=\symbf{T^{\prime}}\symbf{X}(\symbf{X^{\prime}}\symbf{X})^-(\symbf{X^{\prime}}\symbf{X})=\symbf{T^{\prime}}\symbf{X}=\symbf{K^{\prime}}\)</span>。从而得证。</p>
+<p>例如，在具有线性预测器 <span class="math inline">\(\mu+\tau_i(i=1,2)\)</span> 的两处理模型中，处理均值 <span class="math inline">\(\mu+\tau_i\)</span> 和差异 <span class="math inline">\(\tau_1-\tau_2\)</span> 可估的，但截距参数 <span class="math inline">\(\mu\)</span> 和处理效应参数 <span class="math inline">\(\tau_i\)</span> 本身不可估。我们可以从几个方面来看待这一点。首先，应用定义。要估计 <span class="math inline">\(\mu\)</span>，我们需要满足</p>
+<p><span class="math display">\[\mu=\sum_{i,j}t_{ij}E\left(y_{ij}\right)=\sum_{i,j}t_{ij}\left(\mu+\tau_i\right)=\sum_{i,j}t_{ij}\mu+\sum_{i,j}t_{ij}\tau_i\]</span></p>
+<p>这要求 <span class="math inline">\(\sum_{i,j}t_{ij}\)</span> 等于 <span class="math inline">\(1\)</span>（对于 <span class="math inline">\(\mu\)</span>）和 <span class="math inline">\(0\)</span>（对于每个 <span class="math inline">\(\tau_i\)</span>）同时发生，而这不可能。其次，我们可以应用 <span class="math inline">\(\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{X})^-\symbf{X}^{\prime}\symbf{X}=\symbf{K}^{\prime}\)</span> 标准。对于 <span class="math inline">\(\mu\)</span>，<span class="math inline">\(\symbf K'=\begin{bmatrix}1&amp;0&amp;0\end{bmatrix}\)</span>。但 <span class="math inline">\(\symbf{K^{\prime}(X^{\prime}X)}^{-}\symbf{X^{\prime}X}=\begin{bmatrix}2/3&amp;1/3&amp;1/3\end{bmatrix}\neq\symbf{K^{\prime}}\)</span>。</p>
+<p>为什么可估性很重要？简言之，在非满秩模型中（例如，所有 ANOVA 型效应模型），对于效应本身的估计方程解没有内在意义。他们的解完全取决于所使用的广义逆，而理论告诉我们，构造广义逆的方法有无限多种。另一方面，可估函数对于广义逆的选择是不变的，因此具有赋值意义。效应估计本身没有任何合理的解释，而可估函数有。</p>
+</div>
+<div id="sec6-2-2" class="section level3" number="6.2.2">
+<h3>
+<span class="header-section-number">6.2.2</span> 可估性与 GLMMs<a class="anchor" aria-label="anchor" href="#sec6-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于 LMMs，LM 可估性的扩展是直接的。LMM 对条件均值建模，即 <span class="math inline">\(E(\symbf{y}\mid\symbf{b})=\symbf{X\beta}+\symbf{Zb}\)</span>。因此 <span class="math inline">\(E\big(\symbf{y}\big)=E\left[E\left(\symbf{y}\mid\symbf{b}\right)\right]=\symbf{X}\symbf{\beta}\)</span>。此时，LM 可估性理论直接适用。</p>
+<div class="rmdcaution">
+<p><strong>重要结果</strong>：对于混合模型（LMMs 和 GLMMs），可估性<strong>仅</strong>取决于固定效应 <span class="math inline">\(\symbf{K'\beta}\)</span>。随机效应的线性组合与可估性标准无关。当我们考虑区组时，将区组定义为固定或随机效应的影响，以及这些问题扩展到具有多个随机变量来源的设计时（例如，裂区和重复测量数据），这一点变得非常重要。我们将在第 <a href="chap9.html#chap9">9</a> 章和第 <a href="#chap17"><strong>??</strong></a> 章详细讨论这些问题。</p>
+</div>
+<p>使用非恒等连接的 GLMs 和 GLMMs 不直接对期望值进行建模。因此，LM 和 LMM 中的可估性定义不能按字面意思应用。相反，通过伪变量 <span class="math inline">\(\symbf y^*\)</span> 来考虑可估性标准。尽管 <span class="math inline">\(E(\symbf y^* )\)</span> 本身不是期望值，但从概念上可理解为使用 <span class="math inline">\(\symbf{X\beta+Zb}\)</span> 对 <span class="math inline">\(E(\symbf y^* \mid \symbf b )\)</span> 进行建模。从某种意义上说，逆连接 <span class="math inline">\(h(\symbf{X\beta+Zb})\)</span> 确实建模了 <span class="math inline">\(E(\symbf y \mid \symbf b )\)</span>。按照此思路，在 GLMM（和 GLM）中，若存在满足 <span class="math inline">\(\symbf T'E(\symbf y^*) =\symbf{K'\beta}\)</span> 的矩阵 <span class="math inline">\(\symbf T\)</span>，则 <span class="math inline">\(\symbf{K'\beta}\)</span> 定义为可估的。应用此定义，可估性完全取决于线性预测器的形式以及给定效应水平组合的观测存在与否。换言之，对于 LM 和 LMM 可估的函数 <span class="math inline">\(\symbf{K'\beta}\)</span>，对于 GLM 和 GLMM 也是可估的。类似地，对于 LM 和 LMM 不可估的任何 <span class="math inline">\(\symbf{K'\beta}\)</span>，对于 GLM 和 GLMM 也是不可估的。</p>
+</div>
+</div>
+<div id="sec6-3" class="section level2" number="6.3">
+<h2>
+<span class="header-section-number">6.3</span> 检验统计量、区间估计及相关的分布<a class="anchor" aria-label="anchor" href="#sec6-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>对 GLMM 位置度量的推断始于可预测函数 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span>，其中 <span class="math inline">\(\symbf{K'\beta}\)</span> 满足上文 <a href="chap6.html#sec6-2">6.2</a> 节给出的可估性标准。为便于讨论，我们使用符号 <span class="math inline">\(\symbf\psi=\symbf{K'\beta}+\symbf{M'b}\)</span> 作为可预测函数的简写。我们所说的推断是指检验一个假设，例如 <span class="math inline">\(H_0\colon\symbf\psi=\symbf\psi_0\operatorname{vs.}H_A\colon\symbf\psi\neq\symbf\psi_0\)</span>，或者获得 <span class="math inline">\(\symbf\psi\)</span> 的区间估计。</p>
+<p>首先考虑 <span class="math inline">\(\symbf K\)</span> 和 <span class="math inline">\(\symbf M\)</span> 是向量的情况，因此 <span class="math inline">\(\psi=\symbf{k'\beta+m'b}\)</span> 是标量。基本方法本质上与入门统计学中教授的检验和置信区间方法没有什么不同。具体来说，我们需要两个量：点估计和点估计的标准误。将它们分别表示为 <span class="math inline">\(\hat{\psi}\)</span> 和 <span class="math inline">\(s.e.(\hat{\psi})\)</span>。一般来说，用于检验和区间估计的推断统计量是统计量 <span class="math inline">\(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\)</span> 的变体。我们将 <span class="math inline">\(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\)</span> 转换为与所需检验或区间估计相关的形式，若存在精确结果，则确定其分布，否则确定其近似分布。根据该基本形式，我们可以执行以下操作。</p>
+<div class="rmdimportant">
+<p><strong>检验一个假设</strong>。在原假设 <span class="math inline">\(H_0\colon\psi=\psi_0\)</span> 下，<span class="math inline">\(E\left(\hat{\psi}\right)=\psi_0\)</span>。我们使用检验统计量</p>
+<p><span class="math display" id="eq:6-3">\[\begin{align}
+\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}
+\tag{6.3}
+\end{align}\]</span></p>
+<p>或</p>
+<p><span class="math display" id="eq:6-4">\[\begin{align}
+\left(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\right)^2
+\tag{6.4}
+\end{align}\]</span></p>
+<p>作为评估 <span class="math inline">\(H_0\)</span> 的标准。通常，若 <span class="math inline">\(s.e.(\hat{\psi})\)</span> 已知，则 <span class="math inline">\(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\)</span> 的参考分布为 <span class="math inline">\(N(0,1)\)</span> ——标准高斯（正态），而若 <span class="math inline">\(s.e.(\hat{\psi})\)</span> 是估计的，则参考分布为 <span class="math inline">\(t\)</span> 分布；而对于已知和估计的 <span class="math inline">\(s.e.(\hat{\psi})\)</span>，对于 <span class="math inline">\(\left(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\right)^2\)</span>，参考分布分别为 <span class="math inline">\(\chi^2\)</span> 和 <span class="math inline">\(F\)</span>。</p>
+</div>
+<div class="rmdimportant">
+<p><strong>构造置信区间</strong>。我们使用通用公式</p>
+<p><span class="math display" id="eq:6-5">\[\begin{align}
+\hat{\psi}\pm\left(“\text{表格值}"\right){\times}s.e.(\hat{\psi})
+\tag{6.5}
+\end{align}\]</span></p>
+<p>其中“表格值”对于已知的和估计的标准误分别为 <span class="math inline">\(N(0,1)\)</span> 和 <span class="math inline">\(t\)</span> 分布。</p>
+</div>
+<p>当 <span class="math inline">\(\symbf\psi=\symbf{K'\beta}+\symbf{M'b}\)</span> 是向量时，为检验假设，我们使用检验统计量 <span class="math inline">\(\left(\frac{\hat{\psi}-E(\hat{\psi})}{s.e.(\hat{\psi})}\right)^2\)</span> 的矩阵形式 <span class="math inline">\(\hat{\symbf{\psi}}^{\prime}\Big[Var\big(\hat{\symbf{\psi}}\big)\Big]^{-1}\hat{\symbf{\psi}}\)</span>，这是第 <a href="chap4.html#chap4">4</a> 章介绍的 Wald 统计量的 GLMM 形式，或 Wald 统计量的修改。</p>
+<p>以下各节给出了这些统计量的形式，具体取决于模型以及方差或其他尺度参数是否已知。对于 LM 和 LMM 的某些边际形式，我们可以导出精确的分布，如第 <a href="chap4.html#chap4">4</a> 章所示。分布结果大致适用于其他线性模型：一般的 LMMs 和所有广义模型—— GLM 和 GLMM. 我们现在从 LM 开始开发这些结果。</p>
+<div id="sec6-3-1" class="section level3" number="6.3.1">
+<h3>
+<span class="header-section-number">6.3.1</span> 推断统计量的分布（一）—— 具有已知 <span class="math inline">\(\symbf V\)</span> 的 LM<a class="anchor" aria-label="anchor" href="#sec6-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>回想，我们通过线性预测器 <span class="math inline">\(\symbf\eta=\symbf\mu=\symbf{X\beta}\)</span> 和响应变量分布 <span class="math inline">\(\symbf y\sim N(\symbf\mu,\symbf V)\)</span> 来指定 LM. 在此模型下，<span class="math inline">\(\symbf y\sim N(\symbf{X\beta},\symbf V)\)</span>。回想第 <a href="chap4.html#chap4">4</a> 章，我们可使用广义最小二乘估计方程 <span class="math inline">\(\symbf{X'V}^{-1}\symbf{X\beta}=\symbf{X'V}^{-1}\symbf{y}\)</span> 得到 <span class="math inline">\(\symbf\beta\)</span> 的一个解，表示为 <span class="math inline">\(\hat{\symbf\beta}\)</span>。因此 <span class="math inline">\(\tilde{\symbf{\beta}}=\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{X'V}^{-1}\symbf{y}\)</span>，其中 <span class="math inline">\(\left({\symbf{X^{\prime}V^{-1}X}}\right)^-\)</span> 是 <span class="math inline">\({\symbf{X^{\prime}V^{-1}X}}\)</span> 的广义逆。如果我们假定经典的“一般” LM，<span class="math inline">\(\symbf V=\symbf I\sigma^2\)</span>，则估计简化为普通最小二乘，即 <span class="math inline">\(\tilde{\symbf\beta}=(\symbf{X'X})^-\symbf X'\symbf V\)</span>。若 <span class="math inline">\(\symbf X\)</span> 满秩，则存在真逆 <span class="math inline">\((\symbf{X'V}^{-1}\symbf{X})^{-1}\)</span>，则解 <span class="math inline">\(\hat{\symbf\beta}\)</span> 是唯一的，可以称为<strong>估计</strong>，并表示为 <span class="math inline">\(\tilde{\symbf\beta}\)</span>。否则，若 <span class="math inline">\(\symbf X\)</span> 不满秩，则解 <span class="math inline">\(\hat{\symbf\beta}\)</span> 不唯一，但若 <span class="math inline">\(\symbf{K'\beta}\)</span> 可估，则 <span class="math inline">\(\symbf{K}'\tilde{\symbf\beta}\)</span> 是唯一的。我们重点关注 <span class="math inline">\(\symbf X\)</span> 不满秩这一更一般的情况。在这种一般情况下，我们讨论的重点是 <span class="math inline">\(\hat{\symbf{\psi}}=\symbf{K^{\prime}}\tilde{\symbf{\beta}}\)</span>。这里讨论的广义逆的任何结果也适用于存在真逆的模型，因为后者是前者的特例。</p>
+<p>在第 <a href="chap4.html#chap4">4</a> 章中，我们得出了当 <span class="math inline">\(\symbf y \sim N (\symbf{X\beta},\symbf I\sigma^2)\)</span> 以及 <span class="math inline">\(\symbf y \sim N (\symbf{X\beta}, \boldsymbol{\Sigma}\sigma^2)\)</span> 已知 <span class="math inline">\(\sigma^2\)</span> 和 <span class="math inline">\(\boldsymbol\Sigma\)</span> 时 LM 的结果。对于更一般的情况，<span class="math inline">\(\symbf y\sim N(\symbf{X\beta},\symbf V)\)</span>，其结果是稍微的扩展，如下所述。</p>
+<p>我们通过 <span class="math inline">\(\hat{\symbf{\psi}}=\symbf{K}^{\prime}\tilde{\symbf{\beta}}=\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^{-1}\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{y}\)</span> 来估计可估函数。对于已知的 <span class="math inline">\(\symbf V\)</span>，我们可利用以下结论：若 <span class="math inline">\(\symbf y \sim N (\symbf\mu,\symbf V)\)</span> 以及 <span class="math inline">\(\symbf A\)</span> 是已知的常数矩阵，则 <span class="math inline">\(\symbf{Ay} = N (\symbf{A\mu},\symbf{AVA}')\)</span>。令 <span class="math inline">\(\symbf{A}=\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\symbf{X}^{\prime}\symbf{V}^{-1}\)</span>，假定 <span class="math inline">\(\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\)</span> 为自反广义逆（见附录 <a href="#chapA"><strong>??</strong></a>），我们有 <span class="math inline">\(E\left(\symbf{K}'\tilde{\symbf\beta}\right)=E\left(\symbf{Ay}\right)=\symbf{K}^{\prime}\big(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\big)^{-}\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{\mu}=\symbf{K}^{\prime}\big(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\big)^{-}\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\symbf{\beta}=\symbf{K}^{\prime}\tilde{\symbf{\beta}}\)</span>。再次假定利用广义逆，我们还有 <span class="math inline">\(Var\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)=Var\left(\symbf{A}\symbf{y}\right)\symbf{~K}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\symbf{{X}}^{\prime}\symbf{V}^{-1}Var\left(\symbf{y}\right)\symbf{V}^{-1}\symbf{X}(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X})^-\symbf{{K}}=\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X})^-\symbf{{K}}\)</span>。</p>
+<p>因此，对于已知的 <span class="math inline">\(\symbf V\)</span>：</p>
+<p><span class="math display" id="eq:6-6">\[\begin{align}
+\hat{\symbf{\psi}}=\symbf{K}^{\prime}\tilde{\symbf{\beta}}\sim N\left(\symbf{K}^{\prime}\symbf{\beta},\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\symbf{{K}}\right)
+\tag{6.6}
+\end{align}\]</span></p>
+<p>由此可见，式 <a href="chap6.html#eq:6-3">(6.3)</a> 用于标量 <span class="math inline">\(\psi=\symbf{k'\beta}\)</span> 的检验统计量 <span class="math inline">\(\frac{\hat{\psi}-\psi_0}{s.e.(\hat{\psi})}\)</span> 有精确的 <span class="math inline">\(N(0,1)\)</span> 分布，而检验统计量 <span class="math inline">\(\left(\frac{\hat{\psi}-\psi_0}{s.e.(\hat{\psi})}\right)^2\)</span> 有精确的 <span class="math inline">\(\chi^2_{(1)}\)</span> 分布。根据标准正态分布确定置信区间表达式 <a href="chap6.html#eq:6-5">(6.5)</a> 的“表格值”。</p>
+<p>对于向量 <span class="math inline">\(\symbf{\psi} = \symbf{K'}\tilde{\symbf\beta}\)</span> 以及有关 <span class="math inline">\(H_0\colon \symbf\psi= \symbf 0\)</span> 的检验，Wald 检验统计量 <span class="math inline">\(\hat{\symbf{\psi}}'\left[Var\left(\hat{\symbf{\psi}}\right)\right]^{-1}\hat{\symbf{\psi}}\)</span> 具有精确的 <span class="math inline">\(\chi^2_{\operatorname{rank}(\symbf\psi)}\)</span> 分布。理由如下。根据第 <a href="chap4.html#chap4">4</a>，<span class="math inline">\(\symbf{v^{\prime}}\symbf{A}\symbf{v}\)</span> 定义为向量 <span class="math inline">\(\symbf v\)</span> 的二次型。对于 Wald 统计量，<span class="math inline">\(\symbf v = \hat{\symbf\psi}\)</span> 且 <span class="math inline">\(\symbf A = Var(\hat{\symbf\psi})\)</span>。此外，根据 <a href="chap6.html#eq:6-6">(6.6)</a>，我们知道 <span class="math inline">\(\hat{\symbf\psi}\)</span> 具有高斯分布。将 <span class="math inline">\(\hat{\symbf\psi}\)</span> 的方差表示为 <span class="math inline">\(\symbf V_{\hat{\symbf\psi}}\)</span> ，我们知道如果 <span class="math inline">\(\symbf{AV}_{\hat{\symbf \psi}}\)</span> 是幂等的，则二次型 <span class="math inline">\(\symbf{v}^{\prime}\symbf{A}\symbf{v}\)</span>，即 Wald 统计量 <span class="math inline">\(\hat{\symbf{\psi}}^{\prime}\Big[Var\big(\hat{\symbf{\psi}}\big)\Big]^{-1}\hat{\symbf{\psi}}\)</span>，具有非中心卡方分布。</p>
+<p>对于 LM，<span class="math inline">\(\symbf{V}_{\hat{\symbf\psi}}=\symbf{K}'\left(\symbf{X}'\symbf{V}^{-1}\symbf{X}\right)^-\symbf{{K}}\)</span> 以及 <span class="math inline">\(\symbf{A}=\left[\symbf{K}'\left(\symbf{X}'\symbf{V}^{-1}\symbf{X}\right)^-\symbf{{K}}\right]^{-1}\)</span> 意味着 <span class="math inline">\(\symbf{AV}_{\hat{\symbf \psi}}=\symbf{I}\)</span>，由此 <span class="math inline">\(\symbf{AV}_{\hat{\symbf \psi}}\)</span> 是幂等的。因此，对于已知 <span class="math inline">\(\symbf V\)</span> 的 LM，二次型</p>
+<p><span class="math display" id="eq:6-7">\[\begin{align}
+\hat{\symbf{\psi}}'\left[Var\left(\hat{\symbf{\psi}}\right)\right]^{-1}\hat{\symbf{\psi}}=\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^{-1}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}}\sim\chi_{\operatorname{rank}(\symbf{K}),\varphi}^2
+\tag{6.7}
+\end{align}\]</span></p>
+<p>其中令 <span class="math inline">\(\symbf{\mu}_{\hat{\symbf{\psi}}}=E\left(\hat{\symbf{\psi}}\right)\)</span></p>
+<p><span class="math display">\[\varphi=\left(\frac12\right)\symbf\mu_{\hat{\symbf\psi}}'\symbf A\symbf\mu_{\hat{\symbf\psi}}'=\frac12(\symbf K'\tilde{\symbf\beta})'\left[\symbf K'\left(\symbf X'\symbf V^{-1}\symbf X\right)\symbf K\right]^{-1}\symbf K'\tilde{\symbf\beta}\]</span></p>
+<p>表示非中心参数。</p>
+<p>在原假设下，<span class="math inline">\(\symbf\psi=\symbf K^{\prime}\symbf\beta=\symbf 0\)</span>，因此 <span class="math inline">\(\phi = 0\)</span> 并且 Wald 统计量具有中心 <span class="math inline">\(\chi^2_{\operatorname{rank}(\symbf{K})}\)</span> 分布。</p>
+</div>
+<div id="sec6-3-2" class="section level3" number="6.3.2">
+<h3>
+<span class="header-section-number">6.3.2</span> 推断统计量的分布（二）—— 具有估计的 <span class="math inline">\(\symbf V\)</span> 的 LM<a class="anchor" aria-label="anchor" href="#sec6-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>若 <span class="math inline">\(\symbf V\)</span> 的协方差分量由向量 <span class="math inline">\(\symbf\sigma\)</span> 表示，我们必须估计协方差参数向量 <span class="math inline">\(\symbf\sigma\)</span> 并使用其估计来估计方差 <span class="math inline">\(\hat{\symbf{V}}=\symbf V(\hat{\symbf{\sigma}})\)</span>。</p>
+<p>在第 <a href="chap4.html#chap4">4</a> 章中，我们考虑了 <span class="math inline">\(\symbf{V}=\symbf{I}\sigma^2\)</span> 和 <span class="math inline">\(\symbf{V}=\boldsymbol{\Sigma}\sigma^2\)</span> 两种特殊情况，其中假定 <span class="math inline">\(\boldsymbol\Sigma\)</span> 已知。在每种特殊情况下，唯一需要估计的协方差参数是 <span class="math inline">\(\sigma^2\)</span>。我们首先回顾了这两种特殊情况的结果，然后考虑了更一般的情况：当除 <span class="math inline">\(\sigma^2\)</span> 之外 <span class="math inline">\(\symbf\sigma\)</span> 还涉及其他参数并且 <span class="math inline">\(\symbf\sigma\)</span> 的所有参数都必须估计时。</p>
+<div id="sec6-3-2-1" class="section level4" number="6.3.2.1">
+<h4>
+<span class="header-section-number">6.3.2.1</span> 具有未知 <span class="math inline">\(\symbf V\)</span> 的 LM：情形 1 —— <span class="math inline">\(\symbf{V}=\boldsymbol{\Sigma}\sigma^2\)</span><a class="anchor" aria-label="anchor" href="#sec6-3-2-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>情形 1 的一个明显例子出现在 <span class="math inline">\(\boldsymbol\Sigma = \symbf I\)</span> 时——经典的“一般” LM. 当 <span class="math inline">\(\boldsymbol\Sigma \ne\symbf I\)</span> 时，<span class="math inline">\(\boldsymbol\Sigma\)</span> 通常描述相关结构。如果对相关结构有足够的了解，可以将其视为常数，情形 1 适用。</p>
+<p>回顾第 <a href="chap4.html#chap4">4</a> 章的结果，我们用估计的 <span class="math inline">\(\hat\sigma^2\)</span> 替换已知的 <span class="math inline">\(\sigma^2\)</span>。对于 <span class="math inline">\(\symbf V=\symbf I\sigma^2\)</span>，<span class="math inline">\(\hat{\sigma}^2=\symbf{y}^{\prime}\big[\symbf{I}-\symbf{X}^{\prime}\big(\symbf{X}^{\prime}\symbf{X}\big)^-{\symbf{X}}\big]\symbf{y}\Big/\big[n-\operatorname{rank}\big(\symbf{X}\big)\big]\)</span>，这在 LM 语境下为残差均方 MSR. 对于 <span class="math inline">\(\symbf{V}=\boldsymbol{\Sigma}\sigma^2\)</span>，<span class="math inline">\(\hat{\sigma}^2=\left[\symbf{y'}\left(\symbf{I-X}\left(\symbf{X}'\boldsymbol\Sigma^{-1}\symbf{X}\right)^{-1}\symbf{X}'\boldsymbol\Sigma^{-1}\right)^{\prime}\boldsymbol{\Sigma}^{-1}\left(\symbf{I-X}\left(\symbf{X}'\boldsymbol\Sigma^{-1}\symbf{X}\right)^{-1}\symbf{X}'\boldsymbol\Sigma^{-1}\right)\symbf{y}\right]\Bigg/\big[n-\operatorname{rank}\big(\symbf{X}\big)\big]\)</span>。</p>
+<p>对于标量 <span class="math inline">\(\psi=\symbf{k'\beta}\)</span>，对应于 <a href="chap6.html#eq:6-3">(6.3)</a>, <a href="chap6.html#eq:6-4">(6.4)</a> 和 <a href="chap6.html#eq:6-5">(6.5)</a> 所给形式的检验统计量和区间估计及其相关分布为</p>
+<ul>
+<li><p><span class="math display">\[\frac{\hat{\psi}-\psi_0}{s.e.(\hat{\psi})}=\frac{\symbf{k}'\left(\tilde{\symbf{\beta}}-\symbf{\beta}_0\right)}{\sqrt{\symbf{k}'\left(\symbf{X}\left(\boldsymbol\Sigma\hat{\sigma}^2\right)^{-1}\symbf{X}\right)^{-1}\symbf{k}}}=\frac{\symbf{k}'\left(\tilde{\symbf{\beta}}-\symbf{\beta}_0\right)}{\sqrt{\hat{\sigma}^2\left[\symbf{k}'\left(\symbf{X}\left(\boldsymbol\Sigma\right)^{-1}\symbf{X}\right)^{-1}\symbf{k}\right]}}\sim t_{\left[n-\operatorname{rank}(\symbf{X})\right]}\]</span></p></li>
+<li><p><span class="math display">\[\left(\frac{\hat{\psi}-\psi_0}{s.e.(\hat{\psi})}\right)^2=\left\{\left[\symbf{k}^{\prime}\left(\tilde{\symbf{\beta}}-\symbf{\beta}_0\right)\right]^{\prime}\left[\symbf{k}^{\prime}\left(\symbf{X}\boldsymbol\Sigma^{-1}\symbf{X}\right)^{-1}\symbf{k}\right]^{-1}\symbf{k}^{\prime}\left(\tilde{\symbf{\beta}}-\symbf{\beta}_0\right)\right\}\Bigg/\hat{\sigma}^2\sim F_{1,n-\operatorname{rank}(\symbf{X})}\]</span></p></li>
+<li><p><span class="math display">\[\hat{\psi}\pm(“\text{表格值}")\times s.e.(\hat{\psi})\text{ 成为 }\symbf{k}^{\prime}\tilde{\symbf{\beta}}\pm t_{\left[n-\operatorname{rank}(\symbf{X}),\alpha\right]}\sqrt{\hat{\sigma}^2\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\boldsymbol\Sigma^{-1}\symbf{X}\right)^{-1}\symbf{k}}\]</span></p></li>
+</ul>
+<p>对于向量 <span class="math inline">\(\symbf\psi=\symbf{K'\beta}\)</span>，我们使用 <span class="math inline">\(F\)</span> 统计量来检验 <span class="math inline">\(H_0\colon \symbf\psi=\symbf 0\)</span>，我们在第 <a href="chap4.html#chap4">4</a> 章中将其表示为 Wald 统计量除以 <span class="math inline">\(\operatorname{rank} (\symbf K)\)</span> ，即</p>
+<p><span class="math display" id="eq:6-10">\[\begin{align}
+\left(\frac{\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\boldsymbol\Sigma^{-1}\symbf{X}\right)^{-1}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}}}{\hat{\sigma}^2}\right)\Bigg/\operatorname{rank}\left(\symbf{K}\right)\sim F\Big[\operatorname{rank}\left(\symbf{K}\right),n-\operatorname{rank}\left(\symbf{X}\right)\Big]
+\tag{6.8}
+\end{align}\]</span></p>
+<p>若 <span class="math inline">\(\symbf {V} = \symbf I\sigma^2\)</span>，则 <a href="chap6.html#eq:6-8">(6.8)</a> 可表示为 <span class="math inline">\(F = MSH/MSR\)</span>，其中 <span class="math inline">\(MSH\)</span> 表示假设均方 (mean square for the hypothesis).</p>
+</div>
+<div id="sec6-3-2-2" class="section level4" number="6.3.2.2">
+<h4>
+<span class="header-section-number">6.3.2.2</span> 具有未知 <span class="math inline">\(\symbf V\)</span> 的 LM：情形 2 ——需估计所有协方差分量<a class="anchor" aria-label="anchor" href="#sec6-3-2-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>情形 2 出现在协方差结构至少包括两个未知项的仅固定效应模型和使用边际形式的混合模型中。在后一种情况下，我们在第 <a href="chap5.html#chap5">5</a> 章中看到，线性预测器为 <span class="math inline">\(\symbf\eta=\symbf\mu=\symbf{X\beta}\)</span>，在该模型下，观测假定分布为 <span class="math inline">\(\symbf{y}\thicksim N\left(\symbf{X}\symbf{\beta},\symbf{Z}\symbf{G}\symbf{Z}'+\symbf{R}\right)\)</span>。对于未知的 <span class="math inline">\(\symbf V=\symbf{Z}\symbf{G}\symbf{Z}'+\symbf{R}\)</span>，必须估计至少一个来自 <span class="math inline">\(\symbf G\)</span> 的分量和一个来自 <span class="math inline">\(\symbf R\)</span> 的分量。对于仅固定效应模型，<span class="math inline">\(\symbf V=\symbf R\)</span> 因此情形 2 意味着 <span class="math inline">\(\symbf R\)</span> 至少有两个协方差分量。例子包括复合对称（在第 <a href="chap3.html#chap3">3</a> 章中介绍）和相关误差模型，例如重复测量或空间数据，我们将在第 <a href="chap7.html#chap7">7</a> 章中介绍，并在第 <a href="#chap17"><strong>??</strong></a> 章中更详细地讨论。</p>
+<p>正如我们目前所看到的，推断的两个关键部分是</p>
+<ul>
+<li><p><span class="math inline">\(\symbf{K'\tilde{\beta}}\)</span> 的分布</p></li>
+<li><p><span class="math inline">\(\frac{\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\symbf{X}\right)^{-1}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}}}{\operatorname{rank}(\symbf{K})}\)</span> 的分布</p></li>
+</ul>
+<p>后者是 <a href="chap6.html#eq:6-8">(6.8)</a> 的推广：用 <span class="math inline">\(\hat{\symbf{V}}=\symbf V\left(\hat{\symbf{\sigma}}\right)\)</span> 替换 <span class="math inline">\(\boldsymbol\Sigma \sigma^2\)</span>。我们在第 <a href="chap5.html#chap5">5</a> 章中看到，我们通常通过 REML 估计来获得 <span class="math inline">\(\hat{\symbf{\sigma}}\)</span>。当我们如此做时，所讨论的两个分布不再分别为高斯分布和 <span class="math inline">\(F\)</span> 分布。标准混合模型实践假定：</p>
+<ul>
+<li><p>对于标量 <span class="math inline">\(\psi=\symbf{k'\beta}\)</span>，<span class="math inline">\(\begin{align}\frac{\symbf{k}^{\prime}\left(\tilde{\symbf{\beta}}-\symbf{\beta}\right)}{\sqrt{\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\symbf{X}\right)^{-}\symbf{k}}} \text{ 近似 } \sim t_{\nu_2}\tag{6.9}\end{align}\)</span></p></li>
+<li><p>对于向量 <span class="math inline">\(\symbf\psi=\symbf{K'\beta}+\symbf{M'b}\)</span>，<span class="math inline">\(\begin{align}\frac{\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\symbf{X}\right)^{-1}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}}}{\operatorname{rank}(\symbf{K})} \text{ 近似 } \sim F_{\nu_1,\nu_2,\varphi}\tag{6.10}\end{align}\)</span></p></li>
+</ul>
+<p>其中，<span class="math inline">\(\nu_1 =\operatorname{rank}(\symbf K)\)</span> 表示 <span class="math inline">\(F\)</span> 的分子自由度，<span class="math inline">\(\nu_2\)</span> 表示 <span class="math inline">\(t\)</span> 的自由度和 <span class="math inline">\(F\)</span> 的分母自由度，<span class="math inline">\(\varphi\)</span> 表示 <span class="math inline">\(F\)</span> 的非中心参数。</p>
+<p>对于某些仅方差分量混合模型，并且仅针对这些模型的某些可估函数，我们可从框架方差分析中确定分母自由度 <span class="math inline">\(\nu_2\)</span>，例如，通过遵循第 <a href="chap2.html#chap2">2</a> 章中描述的“Fisher会怎么做？”过程。对于所有其他情况，我们必须近似 <span class="math inline">\(\nu_2\)</span>。在 <a href="chap6.html#sec6-4-2">6.4.2</a> 节中，我们将看到如何做到这一点。</p>
+<p>近似 <a href="chap6.html#eq:6-9">(6.9)</a> 和 <a href="chap6.html#eq:6-10">(6.10)</a> 的论证基于渐近理论。当 <span class="math inline">\(N \rightarrow \infty\)</span> 时，<span class="math inline">\(\symbf V(\hat{\symbf\sigma})\rightarrow \symbf V({\symbf\sigma})\)</span>（假定 <span class="math inline">\(\hat{\symbf\sigma}\)</span> 是使用 ANOVA, ML 或 REML 得到的 <span class="math inline">\(\symbf\sigma\)</span> 的一致估计），因此 <span class="math inline">\(\symbf{K'}\tilde{\symbf\beta}\)</span> 的极限分布为 <span class="math inline">\(N\left(\symbf{K'\beta},\symbf{K'}\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{{K}}\right)\)</span>，并且</p>
+<p><span class="math display">\[\frac{\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}\left(\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\symbf{X}\right)^{-1}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}}}{\operatorname{rank}(\symbf{K})}\]</span></p>
+<p>的极限分布为 <span class="math inline">\(\chi^2_{\nu_1,\varphi}\)</span>，并且（我们假定）它沿着当 <span class="math inline">\(\nu_2\to\infty\)</span> 时 <span class="math inline">\(F_{\nu_1,\nu_{2},\varphi}\to\chi_{\nu_1,\varphi}^2\)</span> 这条线接近极限。</p>
+<p>有关渐近理论的更多详细信息，请参阅 Vonesh and Chinchilli (1997), Demidenko (2004) 以及 Jiang (2007) et al.</p>
+<p>在实践中，我们更多关注这些统计量的小样本表现，而不是它们的渐近分布。为什么？因为我们通常处理的数据观测数远小于渐近性质发挥作用所需的数量。自 20 世纪 90 年代初 SAS<sup>®</sup> 推出 PROC MIXED 以来，大量的模拟研究（其中大多数未发表）在 LMM 从业者中形成了某种口头传统。在 MIXED 推出后，其他混合模型软件开始大量涌现，使模拟研究能够轻松完成并得到广泛应用。到 20 世纪 90 年代末，人们一致认为近似值 <a href="chap6.html#eq:6-9">(6.9)</a> 和 <a href="chap6.html#eq:6-10">(6.10)</a> 的表现与其所宣称的一样，但有一点需要注意：这源于 Kacker and Harville (1984) 以及 Kenward and Roger (1997) 将 <span class="math inline">\(\symbf{K'}\left(\symbf{X'}\hat{\symbf{V}}^{-1}\symbf{X}\right)^-\symbf{{K}}\)</span> 作为 <span class="math inline">\(\symbf{K'}\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{{K}}\)</span> 的近似。一般来说，<span class="math inline">\(\symbf{K'}\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{{K}}\)</span> 具有向下的偏差。我们将在 <a href="chap6.html#sec6-4-3">6.4.3</a> 节中讨论该问题、不解决的后果以及如何处理。</p>
+</div>
+</div>
+<div id="sec6-3-3" class="section level3" number="6.3.3">
+<h3>
+<span class="header-section-number">6.3.3</span> 推断统计量的分布（三）—— GLM<a class="anchor" aria-label="anchor" href="#sec6-3-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>与 LMM 一样，我们需要考虑两种情形。情形 1：假定的分布属于单参数指数族（例如二项和泊松分布）；均值决定了方差，我们不需要额外的方差估计。情形 2：我们有一个双参数指数族或拟似然；我们必须估计尺度参数。</p>
+<div id="sec6-3-3-1" class="section level4" number="6.3.3.1">
+<h4>
+<span class="header-section-number">6.3.3.1</span> GLM ——情形 1：无需估计尺度参数<a class="anchor" aria-label="anchor" href="#sec6-3-3-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>我们使用两个渐近结果：</p>
+<ul>
+<li>
+<span class="math inline">\(\symbf{K}^{\prime}\tilde{\symbf{\beta}} \sim\)</span> 近似</li>
+</ul>
+<p><span class="math display" id="eq:6-11">\[\begin{align}
+N\left(\symbf{K'\beta},\symbf{K'}\left(\symbf{X'WX}\right)^-\symbf{{K}}\right)
+\tag{6.11}
+\end{align}\]</span></p>
+<ul>
+<li>
+<span class="math inline">\(\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{W}\symbf{X})^{-}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}} \sim\)</span> 近似</li>
+</ul>
+<p><span class="math display" id="eq:6-12">\[\begin{align}
+\chi_{\operatorname{rank}(\symbf{K}),\varphi}^2
+\tag{6.12}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf W\)</span> 表示由 <a href="chap5.html#eq:5-13">(5.13)</a> 定义的伪变量的逆方差，非中心参数 <span class="math inline">\(\varphi=\frac{1}{2}\big(\symbf{K'\beta}\big)^{\prime}\left[\symbf{K'}\big(\symbf{X'WX}\big)^-\symbf{K}\right]^{-1}\symbf{K'\beta}\)</span>。请注意，<a href="chap6.html#eq:6-11">(6.11)</a> 和 <a href="chap6.html#eq:6-12">(6.12)</a> 只是用 <span class="math inline">\(\symbf W\)</span> 替换 <a href="chap6.html#eq:6-6">(6.6)</a> 和 <a href="chap6.html#eq:6-7">(6.7)</a> 的 <span class="math inline">\(\symbf V^{−1}\)</span>。</p>
+<p>有兴趣的读者可参考 Wedderburn (1974), Vonesh and Chinchilli (1997), Demidenko (2004) 等教材对渐近理论进行更深入的学习。对这些近似的小样本表现所积累的经验表明，它们的表现正如其宣称的那样，这对我们的目的来说就足够了。当我们在后续章节中讨论 GLM 应用时，将会遇到罕见的例外情况。</p>
+<p>应用这两个结果，我们使用标准高斯分布构建 GLMs 的置信区间并使用卡方分布检验假设。例如</p>
+<p><span class="math display">\[\symbf{k}^{\prime}\tilde{\symbf{\beta}}\pm{Z}_{\alpha/2}\sqrt{\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{W}\symbf{X})^{-}\symbf{k}}\]</span></p>
+<p>给出了在模型尺度上的双侧 <span class="math inline">\(100(1−\alpha)\%\)</span> 置信区间。在有意义的情况下，我们通过将逆连接应用于模型尺度的置信限来获得数据尺度的置信限。我们在 <a href="chap6.html#sec6-3-3-2">6.3.3.2</a> 节中进一步开发了使用 GLMs 进行假设检验的方法。</p>
+</div>
+<div id="sec6-3-3-2" class="section level4" number="6.3.3.2">
+<h4>
+<span class="header-section-number">6.3.3.2</span> GLM ——情形 2：估计了尺度参数<a class="anchor" aria-label="anchor" href="#sec6-3-3-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>这些 GLMs 出现在三种情况中：1) 响应变量属于双参数指数族，必须估计尺度参数；2) 我们定义了一个具有尺度参数的拟似然，以解释过度分散（泊松模型经常发生）；3) 在 <span class="math inline">\(\symbf W\)</span> 中嵌入一个工作相关矩阵（非高斯相关误差模型的常用策略）。我们在第 <a href="#chap11"><strong>??</strong></a> 章和第 <a href="#chap12"><strong>??</strong></a> 章讨论过度分散，在第 <a href="#chap17"><strong>??</strong></a> 章讨论了相关误差 GLMs. 具有工作相关矩阵的相关误差 GLMs 在本书中称为边际模型，因为它们的目标是 <span class="math inline">\(\symbf y\)</span> 的边际均值，而不是 <span class="math inline">\(E(\symbf y\mid \symbf b)\)</span>。边际模型有时称为<strong>广义估计方程</strong> (Generalized Estimating Equation, <strong>GEE</strong>) 模型。有关 GEE 的早期开发工作，请参阅 Zeger, Liang and Albert (1988)；有关更广泛的讨论，请参阅 Diggle et al. (2002) 和 Hardin and Hilbe (2003) 等文本。一般来说，这些模型是 GLMMs 的边际形式——我们在第 <a href="chap3.html#chap3">3</a> 章中遇到了第一个例子，即具有复合对称工作相关的二项模型。边际模型始终是拟似然模型。</p>
+<p>基本结果涉及在 <a href="chap6.html#eq:6-10">(6.10)</a> 和 <a href="chap6.html#eq:6-11">(6.11)</a> 中用 <span class="math inline">\(\hat{\symbf W}\)</span> 替换 <span class="math inline">\(\symbf W\)</span>，这又意味着我们使用 <span class="math inline">\(t\)</span> 代替 <span class="math inline">\(N (0, 1)\)</span> 以及使用 <span class="math inline">\(F\)</span> 代替 <span class="math inline">\(\chi^2\)</span>。具体来说，</p>
+<ul>
+<li>对于标量 <span class="math inline">\(\symbf{k}'\tilde{\symbf\beta}\)</span>，<span class="math inline">\(\frac{\symbf{k}^{\prime}\left(\tilde{\symbf{\beta}}-\symbf{\beta}\right)}{\sqrt{\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\hat{\symbf{W}}\symbf{X}\right)^{-}\symbf{k}}}\sim\)</span> 近似</li>
+</ul>
+<p><span class="math display" id="eq:6-13">\[\begin{align}
+t_{\nu_2}
+\tag{6.13}
+\end{align}\]</span></p>
+<ul>
+<li>
+<span class="math inline">\(\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}\right)^{\prime}\left[\symbf{K}^{\prime}(\symbf{X}^{\prime}\hat{\symbf{W}}\symbf{X})^{-}\symbf{K}\right]^{-1}\symbf{K}^{\prime}\tilde{\symbf{\beta}} \sim\)</span> 近似</li>
+</ul>
+<p><span class="math display" id="eq:6-14">\[\begin{align}
+F_{\nu_1,\nu_2,\varphi}
+\tag{6.14}
+\end{align}\]</span></p>
+<p>对于仅涉及尺度参数估计的模型，<span class="math inline">\(\hat{\symbf{W}}=\symbf{DV}_\mu^1\hat{\symbf{A}}\symbf{V}_\mu^1\symbf{D}\)</span>，其中<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：&lt;span class=&quot;math inline&quot;&gt;\(\varphi\)&lt;/span&gt; 也只是在刚才的 &lt;span class=&quot;math inline&quot;&gt;\(\varphi\)&lt;/span&gt; 中用 &lt;span class=&quot;math inline&quot;&gt;\(\hat{\symbf W}\)&lt;/span&gt; 替换 &lt;span class=&quot;math inline&quot;&gt;\(\symbf W\)&lt;/span&gt;：&lt;span class=&quot;math inline&quot;&gt;\(\varphi=\frac{1}{2}\big(\symbf{K'\beta}\big)^{\prime}\left[\symbf{K'}\big(\symbf{X}'\hat{\symbf W}\symbf {X}\big)^-\symbf{K}\right]^{-1}\symbf{K'\beta}\)&lt;/span&gt;。&lt;/p&gt;"><sup>15</sup></a></p>
+<p><span class="math display">\[\hat{\symbf{A}}=\operatorname{diag}\left[\frac{1}{a\big(\hat{\phi}\big)}\right]\]</span></p>
+<p>以及 <span class="math inline">\(\hat{\phi}\)</span> 表示尺度参数估计。对于具有工作相关的模型，我们将尺度矩阵 <span class="math inline">\(\symbf A\)</span> 替换为工作相关矩阵，用 <span class="math inline">\(\symbf A_W\)</span> 表示。工作相关模型通常取决于多个参数，并且必须估计每个参数。例如，对于第 <a href="chap3.html#chap3">3</a> 章介绍的复合对称工作相关，</p>
+<p><span class="math display">\[\symbf{A}_W=\phi{\begin{bmatrix}1&amp;\rho&amp;...&amp;\rho\\&amp;1&amp;...&amp;\rho\\&amp;&amp;\ddots&amp;\vdots\\&amp;&amp;&amp;1\end{bmatrix}}\]</span></p>
+<p>遵循协方差分量的符号约定，用 <span class="math inline">\(\symbf\rho\)</span> 表示工作相关分量向量。例如对于复合对称性，<span class="math inline">\(\symbf\rho'=\begin{bmatrix}\phi&amp;\rho\end{bmatrix}\)</span>。然后我们将工作相关矩阵完全指定为 <span class="math inline">\(\symbf A_W (\symbf\rho)\)</span>，将其估计表示为 <span class="math inline">\(\hat{\symbf{A}}_W=\symbf{A}_W\left(\hat{\symbf{\rho}}\right)\)</span>，其中 <span class="math inline">\(\hat{\symbf\rho}\)</span> 是工作相关分量估计向量，例如 <span class="math inline">\(\hat{\symbf\rho}'=\begin{bmatrix}\hat\phi&amp;\hat\rho\end{bmatrix}\)</span>。我们可以通过将 <span class="math inline">\(\symbf\sigma\)</span> 的分量作为第 <a href="chap5.html#chap5">5</a> 章描述的伪似然方差估计程序中的项来估计它们。</p>
+</div>
+</div>
+<div id="sec6-3-4" class="section level3" number="6.3.4">
+<h3>
+<span class="header-section-number">6.3.4</span> 推断统计量的分布（四）——混合模型<a class="anchor" aria-label="anchor" href="#sec6-3-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>出于讨论的目的，我们可把高斯 LMM 和 GLMM 放在一起考虑。尽管它们的发展历史不同，但两者都使用相同的渐近结果。LMM 的结果借鉴了至少可追溯到 Eisenhart (1947) 的工作。开创性的论文是 Harville (1976) 和 Laird and Ware (1982). GLMM 的结果是新近的，并且倾向于部分为渐近理论、部分为对 GLMM 应用的 LMM 程序的特别修改。与具有未知方差的 LM 和 GLM 一样，大量的模拟工作表明，除了我们将在 <a href="chap6.html#sec6-3">6.3</a> 节和 <a href="chap6.html#sec6-4">6.4</a> 节中讨论的一些注意事项外，这些近似的表现与宣称的一样。</p>
+<p>我们以 GLMM 的伪似然形式给出了基本结果，指出 LMM 方程是 LMM 使用恒等连接的特例，并且 LMM 的条件和边际形式的似然是高斯的，易于使用标准似然法来处理。</p>
+<p>回想 GLMM 估计方程：</p>
+<p><span class="math display">\[\begin{bmatrix}\symbf{X'WX}&amp;\symbf{X'WZ}\\\symbf{Z'WX}&amp;\symbf{Z'WZ+G}^{-1}\end{bmatrix}\begin{bmatrix}\symbf{\beta}\\\symbf{b}\end{bmatrix}=\begin{bmatrix}\symbf{X'Wy}^*\\\symbf{Z'Wy}^*\end{bmatrix}\]</span></p>
+<p>其中</p>
+<p><span class="math display">\[\symbf{W}=\left(\symbf{DV}_\mu^{1/2}\symbf{AV}_\mu^{1/2}\symbf{D}\right)^{-1},\quad \symbf{D}=\frac{\partial\symbf{\mu}}{\partial\symbf{\eta}}\]</span></p>
+<p>以及 <span class="math inline">\(\symbf{y}^{*}=g\left(\tilde{\symbf{\mu}}\right)+\symbf{D}\left(\symbf{y}-\tilde{\symbf{\mu}}\right)\)</span>。假定 <span class="math inline">\(\symbf{K'\beta}\)</span> 满足可估性标准，以下是 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span> 推断的基本结果：</p>
+<ul>
+<li>
+<span class="math inline">\(\symbf{K}^{\prime}\tilde{\symbf\beta}+\symbf{M}^{\prime}\tilde{\symbf b}\)</span> 为 <span class="math inline">\(\symbf\psi=\symbf K^{\prime}\symbf\beta+\symbf M^{\prime}\symbf b\)</span> 的<strong>最佳线性无偏预测估计</strong> (estimated best linear unbiased predictor, <strong>e-BLUP</strong>). <span class="math inline">\(\tilde{\symbf\beta}\)</span> 和 <span class="math inline">\(\tilde{\symbf b}\)</span> 是 GLMM 估计方程的解。当 <span class="math inline">\(\symbf M =\symbf 0\)</span> 时，<span class="math inline">\(\symbf{K}^{\prime}\tilde{\symbf\beta}\)</span> 对于高斯模型是 <span class="math inline">\(\symbf {K'\beta}\)</span> 的<strong>最佳线性无偏估计</strong> (best linear unbiased estimate, <strong>BLUE</strong>)，对于 GLMM 则为“<strong>近似 BLUE</strong>” (“approximately BLUE”).</li>
+</ul>
+<div id="sec6-3-4-1" class="section level4" number="6.3.4.1">
+<h4>
+<span class="header-section-number">6.3.4.1</span> 当 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span> 分量向量 <span class="math inline">\(\symbf\sigma\)</span> 已知时，以下结果适用<a class="anchor" aria-label="anchor" href="#sec6-3-4-1"><i class="fas fa-link"></i></a>
+</h4>
+<ul>
+<li>令 <span class="math inline">\(\symbf C\)</span> 表示 GLMM 估计方程左侧的广义逆，即</li>
+</ul>
+<p><span class="math display">\[\symbf{C=}\begin{bmatrix}\symbf{X'WX}&amp;\symbf{X'WZ}\\\symbf{Z'WX}&amp;\symbf{Z'WZ+G}^{-1}\end{bmatrix}^-\]</span></p>
+<ul>
+<li>令 <span class="math inline">\(\symbf{L}'=\begin{bmatrix}\symbf{K'}&amp;\symbf{M'}\end{bmatrix}\)</span>
+</li>
+</ul>
+<p><span class="math display" id="eq:6-15">\[\begin{align}
+Var\bigg[\symbf{K'\tilde{\symbf\beta}+M'}\bigg(\tilde{\symbf{b}}-\symbf{b}\bigg)\bigg]=Var\left(\symbf{L'}\left[\begin{matrix}\tilde{\symbf{\beta}}\\\left(\tilde{\symbf{b}}-\symbf{b}\right)\end{matrix}\right]\right)=\symbf{L'CL}
+\tag{6.15}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\symbf b\)</span> 是随机效应向量的实现值。该结果的完整推导出现在 Henderson (1975) 的附录中。该推导的摘要在关于重要矩阵结果的附录中提供。</p>
+<p>若 <span class="math inline">\(\symbf K\)</span> 和 <span class="math inline">\(\symbf M\)</span> 以及 <span class="math inline">\(\symbf L\)</span> 是向量，那么 <span class="math inline">\(\symbf{L'CL}\)</span> 是标量，<span class="math inline">\(\sqrt{\symbf{L'CL}}=s.e.\left(\hat{{\psi}}\right)\)</span>。<span class="math inline">\(\symbf{K}'\tilde{\symbf{\beta}}+\symbf M'\left(\tilde{\symbf{b}}-\symbf{b}\right)\)</span> 的抽样分布近似为 <span class="math inline">\(N(\symbf{K'\beta}+\symbf{M'b},\symbf{L'CL})\)</span>，或等价地，近似 <span class="math inline">\(N(\psi,\symbf{L'CL})\)</span>，并且由此有：</p>
+<ul>
+<li><p><span class="math inline">\(\frac{\hat{\psi}-\psi_0}{s.e.(\hat{\psi})}\)</span> 具有近似 <span class="math inline">\(N(0,1)\)</span> 分布。这意味着：</p></li>
+<li><p><span class="math inline">\(Z=\frac{\hat{\psi}-\psi_{0}}{\sqrt{\symbf{L'CL}}}\)</span> 可用作 <span class="math inline">\(z\)</span> 统计量来检验形如 <span class="math inline">\(H_0\colon\psi=\psi_0\)</span> 的假设。</p></li>
+<li><p><span class="math inline">\(\psi\)</span> 的置信区间为 <span class="math inline">\(\left(\symbf{K}^{\prime}\tilde{\symbf{\beta}}+\symbf{M}^{\prime}\tilde{\symbf{b}}\right)\pm Z_{\alpha/2}\sqrt{\symbf{L}^{\prime}\symbf{C}\symbf{L}}\)</span>，其中 <span class="math inline">\(1-\alpha\)</span> 表示置信水平。</p></li>
+<li><p>当 <span class="math inline">\(\symbf K\)</span> 和 <span class="math inline">\(\symbf M\)</span> 以及 <span class="math inline">\(\symbf L\)</span> 是多列矩阵而不是向量时，<span class="math inline">\(\symbf{L'}\begin{bmatrix}\tilde{\symbf{\beta}}\\\left(\tilde{\symbf{b}}-\symbf{b}\right)\end{bmatrix}(\symbf{L'CL})^{-1}\begin{bmatrix}\tilde{\symbf{\beta}}'\\\left(\tilde{\symbf{b}}-\symbf{b}\right)'\end{bmatrix}\symbf{L}\sim\)</span> 近似</p></li>
+</ul>
+<p><span class="math display" id="eq:6-16">\[\begin{align}
+\chi^2_{\operatorname{rank}(\symbf L)}
+\tag{6.16}
+\end{align}\]</span></p>
+<p>重复一遍，以上所有结果都假定协方差分量是已知的，因此 <span class="math inline">\(\symbf W\)</span> 和 <span class="math inline">\(\symbf C\)</span> 是已知的。</p>
+</div>
+<div id="sec6-3-4-2" class="section level4" number="6.3.4.2">
+<h4>
+<span class="header-section-number">6.3.4.2</span> 协方差分量未知时适用的结果<a class="anchor" aria-label="anchor" href="#sec6-3-4-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>这是比较现实的情况。协方差分量是未知的并且必须进行估计，这在 GLMM 中几乎无一例外。我们在第 <a href="chap4.html#chap4">4</a> 章看到，在 LMM 中发生这种情况时，我们用估计值 <span class="math inline">\(\hat{\symbf G}=\symbf G(\hat{\symbf\sigma})\)</span> 和 <span class="math inline">\(\hat{\symbf R}=\symbf R(\hat{\symbf\sigma})\)</span> 替换 <span class="math inline">\(\symbf G\)</span> 和 <span class="math inline">\(\symbf R\)</span>。在 GLMM 中，若模型具有未知的尺度或工作相关分量需要估计，我们不是用 <span class="math inline">\(\hat{\symbf R}\)</span> 替换 <span class="math inline">\(\symbf R\)</span>，而是用 <span class="math inline">\(\hat{\symbf W}\)</span> 替换 <span class="math inline">\(\symbf W\)</span>。实际上，这意味着用 <span class="math inline">\(\hat{\symbf C}\)</span> 替换 <span class="math inline">\(\symbf C\)</span>，并按需使用 <span class="math inline">\(\hat{\symbf G},\hat{\symbf R}\)</span> 和 <span class="math inline">\(\hat{\symbf W}\)</span>。如此会得到：</p>
+<ul>
+<li><p><span class="math display" id="eq:6-17">\[\begin{align}Var\left[\symbf{K}'\tilde{\symbf\beta}+\symbf M'\left(\tilde{\symbf{b}}-\symbf{b}\right)\right]=Var\left(\symbf{L'}\left[\begin{matrix}\tilde{\symbf{\beta}}\\\left(\tilde{\symbf{b}}-\symbf{b}\right)\end{matrix}\right]\right)\cong\symbf{L}'\hat{\symbf C}\symbf L
+\tag{6.17}
+\end{align}\]</span></p></li>
+<li><p>对于标量 <span class="math inline">\(\symbf{L}'\hat{\symbf C}\symbf L\)</span>，
+<span class="math display" id="eq:6-18">\[\begin{align}t=\frac{\hat{{\psi}}-{\psi}_0}{\sqrt{\symbf{L}'\hat{\symbf C}\symbf L}}\sim t_{{\nu}_2}
+\tag{6.18}
+\end{align}\]</span></p></li>
+</ul>
+<p>其中 <span class="math inline">\(\nu_2\)</span> 表示估计 <span class="math inline">\(\symbf C\)</span> 所涉及的自由度。一般来说，我们必须近似 <span class="math inline">\(\nu_2\)</span> ——参见 <a href="chap6.html#sec6-4-2">6.4.2</a> 节。从 <a href="chap6.html#eq:6-18">(6.18)</a> 可以看出，标量 <span class="math inline">\(\psi\)</span> 的双侧置信区间为 <span class="math display">\[\left(\symbf{K}^{\prime}\tilde{\symbf\beta}+\symbf M^{\prime}\tilde{\symbf b}\right)\pm t_{\nu_2,\alpha/2}\sqrt{\symbf{L^{\prime}CL}}\]</span> 其中 <span class="math inline">\(1− \alpha\)</span> 表示置信水平。假设检验的基本结果为：</p>
+<p><span class="math display" id="eq:6-19">\[\begin{align}
+\symbf{L'}\begin{bmatrix}\tilde{\symbf{\beta}}\\\left(\tilde{\symbf{b}}-\symbf{b}\right)\end{bmatrix}(\symbf{L}'\hat{\symbf C}\symbf{L})^{-1}\begin{bmatrix}\tilde{\symbf{\beta}}'\\\left(\tilde{\symbf{b}}-\symbf{b}\right)'\end{bmatrix}\symbf{L}\Bigg/\operatorname{rank}(\symbf L)\sim \text{ 近似 } F_{\nu_1,\nu_2,\varphi}
+\tag{6.19}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\nu_1 = \operatorname{rank} (\symbf L)\)</span>，<span class="math inline">\(\nu_2\)</span> 通常需要近似（见 <a href="chap6.html#sec6-4-2">6.4.2</a> 节）， 表示非中心参数。因为 <span class="math inline">\(\tilde{\symbf b}-\symbf b\)</span> 的期望为零，所以非中心参数与 LM（对于高斯模型和更一般的具有恒等连接的模型）或 GLM（对于具有非恒等连接的模型）的一般情况具有相同的形式。</p>
+<p>与可估和可预测函数相关的关键统计量的分布到此结束。我们现在转向使用这些结果来检验假设。</p>
+</div>
+</div>
+</div>
+<div id="sec6-4" class="section level2" number="6.4">
+<h2>
+<span class="header-section-number">6.4</span> 检验方法<a class="anchor" aria-label="anchor" href="#sec6-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>线性模型使用两种主要方法（似然比和基于 Wald 的方法）来检验有关可估和可预测函数的假设，即原假设可写为 <span class="math inline">\(H_0\colon:\symbf\psi=\symbf\psi_0\)</span> 的检验。在 <a href="chap6.html#sec6-4-1">6.4.1</a> 节中，我们将讨论似然比检验。在 <a href="chap6.html#sec6-4-2">6.4.2</a> 节中，我们讨论了基于 Wald 的检验。对于具有已知方差的 LMs，或者 <span class="math inline">\(\symbf V=\boldsymbol\Sigma\sigma^2\)</span> 并且 <span class="math inline">\(\sigma^2\)</span> 是唯一未知的方差分量，我们证明了似然比和基于 Wald 的检验是相同的。对于 GLMMs，只有当我们使用积分近似（例如拉普拉斯和高斯-埃尔米特求积）估计模型效应时，似然比检验才有定义。对于伪似然估计，似然比是未定义的；你可以计算一个伪似然比，但含义可疑，因此不应使用。即使使用积分近似，似然比检验的价值也有限，因为其计算强度很大。因此，Wald 检验通常更实用，因此是真正的<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：“真正”的意思是非 GLMs, LMMs, LMs 的 GLMMs.&lt;/p&gt;"><sup>16</sup></a> GLMMs 的首选。对于 GLM 和真正的 LMMs 来说，需要进行权衡。Wald 检验更方便。小样本表现有利于似然比检验，因为当似然比和基于 Wald 的检验之间存在差异时，该差异有利于似然比检验。对于大多数情况，没有明确的证据支持似然比优于基于 Wald 的检验，反之亦然。因此，对于大多数 GLM 和 LMM 应用，便利性成为首要考虑因素。除了检验协方差分量（第 <a href="chap6.html#chap6">6</a> 章）之外，我们将使用基于 Wald 的统计量来处理第 <a href="chap8.html#chap8">8</a> 章开始的大多数应用。</p>
+<div id="sec6-4-1" class="section level3" number="6.4.1">
+<h3>
+<span class="header-section-number">6.4.1</span> 似然比与偏差<a class="anchor" aria-label="anchor" href="#sec6-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>在其最简单的形式中，似然比检验涉及确定 <span class="math inline">\(H_0\)</span> 下的似然，即当可估或可预测函数等于 <span class="math inline">\(\symbf\psi_0\)</span> 时，以及使用第 <a href="chap5.html#chap5">5</a> 章开发的估计算法得出的线性预测器 <span class="math inline">\(\symbf\eta\)</span> 的最大似然估计所得到的似然，并使用他们的比值来评估假设。在似然比语言中，我们将原假设下的似然称为“简化模型” (“reduced model”) 下的似然，将备择假设下的似然称为“全” (“full) 模型下的似然。在这里，为清楚起见，我们分别用 <span class="math inline">\(f (\hat{\symbf\psi_0};\symbf y)\)</span> 和 <span class="math inline">\(f (\hat{\symbf\eta};\symbf y)\)</span> 表示简化模型（<span class="math inline">\(H_0\)</span>）和全模型的似然。我们定义似然比为</p>
+<p><span class="math display">\[\Lambda=\frac{f (\hat{\symbf\psi_0};\symbf y)}{f (\hat{\symbf\eta};\symbf y)}\]</span></p>
+<p>当 <span class="math inline">\(\symbf y\)</span> 属于指数族时，似然的一般形式如 <a href="chap5.html#eq:5-1">(5.1)</a> 所示。Wedderburn (1974) 表明，你可以计算拟似然比（顾名思义，用拟似然替换似然），就好像有真实似然比一样。</p>
+<p>对于某些分布，例如高斯分布，我们可以确定似然比的精确分布。但对于一般情况，我们不能。对于大多数分布（和拟似然），似然比检验使用众所周知的结果，即 <span class="math inline">\(-2\log(\Lambda)\sim\)</span> 近似 <span class="math inline">\(\chi^2_{\nu}\)</span>。对于可估和可预测函数的检验，卡方自由度 <span class="math inline">\(\nu=\operatorname{rank}(\symbf K)\)</span>。这意味着在实践中，似然比统计量为</p>
+<p><span class="math display" id="eq:6-20">\[\begin{align}
+-2\log\left(\Lambda\right)=2\ell\left(\tilde{\symbf{\eta}}\right)-2\ell\left(\hat{\symbf{\psi}}_0\right)
+\tag{6.20}
+\end{align}\]</span></p>
+<p>对 GLMs 很重要的似然比的一个特例称为<strong>偏差</strong> (deviance). 偏差定义为 <span class="math inline">\(-2\)</span> 乘以观测向量 <span class="math inline">\(\symbf y\)</span> 下的似然与在模型 <span class="math inline">\(\hat{\symbf\eta}=\symbf X\hat{\symbf\beta}\)</span> 下的似然的对数比，即</p>
+<p><span class="math display">\[\text{deviance}\big(\hat{\symbf{\eta}}\big)=-2\log\Bigg(\frac{f\big(\hat{\symbf{\eta}};\symbf{y}\big)}{f\big(\symbf{y};\symbf{y}\big)}\Bigg)=2\log\Bigg[\ell\big(\symbf{y}\big)-\ell\big(\hat{\symbf{\eta}}\big)\Bigg]\]</span></p>
+<p>对于 <span class="math inline">\(\symbf y\)</span> 属于单参数指数族的 GLMs，偏差有明确的解释：模型拟合优度的度量。由于它具有近似卡方分布，因此偏差可用于正式检验拟合优度。我们通过观测数与全模型下参数数量之差来确定自由度，即 <span class="math inline">\(N-\operatorname{rank} (\symbf X)\)</span>。对于双参数指数族模型，虽然偏差通常用于评估拟合优度，但由于涉及尺度参数估计，其含义不太明确。</p>
+<p>对于高斯模型，偏差不是拟合优度的度量。事实上，我们可以证明它是 ANOVA 中的 <span class="math inline">\(SS(\text{residual})\)</span> 项。</p>
+<p>对于 GLMs（以及具有已知方差的 LMs），我们可以使用偏差来检验 <span class="math inline">\(H_{0}\colon\symbf{\psi}=\symbf{\psi}_{0}\)</span>。我们通过比较全模型的偏差与简化模型的偏差来实现这一点。这给出 <span class="math inline">\(\text{deviance}\left(\symbf{\psi}_0\right)-\text{deviance}\left(\symbf{\eta}\right)=2\log\left[\ell\left(\symbf{y}\right)-\ell\left(\hat{\symbf{\psi}}_0\right)\right]-2\log\left[\ell\left(\symbf{y}\right)-\ell\left(\hat{\symbf{\eta}}\right)\right]=2\log\left[\ell\left(\hat{\symbf{\eta}}\right)-\ell\left(\hat{\symbf{\psi}}_0\right)\right]\)</span>，这是来自 <a href="chap6.html#eq:6-20">(6.20)</a> 的似然比统计量。</p>
+<p>由于偏差与似然比统计量之间的关系，似然比方法倾向于鼓励对具有多种效应的模型进行序贯检验 (sequential test). 序贯检验可能是可取的——例如，对于效应具有明显层次的多元回归模型——但它也可能产生无意义的结果，或至少是容易误解的结果。我们将在 <a href="chap6.html#sec6-4-4">6.4.4</a> 节中探讨一些例子来加以说明。</p>
+</div>
+<div id="sec6-4-2" class="section level3" number="6.4.2">
+<h3>
+<span class="header-section-number">6.4.2</span> Wald 和近似 <span class="math inline">\(F\)</span> 统计量<a class="anchor" aria-label="anchor" href="#sec6-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Wald 统计量是 <a href="chap6.html#sec6-3">6.3</a> 节中结果的直接应用。Wald 统计量的一般形式为 <span class="math inline">\(\hat{\symbf{\psi}}^{\prime}\bigg[Var\big(\hat{\symbf{\psi}}\big)\bigg]^{-1}\hat{\symbf{\psi}}\)</span>，其中 <span class="math inline">\(Var\big(\hat{\symbf{\psi}}\big)\)</span> 已知。线性模型 Wald 统计量最一般的形式是式 <a href="chap6.html#eq:6-16">(6.16)</a>。式 <a href="chap6.html#eq:6-16">(6.16)</a> 是方差已知的 GLMM 的 Wald 统计量。式 <a href="chap6.html#eq:6-7">(6.7)</a> 和式 <a href="chap6.html#eq:6-12">(6.12)</a> 分别是式 <a href="chap6.html#eq:6-16">(6.16)</a> 在方差已知的 LM 和尺度参数已知的 GLM 中的特例。Wald 统计量假定具有卡方分布，其自由度由 <span class="math inline">\(\symbf\psi\)</span> 的秩确定，即定义 <span class="math inline">\(\symbf\psi\)</span> 的矩阵 <span class="math inline">\(\symbf K\)</span> 的秩。</p>
+<p>在实践中，我们知道 <span class="math inline">\(Var\big(\hat{\symbf{\psi}}\big)\)</span> 通常是未知的，必须进行估计。我们在 <a href="chap6.html#sec6-2">6.2</a> 节中看到，我们可用 <span class="math inline">\(Var\big(\hat{\symbf{\psi}}\big)\)</span> 方差分量的估计来替换相应的元素，从而获得“估计的” Wald 统计量 <span class="math inline">\(\hat{\symbf{\psi}}^{\prime}\bigg[\widehat{Var(\hat{\symbf{\psi}})}\bigg]^{-1}\hat{\symbf{\psi}}\)</span>，其中 <span class="math inline">\(\widehat{Var(\hat{\symbf{\psi}})}\)</span> 表示 <span class="math inline">\(Var\big(\hat{\symbf{\psi}}\big)\)</span> 的估计，然后将“估计”的 Wald 统计量除以 <span class="math inline">\(\symbf\psi\)</span> 的秩，即 <span class="math inline">\(\hat{\symbf{\psi}}^{\prime}\bigg[\widehat{Var(\hat{\symbf{\psi}})}\bigg]^{-1}\hat{\symbf{\psi}}\Bigg/\operatorname{rank}(\symbf\psi)\)</span>，具有近似——在某些情况下是精确的—— <span class="math inline">\(F\)</span> 分布。式 <a href="chap6.html#eq:6-19">(6.19)</a> 给出了用于线性模型近似 <span class="math inline">\(F=\widehat{\text{Wald}}\Big/\operatorname{rank}(\symbf K)\)</span> 统计量的最一般表达式。所有其他形式，式 <a href="chap6.html#eq:6-8">(6.8)</a>, <a href="chap6.html#eq:6-10">(6.10)</a> 和 <a href="chap6.html#eq:6-14">(6.14)</a> 都是特殊情况。</p>
+<p>Wald 和近似 <span class="math inline">\(F\)</span> 在线性模型推断中具有两大优势。首先，它们不需要估计两个不同的模型，而似然比检验需要估计全模型和简化模型（如果我们使用偏差方法，则需要估计数据下的似然）。此外，我们为感兴趣的可估或可预测函数明确定义了 Wald 和近似 <span class="math inline">\(F\)</span>，因此我们确切地知道我们正在检验什么。似然比方法（顺便说一下，还有经典 ANOVA 的缩减平方和）鼓励基于序贯拟合的检验。正如我们将在下一节中看到的，当我们使用序贯检验方法时，并不总是清楚我们实际检验的是什么。</p>
+<p>最后，对于使用伪似然估计的 GLMMs，不存在似然比统计量。你可以根据全模型的伪似然和简化模型的伪似然计算伪似然比，但每个伪似然都基于不同的 <span class="math inline">\(\symbf y^*\)</span>，该 <span class="math inline">\(\symbf y^*\)</span> 对于特定的模型是唯一的。因此，目前还不清楚伪似然比意味着什么。无论如何，这都不是检验假设的合适基础。另一方面，对于 GLMM，Wald 和近似 <span class="math inline">\(F\)</span> 是良定的，并且近似 <span class="math inline">\(F\)</span> 似乎在模拟研究中表现良好。</p>
+<p>图 6.1 显示了具有 10 个配对的两处理配对设计的模拟结果。线性预测器为 <span class="math inline">\(\mathrm{logit}\Big(\pi_{ij}\Big)=\eta+\tau_i+p_j\)</span>，其中 <span class="math inline">\(p_j\mathrm{~iid~}N\left(0,\sigma_P^2\right)\)</span> ——该图为 <span class="math inline">\(H_0\colon\tau_1=\tau_2\)</span> 的近似 <span class="math inline">\(F\)</span> 统计量的经验 p.d.f. 与实际的中心 <span class="math inline">\(F_{1,9}\)</span> 的图形。</p>
+<details><summary><font color="#8B2232">图 6.1</font>
+</summary><img src="figure/figure%206.1.png#center" style="width:60.0%"></details>
+</div>
+<div id="sec6-4-3" class="section level3" number="6.4.3">
+<h3>
+<span class="header-section-number">6.4.3</span> 特例：<span class="math inline">\(\symbf V=\symbf I\sigma^2\)</span> 的高斯 LM<a class="anchor" aria-label="anchor" href="#sec6-4-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>当我们引入似然比检验时，我们说在大多数情况下，我们无法确定似然比的精确分布，因此我们依赖于 <span class="math inline">\(-2\log(\Lambda)\)</span> 具有近似 <span class="math inline">\(\chi^2\)</span> 分布这一结果。而高斯 LM 是我们可以确定精确分布的模型。事实上，在一定的条件下，我们可以证明对于高斯 LM，似然比和 Wald 检验是等价的。</p>
+<p>假设我们要检验 <span class="math inline">\(H_0\colon\symbf{K^{\prime}\beta}=\symbf{K^{\prime}\beta}_0\)</span>。我们首先计算全模型下的偏差。如此会得到 <span class="math inline">\(\text{deviance}\left(\symbf{K^{\prime}\tilde{\beta}}\right)\)</span>，对于高斯 LM，该偏差等于全模型下的 <span class="math inline">\(SS(\text{residual})\)</span>，记作 <span class="math inline">\(SSR_F\)</span>。然后我们计算原假设下的偏差：<span class="math inline">\(\text{deviance}\left(\symbf{K}^{\prime}{\symbf\beta_0}\right)=SSR_0\)</span>，其中 <span class="math inline">\(SSR_0\)</span> 表示原假设下 <span class="math inline">\(SS(\text{residual})\)</span>。似然比统计量是两个偏差项之差，以平方和项表示，可写为 <span class="math inline">\(SSR_0-SSR_F=SSH\)</span>，其中 <span class="math inline">\(SSH\)</span> 等于由可估函数 <span class="math inline">\(\symbf {K'\beta}\)</span> 定义的对比的平方和。我们知道 <span class="math inline">\(SSH\)</span> 是一个二次型，以及 <span class="math inline">\(SSH/\sigma^2\sim\chi_{\operatorname{rank}(\symbf{K})}^2\)</span>。如果我们知道方差，我们就可以使用它并合理地进行卡方检验。如果我们不知道 <span class="math inline">\(\sigma^2\)</span>，那么使用偏差统计量来检验 <span class="math inline">\(H_0\)</span> 显然是站不住脚的（除非 <span class="math inline">\(\sigma^2\)</span> 恰好接近 1）。</p>
+<p>现在，很容易证明 <span class="math inline">\(H_0\colon\symbf{K^{\prime}\beta}=\symbf{K^{\prime}\beta}_0\)</span> 的 Wald 统计量也是 <span class="math inline">\(SSH/\sigma^2\)</span>（即对于高斯 LM，Wald 和似然比统计量是相同的），因此我们面临着与未知 <span class="math inline">\(\sigma^2\)</span> 的似然比统计量相同的困境。我们该怎么办？按照导出式 <a href="chap6.html#eq:6-8">(6.8)</a> 的过程，我们用 <span class="math inline">\(\hat\sigma^2\)</span> 替换 <span class="math inline">\(\sigma^2\)</span>。<span class="math inline">\(\sigma^2\)</span> 的 REML 估计恰好为 <span class="math inline">\(SSR_F\Big/[N-\operatorname{rank}(\symbf X)]\)</span>，我们也称为全模型下的 <span class="math inline">\(MS(\text{residual})\)</span>，记为 <span class="math inline">\(MSR_F\)</span>。用 <span class="math inline">\(\hat\sigma^2\)</span> 替换 <span class="math inline">\(\sigma^2\)</span> 得到 <span class="math inline">\(SSH/MSR_F\)</span>。我们不知道该统计量的分布，但如果我们将它除以 <span class="math inline">\(\operatorname(\symbf K)\)</span>，我们就得到 <span class="math inline">\(MSH/MSR_F\)</span>，我们立即意识到其为 <span class="math inline">\(F\)</span> 统计量，或者用更正式的分布理论术语来说，是两个独立卡方随机变量除以它们各自的自由度的比——即具有 <span class="math inline">\(F\)</span> 分布的随机变量。请注意，<span class="math inline">\(SSH/MSR_F\)</span> 是 <span class="math inline">\(\widehat{\text{Wald}}\)</span> 的简单形式，<span class="math inline">\(F\)</span> 统计量只是 <span class="math inline">\(\widehat{\text{Wald}}\Big/\operatorname{rank}(\symbf K)\)</span>。</p>
+</div>
+<div id="sec6-4-4" class="section level3" number="6.4.4">
+<h3>
+<span class="header-section-number">6.4.4</span> 多效应模型和检验顺序<a class="anchor" aria-label="anchor" href="#sec6-4-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>基于经典方差分析的线性模型理论区分了“部分” (“partial”) 和“序贯” (“sequential”) 平方和。部分平方和也称为“调整的”平方和。SAS<sup>®</sup> 线性模型程序（GLM, GENMOD, MIXED 和 GLIMMIX）将序贯平方和（或使用序贯程序中隐含的可估函数的程序）称为 “<strong>I 型 SS”</strong>，将部分或调整的平方和（或其 GLM, LMM 和 GLMM 类似物）称为 “<strong>II 型 SS</strong>” 或更常见的 “<strong>III 型 SS</strong>”。</p>
+<p>对于经典的“一般” LM，序贯和部分 SS 往往会使学生和从业者感到困惑，而不是促进线性模型方法的合理和适当使用。GLM, LMM 和 GLMM 加剧了这一问题，因为平方和和均方没有意义。当在适当的场景中使用时，序贯地拟合模型的想法确实具有一定的意义——拟合复杂度存在明显的递增顺序的模型，例如多项式回归。当应用于处理效应模型时，序贯和部分失去了意义。对于这些模型，最好从可估函数的角度来思考：哪些 <span class="math inline">\(\symbf K\)</span> 定义了模型参数的线性组合，这些参数 1) 以清楚、直接和有意义的方式处理实际推断目标，2) 确实是可估的。</p>
+<p>我们将在第 <a href="chap8.html#chap8">8</a> 章更详细地讨论这个主题，并提供额外的理论背景。在这里，我们举两个例子来说明这些问题。其意义源于以下事实：似然比检验倾向于鼓励序贯思维，而 Wald 和近似 <span class="math inline">\(F\)</span> 统计量倾向于鼓励可估函数思维。每种方法都有其优点，但每种方法都可能得到胡说八道的结果。了解其中的区别很重要。</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex6-1" class="example"><strong>示例 6.1  (二项响应、多项多元回归) </strong></span><br></p>
+<p>本例数据在 SAS Data and Program Library 显示为 Data Set 6.1. 预测变量为 <span class="math inline">\(X\)</span>，响应变量为二项的。<span class="math inline">\(X\)</span> 的每个水平都有两个二项观测：<span class="math inline">\(N\)</span> 表示给定观测的独立伯努利试验的数量，<span class="math inline">\(F\)</span> 表示“成功”的数量。图 6.2 显示了观测 logits，即 <span class="math inline">\(\log\left(\frac{F/N}{1-\left(F/N\right)}\right)\)</span>，关于 <span class="math inline">\(X\)</span> 的图形。我们可以看到，观测 logits 关于 <span class="math inline">\(X\)</span> 的模式显然是二次的。</p>
+<details><summary><font color="#8B2232">图 6.2</font>
+</summary><img src="figure/figure%206.2.png#center" style="width:60.0%"></details><p><br>
+为实现序贯拟合，我们从线性预测器 <span class="math inline">\(\eta=\beta_0+\beta_1X\)</span> 和连接 <span class="math inline">\(\eta=\operatorname{logit}(\pi)\)</span> 开始。对于该仅线性效应 logistic 模型，检验 <span class="math inline">\(H_0{\colon{\beta}}_1=0\)</span> 的似然比统计量为 8.49，<span class="math inline">\(p\)</span> 值为 0.0036，Wald 统计量为 8.26，<span class="math inline">\(p\)</span> 值为 0.004。然而，偏差为 95.61，d.f 为 12。表明严重欠拟合——考虑到图 6.2 中观察到的二次模式，这并不奇怪。</p>
+<p>接下来，我们添加二次项：线性预测器为 <span class="math inline">\(\eta=\beta_0+\beta_1X+\beta_2X^2\)</span>。现在我们检验 <span class="math inline">\(H_0\colon\beta_2\mid\beta_1=0\)</span>，即，在线性效应之外，由二次效应解释的额外变异性。此检验的似然比统计量为 63.85，<span class="math inline">\(p &lt; 0.0001\)</span>，Wald 统计量为 58.45，<span class="math inline">\(p &lt; 0.0001\)</span>。偏差为 31.75，d.f 为 11。当我们添加三次、四次和五次项时，没有一个 <span class="math inline">\(p\)</span> 值接近统计显著性。一切都讲得通。</p>
+<p>另一方面，所谓的“部分”方法包括在所有其他回归效应都得到拟合后，检验每个潜在回归效应的影响。例如，我们将在拟合二次项、三次项、四次项和五次项后，评估添加线性项 <span class="math inline">\(\beta_1X\)</span> 的效应。这是不合逻辑的，有两个原因：首先，它假定拟合线性预测器 <span class="math inline">\(\eta=\beta_0+\beta_2X^2+\beta_3X^3+\beta_4X^4+\beta_5X^5\)</span> 是有意义的（实际上这样做没有意义）；其次，它假定此时检验 <span class="math inline">\(\beta_1X\)</span> 是合理的（实际上不是）。该检验的似然比和 Wald 统计量均为 0.30，<span class="math inline">\(p\)</span> 值分别为 0.5822 和 0.5824（对于这些数据，似然比和 Wald 统计量略有不同，但四舍五入到小数点后第二位后可忽略不计）。我们应立即认识到，这里的片面做法纯属无稽之谈。</p>
+</div>
+</div>
+<p>这里要传达的信息是，在考虑效应具有明显层次结构的模型时，序贯拟合是有意义的，并会产生合理的结果，在这种情况下首先是线性的，然后是二次的，然后是三次的，等等。</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex6-2" class="example"><strong>示例 6.2  (三因素仅主效应设计) </strong></span><br></p>
+<p>本例数据在 SAS Data and Program Library 中显示为 Data Set 6.2. 数据来自三因素正交主效应设计。三个因子，这里称为 A, B 和 C，分别观测了两个水平，标记为 0 和 1，在八个可能的 <span class="math inline">\(A×B×C\)</span> 组合中仅观测了四个组合。正交主效应设计广泛用于发现研究（尤其在其早期阶段）和质量改进（即所谓的“质量源于设计”）等应用。请注意，已观测的处理组合恰好足以估计 A, B 和 C 的主效应，但没有交互作用——当已知交互作用可忽略不计，并且建立额外 <span class="math inline">\(A×B×C\)</span> 成本高昂的情况下。对于这些数据，重复观测出现在一些但不是所有的处理组合。假定这些数据具有高斯分布。</p>
+<p>假设我们使用序贯方法来评估处理因素的效应。让我们开始按字母顺序拟合它们。从线性预测器 <span class="math inline">\(\eta_{ijk}=\eta +\alpha_i\)</span> 开始，其中 <span class="math inline">\(\eta_{ijk}\)</span> 表示第 <span class="math inline">\(ijk\)</span> 个 <span class="math inline">\(A×B×C\)</span> 组合的连接函数，<span class="math inline">\(\alpha_i\)</span> 表示因子 <span class="math inline">\(A\)</span> 的效应。第 <span class="math inline">\(l\)</span> 个重复的响应分布为 <span class="math inline">\(y_{ijkl}\sim NI\left(\mu_{ijk},\sigma^2\right)\)</span>。根据 <a href="chap6.html#sec6-4-3">6.4.3</a> 节最后的讨论，我们知道该模型的似然比和 Wald 检验是相同的，我们应该使用 <span class="math inline">\(F\)</span> 检验。对于我们的初始模型，有关 A 效应检验 <span class="math inline">\(H_0\colon\alpha_0=\alpha_1\)</span> 的 <span class="math inline">\(F\)</span> 值为 3.65，<span class="math inline">\(p=0.0978\)</span>。A 水平之间的平均差异估计为 <span class="math inline">\(1.62\pm 0.85\)</span>。现在添加因子 B。新的线性预测器为 <span class="math inline">\(\eta_{ijk}=\eta+\alpha_i+\beta_j\)</span>，其中 <span class="math inline">\(\beta_j\)</span> 表示 B 的第 <span class="math inline">\(j\)</span> 个水平的效应。检验 <span class="math inline">\(H_0\colon{\beta}_0={\beta}_1\mid\alpha_i\)</span>（即，在 A 之上添加 B 的效应）的结果：<span class="math inline">\(F = 0.86,p = 0.4175\)</span>，B 水平之间的平均差异估计为 <span class="math inline">\(0.75\pm 0.86\)</span>。最后，我们添加因子 C，结果为 <span class="math inline">\(F = 36.64,p = 0.0018\)</span>，C 水平之间的平均差异估计为 <span class="math inline">\(2.10\pm 0.35\)</span>。</p>
+<p>现在我们改变顺序：从 B 开始，然后添加 A，最后添加 C。我们从线性预测器 <span class="math inline">\(\eta_{ijk}=\eta +\beta_i\)</span> 开始。结果为 <span class="math inline">\(F = 1.71,p = 0.2328\)</span>，B 的平均差异为 <span class="math inline">\(1.16\pm 0.89\)</span>。请注意，这不是我们在 A 之后拟合 B 时得到的结果。继续，我们现在拟合 A。结果为 <span class="math inline">\(F = 2.26,p = 0.1831\)</span>，A 的平均差异 <span class="math inline">\(1.37\pm 0.91\)</span>。同样，这也不是我们之前得到的。另外，当我们拟合模型 <span class="math inline">\(\eta_{ijk}=\eta+\beta_j+\alpha_i\)</span> 并依次进行似然比检验时，若我们未能考虑到 <span class="math inline">\(\sigma^2\)</span> 未知的事实，我们得到 <span class="math inline">\(\chi^2=1.96,p=0.1612\)</span>，或者如果我们确实考虑了 <span class="math inline">\(\sigma^2\)</span> 是估计的，则 <span class="math inline">\(F = 2.01,p = 0.2057\)</span>。显然，我们有一个问题：平均差异和显著性似乎很混乱 (all over the map). 更糟糕的是：如果我们先拟合 B，然后加上 C，得到 B 的结果是 <span class="math inline">\(F=3.19,p=0.1242\)</span>，B 的平均差异为 <span class="math inline">\(1.16\pm 0.65\)</span>。如果我们使用线性预测器 <span class="math inline">\(\eta_{ijk}=\eta+\beta_j+\gamma_k+\alpha_i\)</span> 拟合所有三个效应并按顺序进行检验，则 B 的结果为 <span class="math inline">\(F = 13.97,p = 0.0135\)</span>，B 的平均差异为 <span class="math inline">\(1.16\pm 0.31\)</span>！根据我们拟合效应的顺序和检验方式，B 的 <span class="math inline">\(p\)</span> 值可以在 0.0135 到 0.8910<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：下方表中的 &lt;span class="math inline"&gt;\(p\)&lt;/span&gt;-value，由 SAS 的 LSMEANS 语法计算。&lt;/p&gt;'><sup>17</sup></a> 之间！显然，这种方法有问题。</p>
+</div>
+</div>
+<p>对于这些数据，一个更好的策略是要清晰地思考我们想要估计的是什么，我们想要检验的是什么，并将这些目标用可估函数来描述。事实证明，序贯策略蕴含着依赖于数据模式的隐含可估函数：这些结果是设计中使用的处理组合以及不等重复模式的产物。在第 <a href="chap8.html#chap8">8</a> 章中，我们将探讨如何确定各种检验策略中隐含的可估函数。目前，让我们集中精力讨论我们应该怎么做。</p>
+<p>假设不等重复更多地是偶然发生的（而非预先的设计），我们希望得到因子水平均值的估计，这些估计告诉我们如果采用相等重复会得到什么结果。Searle (1987) 将这些称为“调整的边际均值” (“adjusted marginal means”). SAS<sup>®</sup> 将其称为 “least squares means”，并在其线性模型程序中使用语法 LSMEANS。不管我们怎么称呼它们，估计均值的策略包括分离出感兴趣的因素水平，并在其他因素的水平上求平均。例如，对于因子 A，定义水平 <span class="math inline">\(A_0\)</span> 的均值的可估函数为 <span class="math inline">\(\eta+\alpha_0+(\beta_0+\beta_1)/2+(\gamma_0+\gamma_1)/2\)</span>。类似地，定义 <span class="math inline">\(B_i\)</span> 均值的可估函数为 <span class="math inline">\(\eta+\beta_i+(\alpha_0+\alpha_1)/2+(\gamma_0+\gamma_1)/2\)</span>。这样，当我们估计平均差时，我们会取边际均值之差，得到 <span class="math inline">\(\alpha_0-\alpha_1,\beta_0-\beta_1\)</span> 和 <span class="math inline">\(\gamma_0-\gamma_1\)</span>，这些似乎都是激发收集这些数据的研究的逻辑焦点。如此做，我们得到如下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20194.png#center" style="width:60.0%"></div>
+<p>总的来说，检验效应的策略应像本章开头说的那样：专注于定义可估函数，该可估函数能表达你的目标。从序贯平方和、部分平方和或 1 型/ 2 型/ 3 型假设的角度来思考并不能帮你达到目的，但从 <span class="math inline">\(\symbf{K'\beta}\)</span> 的角度思考可以。</p>
+</div>
+</div>
+<div id="sec6-5" class="section level2" number="6.5">
+<h2>
+<span class="header-section-number">6.5</span> 使用基于模型的统计量进行推断<a class="anchor" aria-label="anchor" href="#sec6-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>“使用基于模型的统计量进行推断” (“Inference using model-based statistics”) 是指使用 <a href="chap6.html#eq:6-17">(6.17)</a>, <a href="chap6.html#eq:6-18">(6.18)</a> 和 <a href="chap6.html#eq:6-19">(6.19)</a> 作为基本工具：基于 <span class="math inline">\(t\)</span> 分布的区间估计、使用近似 <span class="math inline">\(F\)</span> 的假设检验以及两者共同的定义特征——估计可估和可预测函数的方差 <span class="math inline">\(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\)</span>。回想 <a href="chap6.html#sec6-3">6.3</a> 节末尾的讨论，实现该方法涉及的两个主要问题是：1) 近似 <span class="math inline">\(F\)</span> 的分母自由度（因此也包括 <span class="math inline">\(t\)</span> 的自由度）通常必须近似，以及 2) 除了均衡仅方差分量混合模型外，<span class="math inline">\(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\)</span> 是 <span class="math inline">\(\symbf{L}^{\prime}{\symbf{C}}\symbf{L}\)</span> 的有偏估计。在本节中，我们将探讨这些问题：<a href="chap6.html#sec6-5-1">6.5.1</a> 节奠定基础，第 <a href="chap6.html#sec6-5-2">6.5.2</a> 节具体讨论自由度近似，<a href="chap6.html#sec6-5-3">6.5.3</a> 节提出了标准的偏差调整策略。</p>
+<div id="sec6-5-1" class="section level3" number="6.5.1">
+<h3>
+<span class="header-section-number">6.5.1</span> 朴素统计量和自由度<a class="anchor" aria-label="anchor" href="#sec6-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>式 <a href="chap6.html#eq:6-17">(6.17)</a> 的方差估计 <span class="math inline">\(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\)</span>，称为 <span class="math inline">\(\symbf{K'\tilde{\beta}}+\symbf{M'}\left(\tilde{\symbf{b}}-\symbf{b}\right)\)</span> 方差的“朴素” (“naive”) 估计。对于 <span class="math inline">\(\symbf k\)</span> 和 <span class="math inline">\(]symbf m\)</span> 为向量的可估或可预测函数，</p>
+<p><span class="math display">\[\sqrt{(\symbf{k^{\prime}}\quad\symbf{m^{\prime}})\hat{\symbf{C}}{\begin{bmatrix}\symbf{k}\\\symbf{m}\end{bmatrix}}}\]</span></p>
+<p>称为<strong>朴素标准误</strong>。从这个意义上说，我们可以将 <a href="chap6.html#eq:6-19">(6.19)</a> 称为朴素 <span class="math inline">\(F\)</span> 统计量，尽管该术语很少在混合模型领域中使用。我们称这些估计为“朴素”，因为 Kackar and Harville (1984) 表明，除了均衡仅方差分量和某些边际模型（例如复合对称性，这些模型具有等价的仅方差分量条件模型形式）外的混合模型，该估计有向下的偏差，即 <span class="math inline">\(E\left(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\right)&lt;\symbf{L}^{\prime}{\symbf{C}}\symbf{L}\)</span><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;原文：We call the estimates “naive” because Kackar and Harville (1984) showed they have a downward bias – i.e. &lt;span class="math inline"&gt;\(E\left(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\right)&amp;lt;\symbf{L}^{\prime}{\symbf{C}}\symbf{L}\)&lt;/span&gt; – for mixed models other than balanced variance-component-only and certain marginal models – e.g. compound symmetry – that have an equivalent variance-component-only conditional model form.&lt;/p&gt;'><sup>18</sup></a>。除非我们纠正这种偏差，否则我们的置信区间太窄——因此覆盖率较低——检验统计量膨胀——因此 I 类错误率过高。</p>
+<p>分母自由度也可能是一个问题。在第 <a href="chap2.html#chap2">2</a> 章中，我们开发了“Fisher会怎么做？”框架 ANOVA 策略，用于构建线性预测器并区分固定和随机模型效应。编写框架 ANOVA 需要列出每个效应的自由度。这样做为确定分母自由度提供了指导。对于某些模型的一些可估函数，这种策略给了我们精确的自由度。在其他情况下，这些自由度提供了合理的指导方针，但并不精确。随着模型协方差结构复杂性的增加，框架 ANOVA 自由度和用于 <a href="chap6.html#eq:6-19">(6.19)</a> 的“真实” <span class="math inline">\(\nu_2\)</span> 之间的差异往往会增加。“真实”加了引号，因为 <a href="chap6.html#eq:6-19">(6.19)</a> 是近似的 <span class="math inline">\(F\)</span>，所以根据定义，<span class="math inline">\(\nu_2\)</span> 也必须是近似的。我们把框架 ANOVA 自由度称为“朴素”自由度。我们所说的“真实” <span class="math inline">\(\nu_2\)</span> 实际上是指高质量近似—— <a href="chap6.html#sec6-5-2">6.5.2</a> 节中给出的 Satterthwaite 近似。</p>
+<p>首先，让我们通过一个简单的仅方差分量的 LMM 示例来清楚地理解激发 Satterthwaite 近似的问题。考虑一个均衡双因素数据集，其中对每个 <span class="math inline">\(A×B\)</span> 组合进行重复观测。假定 A 的水平是有意选择的，而 B 的水平是通过对 B 的可能水平的总体进行随机抽样得到的。我们可将 LMM 描述为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\alpha_i+b_j+(ab)_{ij}\)</span>，其中 <span class="math inline">\(\alpha_i\)</span> 表示 A 的第 <span class="math inline">\(i\)</span> 个效应（固定），<span class="math inline">\(b_j\)</span> 表示 B 的第 <span class="math inline">\(j\)</span> 个效应（随机），<span class="math inline">\((ab)_{ij}\)</span> 表示交互效应（也是随机的）。假定 <span class="math inline">\(i=1,2,\ldots,a\)</span> 以及 <span class="math inline">\(j=1,2,\ldots,b\)</span>。</p></li>
+<li><p>分布：<span class="math inline">\(b_j\mathrm{~iid~}N\left(0,\sigma_B^2\right),(ab)_{ij}\mathrm{~iid~}N\left(0,\sigma_{AB}^2\right)\)</span> 以及 <span class="math inline">\(y_{ijk}\mid b_j,(ab)_{ij}\sim NI\left(\mu_{ij},\sigma^2\right)\)</span>。其中，<span class="math inline">\(y_{ijk}\)</span> 表示第 <span class="math inline">\(ij\)</span> 个 AB 组合的第 <span class="math inline">\(k\)</span> 个观测。</p></li>
+<li><p>连接：恒等。</p></li>
+</ul>
+<p>该模型的 ANOVA 为</p>
+<div class="inline-figure"><img src="figure/figure%20196.png#center" style="width:60.0%"></div>
+<p>考虑用于估计 A 差异的可估函数：<span class="math inline">\(\alpha_i-\alpha_{i'}\)</span>，我们通过 <span class="math inline">\(\bar{y}_{i\cdot\cdot}-\bar{y}_{i'\cdot\cdot}=1/nb\sum_{j,k}y_{ijk}-1/nb\sum_{j,k}y_{i'jk}\)</span> 来估计该差异。以模型形式表达为 <span class="math inline">\(1/nb\sum_{j,k}\left(\eta+\alpha_i+b_j+(ab)_{ij}\right)-1/nb\sum_{j,k}\left(\eta+\alpha_{i^{\prime}}+b_j+(ab)_{i^{\prime}j}\right)\)</span>，我们可以很容易地证明 <span class="math inline">\(Var\left(\hat{\alpha}_i-\hat{\alpha}_{i'}\right)=\left[2\left(\sigma^2+n\sigma_{AB}^2\right)\right]/nb\)</span>，由 <span class="math inline">\(2{\left[MS\left(AB\right)\right]}/nb\)</span><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：见表格。&lt;/p&gt;"><sup>19</sup></a> 来估计。其中 <span class="math inline">\(MS(AB)\)</span> 是用于检验 <span class="math inline">\(H_0\colon\alpha_i=\alpha_{i'}\)</span> 的 <span class="math inline">\(F\)</span> 比中的分母卡方，也是构建置信区间所需 <span class="math inline">\(t\)</span> 分布的分母卡方。因此，AB 的自由度为 <span class="math inline">\(\nu_2=(a-1)(b-1)\)</span>。</p>
+<p>现在考虑 A 的一个水平的均值。可估函数为 <span class="math inline">\(\eta+\alpha_i\)</span>，我们通过 <span class="math inline">\(\bar{y}_{i\cdot\cdot}=1/nb\sum_{j,k}y_{ijk}\)</span> 来估计。以模型形式编写，我们可再次证明
+<span class="math inline">\(Var\left(\hat{{\eta}}+\hat{{\alpha}}_i\right)=\left[n\Big(\sigma_B^2+\sigma_{AB}^2\Big)+\sigma^2\right]/nb\)</span>。方差分量的 ANOVA 估计如下：<span class="math inline">\(\hat{\sigma}_B^2=\begin{pmatrix}1/nb\end{pmatrix}\begin{bmatrix}MS(B)-MS(AB)\end{bmatrix},\quad\hat{\sigma}_{AB}^2=\begin{pmatrix}1/n\end{pmatrix}\begin{bmatrix}MS(AB)-MSR\end{bmatrix}\)</span> 以及 <span class="math inline">\(\hat{\sigma}^2=MSR\)</span>。经过一些代数运算可得到 <span class="math inline">\(Var\left(\hat{\eta}+\hat{\alpha}_i\right)\)</span> 的估计为 <span class="math inline">\(\begin{pmatrix}1/b\end{pmatrix}\begin{bmatrix}MS\begin{pmatrix}B\end{pmatrix}+\begin{pmatrix}b-1\end{pmatrix}MS(AB)\end{bmatrix}\)</span>。现在我们有了两个卡方随机变量的线性组合：对于 <span class="math inline">\(\nu_2\)</span> 我们应该使用哪个自由度？<span class="math inline">\((b - 1)\)</span> 还是 <span class="math inline">\((a-1)(b-1)\)</span>？还是两者的加权平均？我们将在下一节中讨论这个问题。</p>
+</div>
+<div id="sec6-5-2" class="section level3" number="6.5.2">
+<h3>
+<span class="header-section-number">6.5.2</span> Satterthwaite 自由度近似<a class="anchor" aria-label="anchor" href="#sec6-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们在上一节中悬而未决的问题由 Satterthwaite (1941, 1946) 解决。Satterthwaite 表明，给定比值</p>
+<p><span class="math display">\[\frac{X_{num}^2/\nu_1}{X_2^*/\nu_2^*}\]</span></p>
+<p>其中 <span class="math inline">\(X_{num}^2\sim\chi_{\nu_1}^2\)</span>，<span class="math inline">\(X_2^*\)</span> 是均独立于 <span class="math inline">\(X_{num}^2\)</span> 的卡方随机变量的线性组合，那么 <span class="math inline">\(X_2^*\sim \text{ 近似 } \chi^2_{\nu_2^*}\)</span>，其中</p>
+<p><span class="math display" id="eq:6-21">\[\begin{align}
+\nu_2^*\cong\frac{\left(\sum_mc_mX_m^2\right)^2}{\sum_m\frac{\left(c_mX_m^2\right)}{df_m}}
+\tag{6.21}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(X^2_m\)</span> 表示 <span class="math inline">\(\chi^2_{df_m}\)</span> 随机变量<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：Satterthwaite 近似是对自由度的近似，原书此处表达得不太清楚。事实上 &lt;span class="math inline"&gt;\(X_2^*=\sum_m c_mX^2_m\)&lt;/span&gt;，即，均独立于 &lt;span class="math inline"&gt;\(X_{num}^2\)&lt;/span&gt; 的卡方随机变量的线性组合，&lt;span class="math inline"&gt;\(df_m\)&lt;/span&gt; 表示第 &lt;span class="math inline"&gt;\(m\)&lt;/span&gt; 个卡方变量的自由度。&lt;span class="math inline"&gt;\(X_{num}^2\)&lt;/span&gt; 中的 “num” 是 “numerator”（分子）的缩写。&lt;/p&gt;'><sup>20</sup></a>。我们称式 <a href="chap6.html#eq:6-21">(6.21)</a> 为 <strong>Satterthwaite 近似</strong>。<span class="math inline">\(c_m\)</span> 表示线性组合中的常数，<span class="math inline">\(df_m\)</span> 表示相应 <span class="math inline">\(X_m^2\)</span> 的自由度。</p>
+<p>在我们的示例中，Satterthwaite 近似自由度为</p>
+<p><span class="math display">\[\nu_2^*\cong\frac{\left[MS\left(\mathrm{B}\right)+\left(b-1\right)MS\left(\mathrm{AB}\right)\right]^2}{\frac{\left[MS\left(\mathrm{B}\right)\right]^2}{b-1}+\frac{\left[MS\left(\mathrm{AB}\right)\right]^2}{(a-1)(b-1)}}\]</span></p>
+<p>我们可以构造 <span class="math inline">\(\eta+\alpha_i\)</span> 的置信区间：</p>
+<p><span class="math display">\[\bar{y}_{i\cdot\cdot}\pm t_{{\nu_{2}^{*},\alpha/2}}\sqrt{\frac{MS\left(\mathrm{B}\right)+\left(b-1\right)MS\left(\mathrm{AB}\right)}{b}}\]</span></p>
+<p>对于仅方差分量的高斯 LMM，我们可以使用 <a href="chap6.html#eq:6-21">(6.21)</a> 中所示的 Satterthwaite 近似形式，但不能用于更复杂的 LMMs 或 GLMMs. Geisbrecht and Burns (1985) 扩展了 <a href="chap6.html#eq:6-21">(6.21)</a>，以包含一般 LMM 的可估函数。当 <span class="math inline">\(\symbf k\)</span> 是向量时，我们可以将该近似写为 <span class="math inline">\(\nu_2\cong2\Big\{E\Big[\symbf k'\big(\symbf X'\symbf V^{-1}\symbf X\big)^-\symbf k\Big]\Big\}^2\Bigg/Var\Big[\symbf k'\big(\symbf X'\symbf V^{-1}\symbf X\big)^-\symbf k\Big]\)</span>。</p>
+<p>在实践中，我们需要用 <span class="math inline">\(\hat{\symbf V}\)</span> 替换 <span class="math inline">\(\symbf V\)</span>，因为不可避免地我们有一个未知的 <span class="math inline">\(\symbf V\)</span>。此外，分母方差项不存在“好的”表达式。Geisbrecht and Burns 使用近似 <span class="math inline">\(Var\left[\symbf{k'}\left(\symbf{X'}\symbf{V}^{-1}\symbf{X}\right)^-\symbf{k}\right]\cong\symbf{g'}\symbf{V}_A\left({\hat{\symbf\sigma}}\right)\symbf{g}\)</span>，其中</p>
+<p><span class="math display">\[\symbf{g}=\left.\frac{\partial\left[\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}\left(\symbf{\sigma}\right)^{-1}\symbf{X}\right)\symbf{k}\right]}{\partial\symbf{\sigma}^{\prime}}\right|_{\symbf\sigma=\hat{\symbf\sigma}}\]</span></p>
+<p>以及 <span class="math inline">\(\symbf{V}_A\left({\hat{\symbf\sigma}}\right)\)</span> 为协方差参数估计 <span class="math inline">\(\hat{\symbf \sigma}\)</span> 的渐近协方差阵。使用众所周知的方差分量结果（参见 Searle et al., 1992），我们将渐近方差的第 <span class="math inline">\(ij\)</span> 个元素写为</p>
+<p><span class="math display">\[V_{A,ij}=2\times\left[\operatorname{trace}\left\{\symbf{P}{\left(\frac{\partial V(\symbf{\sigma})}{\partial\sigma_i}\right)}\symbf{P}{\left(\frac{\partial V(\symbf{\sigma})}{\partial\sigma_j}\right)}\right\}\right]^{-1}\]</span></p>
+<p>其中，回想式 <a href="chap5.html#eq:5-27">(5.27)</a>，<span class="math inline">\(\symbf{P}=\left[\symbf{V}(\symbf{\sigma})\right]^{-1}-\left[\symbf{V}(\symbf{\sigma})\right]^{-1}\symbf{X}\left(\symbf{X}^{\prime}\left[\symbf{V}(\symbf{\sigma})\right]^{-1}\symbf{X}\right)^{-}\symbf{X}^{\prime}\left[\symbf{V}(\symbf{\sigma})\right]^{-1}\)</span>。实际计算得到的 Satterthwaite 近似为</p>
+<p><span class="math display" id="eq:6-22">\[\begin{align}
+\nu_2\cong\frac{2\left[\symbf{k}^{\prime}\left(\symbf{X}^{\prime}\symbf{V}\left(\symbf{\hat{\sigma}}\right)^{-1}\symbf{X}\right)^{-}\symbf{k}\right]^2}{\symbf{g}^{\prime}\symbf{V}_A\left(\symbf{\hat{\sigma}}\right)\symbf{g}}
+\tag{6.22}
+\end{align}\]</span></p>
+<p>对于在 GLMMs 上定义的可估函数，我们可以使用 <a href="chap6.html#eq:6-22">(6.22)</a> 的特别版本。为此，我们将 <span class="math inline">\(\left[\symbf{V}(\symbf{\hat{\sigma}})\right]^{-1}\)</span> 替换为 <span class="math inline">\(\symbf V^*\)</span>，或更准确地说，替换为第 <a href="chap5.html#chap5">5</a> 章定义的 <span class="math inline">\(\hat{\symbf V}^*\)</span>。请注意，我们只能将 GLMMs 的 Satterthwaite 近似与伪似然估计结合使用，因为所需元素仅对 PL 语境中的 GLMM 有意义。</p>
+<p>对于可预测函数，Satterthwaite 近似的扩展是直接的：我们用协方差分量估计（和/或 GLMMs 的工作相关系数，当它们可用时）将式 <a href="chap6.html#eq:6-22">(6.22)</a> 分子中的 <span class="math inline">\(\symbf{k}^{\prime}(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X})^-\symbf{{k}}\)</span> 替换为 <span class="math inline">\(\symbf L \symbf C'\symbf L\)</span>。这些式子可扩展到多维 <span class="math inline">\(\symbf K\)</span> 和 <span class="math inline">\(\symbf L\)</span>——此处省略细节。</p>
+</div>
+<div id="sec6-5-3" class="section level3" number="6.5.3">
+<h3>
+<span class="header-section-number">6.5.3</span> 基于模型的标准误差和检验统计量的偏差校正<a class="anchor" aria-label="anchor" href="#sec6-5-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于具有均衡数据的仅方差分量 LMMs 及其复合对称边际模型等价物，<span class="math inline">\(\symbf{K}′\tilde{\symbf\beta}\)</span> 的协方差估计如 <a href="chap6.html#eq:6-8">(6.8)</a> 和 <a href="chap6.html#eq:6-9">(6.9)</a> 所示，即 <span class="math inline">\(\symbf{K}^{\prime}(\symbf{X}^{\prime}\symbf{V}(\hat{\symbf\sigma})^{-1}\symbf{X})^-\symbf{\bar{K}}\)</span>，为 <span class="math inline">\(Var\left(\symbf{K}'\tilde{\symbf{\beta}}\right)=\symbf{K'}\left(\symbf{X'V}\left(\symbf{\sigma}\right)^{-1}\symbf{X}\right)^-\symbf{{K}}\)</span> 的无偏估计。否则，对于所有其他 LMM 和 GLMM 情况，<span class="math inline">\(E\left(\symbf{L}^{\prime}\hat{\symbf{C}}\symbf{L}\right)&lt;\symbf{L}^{\prime}{\symbf{C}}\symbf{L}\)</span>。Kackar and Harville (1984) 首次记录了这一点。后来的出版物，特别是 Prasad and Rao (1990) 和 Harville and Jeske (1992) 探讨了这个问题，特别是关于可预测函数的方差估计。Kenward and Roger (1997) 开发了一个偏差校正项，该项作为选项添加到 MIXED 程序中，并包含在 GLIMMIX 程序中。Guerin and Stroup (2000) 通过涉及纵向数据的几个相关误差模型的模拟研究，研究了 PROC MIXED 在有和没有 Kenward-Roger 选项的 LMM 近似 <span class="math inline">\(F\)</span> 的 I 类错误率。他们发现，使用“朴素”自由度（如本节早些时候所述）的未校正 I 类错误率膨胀了，通常在名义 <span class="math inline">\(\alpha = 0.05\)</span> 时，错误率处于 15% 的范围内。Satterthwaite 自由度校正本身对 I 类错误率膨胀几乎没有影响。Kenward-Roger 校正始终能将 I 类错误率控制在 4% 至 6% 的范围内。Kenward and Roger 在他们的研究中发现了类似的小样本表现，并在他们 1997 年的论文中达到了高潮。后续的工作——主要基于大量未公开发表的模拟研究的口头传统——已经证实了 Kenward-Roger 校正对 LMMs 的有效性，这已成为一个既定的事实。虽然从技术上讲，Kenward-Roger 校正是一个选项，但我们可将其视为 LMMs 推断中推荐的默认标准操作程序。</p>
+<p>我们简要地描述该校正。有兴趣的读者应参阅原始论文以了解更多详细信息。Kenward and Roger 关注 <span class="math inline">\(\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\)</span>。遵循 Kackar and Harville，他们得到了我们可用可估函数项来表征的结果：</p>
+<p><span class="math display">\[E\bigg[\symbf{K}^{\prime}\bigg(\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\symbf{X}\bigg)^{-1}\symbf{K}\bigg]=\symbf{K}^{\prime}\big(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\big)^{-}\symbf{K}+\frac{1}{2}\sum\operatorname{cov}\big(\sigma_{i},\sigma_{j}\big)\symbf{K}^{\prime}\frac{\partial^{2}\bigg[\big(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\big)^{-}\bigg]}{\partial\sigma_{i}\partial\sigma_{j}}\symbf{K}\]</span></p>
+<p>其中 <span class="math inline">\(\sigma_i\)</span> 和 <span class="math inline">\(\sigma_j\)</span> 表示协方差向量 <span class="math inline">\(\symbf\sigma\)</span> 的第 <span class="math inline">\(i\)</span> 和第 <span class="math inline">\(j\)</span> 个元素，<span class="math inline">\(\operatorname{cov}(\sigma_i,\sigma_j)\)</span> 为渐近协方差阵的第 <span class="math inline">\(ij\)</span> 个元素——我们之前用 <span class="math inline">\(\symbf V_A\left(\hat{\symbf\sigma}\right)\)</span> 表示。Kenward and Roger 使用如下结果来获得偏差调整：</p>
+<p><span class="math display" id="eq:6-23">\[\begin{align}
+&amp;\small\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_{KR-adj}=\\&amp;\small\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_N+2\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_N\left\{\sum_{i,j}\symbf{V}_{A,ij}\left(\symbf{Q}_{ij}-\symbf{X}^{\prime}\frac{\partial\symbf{V}^{-1}}{\partial\sigma_i}\symbf{X}\left[\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_N\right]\symbf{X}^{\prime}\frac{\partial\symbf{V}^{-1}}{\partial\sigma_j}\symbf{X}-\frac14\symbf{T}_{ij}\right)\right\}\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_N
+\tag{6.23}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}=\left(\symbf{X}'\hat{\symbf{V}}^{-1}\symbf{X}\right)^-\)</span>，<span class="math inline">\(\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_{KR-adj}\)</span> 表示 Kenward-Roger 调整的 <span class="math inline">\(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\)</span>，<span class="math inline">\(\left(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\right)_{N}\)</span> 表示朴素 <span class="math inline">\(\hat{\symbf{V}}_{\hat{\symbf{\beta}}}\)</span>，<span class="math inline">\(\symbf{Q}_{ij}=\symbf{X}'\frac{\partial\symbf{V}^{-1}}{\partial\sigma_i}\hat{\symbf{V}}^{-1}\frac{\partial\symbf{V}^{-1}}{\partial\sigma_j}\symbf{X}\)</span>，以及 <span class="math inline">\(\symbf{T}_{ij}=\symbf{X}^{\prime}\hat{\symbf{V}}^{-1}\frac{\partial^2\symbf V(\symbf{\sigma})}{\partial\sigma_i\partial\sigma_j}\symbf{V}^{-1}\symbf{X}\)</span>。</p>
+<p>Kackar and Harville 的表达式类似于 <a href="chap6.html#eq:6-23">(6.23)</a>，但没有 <span class="math inline">\(\symbf T_{ij}\)</span> 项。对于 <span class="math inline">\(\frac{\partial^2\symbf V(\sigma)}{\partial\sigma_i\partial\sigma_j}=0\)</span> 的模型，Kackar-Harville 和 Kenward-Roger 校正是相同的。Kenward-Roger 调整是使用 LMM 为可估函数开发的。然而，如果我们用 <span class="math inline">\(\symbf V^*\)</span> 替换 <span class="math inline">\(\symbf V(\symbf\sigma,\symbf\rho)\)</span>，其中 <span class="math inline">\(\symbf V^*\)</span> 是第 <a href="chap5.html#chap5">5</a> 章中为 PL 定义的伪变量的方差，并且 <span class="math inline">\(\symbf\sigma\)</span> 和 <span class="math inline">\(\symbf\rho\)</span> 分别表示协方差和工作相关分量向量，那么 Kenward-Roger 调整可适用于 GLMM 推断。这种适应显然是特别的 (ad hoc)，但非正式的模拟研究一致表明，只要 PL 线性化准确，它就能表现良好。我们所称的“表现良好”是指平均调整的标准误与所研究的 <span class="math inline">\(\symbf K′\symbf\beta\)</span> 抽样分布的观测标准差一致，并且功效和 I 类错误特征近似与理论一致。作者熟悉二项和泊松 GLMM 的研究——这些研究一致表明，除非二项的集群尺寸非常小，否则这种特别的 Kenward-Roger 程序是准确的。但对于双参数指数家族的成员，似乎存在问题。</p>
+<p>请注意，与 Satterthwaite 近似一样，Kenward-Roger 程序不能与积分近似法、拉普拉斯或高斯-埃尔米特求积法一起使用。在下一节中，我们将讨论替代方法。</p>
+</div>
+</div>
+<div id="sec6-6" class="section level2" number="6.6">
+<h2>
+<span class="header-section-number">6.6</span> 使用经验标准误进行推断<a class="anchor" aria-label="anchor" href="#sec6-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>当 Kackar and Harville 在 LMM 背景下研究标准误偏差问题时，Liang and Zeger (1986) 在他们正在开发的 GEE 理论和方法背景下遇到了类似的问题。他们提出了一种称为“<strong>三明治估计</strong>” (“sandwich estimator”) 的解决方案，在线性模型文献中也称为“经验”或“稳健”标准误估计。对于具有相关误差的 LMMs 和 GLMMs（将在后续章节中考虑），三明治估计具有明显的优势，即与 <a href="chap6.html#sec6-3">6.3</a> 节和 <a href="chap6.html#sec6-4">6.4</a> 节中讨论的基于模型的标准误相比，更不容易受到 <span class="math inline">\(\symbf V\)</span> 或 <span class="math inline">\(\symbf V^*\)</span> 错误指定的影响。</p>
+<p>然而，三明治估计对于较小的数据集有不同的偏差。“较小的数据集”包括农业、动物健康和质量改进等领域中常见的实验——本质上为受试者少于数千名的实验。未校正的三明治估计存在向下偏差：对于非常大的数据集，偏差可以忽略不计，但随着重复观测数量的减少，偏差急剧增加。对于许多学科的典型实验，未校正的三明治估计是不可用的。然而，对于不适合 PL 的 GLMM，Kenward-Roger 调整的一些替代方法是必不可少的。Morel et al. (2003) 开发了一种针对三明治估计的小样本偏差校正。</p>
+<p>在 <a href="chap6.html#sec6-6-1">6.6.1</a> 节中，我们介绍了三明治估计的基本思想及其基本结构。在 <a href="chap6.html#sec6-6-2">6.6.2</a> 节中，我们描述了 Morel et al. 的偏差校正。</p>
+<div id="sec6-6-1" class="section level3" number="6.6.1">
+<h3>
+<span class="header-section-number">6.6.1</span> 三明治（又名稳健或经验）估计<a class="anchor" aria-label="anchor" href="#sec6-6-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们从 LMM 的边际形式开始。我们知道 <span class="math inline">\(\hat{\symbf{\beta}}=\left(\symbf{X'V}^{-1}\symbf{X}\right)^-{\symbf{X'V}}^{-1}\symbf{y}\)</span>。因此</p>
+<p><span class="math display" id="eq:6-24">\[\begin{align}
+Var\left(\hat{\symbf{\beta}}\right)=\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-\symbf{X}^{\prime}\symbf{V}^{-1}Var\left(\symbf{y}\right)\symbf{X}^{\prime}\symbf{V}^{-1}\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^-
+\tag{6.24}
+\end{align}\]</span></p>
+<p>我们通过用 <span class="math inline">\(\symbf V\)</span> 替换 <span class="math inline">\(Var(\symbf y)\)</span> 来导出基于模型的标准误和检验统计量。对于未知的 <span class="math inline">\(\symbf V\)</span>，我们获得协方差分量的估计，确定 <span class="math inline">\(\hat{\symbf V}\)</span> 并用它替换 <span class="math inline">\(\symbf V\)</span>，随之带来我们在本章中探讨的所有结果。对于 GLM，<span class="math inline">\(\hat{\symbf W}\)</span> 替换 <span class="math inline">\(\hat{\symbf V}\)</span>，对于 GLMM，<span class="math inline">\(\hat{\symbf V}^*\)</span> 替换 <span class="math inline">\(\hat{\symbf V}\)</span>，但思想是相同的。</p>
+<p>估计 <span class="math inline">\(Var(\symbf y)\)</span> 的另一种方法是使用平方和和叉乘矩阵</p>
+<p><span class="math display">\[\sum_i\Big(\symbf{y}_i-\symbf{X}_i\hat{\symbf{\beta}}_i\Big)\Big(\symbf{y}_i-\symbf{X}_i\hat{\symbf{\beta}}_i\Big)'\]</span></p>
+<p>其中，<span class="math inline">\(i\)</span> 代表个体，例如区组、地点、集群等。将其插入 <a href="chap6.html#eq:6-24">(6.24)</a> 即可得到三明治估计</p>
+<p><span class="math display" id="eq:6-25">\[\begin{align}
+Var\left(\tilde{\symbf{B}}\right)=\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{X'V}^{-1}\left[\sum_{i=1}^m\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)^{\prime}\right]\symbf{X'V}^{-1}\left(\symbf{X'V}^{-1}\symbf{X}\right)^-
+\tag{6.25}
+\end{align}\]</span></p>
+<p>之所以如此命名，是因为 <span class="math inline">\(\sum_{i=1}^m\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)^{\prime}\)</span> 被“夹”在 <span class="math inline">\(\left(\symbf{X'V}^{-1}\symbf{X}\right)^-\symbf{X'V}^{-1}\)</span> 项之间。</p>
+<p>请注意，三明治估计要求我们能够根据个体定义协方差结构。例如，回想第 <a href="chap2.html#chap2">2</a> 章，在多地点实验（随机地点）中，我们可以将地点方差定义为单个实体，例如 <span class="math inline">\(Var\left(\symbf{L}\right)=\symbf{I}_m\sigma_L^2\)</span>，其中 <span class="math inline">\(m\)</span> 是地点数，或者，我们也可以将其定义为随机截距结构，其中每个地点作为个体，即 <span class="math inline">\(\symbf I_m \otimes\symbf{1}\sigma_L^2\)</span>。它们是等价的，但我们需要使用后一种形式来获得三明治估计。用 SAS PROC GLIMMIX 术语来说，对于区组设计，语句</p>
+<pre class="sas"><code>proc glimmix empirical;
+ class treatment block;
+ model y=treatment;
+ random block;</code></pre>
+<p>会产生一条错误消息，而将 <code>random block</code> 替换为 <code>random intercept / subject=block;</code> 将得到使用三明治估计的标准误、区间估计和检验统计量。请注意，PROC 语句中的 <code>EMPIRICAL</code> 选项调用三明治估计。</p>
+</div>
+<div id="sec6-6-2" class="section level3" number="6.6.2">
+<h3>
+<span class="header-section-number">6.6.2</span> 三明治估计的偏差校正<a class="anchor" aria-label="anchor" href="#sec6-6-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Morel et al. (2003) 提出了三明治估计的改进。我们可将 <a href="chap6.html#eq:6-25">(6.25)</a> 视为“朴素”三明治估计，原因有二。</p>
+<p>其一，在混合模型中，残差的平方和和叉乘应考虑设计或样本量，具体为</p>
+<p><span class="math display">\[\frac{N-1}{N-k}\frac m{m-1}\sum_{i=1}^m\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)^\prime \]</span></p>
+<p>其中 <span class="math inline">\(N\)</span> 表示观测总数，<span class="math inline">\(m\)</span> 表示个体数，<span class="math inline">\(k=\operatorname{rank}(\symbf X)\)</span>。例如，在 Stroup et al. (2018) 中呈现的 Cochran and Cox (1957) 的例子，我们在第 <a href="chap5.html#chap5">5</a> 章中介绍了 ML 和 REML 方差估计，有 15 个区组，每个区组有 4 个观测，由此 <span class="math inline">\(N=60\)</span> 个观测和 15 个处理，因此 <span class="math inline">\(k=\operatorname{rank}(\symbf X)=15\)</span> 和 <span class="math inline">\(m=15\)</span> 个个体，因为区组是个体。</p>
+<p>其二，“朴素”三明治估计隐含地要求我们假定 <span class="math inline">\(\sum_i\left(\symbf{y}_i-\symbf{X}_i\tilde{\symbf{\beta}}_i\right)=\symbf{0}\)</span>，这不一定对所有 GLMMs 都是正确的。Morel et al. 提出了一个校正项 <span class="math inline">\(\symbf{\delta}_m\symbf{\phi}\symbf{V}(\symbf{\hat{\sigma}})\)</span> 来考虑这一点，其中 <span class="math inline">\(\delta_m=\min[0.5,k/(m-k)]\)</span>，以及 <span class="math inline">\(\phi=\max\left[1,\operatorname{trace}\left\{\left(\symbf{X}^{\prime}\symbf{V}^{-1}\symbf{X}\right)^{-}\sum_i\left[\symbf{V}_i^{-1}\left(\symbf{y}_i-\symbf{X}_i\symbf{\beta}_i\right)\left(\symbf{y}_i-\symbf{X}_i\symbf{\beta}_i\right)^{\prime}\symbf{V}_i^{-1}\right]\right\}\right]\)</span>。对于广义模型（GLM 和 GLMM），用 <span class="math inline">\(\symbf V^*\)</span> 替换 <span class="math inline">\(\symbf V\)</span>，用 <span class="math inline">\(\symbf y^*\)</span> 替换 <span class="math inline">\(\symbf y\)</span>，以及用逆连接 <span class="math inline">\(\tilde{\symbf \mu}_i=h(\symbf X_i\symbf\beta_i)\)</span> 替换 <span class="math inline">\(\symbf X_i\symbf\beta_i\)</span>。</p>
+<p>在 Cochran and Cox 的数据中，<span class="math inline">\(\frac k{m-k}=\frac{15}{15-15}\)</span>，这制造了一个计算 <span class="math inline">\(\delta_m\)</span> 的问题。为了避免此类问题，PROC GLMMIX 将决策规则重新表示为</p>
+<p><span class="math display">\[\delta_m=\begin{cases}\frac{k}{m-k}\;\text{  if  }\;m&gt;k\left(d+1\right)\\1/d\text{ otherwise}\end{cases}\]</span></p>
+<p>此外，GLIMMIX 在默认情况下设置 <span class="math inline">\(d=2\)</span>，但允许你选择 <span class="math inline">\(d\ge 1\)</span>，并通过将 1 替换为 <span class="math inline">\(0&lt;r&lt;1\)</span> 作为 <span class="math inline">\(\phi\)</span> 的最大值来改变 <span class="math inline">\(\phi\)</span> 的值。为给定模型确定“正确”的 <span class="math inline">\(d\)</span> 和 <span class="math inline">\(r\)</span> 值需要通过模拟进行反复试验。</p>
+<p>从而，用 GLMM 边际模型术语表示的校正三明治估计为</p>
+<p><span class="math display" id="eq:6-26">\[\begin{align}
+Var\left(\tilde{\symbf{\beta}}\right) =&amp;\;\left(\symbf{X'V}^{*-1}\symbf{X}\right)^-\symbf{X'V}^{*-1}\left[\sum_{i=1}^mC\left(\symbf{y}_i-\tilde{\symbf{\mu}}_i\right)\left(\symbf{y}_i-\tilde{\symbf{\mu}}_i\right)^{\prime}+\delta_n\phi\symbf{V}^*\right]  \\
+&amp;\;\symbf{X}^{\prime}\symbf{V}^{*-1}\left(\symbf{X}^{\prime}\symbf{V}^{*-1}\symbf{X}\right)^-
+\tag{6.26}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(C=\frac{N-1}{N-k}\frac m{m-1}\)</span> 以及 <span class="math inline">\(\tilde{\symbf \mu}_i=h(\symbf X_i\symbf \beta_i)\)</span>。</p>
+<p>作为各种协方差估计和标准误选项如何影响结果的示例，以下是关于 Cochran and Cox 数据中处理的总体 <span class="math inline">\(F\)</span> 值及处理差异平均标准误的影响总结<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：图中 “Connection” 应为 “Correction”.&lt;/p&gt;"><sup>21</sup></a>，这些影响分别来自于 ML 与 REML、基于模型的标准误（带或不带 Kenward-Roger 校正）以及三明治（经验）标准误（有无 Morel et al. 的偏差校正）。用于生成这些数据的 SAS 程序呈现在 SAS Data and Program Library 中。</p>
+<div class="inline-figure"><img src="figure/figure%20203.png#center" style="width:70.0%"></div>
+<p>请注意未校正三明治估计的极端偏差。REML 与 ML 的差异对于标准误不再重要——它们都向下偏差——并且所得的 <span class="math inline">\(F\)</span> 值严重向上偏差，以至于数值本身不再具有任何意义。基于模型和偏差校正的三明治统计量显示了预期的 REML 与 ML 差异：标准误显示出向下偏差，<span class="math inline">\(F\)</span> 值显示出 ML 相对于 REML 的向上偏差。ML-REML 的影响在偏差校正三明治估计中没有那么明显，但依旧很明显。与 REML 结合使用的偏差校正三明治估计过于保守。</p>
+<p>这些结果更多是为了说明目的而非作为全面比较的基础。应避免一刀切的建议。以下是一些一般性的指导原则。</p>
+</div>
+</div>
+<div id="sec6-7" class="section level2" number="6.7">
+<h2>
+<span class="header-section-number">6.7</span> 主要思想和总体实施指南的总结<a class="anchor" aria-label="anchor" href="#sec6-7"><i class="fas fa-link"></i></a>
+</h2>
+<p>对位置度量的推断——处理均值、差异、对比——需要定义并使用可估和可预测的函数。可估函数涉及第 <a href="chap3.html#chap3">3</a> 章定义的广义推断；可预测函数涉及狭义推断。总体平均是广义推断的一个重要特例；特定个体是狭义推断的一个重要特例。对可估和可预测函数的所有推断都发生在模型尺度上。</p>
+<p>本章中考虑的推断包括假设检验和置信区间估计。假设检验有两种一般方法：似然比和基于 Wald 的方法。后者包括真实 Wald 统计量以及通过将 Wald 统计量除以可估或可预测函数的秩而获得的近似 <span class="math inline">\(F\)</span> 统计量。</p>
+<p>我们在本章中强调基于 Wald 的统计量。对于高斯模型，Wald 和似然比 (LR) 统计量在许多重要情况下可证明是等价的，这使得计算要求更高的 LR 方法没有吸引力，也没有必要。对于 GLMMs，LR 统计量在伪似然估计的背景下是未定义的，并且在积分近似法的背景下通常不切实际。LR 统计量最常与仅固定效应 GLMs 一起使用。对于多因素设计，LR 计算的常用方法使用旨在进行序贯检验的方案。对于不均衡的多因素设计，这可能会产生无意义的结果——免责声明。LR 的计算可修改以计算类似于部分平方和的统计量，但不像 Wald 型统计量那么容易。第 <a href="chap8.html#chap8">8</a> 章更详细地讨论了部分/序贯检验问题。</p>
+<p>在协方差分量的推断方面，LR 检验确实比基于 Wald 的检验具有重要优势。我们将在第 <a href="chap7.html#chap7">7</a> 章探讨这个主题。</p>
+<p>Wald 统计量需要假定已知尺度参数（包括高斯 LMMs 中的协方差分量）并具有近似 <span class="math inline">\(\chi^2\)</span> 分布。基于 Wald 的近似 <span class="math inline">\(F\)</span> 统计量使用尺度参数估计并具有近似 <span class="math inline">\(F\)</span> 分布。对于仅固定效应高斯 LM，即 <span class="math inline">\(N\left(\symbf{X\beta},\boldsymbol{\Sigma}{\sigma}^2\right)\)</span>，其中 <span class="math inline">\(\boldsymbol\Sigma\)</span> 已知，以及特定的 LMM（例如均衡裂区），可获得精确结果。我们利用矩阵分布理论中关于二次型的结果来建立精确的结果。对于大多数高斯混合模型和所有非高斯广义模型，分布结果是渐近的。</p>
+<p>对于近似 <span class="math inline">\(F\)</span> 统计量，分母自由度通常必须近似，例如通过 Satterthwaite 程序。Satterthwaite 程序适用于所有高斯线性模型（LM 和 LMM）。使用伪似然估计的 GLMM 使用了 Satterthwaite 程序的特别修改。对于积分近似，Satterthwaite 近似未定义，因此不适用。第 <a href="chap2.html#chap2">2</a> 章中提出的“Fisher会怎么做？”框架 ANOVA 法提供了分母自由度的一个大致合理的近似。</p>
+<p>除了具有已知尺度参数的 GLMs、具有单个未知方差分量的 LMs 或具有均衡数据的仅方差分量的 LMMs 之外，所有的线性模型都需要某种形式的偏差调整。对于基于模型的标准误，这意味着 Kenward-Roger 调整。对于三明治估计，这意味着 Morel et al. 的调整。</p>
+<p>对于高斯模型，应使用通过 REML 获得的协方差估计。Kenward-Roger 调整在 REML 估计的语境下是良定的，并且对于包括重复测量和空间数据的相关误差模型在内的标准应用已经过充分检验。</p>
+<p>对于非高斯模型，当 PL 所基于的线性化提供合理的近似值时，使用类 REML 方差估计的基于 Kenward-Roger 模型的 PL 法的特别形式效果很好。Stroup and Claassen (2020) 比较了 PL 和求积法的 I 类错误控制和置信区间精度。他们的工作表明，若 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的分布至少在某种程度上是对称的，PL 提供了合理的近似，并且对于小数据集，PL 的性能优于求积。</p>
+<p>对于非高斯模型，当 PL 明显不适用时——比如接近极限的单参数模型和具有极端参数值的双参数指数族模型——积分近似通常更为可取。在使用积分近似时，Kenward-Roger 近似是未定义的。因此，对于 PL 表现不佳的 GLMMs，偏差校正的三明治估计是唯一的替代方案。</p>
+<p>对于我们在第 <a href="#chap17"><strong>??</strong></a> 章中详细讨论的边际模型，我们必须使用广义估计方程，或者在 GLIMMIX 程序中使用 PL. 回想，积分近似法只能用于真实的似然——根据定义，边际模型是拟似然模型。这意味着如果我们使用边际模型，我们可以在特别的 Kenward-Roger 调整和偏差校正三明治估计之间进行选择。Morel et al. 在广义估计方程的背景下开发了他们的偏差校正。边际模型的经验表明，对于边际模型的推断，偏差校正三明治估计是首选方法。</p>
+</div>
+<div id="exe6" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe6"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>本习题涉及文件 Ch_6_Problem1.sas 显示的数据。数据来自一项比较三种处理的研究（在数据集中表示为 <code>Trt</code>）。数据是从七个地点收集的（在数据集中表示为 <code>Location</code>）。对于每个地点的每种处理，从两个区 (plots) 收集了数据。假定数据是高斯分布的，模型指定如下：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_{i}+L_{j}+\left(tL\right)_{ij}\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应，<span class="math inline">\(L_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个位置效应，<span class="math inline">\((tL)_{ij}\)</span> 表示第 <span class="math inline">\(ij\)</span> 个处理 × 地点交互效应。</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(L_j\mathrm{~iid~}N\left(0,\sigma_L^2\right)\)</span></li>
+<li><span class="math inline">\(\left(tL\right)_{ij}\text{ iid }N\left(0,\sigma_{TL}^2\right)\)</span></li>
+<li><span class="math inline">\(y_{ijk}\sim N\left(\mu_{ij},\sigma^2\right)\)</span></li>
+</ul>
+</li>
+<li>恒等连接</li>
+</ul>
+<ol style="list-style-type: lower-alpha">
+<li>定义处理均值为 <span class="math inline">\(\bar{y}_{i\cdot\cdot}=\frac{1}{7\times2}\sum_{j,k}y_{ijk}\)</span>
+<ol style="list-style-type: lower-roman">
+<li>推导出与上述模型一致的处理均值的期望。</li>
+<li>推导出与上述模型一致的处理均值的方差。展示相关步骤。</li>
+</ol>
+</li>
+<li>SAS 文件中的 “Run 1” 是上述模型的 GLIMMIX 程序。验证处理均值的标准误与 (a.-ii.) 部分的推导一致，通过：
+<ol style="list-style-type: lower-roman">
+<li>给出模型方差分量的估计。</li>
+<li>演示这些估计的使用、演示遵循 (a.-ii.) 的推导可产生 SAS listing 所示的标准误。</li>
+</ol>
+</li>
+<li>“Run 2” 展示了人们实现该模型的“前-PROC MIXED”方式。预期均方用于确定处理的 “error term”，而这又作为确定标准误的基础。
+<ol style="list-style-type: lower-roman">
+<li>根据 “Run 2” 的输出，有关处理的 “error term” 是什么？</li>
+<li>验证 “Run 2” 中的 LSMEANS 语句是否与 (c.-i.) 中的回答一致。</li>
+<li>根据 (b.-i.) 的方差分量估计，显示如何获得 “Run 2” listing 中显示的处理均值的标准误。</li>
+<li>比较两次运行的处理平均标准误。这对使用“前-PROC MIXED”软件进行混合模型分析有什么启示？</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>本习题以关于均衡不完全区组设计的 3 次 GLIMMIX 运行开始，具有 7 个处理和 7 个区组，每个区组尺寸为 3. 数据和 GLIMMIX 语句位于文件 Ch6_problem2.sas 中。</p>
+<ol style="list-style-type: lower-alpha">
+<li>Run 1 使用 GLIMMIX 默认算法。以“GLMM 适当形式”说明本运行拟合的统计模型。</li>
+<li>在 Run 1 中用于获得方差分量估计的统计方法是什么？</li>
+<li>入门教科书指出，处理均值的标准误为 <span class="math inline">\(\sqrt{\hat\sigma^2/r}\)</span>，其中 <span class="math inline">\(\hat\sigma^2\)</span> 是残差的估计，<span class="math inline">\(r\)</span> 是每种处理的重复次数。将其与 Run 1 的 listing 中处理均值的标准误进行比较。是否存在差异？如果是，请解释。也就是说，Run 1 如何获得处理均值的标准误？哪个是正确的——入门统计方法传统观点还是 Run 1 的 listing？</li>
+<li>现在转向 Run 2.
+<ol style="list-style-type: lower-roman">
+<li>统计模型与 Run 1 相同还是不同？</li>
+<li>Run 2 的方差分量估计与 Run 1 相比如何？</li>
+<li>Run 2 使用什么统计方法来获得方差分量估计?</li>
+</ol>
+</li>
+<li>现在转向 Run 3.
+<ol style="list-style-type: lower-roman">
+<li>统计模型与 Run 1 运行相同还是不同？</li>
+<li>Run 3 的方差分量估计与 Run 1 和 Run 2相比如何？</li>
+<li>Run 3 使用什么统计方法来获得方差分量估计？</li>
+</ol>
+</li>
+<li>哪个运行最适合用于报告目的？简单解释一下。</li>
+<li>对于你在 f. 中选择的运行，在分析准备用于报告之前，是否应该对给出的语句进行任何调整？如果是这样，需要调整什么以及为什么要调整？</li>
+</ol>
+</li>
+<li>
+<p>本习题使用与习题 2 相同的数据集。参考文件 Ch_6_problem3.sas 中的运行。</p>
+<ol style="list-style-type: lower-alpha">
+<li>Run 1 使用 GLIMMIX 默认算法。以“GLMM 适当的形式”说明本运行拟合的统计模型。</li>
+<li>研究人员使用 Run 1 中的广义卡方作为过度离散的证据（即，广义卡方/DF = 5.66 &gt;&gt;1 因此过度分散）。根据 20 世纪 80 年代 GLM 教科书的推荐，研究人员使用尺度参数来调整过度分散。Run 2 显示了该调整。研究人员计算了 Run 1 和 2 中的 “-2 Res Log Pseudo-Likelihood” 之差，以获得他们所描述的有关 <span class="math inline">\(H_{0}\colon\phi=0\)</span> 的似然比检验，其中 <span class="math inline">\(\phi\)</span> 是尺度参数的标准符号。
+<ol style="list-style-type: lower-roman">
+<li>研究人员是否使用了适当的统计量作为过度分散的证据？如果没有，他们应该做什么？</li>
+<li>验证研究人员为检验 <span class="math inline">\(H_{0}\colon\phi=0\)</span> 获得的似然比统计量为具有 1 个自由度的 <span class="math inline">\(\chi^2= 49.92\)</span> 。</li>
+<li>研究人员将检验 <span class="math inline">\(H_{0}\colon\phi=0\)</span> 表征为为似然比检验是否合理？请解释。</li>
+<li>如果你尝试使用 COVTEST 获取 <span class="math inline">\(H_{0}\colon\phi=0\)</span> 的检验统计量，会发生什么？</li>
+</ol>
+</li>
+<li>展示一种替代方法（而不是这里的 Run 1 和 2），研究人员可以采用积分近似法（使用 <code>Method=Laplace</code> ——在计算关键部分时，求积法在我的笔记本电脑上大约需要 90 分钟来运行；而拉普拉斯法大约只需 3 秒。对于这个习题，拉普拉斯法和求积法所得估计几乎相同）。
+<ol style="list-style-type: lower-roman">
+<li>在你的替代 Run 1 中，你使用什么来代替广义卡方/DF？你得到了什么？该统计量是否是过度分散的证据？</li>
+<li>在你的替代 Run 2 中，你如何解释过度分散？该项的似然比检验的结果是什么？你在此获得的处理的 <span class="math inline">\(F\)</span> 值与 Run 2 相比如何？</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>本习题也基于与习题 2 相同的数据集。习题参考文件 Ch_6_problem4.sas 中的运行。共有 3 次运行使用与习题 4 中相同的 <code>model</code> 以及 <code>method=</code> 选项。有 3 次运行使用与习题 2 中相同的 MODEL 语句和 <code>method=</code> 选项。</p>
+<ol style="list-style-type: lower-alpha">
+<li>Run 1 使用 GLIMMIX 默认算法。以“GLMM-适当形式”说明本运行拟合的统计模型。</li>
+<li>在 Run 1 中，用于获得方差分量和模型估计的统计方法是什么？</li>
+<li>现在转向 Run 2.
+<ul>
+<li>统计模型与 Run 1 相同还是不同？</li>
+<li>Run 2 的处理的方差分量估计和 <span class="math inline">\(F\)</span> 值与 Run 1 相比如何？</li>
+<li>Run 2 用于获得方差分量和模型估计的统计方法是什么？</li>
+</ul>
+</li>
+<li>现在转向 Run 3.
+<ul>
+<li>统计模型与 Run 1 相同还是不同？</li>
+<li>Run 3 的处理的方差分量估计和 <span class="math inline">\(F\)</span> 值与 Run 1 和 2 相比如何？</li>
+<li>Run 3 用于获得方差分量和模型估计的统计方法是什么？</li>
+</ul>
+</li>
+<li>这里 Run 2 和 3 之间的差异与习题 4 中观察到的 Run 2 和 3 之间的差异相比如何？解释任何差异。</li>
+</ol>
+</li>
+<li>
+<p>本习题也基于与习题 2 相同的数据集。习题参考文件 Ch_6_problem5.sas 中的运行。该文件展示了五个运行。前两个是高斯数据。后三个假定二项数据。</p>
+<ol style="list-style-type: lower-alpha">
+<li>前两个运行产生相同的结果。为什么？</li>
+<li>Run 3 使用与 Run 1 相同的线性预测器和 RANDOM 语句。Run 4 使用与 Run 2 相同的线性预测器和 RANDOM 语句。然而，与 Run 1 和 2 不同，Run 3 和 4 不会产生相同的结果。为什么？</li>
+<li>一些 GLM 书籍表明 Run 3 和 Run 4 不同，因为与高斯分布不同，二项分布没有尺度参数。这些书籍表明，如果在 Run 3 中加入一个尺度参数，其结果将与 Run 4 相同。Run 5 在 Run 3 的基础上加入了尺度参数。其结果是否证实了这些书籍的说法？</li>
+<li>要理解发生了什么，请回忆 <span class="math inline">\(Var\left(\symbf{y}^*\right)=\symbf{V}^*=\symbf{Z}\symbf{G}\symbf{Z}^\prime+\symbf{R}^*\)</span>，其中 <span class="math inline">\(\symbf{R}^*=\Delta\symbf{V}_\mu^{\frac12}\symbf{P}\symbf{V}_\mu^{\frac12}\Delta\)</span>。对于给区组中的三个观测，
+<span class="math inline">\(\symbf{y}_j=\begin{bmatrix}y_{ij}\\y_{i'j}\\y_{i''j}\end{bmatrix}\)</span>
+对于：
+<ol style="list-style-type: lower-roman">
+<li>Run 1</li>
+<li>Run 2</li>
+<li>Run 3</li>
+<li>Run 4</li>
+<li>Run 5</li>
+</ol>
+</li>
+</ol>
+<p>给出 <span class="math inline">\(\symbf{V}_j^*=Var\left(\symbf{y}_j^*\right)\)</span>。</p>
+<ol start="5" style="list-style-type: lower-alpha">
+<li>对于 Run 4，展示构成得分向量和 Hessian（或信息）矩阵以获得协方差分量的 PL 估计所需的每个协方差项的 <span class="math inline">\(\frac{\partial\symbf{V}^*}{\partial\sigma_i}\)</span> 形式。</li>
+<li>最后，考虑 Run 6 和 7. 请注意，它们产生的结果是相同的。为什么？请回答：
+<ol style="list-style-type: lower-roman">
+<li>推导出 Run 6 隐含的 <span class="math inline">\(\symbf{V}_j^*=Var\left(\symbf{y}_j^*\right)\)</span>
+</li>
+<li>推导出 Run 7 隐含的 <span class="math inline">\(\symbf{V}_j^*=Var\left(\symbf{y}_j^*\right)\)</span>
+</li>
+<li>验证 Run 6 和 7 隐含的 <span class="math inline">\(\symbf{V}_j^*=Var\left(\symbf{y}_j^*\right)\)</span> 是等价的</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>请参考为第 <a href="chap4.html#chap4">4</a> 章习题 1 编写的用于两处理设计的 IML 程序。扩写每个程序，使其获得处理 1 和处理 2 的估计和标准误以及处理 1 和处理 2 之间的平均差。对于非高斯数据情况，为模型以及数据尺度编写语句。</p></li>
+<li><p>与习题 6 类似，但改为为第 <a href="chap5.html#chap5">5</a> 章习题 2 - 5 编写 IML 程序。修改每个程序以包含由 LSMEANS 语句产生的输出（模型和数据的尺度估计、标准误和置信限）。此外，编写 IML 语句来计算近似 <span class="math inline">\(F\)</span> 统计量。</p></li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></div>
+<div class="next"><a href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap6"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="nav-link" href="#sec6-1"><span class="header-section-number">6.1</span> 介绍</a></li>
+<li>
+<a class="nav-link" href="#sec6-2"><span class="header-section-number">6.2</span> GLMM 背景下的可估性</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec6-2-1"><span class="header-section-number">6.2.1</span> 确定可估性的标准</a></li>
+<li><a class="nav-link" href="#sec6-2-2"><span class="header-section-number">6.2.2</span> 可估性与 GLMMs</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec6-3"><span class="header-section-number">6.3</span> 检验统计量、区间估计及相关的分布</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec6-3-1"><span class="header-section-number">6.3.1</span> 推断统计量的分布（一）—— 具有已知 \(\symbf V\) 的 LM</a></li>
+<li><a class="nav-link" href="#sec6-3-2"><span class="header-section-number">6.3.2</span> 推断统计量的分布（二）—— 具有估计的 \(\symbf V\) 的 LM</a></li>
+<li><a class="nav-link" href="#sec6-3-3"><span class="header-section-number">6.3.3</span> 推断统计量的分布（三）—— GLM</a></li>
+<li><a class="nav-link" href="#sec6-3-4"><span class="header-section-number">6.3.4</span> 推断统计量的分布（四）——混合模型</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec6-4"><span class="header-section-number">6.4</span> 检验方法</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec6-4-1"><span class="header-section-number">6.4.1</span> 似然比与偏差</a></li>
+<li><a class="nav-link" href="#sec6-4-2"><span class="header-section-number">6.4.2</span> Wald 和近似 \(F\) 统计量</a></li>
+<li><a class="nav-link" href="#sec6-4-3"><span class="header-section-number">6.4.3</span> 特例：\(\symbf V=\symbf I\sigma^2\) 的高斯 LM</a></li>
+<li><a class="nav-link" href="#sec6-4-4"><span class="header-section-number">6.4.4</span> 多效应模型和检验顺序</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec6-5"><span class="header-section-number">6.5</span> 使用基于模型的统计量进行推断</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec6-5-1"><span class="header-section-number">6.5.1</span> 朴素统计量和自由度</a></li>
+<li><a class="nav-link" href="#sec6-5-2"><span class="header-section-number">6.5.2</span> Satterthwaite 自由度近似</a></li>
+<li><a class="nav-link" href="#sec6-5-3"><span class="header-section-number">6.5.3</span> 基于模型的标准误差和检验统计量的偏差校正</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec6-6"><span class="header-section-number">6.6</span> 使用经验标准误进行推断</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec6-6-1"><span class="header-section-number">6.6.1</span> 三明治（又名稳健或经验）估计</a></li>
+<li><a class="nav-link" href="#sec6-6-2"><span class="header-section-number">6.6.2</span> 三明治估计的偏差校正</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec6-7"><span class="header-section-number">6.7</span> 主要思想和总体实施指南的总结</a></li>
+<li><a class="nav-link" href="#exe6">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

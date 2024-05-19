@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>►搭建舞台 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="3.4 问题 2：推断空间 在 3.2 节中，我们介绍了广义推断和狭义推断这两个术语。这种区别只存在于混合模型，即具有线性预测器 \(\symbf{X\beta}+\symbf{Zb}\) 的模型。对于这些模型，我们可以仅基于可估函数（\(\symbf{K'\beta}\)）或基于可预测函数（\(\symbf{K'\beta}+\symbf{M'b}\)）进行推断。注意，可估函数可视为...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="►搭建舞台 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="3.4 问题 2：推断空间 在 3.2 节中，我们介绍了广义推断和狭义推断这两个术语。这种区别只存在于混合模型，即具有线性预测器 \(\symbf{X\beta}+\symbf{Zb}\) 的模型。对于这些模型，我们可以仅基于可估函数（\(\symbf{K'\beta}\)）或基于可预测函数（\(\symbf{K'\beta}+\symbf{M'b}\)）进行推断。注意，可估函数可视为...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="►搭建舞台 | 广义线性混合模型">
+<meta name="twitter:description" content="3.4 问题 2：推断空间 在 3.2 节中，我们介绍了广义推断和狭义推断这两个术语。这种区别只存在于混合模型，即具有线性预测器 \(\symbf{X\beta}+\symbf{Zb}\) 的模型。对于这些模型，我们可以仅基于可估函数（\(\symbf{K'\beta}\)）或基于可预测函数（\(\symbf{K'\beta}+\symbf{M'b}\)）进行推断。注意，可估函数可视为...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="active" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="搭建舞台" class="section level1 unnumbered">
+<h1>►搭建舞台<a class="anchor" aria-label="anchor" href="#%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec3-4" class="section level2" number="3.4">
+<h2>
+<span class="header-section-number">3.4</span> 问题 2：推断空间<a class="anchor" aria-label="anchor" href="#sec3-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>在 <a href="chap3.html#sec3-2">3.2</a> 节中，我们介绍了广义推断和狭义推断这两个术语。这种区别只存在于混合模型，即具有线性预测器 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}\)</span> 的模型。对于这些模型，我们可以仅基于可估函数（<span class="math inline">\(\symbf{K'\beta}\)</span>）或基于可预测函数（<span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span>）进行推断。注意，可估函数可视为 <span class="math inline">\(\symbf M=\symbf 0\)</span> 的可预测函数。在可估函数中，估计的所有信息都来自固定效应，而不确定性则来自所有随机效应。换句话说，可估函数的不确定性来自所有随机效应的综合贡献。在可预测函数中，<span class="math inline">\(\symbf{M'b}\)</span> 的非零分量消除了这些效应的不确定性。因此，它们将推断范围从由随机效应所代表的整个总体缩小到仅仅包含在可预测函数中的那些效应。只针对可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 进行的推断称为<strong>广义空间推断</strong> (broad space inference). 而针对可预测函数 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span> 进行的推断称为<strong>狭义空间推断</strong> (narrow space inference).</p>
+<p>为了说明广义推断和狭义推断之间的区别，我们在本节中考虑两个例子。第一个回顾了 <a href="chap3.html#sec3-3">3.3</a> 节最后三个示例中使用的四处理多地点数据。第二个是多批次回归，其中批次效应是随机的。我们首先回顾一下基本思想。</p>
+<div id="sec3-4-1" class="section level3" number="3.4.1">
+<h3>
+<span class="header-section-number">3.4.1</span> 广义推断<a class="anchor" aria-label="anchor" href="#sec3-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>在混合模型中，随机效应的水平代表了对其进行抽样的总体。这些可以是从一个州或地区抽样的诊所，从一个地区抽样的学校，代表更大劳动力总体的单个工人，代表农业地区的农场，等等。理想情况下，抽样是随机进行的，使得总体中的所有成员都有平等且独立的机会被选中。随机效应的水平应该是可交换的，这意味着，例如，在我们的八地点示例中，我们也可以使用任意八个随机选择的地点——我们在这项研究中碰巧观察到的这八个地点并没有什么特别之处。在实践中，随机效应水平是通过不太理想的抽样方式纳入研究的。然而，如果这些水平——诊所、学校、工人、农场等——能够合理地代表总体，那么随机模型效应背后的主要思想——它们的定义性质——仍然成立。这些性质包括：</p>
+<ol style="list-style-type: decimal">
+<li>随机效应水平表示目标总体。</li>
+<li>随机效应水平具有概率分布。</li>
+</ol>
+<p>在随机效应的两个定义性质中隐含着广义推断。非正式地说，广义推断指的是适用于随机模型效应所代表的整个总体的点估计、区间估计和假设检验。正式地说，广义推断是指仅由可估函数 <span class="math inline">\(\symbf{K'\beta}\)</span> 定义的基于混合模型的估计或假设检验。如果 <span class="math inline">\(\symbf M\)</span> 中存在非零系数，则估计或检验由可预测函数 <span class="math inline">\(\symbf{K'\beta}+\symbf{M'b}\)</span> 定义，此时我们不再有广义推断。</p>
+<p>广义推断通常会让数据分析师感到困惑，因为乍一看，所有具有固定效应模型的推断都必须基于 <span class="math inline">\(\symbf{K'\beta}\)</span>，因此所有具有固定效应模型的推断必为广义推断。果真如此吗？现实情况更为微妙。</p>
+<p>一路伴随我们的多地点研究提供了一个完美的例子。“地点效应是固定的还是随机的？”这个问题在统计学中有着悠久的争议历史。这个两难困境的核心是“在将地点效应定义为固定或随机之后，我们如何合理地将推断广泛地应用于实际中？”</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-6" class="example"><strong>示例 3.6  (原书示例 3.4.1；四处理多地点、高斯数据、随机地点效应) </strong></span><br></p>
+<p><a href="chap3.html#exm:ex3-3">示例 3.3</a> 引入 Data Set 3.2，其中模型假设固定地点效应。我们这样做时有一个警告，即将地点效应视为固定的是值得怀疑的，应该重新考虑，这是本例所要做的。我们知道，如果地点代表一个总体，并且观测地点构成该总体的代表性样本，那么选用固定地点效应的理由就不充分。此外，如果地点是通过随机抽样选择的，并且可以包含任何 8 个地点，那么根据定义，地点效应是随机的。在本例中，假设地点确实是通过随机抽样选择的。所得模型为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>，其中 <span class="math inline">\(\tau_i:i=0,1,2,3\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应，<span class="math inline">\(L_j:j=1,2,\ldots,8\)</span> 表示第 <span class="math inline">\(j\)</span> 个地点效应。</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ij}\mid L_j\sim N\left(\mu_{ij},\sigma^2\right)\)</span></li>
+<li><span class="math inline">\(L_j\text{ iid }N\left(0,\sigma_L^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>请注意这一变化对处理均值可估函数的影响。在固定地点效应模型中 <span class="math inline">\(\eta+\tau_i\)</span> 是不可估的。相反，需要由 <span class="math inline">\(E(\bar{y}_{i\cdot})=\eta+\tau_i+\bar{L}_\cdot\)</span> 定义的函数来满足可估性要求。在随机地点效应模型中，<span class="math inline">\(E(\bar{y}_{i\cdot})=\eta+\tau_i\)</span>，因为 <span class="math inline">\(L_j\)</span> 现在是期望等于零的随机变量。因此，<span class="math inline">\(\eta+\tau_i\)</span> 是随机地点效应模型中处理均值的可估函数。从而引出两个问题：</p>
+<ol style="list-style-type: decimal">
+<li>在随机地点效应模型中，处理均值的最小二乘估计与在固定地点效应情况下的估计有何不同？</li>
+<li>由固定地点效应模型最小二乘均值与由其相应系数定义的可预测函数相比会是什么情况？换言之，固定地点效应模型下的最小二乘均值表示为 <span class="math inline">\(\eta+\tau_i+\bar L_\cdot\)</span>，而它在随机地点效应模型下是一个可预测函数。它们相比如何？</li>
+</ol>
+<p>随机地点效应模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model Y=trt /solution;
+ Random Loc / solution;
+ lsmeans trt / diff e;
+ estimate 'BLUP Trt 0' intercept 8 Trt 8 0 0 0 | Loc 1 1 1 1 1 
+  1 1 1 / divisor=8;
+ estimate 'LSM Trt 0' intercept 1 Trt 1 0 0 | Loc 0 0 0 0 0 0 0 0;</code></pre>
+<p>请注意 ESTIMATE 语句。与 <span class="math inline">\(\symbf K\)</span> 矩阵相关的系数，用于 <span class="math inline">\(\eta\)</span> 和 <span class="math inline">\(\tau_i\)</span>，出现在垂直条 (|) 之前；与 <span class="math inline">\(\symbf M\)</span> 矩阵相关的系数，用于 <span class="math inline">\(L_j\)</span>，出现在垂直条之后。</p>
+<p>固定效应和随机效应的解为</p>
+<div class="inline-figure"><img src="figure/figure%20106.png#center" style="width:70.0%"></div>
+<p>将这些解与<a href="chap3.html#exm:ex3-3">示例 3.3</a> 中的固定地点效应模型进行比较，请注意，在模型的固定部分，广义逆的末效应零约定成立，但地点效应并非如此。在第 <a href="chap5.html#chap5">5</a> 章中，我们将开发随机效应的最佳线性无偏预测的正式理论。对于本例的地点效应，估计如下。使用地点 1 进行说明。将地点 1 效应的未调整估计定义为地点 1 均值与总均值之差 <span class="math inline">\(\bar{y}_{\cdot}-\bar{y}_{\cdot\cdot}=26.075-25.8875=0.1875\)</span>。调整的随机效应估计，也称为<strong>最佳线性无偏预测</strong> (best linear unbiased predictor, <strong>BLUP</strong>).</p>
+<p><span class="math display">\[\hat{L}_1=E\Big(L_j\mid\symbf{y}\Big)=E\Big(L_j\Big)+Cov\Big(L_j,\bar{y}_{\cdot j}\Big)\Big[Var\Big(\bar{y}_{\cdot j}\Big)\Big]^{-1}\Big(\bar{y}_{\cdot j}-\bar{y}_{\cdot\cdot}\Big)\]</span></p>
+<p>注意到 <span class="math inline">\(E(L_j)=0\)</span>，使用第 <a href="chap5.html#chap5">5</a> 章中介绍的方法，可写出地点 1 的 BLUP 为</p>
+<p><span class="math display">\[\hat{L}_j=0+\hat{\sigma}_L^2\left(\frac{\sigma^2+4\sigma_L^2}4\right)^{-1}\left(\bar{y}_{\cdot j}-\bar{y}_{\cdot\cdot}\right)\]</span></p>
+<p>方差分量估计为</p>
+<div class="inline-figure"><img src="figure/figure%20107-1.png#center" style="width:40.0%"></div>
+<p>将这些代入，<span class="math inline">\(\hat{L}_j=0+1.7352\biggl(\frac{2.877+4\times1.7352}{4}\biggr)^{-1}\bigl(26.075-25.8875\bigr)=0.1326\)</span></p>
+<p>BLUP 也称为<strong>收缩估计</strong> (shrinkage estimators)，因为它们使用了有关分布的信息（在这里指地点效应）来减少极值——本质上就是将估计“收缩”至零。收缩的程度取决于方差分量。如果 <span class="math inline">\(\sigma^2_L\)</span> 较小，收缩程度就较大，因为地点效应的分布在零附近非常紧密。如果 <span class="math inline">\(\sigma^2_L\)</span> 较大，收缩程度就较小，因为地点效应的分布相对分散。</p>
+<p>现在回到处理最小二乘均值，它们的估计和标准误是</p>
+<div class="inline-figure"><img src="figure/figure%20107-2.png#center" style="width:40.0%"></div>
+<p>将这些与固定地点效应固定的最小二乘均值进行比较，估计是相同的，但标准误不同：此处为 0.7593，而固定地点效应模型为 0.5997. 为什么会出现这种差异？对于这里考虑的两个模型，标准误为 <span class="math inline">\(Var(\bar y_{i\cdot})\)</span> 的平方根估计。对于这两个模型，</p>
+<p><span class="math display">\[Var\left(\bar{y}_{i\cdot}\right)=Var\left\{1/8\sum_j\left(\eta+\tau_i+L_j+w_{ij}\right)\right\}\]</span></p>
+<p>其中 <span class="math inline">\(w_{ij}\)</span> 表示地点内观察单元间 (units of observation within locations) 的随机变异（超出处理效应）。在固定地点效应模型中，只有 <span class="math inline">\(w_{ij}\)</span> 是随机变量。因此</p>
+<p><span class="math display">\[Var\left(\bar{y}_{i\cdot}\right)=Var\left\{1/8\sum_jw_{ij}\right\}=\left(1/8\right)^2\sum_jVar\left(w_{ij}\right)=\sigma^2/8\]</span></p>
+<p>在随机地点效应模型中，<span class="math inline">\(L_j\)</span> 也是一个随机变量，因此</p>
+<p><span class="math display">\[Var\left(\bar{y}_{i\cdot}\right)=Var\left\{1/8\sum_j\left(L_j+w_{ij}\right)\right\}=\left(1/8\right)^2\left[\sum_jVar\left(L_j\right)+\sum_jVar\left(w_{ij}\right)\right]=\left(\sigma^2+\sigma_L^2\right)/8\]</span></p>
+<p>现考虑 ESTIMATE 语句的结果。</p>
+<div class="inline-figure"><img src="figure/figure%20108.png#center" style="width:40.0%"></div>
+<p>请注意，处理 0 的 BLUP 的标准误使用与固定地点效应最小二乘均值相同的系数，其标准误与我们使用固定地点效应模型获得的最小二乘均值的标准误完全相同。</p>
+<p>这给了我们一个解读的窗口。设想，我们希望根据我们在该数据集中观察到的八个地点来估计处理 0 的均值，并用它来预测在其他地点（而不是研究中的八个地点）应用处理 0 会发生什么。显然，对预期响应的最佳估计是 24.95——所有估计都一致给出该数字。然而，如果我们想要估计的置信上下限，我们需要决定是使用 0.5997 还是 0.7593 作为置信区间的标准误。答案取决于我们在试图预测处理 0 将如何确定时所预期的不确定性来源。不确定性是否仅仅来自于每个地点内部观察单元之间的变异，还是说除了观察单元变异之外的地点间变异也对此有所贡献呢？</p>
+<p>随机地点效应最小二乘均值的标准误包括两个不确定性来源。随机地点效应 BLUP 仅包括地点内观察单元之间的方差。实际上，BLUP 将适用于研究中可能包括的整个地点总体的陈述的推断范围限制为仅处理 0 BLUP 的可预测函数中具有非零系数的地点<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;原文：In effect, the BLUP limits the scope of inference from statements applicable to the entire population of locations that could have been included in the study (including ours) to only the locations with non-zero coefficients in the predictable function for the treatment 0 BLUP.&lt;/p&gt;"><sup>9</sup></a>。</p>
+<p>随机地点效应 BLUP 和固定地点效应最小二乘均值共享相同的系数，这一事实提供了对将地点效应视为固定的隐含结果的深入了解。实际上，将地点效应定义为固定效应缩小了推断范围：处理均值的置信区间仅适用于研究中观察到的地点。它们不适用于——也无法解释为适用于——本研究的观测地点所代表的地点总体。</p>
+<p>随机地点效应模型的最小二乘均值是一个广义推断空间估计。最佳线性无偏预测（以及固定地点效应模型的最小二乘均值）是一狭义推断空间估计。前者广泛适用于整个总体，后者仅适用于观测的 8 个地点。</p>
+<p>本示例说明了推断空间问题的一个重要方面。下一个示例说明了狭义推断空间的一个重要应用——特定个体推断。</p>
+</div>
+</div>
+</div>
+<div id="sec3-4-2" class="section level3" number="3.4.2">
+<h3>
+<span class="header-section-number">3.4.2</span> 狭义推断<a class="anchor" aria-label="anchor" href="#sec3-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>上一节关注广义推断。理解什么是广义推断，什么不是广义推断，是处理当代线性模型的核心。本节则关注狭义推断——通常称为特定个体推断。狭义推断在许多领域都有其根源。</p>
+<p>在动物遗传学中，交配试验是为了获得公畜和母畜之间方差的估计。这些估计用于确定具有选择育种潜力的性状——对疾病的易感性，增加产奶量等。从这个角度来看，公畜和母畜的效应显然是随机的。然而，在同一试验中，必须鉴别出具有特殊育种或商业潜力的公畜。在对固定效应和随机效应的经典理解中，这似乎是试图两者兼顾。一个效应要么被纳入模型来估计方差（随机效应），要么被纳入模型来估计或比较地点的度量（固定效应）。而动物育种者希望根据同一效应估计方差和地点的度量！这就是推动 Henderson 开发最佳线性无偏预测 (BLUP) 的问题，这是混合模型文献中的开创性工作 (Henderson, 1950, 1963, 1975, 1984).</p>
+<p>在医学中，临床试验通常涉及患者的随机样本。这些试验的一个共同目标是确定患者对药物剂量的响应。对剂量响应的广义推断（也称为总体平均推断）是目标之一，但跟踪单个患者的响应通常同样重要。单个患者反应——也称为特定个体 (subject-specific) 响应——是一种狭义推断形式。它是由固定效应（剂量）和随机效应（患者）的线性组合定义的。</p>
+<p>还有其他的例子，在多地点研究中，特定地点的处理效应可用于识别处理效应中意外的局部异常。近年来，教师效能评估的“增值” (“value-added”) 模型受到广泛关注，这些模型本质上将教师效应定义为随机的，并使用特定教师的可预测函数来估计。</p>
+<p><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-7">示例 3.7</a> 说明了狭义推断的一个常见示例。</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-7" class="example"><strong>示例 3.7  (原书示例 3.4.2；随机系数回归模型) </strong></span><br></p>
+<p>从易腐产品的生产过程中随机抽取了四个批次。产品在建议的条件下储存，并在指定的储存时间测量产品质量特性，下文记为 <span class="math inline">\(Y\)</span>。假设过去此类研究的经验允许我们假定 <span class="math inline">\(Y\)</span> 随时间线性恶化，并具有近似高斯分布。数据在 SAS Data and Program Library 显示为 Data Set 3.3.</p>
+<p>在第 <a href="chap2.html#chap2">2</a> 章中，我们为这类研究开发了一个合理的模型——随机系数回归模型 (random coefficient regression model). 对于本研究，模型为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\beta_0+b_{0i}+\left(\beta_1+b_{1i}\right)X_j\)</span>，其中，<span class="math inline">\(\beta_0\)</span> 和 <span class="math inline">\(\beta_1\)</span> 表示固定的截距和斜率系数，<span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 分别表示第 <span class="math inline">\(i\)</span> 个批次对截距和斜率的随机效应，<span class="math inline">\(X_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个时间。</li>
+<li>分布：有两个，一个用于 <span class="math inline">\(y_{ij}\)</span>，在第 <span class="math inline">\(j\)</span> 个时间对第 <span class="math inline">\(i\)</span> 批的观测，另一个用于 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 的联合分布：
+<ul>
+<li><span class="math inline">\(y_{ij}\mid b_{0i,}b_{1i}\sim N\left(\mu_{ij},\sigma^2\right)\)</span></li>
+<li><span class="math inline">\(\begin{bmatrix}b_{0i}\\b_{1i}\end{bmatrix}\thicksim N\left(\begin{bmatrix}0\\0\end{bmatrix},\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\\sigma_{01}&amp;\sigma_1^2\end{bmatrix}\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>关于推断空间，有两组估计需要关注。第一组仅涉及固定效应：截距 <span class="math inline">\(\beta_0\)</span>、斜率 <span class="math inline">\(\beta_1\)</span> 和时间 T 时的预期响应 <span class="math inline">\(\beta_0+\beta_1T\)</span>。截距可解释为产品最开始存储时（时间 0）产品质量的度量。斜率度量了产品的恶化率。在随机系数语言中，这些称为<strong>总体平均</strong> (population-averaged, <strong>PA</strong>) 估计。请注意，它们完全取决于固定效应，都是 <span class="math inline">\(\symbf K'\symbf\beta\)</span> 的形式。因此，PA 估计是广义推断的一种形式。</p>
+<p>另一组涉及可预测函数 <span class="math inline">\(\beta_0+b_{0i},\beta_1+b_{1i}\)</span> 和 <span class="math inline">\({\beta}_{0}+b_{0i}+\left({\beta}_{1}+b_{1i}\right)T\)</span>。这些称为<strong>个体特定</strong> (subject-specific, <strong>SS</strong>) “估计”——第 <span class="math inline">\(i\)</span> 批的截距、斜率和时间 T 时的预期响应。SS “估计”实际上是预测而非估计。它们都是 <span class="math inline">\(\symbf K'\symbf\beta+\symbf M'\symbf b\)</span> 的形式。SS 估计是 BLUPs，因此是狭义推断的一种形式。</p>
+<p>用于估计 Data Set 3.3 随机系数模型参数的 GLIMMIX 语句如下</p>
+<pre class="sas"><code>proc glimmix data=multi_batch_1;
+ class batch;
+ model y = X / solution;
+ random intercept X / solution subject=batch type=un gcorr;</code></pre>
+<p>这些语句在第 2 章<a href="chap2.html#sec2-B">附录 B</a> 中进行了讨论。请注意，变量 <code>X</code> 表示存储时间。<code>GCORR</code> 选项允许我们检查估计的 <span class="math inline">\(\symbf G\)</span> 矩阵：随机截距和斜率效应的方差-协方差阵。继续行文前，查看该矩阵有助于我们的理解。</p>
+<div class="inline-figure"><img src="figure/figure%20110.png#center" style="width:60.0%"></div>
+<p>SAS 日志中出现警告：“NOTE: Estimated G matrix is not positive definite.” 查看第一个表中所示的协方差参数估计，没有什么突出的，但查看 <span class="math inline">\(\symbf G\)</span> 相关矩阵会发现我们得到了无意义的估计。这表明我们对随机截距系数和斜率系数的协方差进行了过度建模。我们可以推测，随机截距和斜率之间不存在有意义的相关性，或者我们用于估计协方差的批次数量太少。不管是何种情况，我们都需要通过从 <span class="math inline">\(Var\begin{bmatrix}b_{0i}\\b_{1i}\end{bmatrix}\)</span> 中删除 <span class="math inline">\(\sigma_{01}\)</span> 来简化模型。</p>
+<p>获得 PA 和 SS 估计的修订的 RANDOM 语句和 ESTIMATE 语句如下所示。在这个说明中，我们使用时间 <span class="math inline">\(T=10\)</span> 来展示如何在给定时间获得预期响应。在实践中，我们可以将 <span class="math inline">\(T\)</span> 设为研究感兴趣的任何值</p>
+<pre class="sas"><code>proc glimmix data=multi_batch_1;
+ class batch;
+ model y = X / solution;
+ random intercept X / solution subject=batch;
+ estimate 'PA intercept' intercept 1;
+ estimate 'PA slope' X 1;
+ estimate 'PA y-hat at X=10' intercept 1 x 10;
+ estimate 'SS intercept for batch 1' intercept 1 | intercept 1 / 
+  subject 1 0 0 0;
+ estimate 'SS intercept for batch 2' intercept 1 | intercept 1 / 
+  subject 0 1 0 0;
+ estimate 'SS slope for batch 1' x 1 | x 1,
+ 'SS slope for batch 2' x 1 | x 1,
+ 'SS slope for batch 3' x 1 | x 1,
+ 'SS slope for batch 3' x 1 | x 1 / subject 1 0 0 0, 
+ 0 1 0 0, 0 0 1 0, 0 0 0 1 adjust=bonferroni;
+ estimate 'SS y-hat @ X=10, batch 1 ' intercept 1 x 10 | 
+  intercept 1 x 10
+  / subject 1 0 0 0;
+ estimate 'SS y-hat @ X=10, batch 2 ' intercept 1 x 10 | 
+  intercept 1 x 10
+  / subject 0 1 0 0;
+ estimate 'SS diff @ x=10, batch 1 v 2' | intercept 1 x 10 / 
+  subject 1 -1 0 0;
+ estimate 'SS y-hat @ x=10, avg batch 1+2' intercept 2 x 20 |
+  intercept 1 x 10
+  / subject 1 1 0 0 divisor=2;</code></pre>
+<p>从 RANDOM 语句中删除 <code>TYPE=UN</code> 选项会从模型中删除 <span class="math inline">\(\sigma_{01}\)</span>。带 <code>'PA'</code> 的 ESTIMATE 语句仅针对固定效应进行定义。带 <code>'SS'</code> 的语法使用 RANDOM 语句的结构来帮助定义可预测函数。考虑第一个语句 <code>'SS intercept for batch 1'</code>。垂直条之前的 <code>INTERCEPT 1</code> 识别固定效应 <span class="math inline">\(\beta_0\)</span>；垂直条之后的 <code>INTERCEPT 1</code> 识别随机效应 <span class="math inline">\(b_{0i}\)</span>；<code>SUBJECT 1 0 0 0</code>指回其中 <code>SUBJECT</code> 被定义为 <code>BATCH</code> 的 RANDOM 语句。根据这些指定，我们有 <span class="math inline">\(\beta_0+b_{01}\)</span>，即对于批次 1 截距的特定批次 (SS) BLUP。在 <code>'SS intercept for batch 2'</code> 中，除 <code>SUBJECT 0 1 0 0</code> 之外，其他都是相同的，因此在第二个批次上定义了可预测函数，即 <span class="math inline">\(\beta_0+b_{02}\)</span>。</p>
+<p>有关特定批次斜率预测的语句出现在单个 ESTMATE 语句中。请注意用于识别与该语句每一行相关的个体的语法。这些预测定义为一个组，并进行了多重性调整，因为检验每个 SS 斜率为 0 的原假设可能是感兴趣的。如果是这样，我们需要控制实验的 I 类错误。</p>
+<p>最后两个语句展示了如何定义涉及 SS 预测的差异和均值。在第一个语句中，垂直条之前没有任何内容，因此此可预测函数不涉及固定效应，即 <span class="math inline">\(\symbf k =\symbf 0\)</span>。<code>INTERPT 1 X 10</code> 出现在垂直条之后。这定义了 <span class="math inline">\(b_{0i}+b_{1i}×10\)</span>。<code>SUBJECT 1–1 0 0</code> 表示将第 1 批中的所有系数乘以 1，将第 2 批中的全部系数乘以 –1. 结果为 <span class="math inline">\(\mathbf{m'b}=b_{01}-b_{02}+\left(b_{11}-b_{12}\right)10\)</span>，即时间 <span class="math inline">\(T=10\)</span> 时第 1 批和第 2 批 SS 预测之差。固定效应未出现在本语句中，因为固定效应分量 <span class="math inline">\(\beta_0+\beta_1×10\)</span> 在完整的差异 SS 语句中抵消了：<span class="math inline">\(\beta_0+b_{01}+\left(\beta_1+b_{11}\right)10-\left[\beta_0+b_{02}+\left(\beta_1+b_{12}\right)10\right]\)</span>。批次 1 和 2 的 SS 预测均值为 <span class="math inline">\(1/2\{[\beta_0+b_{01}+(\beta_1+b_{11})10]+[\beta_0+b_{02}+(\beta_1+b_{12})10]\}=\beta_0+\beta_1\times10+1/2\bigg[b_{01}+b_{02}+(b_{11}+b_{12})10]\)</span>。ESTIMATE 语句实现的正如其字面含义：<span class="math inline">\(\symbf k'\symbf\beta+\symbf m'\symbf b=\left\{2\beta_0+\beta_1\times20+\left[b_{01}+b_{02}+\left(b_{11}+b_{12}\right)10\right]\right\}/2\)</span>。</p>
+<p>列表输出为</p>
+<div class="inline-figure"><img src="figure/figure%20112.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20113.png#center" style="width:100.0%"></div>
+<p>给出的估计/预测是直接应用上述可估和可预测函数的结果。与之前的例子不同，这里的标准误并非根据直观的公式来计算。在第 <a href="chap6.html#chap6">6</a> 章中，我们将开发计算这些估计和预测的标准误所需的理论。请注意，特定批次斜率的标准误尤其小，这不是一个错误，而恰恰反映了该特定的可预测函数消除了大量的不确定性<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;原文：This is not an error, just a reflection of how much uncertainty is removed by this particular predictable function.&lt;/p&gt;"><sup>10</sup></a>。</p>
+</div>
+</div>
+<div class="rmdtip">
+<p><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节的关键思想：广义推断；狭义推断；最佳线性无偏预测 (BLUP)；总体平均推断；特定个体推断</p>
+</div>
+</div>
+</div>
+<div id="sec3-5" class="section level2" number="3.5">
+<h2>
+<span class="header-section-number">3.5</span> 问题 3：条件和边际模型<a class="anchor" aria-label="anchor" href="#sec3-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>在 <a href="chap3.html#sec3-3">3.3</a> 节中，我们考虑了非高斯模型中出现的模型/数据尺度问题。在 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节中，我们考虑了在模型中添加随机效应时出现的推断空间问题。当我们有非高斯响应和随机模型效应时会发生什么？</p>
+<p>除模型/数据尺度和推断空间问题之外，我们还有第三个问题：我们现在可以定义两种不同类型的模型——条件模型和边际模型。对于非高斯数据，它们是不等价的；他们估计的对象不一样。更糟糕的是，即使使用被认为不受 GLMM 问题影响的方法论，条件-边际问题也隐含于多区组和集群非高斯数据中。用拳击手 Joe Louis 的话来说就是“你跑得了但躲不了” (“you can run but you can’t hide”)。为了说明这一点，我们继续以本章中一直使用的四处理多地点研究为例。</p>
+<div class="rmdnote">
+<div class="example">
+<p><span id="exm:ex3-8" class="example"><strong>示例 3.8  (原书示例 3.5.1；具有随机地点效应的二项多地点) </strong></span><br></p>
+<p>如<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 一样假定随机地点效应。但假设我们对每个地点的每种处理都有 <span class="math inline">\(N=100\)</span> 个二项响应观测，而不是高斯数据。也就是说，对于处理 <span class="math inline">\(i＝1,2,3,4\)</span> 以及地点 <span class="math inline">\(j＝1,2,\ldots,8\)</span>，<span class="math inline">\(y_{ij}\mid L_j\sim \text{Binomial}\left(100,\pi_{ij}\right)\)</span>。</p>
+</div>
+</div>
+<div id="sec3-5-1" class="section level3" number="3.5.1">
+<h3>
+<span class="header-section-number">3.5.1</span> 正态近似<a class="anchor" aria-label="anchor" href="#sec3-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>乍一看，这些数据似乎是正态近似的候选者。即使概率 <span class="math inline">\(\pi_{ij}\)</span> 接近 0（如 0.05）或接近 1（如 0.95），当 <span class="math inline">\(N=100\)</span> 时，正态能很好地近似于二项，这一点可以通过模拟轻松证明——这是统计入门课程中的常见活动。对于此类数据，一种方法——可以说是最常见的方法——是将高斯模型拟合到样本比例 <span class="math inline">\(p_{ij}=y_{ij}/n_{ij}\)</span>。这里，所有 <span class="math inline">\(n_{ij}=100\)</span>。正式地，模型为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+l_j\)</span>
+</li>
+<li>分布：
+<ul>
+<li>数据：<span class="math inline">\(p_{ij}\mid L_j\sim N\left(\mu_{ij},\sigma^2\right)\)</span>
+</li>
+<li>地点效应：<span class="math inline">\(L_j\mathrm{~iid~}N\left(0,\sigma_L^2\right)\)</span>
+</li>
+</ul>
+</li>
+<li>连接：恒等 <span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>在这种方法中，估计值 <span class="math inline">\(\hat\mu_{ij}\)</span> 通常解释为 <span class="math inline">\(\hat\pi_{ij}\)</span> 的估计。关注点可能在于处理最小二乘均值，该均值将分别解释为 <span class="math inline">\(\hat\pi_{0},\hat\pi_{1},\hat\pi_{2},\hat\pi_{3}\)</span>，即每种处理产生有利结果的概率。该模型本质上与前两节讨论的此类设计的高斯模型完全相同。我们已经看到，无论是固定地点效应版本还是随机地点效应版本的这些模型，在对处理差异进行广义推断时得出的结果是一致的。事实上，两者都等价于 ANOVA 的结果。这就是为什么那些认为 GLMM 让他们感到不安的数据分析师相信，当他们对样本比例进行 ANOVA 时，或者在方差稳定变换（例如反正弦平方根 <span class="math inline">\(\sin^{-1}(\sqrt{p_{ij}})\)</span> ）上进行 ANOVA 时，他们可以避免 GLMM 问题。然而，这正是“你跑得了但躲不了”的体现。让我们看看这是为什么。</p>
+<p>对于高斯多区组模型，使用 <a href="chap3.html#sec3-3">3.3</a> 节和 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-4">3.4</a> 节所示的相同方法，可得到如下的相关结果：</p>
+<div class="inline-figure"><img src="figure/figure%20115-1.png#center" style="width:90.0%"></div>
+<p>这些结果存在明显的问题。值得注意的是，如果处理均值确实可以解释为相应的 <span class="math inline">\(\pi_i\)</span> 的估计，那么它们的方差估计，以及它们的标准误，不应该表现出对二项方差 <span class="math inline">\(\pi_i(1−\pi_i)\)</span> 的某种依赖性吗？我们暂时搁置这些问题，但我们稍后会回来讨论它们。</p>
+</div>
+<div id="sec3-5-2" class="section level3" number="3.5.2">
+<h3>
+<span class="header-section-number">3.5.2</span> 二项 GLMM<a class="anchor" aria-label="anchor" href="#sec3-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>正态近似与真正的 GLMM 相比如何？对于这些数据，广义线性混合模型可描述为</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+l_j\)</span>
+</li>
+<li>分布：
+<ul>
+<li>数据：<span class="math inline">\(p_{ij}\mid L_j\sim \text{Bnomial}\left(N_{ij},\pi_{ij}\right)\)</span>
+</li>
+<li>地点效应：<span class="math inline">\(L_j\mathrm{~iid~}N\left(0,\sigma_L^2\right)\)</span>
+</li>
+</ul>
+</li>
+<li>连接：logit，<span class="math inline">\(\eta_{ij}=\log[\pi_{ij}/(1-\pi_{ij})]\)</span>
+</li>
+</ul>
+<p>请注意，除了数据的分布（现在明确为二项式）和连接函数外，该模型与正态近似完全相同。此模型的 GLIMMIX 程序为</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model S_1/N_Bin=trt;
+ random intercept / subject=loc;
+ lsmeans trt / ilink;</code></pre>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20115-2.png#center" style="width:70.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20116-1.png#center" style="width:70.0%"></div>
+<p>我们看到这些结果与正态近似之间存在一些差异。首先，只有一个方差分量估计：<span class="math inline">\(\hat\sigma_L^2= 0.946\)</span>。这可以解释为不同地点间对数几率的变异。不存在残差方差，因为在处理地点组合内，观测具有二项分布。其方差由 <span class="math inline">\(\pi_{ij}(1-\pi_{ij})\)</span> 决定。一旦我们有了 <span class="math inline">\(\pi_{ij}\)</span> 的估计，那么根据定义，我们就有了方差的估计。不需要方差分量的进一步估计。</p>
+<p><span class="math inline">\(F\)</span> 值为 57.99，而正态近似相应值为 40.01. 这些不同并不奇怪。然而，我们可能会问 GLMM 具有更大的 <span class="math inline">\(F\)</span> 值这一事实是否有什么原因（答案是肯定的——我们稍后会探讨这一点）。四种处理的概率估计具有不同的标准误，这反映了二项的均值-方差关系。正如预期的那样，随着概率估计接近 0.5，标准误会增加。</p>
+<div class="rmdcaution">
+<p>提问：如果我们的概率估计大于 0.5，当 <span class="math inline">\(\hat\pi_i\)</span> 接近 1 时，它们的标准误会如何变化？</p>
+<p>评论：读者会注意到，上表中的数据尺度标准误不能直接通过对 <span class="math inline">\(\hat\pi_i\)</span> 应用方差函数来获得。部分原因是方差函数适用于 <span class="math inline">\(\hat\pi_i\)</span>，而 <span class="math inline">\(\hat\pi_i\)</span> 是在地点上进行平均的，并且是在应用逆连接之前进行平均的。在确定标准误时还有其他微妙之处。我们将在第 <a href="chap6.html#chap6">6</a> 章中考虑标准误计算的“大局观”。</p>
+</div>
+<p>最后，将 GLMM 估计的概率与正态近似的概率进行比较，我们得到</p>
+<div class="inline-figure"><img src="figure/figure%20116-1.png#center" style="width:60.0%"></div>
+<p>有两点很突出。首先，概率是不同的——这并不奇怪；正态近似就是一个近似。其次，GLMM 估计的概率都小于正态近似的相应概率。这有影响吗？如果有，怎么办？进一步探讨这个问题，如果我们取每个处理的样本比例的算术平均，它们等于正态近似的估计。这是否意味着 GLMM 的估计是错误的？如果不是，即如果事实上 GLMM 提供了更好的 <span class="math inline">\(\hat\pi_i\)</span> 估计值，那么我们需要一个令人信服的解释来消除这种认知失调。我们习惯于算术平均是最佳线性无偏估计，至少对于均衡数据是如此。</p>
+</div>
+<div id="sec3-5-3" class="section level3" number="3.5.3">
+<h3>
+<span class="header-section-number">3.5.3</span> 条件和边际分布<a class="anchor" aria-label="anchor" href="#sec3-5-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>为了理解正态近似和 GLMM 结果之间的差异，我们需要回到建模第一原则，并将其仔细应用于本例。回想第 <a href="chap1.html#chap1">1</a> 章的第一句话：统计模型是对产生观测数据的合理过程的数学和概率描述。<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-8">示例 3.8</a> 中的正态近似和 GLMM 都假定了如下过程。对于第 <span class="math inline">\(j\)</span> 个地点的第 <span class="math inline">\(i\)</span> 种处理，观察到 <span class="math inline">\(y_{ij}\)</span> 次成功。成功次数具有二项分布：正式说 <span class="math inline">\(y_{ij}\mid L_j\thicksim\text{Binomial}\left(n_{ij},\pi_{ij}\right)\)</span>。在我们的例子中，所有 <span class="math inline">\(n_{ij}=100\)</span>，但是关于 <span class="math inline">\(y_{ij}\mid L_j\)</span> 的分布假定将适用于任何 <span class="math inline">\(n_{ij}\ge 1\)</span>。请注意，概率陈述是指在给定地点的条件下观察到的成功次数。条件这个词很重要。这意味着 <span class="math inline">\(\pi_{ij}\)</span> 本身就像一个随机变量。具体地</p>
+<p><span class="math display">\[\pi_{ij}=1/\left[1+e^{-\left(\eta+\tau_i+L_j\right)}\right]\]</span></p>
+<p>这意味着 <span class="math inline">\(\pi_{ij}\)</span> 因随机地点效应 <span class="math inline">\(L_j\)</span> 而异，我们假定其为 <span class="math inline">\(\operatorname{iid}N\left(0,\sigma_L^2\right)\)</span>。</p>
+<p>通过将 <span class="math inline">\(\pi_{ij}\)</span> 的分布重写为 <span class="math inline">\(\operatorname{logit}\left(\pi_{ij}\right)\mid L_j\thicksim N\left(\eta+\tau_i,\sigma_L^2\right)\)</span>，有助于形象地理解 <span class="math inline">\(\pi_{ij}\)</span> 在 <span class="math inline">\(L_j\)</span> 条件下的分布。</p>
+<p>一般来说，混合模型描述了一个具有两个随机元素的过程：<span class="math inline">\(\symbf y\mid \symbf b\)</span> 的分布，以随机模型效应为条件的观测；以及 <span class="math inline">\(\symbf b\)</span>，随机模型效应。然而，我们无法彼此孤立地直接观察到这两个随机过程中的任何一个。我们观察到的唯一随机变量是 <span class="math inline">\(\symbf y\)</span>，即响应变量。对于非高斯数据，条件分布 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 和观测数据 <span class="math inline">\(\symbf y\)</span> 的分布不相同。最重要的是，它们的期望值并不相同。这就是关于如何解释模型或 ANOVA 结果的困惑开始的地方。</p>
+<p>观测数据的分布是边际分布。我们通过应用众所周知的概率论来获得它。令 <span class="math inline">\(f\left(\symbf{y}\mid\symbf{b}\right)\)</span> 表示以随机效应为条件的数据的 p.d.f.，<span class="math inline">\(f\left(\symbf{b}\right)\)</span> 表示随机效应的 p.d.f. 那么数据的边际分布为</p>
+<p><span class="math display">\[f\left(\symbf{y}\right)=\int_{\symbf{b}}f\left(\symbf{y}\mid\symbf{b}\right)f\left(\symbf{b}\right)d\,\symbf{b}\]</span></p>
+<p>边际 p.d.f. <span class="math inline">\(f\left(\symbf{b}\right)\)</span> 描述了我们实际观察数据时的概率行为。我们必须从边际分布中推断出有关该模型的一切。</p>
+<p>在高斯情况下，假定产生数据的概率过程—— <span class="math inline">\(f\left(\symbf{y}\mid\symbf{b}\right)\)</span> 和 <span class="math inline">\(f\left(\symbf{b}\right)\)</span> ——与我们观察到的数据的概率分布—— <span class="math inline">\(f\left(\symbf{y}\right)\)</span> ——之间的关系是直接的：<span class="math inline">\(\symbf{y}\mid\symbf{b}\sim N\left(\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b},\symbf{R}\right),\quad\symbf{b}\sim N\left(\symbf{0},\symbf{G}\right)\)</span> 以及 <span class="math inline">\(\symbf{y}\sim N\left(\symbf{X}\symbf{\beta},\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}\right)\)</span>。重要的是，固定效应向量 <span class="math inline">\(\symbf\beta\)</span> 的含义没有歧义，因此如何解释可估函数 <span class="math inline">\(\symbf K'\symbf\beta\)</span> 也没有歧义。然而在非高斯情况下，情况并非如此。</p>
+<p>我们的二项示例说明了非高斯数据的这些分布之间的相互作用。给定地点效应的数据条件分布为</p>
+<p><span class="math display">\[f\left(y_{ij}\mid L_j\right)=\binom{100}{y_{ij}}\Big(1/\Big(1+e^{-n_{ij}}\Big)\Big)^{y_{ij}}\Big[1-\Big(1/\Big(1+e^{-n_{ij}}\Big)\Big)\Big]^{100-y_{ij}}\]</span></p>
+<p>其中 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>。</p>
+<p>随机模型效应的分布可从假定 <span class="math inline">\(L_j\mathrm{~iid~}N\left(0,\sigma_L^2\right)\)</span> 开始或从其推论 <span class="math inline">\(\eta_{ij}\sim N\left(\eta_i,\sigma_L^2\right)\)</span> 开始，其中 <span class="math inline">\(\eta_i=\eta+\tau_i\)</span>。后一种形式使边际 p.d.f. 更容易开发。具体而言，边际 p.d.f. 为</p>
+<p><span class="math display">\[f\left(y_{ij}\right)=\int_{-\infty}^\infty\binom{100}{y_{ij}}\left[1/\left(1+e^{-\eta_{ij}}\right)\right]^{y_{ij}}\left[1-\left(1/\left(1+e^{-\eta_{ij}}\right)\right)\right]^{100-y_{ij}}\left(1/\sqrt{2\pi\sigma_L^2}\right)e^{-\left[\left(\eta_{ij}-\eta_t\right)^2/2\sigma_L^2\right]}d\eta_{ij}\]</span></p>
+<p>这是由非高斯混合模型定义的过程产生的数据的边际 p.d.f. 的典型形式。除了一些例外，GLMM 产生的边际 p.d.f. 难以进行直接的分析评估。然而，它们可以通过模拟进行可视化，也可以通过数值近似进行评估。我们将在第 <a href="chap6.html#chap6">6</a> 章中讨论 GLMM 的近似方法。</p>
+<p>在本节中，只要将这种分布可视化，并确定 <span class="math inline">\(y_{ij}\)</span> 的两个中心趋势指标——期望值和中位数——就足够了。这将阐明我们在<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-8">示例 3.8</a> 中关于正态近似和 GLMM 估计的困境。从更大的角度来看，我们需要了解边际分布的特征与我们为 GLMM 描述的过程有何关系，以便充分了解我们的建模选项是什么以及这些模型实际在估计什么（以及在许多情况下同样重要的是，他们没有估计什么）。</p>
+</div>
+<div id="sec3-5-4" class="section level3" number="3.5.4">
+<h3>
+<span class="header-section-number">3.5.4</span> 可视化边际 p.d.f.<a class="anchor" aria-label="anchor" href="#sec3-5-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>在我们的多地点二项示例中，处理 0 和 1 的 <span class="math inline">\(\pi_i\)</span> 估计在 0.1 附近，而在 GLMM 中，地点方差的估计约为 <span class="math inline">\(\hat\sigma_L^2=1\)</span>。注意，与正态近似的方差分量估计不同，它是用定义边际分布的积分中使用的尺度来表示的。图 3.1 显示了本示例所涉及过程的随机数模拟生成的 1,000,000 个观测值的直方图。随机数是使用以下步骤生成的</p>
+<details><summary><font color="#8B2232">图 3.1</font>
+</summary><img src="figure/figure%203.1.png#center" style="width:80.0%"></details><p><br></p>
+<ol style="list-style-type: decimal">
+<li>令 <span class="math inline">\(\eta=\text{logit}\begin{pmatrix}\text{prob=}0.1\end{pmatrix}=\log\begin{bmatrix}0.1/(1-0.1)\end{bmatrix}=-2.19722\)</span>。</li>
+<li>为第 <span class="math inline">\(i\)</span> 个模拟观测生成标准正态随机变量 <span class="math inline">\(z_i\)</span>。</li>
+<li>从而 <span class="math inline">\(\sqrt{\sigma_L^2}z_i\thicksim N\left(0,\sigma_L^2\right)\)</span>。对于该模拟，<span class="math inline">\(\sigma^2_L=1\)</span>。到目前为止，我们已经模拟了产生随机模型效应的过程。也就是说，<span class="math inline">\(\sqrt{\sigma_L^2}z_i\)</span> 模拟了产生地点效应的过程。</li>
+<li>因此，对于第 <span class="math inline">\(i\)</span> 个模拟观测，二项概率为 <span class="math inline">\(p_i=1\Big/\Big[1+e^{-(\eta+z_i)}\Big]\)</span>。这模拟了地点效应对二项概率的效应。</li>
+<li>生成 <span class="math inline">\(\text{Binomial }(100,p_i)\)</span> 随机变量 <span class="math inline">\(y_i\)</span>。这模拟了根据地点效应生成数据的过程。</li>
+</ol>
+<p>从直方图中可以明显看出，边际分布是强右偏的。根据 Box and Whisper 图，我们可以看到这种分布的中位数是 0.1. 这是有道理的：只有当模拟的地点效应为 0（地点效应分布的中心）时，生成观测值的概率才恰好为 0.1. 由于地点效应的分布到生成概率的转换是非线性的，任何不在其分布确切中心的位地点效应都将不对称地转换为二项概率的分布，得到高度偏斜的边际分布。</p>
+<p>边际分布将始终是偏斜的，除非条件分布具有恰好为 0.5 的概率（决定 <span class="math inline">\(\eta\)</span> 的概率为 0.5） 的二项 p.d.f. 如果它小于 0.5，则边际分布将右偏；如果它大于 0.5，则边际分布将左偏。偏斜度随着概率接近 0 或 1 而增加。偏斜度也随着方差（本例为 <span class="math inline">\(\sigma^2_L\)</span>）的增加而增加。</p>
+<p>边际分布的均值是多少？我们可以使用<strong>高斯-埃尔米特求积</strong> (Gauss-Hermite quadrature) 来近似。样本比例 <span class="math inline">\(y_i/100\)</span> 的条件分布是 <span class="math inline">\(\text{Binomial }(100,p_i)\)</span>。二项比例 <span class="math inline">\(p_i=1/\left(1+e^{-\eta_i}\right)\)</span> 以及 <span class="math inline">\(\eta_i\thicksim N\left(\eta,\sigma_L^2\right)\)</span> 其中 <span class="math inline">\(\eta=\text{logit}(0.1)\)</span> 以及 <span class="math inline">\(\sigma^2_L=1\)</span>。样本比例的期望值可表示为</p>
+<p><span class="math display">\[E_{p_i}\left[E\left(\left[y_i/100\right]|p_i\right)\right]=E\left(p_i\right)=\int{-\infty}^\infty\left[1/\left(1+e^{-\eta_i}\right)\right]\frac1{\Tiny\sqrt{2\pi\sigma_L^2}}e^{-\left[\left(\eta_i-\eta\right)^2/2\sigma_L^2\right]}d\eta_i\]</span></p>
+<p>令 <span class="math inline">\(x_i^2=\left(\eta_i-\eta\right)^2/2\sigma_L^2\)</span> 并代入上式得到</p>
+<p><span class="math display">\[\int_{-\infty}^{\infty}\left(1\Big/\left[1+e^{-\left(\eta+\sqrt{2\sigma_Lx_i}\right)}\right]\sqrt{\pi}\right)e^{-x_i^2}dx_i\]</span></p>
+<p>使用高斯-埃尔米特求积，这可以近似为</p>
+<p><span class="math display">\[\sum_{k=1}^qw_k\left\{1\Big/\left(\left[1+e^{-\left(\eta+\sqrt{2\sigma_Lx_k}\right)}\right]\sqrt{\pi}\right)\right\}\]</span></p>
+<p>其中 <span class="math inline">\(w_k\)</span> 表示求积权重，<span class="math inline">\(x_k\)</span> 表示求积节点，<span class="math inline">\(q\)</span> 表示求积点的数量。使用 9 个求积点，样本比例的近似期望值为 0.1339. 图 3.1 所示模拟数据的样本均值为 0.1338.</p>
+</div>
+<div id="sec3-5-5" class="section level3" number="3.5.5">
+<h3>
+<span class="header-section-number">3.5.5</span> 正态近似和 GLMM 估计了什么？<a class="anchor" aria-label="anchor" href="#sec3-5-5"><i class="fas fa-link"></i></a>
+</h3>
+<p>现在，我们可以通过边际分布看到基于正态近似的 ANOVA 与 GLMM 估计的差异以及为什么有这种差异。正态近似使用边际分布的样本比例作为响应变量。我们知道，处理均值的 ANOVA 估计是每种处理响应变量期望值的无偏估计。也就是说，ANOVA 提供了每个处理的边际分布均值的无偏估计。</p>
+<p>另一方面，GLMM 通过估计线性预测器的参数，从而确定模型尺度估计 <span class="math inline">\(\hat{\eta}+\hat{\tau}_i\)</span>，最后确定数据尺度估计 <span class="math inline">\(\hat{{\pi}}_i=1\Big/\Big(1+e^{-(\hat{\eta}+\hat{\tau}_i)}\Big)\)</span>。注意，这些是广义推断空间估计，因为它们基于可估函数 <span class="math inline">\(\symbf k'\symbf\beta\)</span>。此外，由于在可估函数中 <span class="math inline">\(\symbf M=\symbf 0\)</span> ——对于该模型，所有 <span class="math inline">\(L_j=0\)</span> ——这些估计发生在假定产生这些数据的二项概率分布的中心。换句话说，<span class="math inline">\(\hat\pi_i\)</span> 估计第 <span class="math inline">\(i\)</span> 种处理的边际分布的中位数。</p>
+<p>这回答了“为什么正态近似和 GLMM 会产生不同的结果？”同时，它也以可理解的方式提出了一个问题：“应该使用哪种估计？”</p>
+<p>思考该问题的第一种方法是回顾统计学入门课中关于位置度量的讨论。如图 3.1 所示的偏斜分布通常用于说明中位数是首选的位置度量，而均值被认为是不明智的选择。</p>
+<p>思考该问题的第二种方法是回到统计模型的定义。统计模型应该描述一个“产生数据的合理过程”。在这个例子中，条件模型显然为数据提供了一个连贯且可信的概率机制。而正态近似则不然。在条件 GLMM 中，<span class="math inline">\(\pi_i\)</span>（应用第 <span class="math inline">\(i\)</span> 种处理时感兴趣结果发生的概率）的含义是清晰且明确的。但对于正态近似，这一含义是模糊的。</p>
+<p>思考该问题的第三种方法是考虑研究人员如何构思这类数据的。每种处理都有发生感兴趣结果的概率，这就是研究者想要确定的“<span class="math inline">\(\pi_i\)</span>”。研究人员还意识到，地点会影响处理概率。研究人员所理解的“第 <span class="math inline">\(i\)</span> 种处理的概率”，我们可以认为是“金发女郎”概率——在某个“恰到好处”的地点（既不高于又不低于平均），结果发生的概率。正式地，这是地点分布中心的概率，即 GLMM 的可估函数 <span class="math inline">\(\eta+\tau_i\)</span>。无论研究人员使用正态近似进行 ANOVA 还是使用 GLMM，他们都认为自己在估计这个概率。这就是 GLMM 相关问题的“你跑得了但躲不了”方面。ANOVA 用户不会回避这个问题；他们只是忽视了存在该问题的事实。</p>
+<p>思考该问题的最后一种方法是更仔细地询问“研究人员在试图估计什么？”目标是估计总体中一个典型成员感兴趣结果的概率吗？对于本例，是在一个典型的地点吗？若如此，“金发女郎”的做法似乎是恰当的。如果你从总体中随机抽取一个地点，它的预期值既不会高于也不会低于平均值。另一方面，如果你真的想估计整个总体的均值，并且也理解使用均值来刻画偏斜分布的含义，那么由正态近似得到的估计实际上可能更为合适。例如，如果你要估计疾病发病率，GLMM 估计值将为你提供典型社区中的预期发病率；通过正态近似得出的<strong>估计</strong>将为你提供整个人群的疾病总发病率。</p>
+<p>“估计”一词在上句话中加粗了，因为正如我们所知，在统计推断中，这并不完全是关于估计的。如果边际均值确实是研究的焦点，那么仍然存在准确计算标准误并由此得到准确的检验统计量的问题。如前所述，正态近似不仅估计边际分布的均值，而且还假定方差同质性——我们知道，对于二项分布数据而言，这一假定并不成立，除非在处理对概率没有影响的情况下（然而这通常是无趣的）。为全面解决这些问题，我们现在引入本节最终的重点——条件与边际混合模型。</p>
+</div>
+<div id="sec3-5-6" class="section level3" number="3.5.6">
+<h3>
+<span class="header-section-number">3.5.6</span> 高斯条件和边际模型<a class="anchor" aria-label="anchor" href="#sec3-5-6"><i class="fas fa-link"></i></a>
+</h3>
+<p>线性混合模型的标准指定包括</p>
+<ul>
+<li>以随机模型效应为条件的数据 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的分布。</li>
+<li>随机模型效应 <span class="math inline">\(\symbf b\)</span> 的分布。</li>
+<li>连接函数：<span class="math inline">\({\symbf\eta}=g\left[E(\symbf{y}\mid\symbf{b})\right]\)</span>。</li>
+<li>线性预测器：<span class="math inline">\({\symbf\eta}=\symbf{X\beta}+\symbf{Zb}\)</span>。</li>
+</ul>
+<p>另一种方法是，描述与混合模型定义的过程相同的模型可根据边际分布和线性预测器 <span class="math inline">\(\symbf{X\beta}\)</span> 来指定，而无需明确指出随机效应。这是通过在边际分布的方差中嵌入与随机效应相关的方差来完成的。</p>
+<p>对于高斯数据，混合模型定义了 <span class="math inline">\(\symbf{y}\mid\symbf{b}\thicksim N\left(\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b},\symbf{R}\right)\)</span> 以及 <span class="math inline">\(\symbf{b}\sim N(\symbf{0},\symbf{G})\)</span>。<span class="math inline">\(\symbf y\)</span> 的边际分布为 <span class="math inline">\(N\left(\symbf{X\beta},\symbf{ZGZ}^{\prime}+\symbf{R}\right)\)</span>。由 <span class="math inline">\(\symbf{\eta}=\symbf{X\beta}\)</span> 和方差 <span class="math inline">\(\symbf{V}=Var\left(\symbf{y}\right)=\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{R}\)</span> 定义的仅固定效应模型对固定效应的推断与混合模型基于可估函数的推断相同。</p>
+<p>对于非高斯数据，这种等价性不成立。根据 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的分布以及线性预测器 <span class="math inline">\(\symbf{\eta}=\symbf{X\beta}+\symbf{Zb}\)</span> 定义的模型，会得出我们在上一节中考虑的二项多地点示例（<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-8">示例 3.8</a>）中 GLMM 所沿用的固定效应推断。一个仅基于 <span class="math inline">\(\symbf{\eta}=\symbf{X\beta}\)</span> 定义的广义线性模型会得出以边际分布均值为目标的推断。正如我们在上一节看到的，这两种方法会得到具有不同含义的不同估计。</p>
+<p>根据 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的分布以及线性预测器 <span class="math inline">\(\symbf{\eta}=\symbf{X\beta}+\symbf{Zb}\)</span> 定义的模型称为<strong>条件模型</strong> (conditional models)；根据 <span class="math inline">\(\symbf y\)</span> 的边际分布和线性预测器 <span class="math inline">\(\symbf{\eta}=\symbf{X\beta}\)</span> 定义的模型称为<strong>边际模型</strong> (marginal models).</p>
+<p>为了解它们在高斯情况下的工作原理，我们回到假定随机地点效应的多地点数据（<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a>）。回想，数据的条件分布为 <span class="math inline">\(y_{ij}\mid L_j\sim N\left(\mu_{ij},\sigma^2\right)\)</span>，线性预测器为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span> 以及 <span class="math inline">\(L_j\operatorname{iid}N\left(0,\sigma_L^2\right)\)</span>。这就是条件模型。我们可以用模型方程形式表示为 <span class="math inline">\(y_{ij}=\eta+\tau_i+L_j+w_{ij}\)</span>，其中 <span class="math inline">\(w_{ij}\)</span> 表示地点内变异，并假定为 <span class="math inline">\(\operatorname{iid}N\big(0,\sigma_W^2\big)\)</span>。注意 <span class="math inline">\(\sigma^2=\sigma^2_W\)</span>。</p>
+<p>模型方程可重写为 <span class="math inline">\(y_{ij}=\eta+\tau_i+e_{ij}\)</span>，其中 <span class="math inline">\(e_{ij}\)</span> 定义为 <span class="math inline">\(L_{j}+w_{ij}\)</span>。注意，我们正在做的是从线性预测器中移除所有随机模型效应——此处得到 <span class="math inline">\(\eta+\tau_i\)</span> ——并将所有随机变异嵌入 <span class="math inline">\(y_{ij}\)</span> 的方差中。地点效应变异仍存在于模型中，只是不显式存在于线性预测器中。模型的方差结构现在为：</p>
+<ul>
+<li><span class="math inline">\(Var\left(y_{ij}\right)=Var\left(e_{ij}\right)=Var\left(L_j+w_{ij}\right)=\sigma_L^2+\sigma_W^2\)</span></li>
+<li><span class="math inline">\(Cov\left(y_{ij},y_{i'j}\right)=Cov\left(e_{ij},e_{i'j}\right)=Cov\left(L_j+w_{ij},L_j+w_{i'j}\right)=\sigma_L^2\)</span></li>
+<li><span class="math inline">\(Cov\left(y_{ij},y_{i^{\prime}j^{\prime}}\right)=Cov\left(e_{ij},e_{i^{\prime}j^{\prime}}\right)=0\)</span></li>
+</ul>
+<p>因此，对于第 <span class="math inline">\(j\)</span> 个地点：</p>
+<p><span class="math display">\[Var\begin{bmatrix}e_{1j}\\e_{2j}\\e_{3j}\\e_{4j}\end{bmatrix}=\begin{bmatrix}\sigma_L^2+\sigma_W^2&amp;\sigma_L^2&amp;\sigma_L^2&amp;\sigma_L^2\\&amp;\sigma_L^2+\sigma_W^2&amp;\sigma_L^2&amp;\sigma_L^2\\&amp;&amp;\sigma_L^2+\sigma_W^2&amp;\sigma_L^2\\&amp;&amp;&amp;\sigma_L^2+\sigma_W^2\end{bmatrix}=\sigma_E^2\begin{bmatrix}1&amp;\rho&amp;\rho&amp;\rho\\&amp;1&amp;\rho&amp;\rho\\&amp;&amp;1&amp;\rho\\&amp;&amp;&amp;1\end{bmatrix}\]</span></p>
+<p>其中 <span class="math inline">\(\sigma_E^2=\sigma_L^2+\sigma_W^2\)</span> 以及 <span class="math inline">\(\rho=\sigma_L^2/\left(\sigma_L^2+\sigma_W^2\right)\)</span>。这称为<strong>复合对称</strong> (compound symmetry) 协方差模型，许多文本称 <span class="math inline">\(\rho=\sigma_L^2/\left(\sigma_L^2+\sigma_W^2\right)\)</span> 为<strong>类内相关性</strong> (intra class correlation)。注意，当 <span class="math inline">\(\rho\ge 0\)</span> 时它等价于混合模型。唯一的区别在于，<span class="math inline">\(\hat L_j\)</span> 以及涉及它们的可预测函数无法从复合对称模型中获得。</p>
+<p>对于多地点数据，复合对称模型是边际模型。地点效应不出现在模型中，但随机地点效应的影响蕴含在方差结构中。</p>
+<p>以下 GLIMMIX 语句实现了边际多地点模型。</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model Y= trt / solution;
+ random _residual_ / subject=loc type=cs;
+ lsmeans trt / diff;</code></pre>
+<p>请注意，出现的唯一 RANDOM 语句使用了 <code>_RESIDUAL_</code>。GLIMMIX 将其理解为定义一个响应 <span class="math inline">\(Y\)</span>，其分布为 <span class="math inline">\(\symbf{y}\sim N(\symbf{X\beta},\symbf{V})\)</span>，因为正态是默认分布，<span class="math inline">\(\symbf{X\beta}\)</span> 由 MODEL 语句的右侧定义，<span class="math inline">\(\symbf V\)</span> 的结构由 <code>RANDOM _RESIDUAL_</code> 语句定义。在 <code>RANDOM _RESIDUAL_</code>语句中，<code>SUBJECT=LOC</code> 设置分块对角阵；<code>TYPE=CS</code>将每个分块 (LOC) 定义为具有上述的复合对称结构。</p>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20124.png#center" style="width:60.0%"></div>
+<p>除方差分量估计的标签外，就固定效应的推断而言——包括处理均值、差异及任何可能感兴趣的对比——这里的结果与之前在<a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#exm:ex3-6">示例 3.6</a> 的条件随机地点效应高斯模型展示的结果完全相同。</p>
+</div>
+<div id="sec3-5-7" class="section level3" number="3.5.7">
+<h3>
+<span class="header-section-number">3.5.7</span> 非高斯边际模型与条件模型<a class="anchor" aria-label="anchor" href="#sec3-5-7"><i class="fas fa-link"></i></a>
+</h3>
+<p>现在考虑二项情形。在本节开头，我们考虑了条件模型——二项 GLMM：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+l_j\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ij}\mid L_j\sim \text{Binomial}\left(N_{ij},\pi_{ij}\right)\)</span></li>
+<li><span class="math inline">\(L_j\mathrm{~iid~}N\left(0,\sigma_L^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接：logit，<span class="math inline">\(\eta_{ij}=\text{logit} (\pi_{ij})\)</span>
+</li>
+</ul>
+<p>那么边际模型呢？</p>
+<p>首先，我们从线性预测器中移除随机效应。这就留下了 <span class="math inline">\(\eta_{ij}=\eta+\tau_{i}\)</span>。</p>
+<p>“分布”为 <span class="math inline">\(\mathrm{''Binomial''}(n_{ij},\tilde\pi_{ij})\)</span>。请注意，分布实际上不是二项的。它是边际分布，是关于随机地点效应积分的结果。考虑地点效应的二项条件分布是一个组件，但正如我们之前看到的，该模型中的分布不是二项的。尽管如此，广义线性模型约定将模型标记为 <span class="math inline">\(\mathrm{''Binomial''}\)</span>，因此我们遵守此约定。为避免与条件模型混淆，这里的关键符号说明为：我们将概率参数称为 <span class="math inline">\(\tilde \pi_{ij}\)</span> 而非 <span class="math inline">\(\pi_{ij}\)</span>。<span class="math inline">\(\tilde \pi_{ij}\)</span> 表示边际期望；而 <span class="math inline">\(\pi_{ij}\)</span> 表示条件模型中二项分布的概率。</p>
+<p>最后，我们需要考虑协方差结构中的地点效应。在非高斯边际 GLMM 中，这是使用<strong>工作协方差阵</strong> (working covariance matrix) 来完成的。工作协方差阵模拟了高斯协方差模型的结构，但它不是真正的协方差。此处第 <span class="math inline">\(j\)</span> 个地点的工作协方差阵为</p>
+<p><span class="math display">\[\symbf{P}_W\begin{bmatrix}y_{1j}\\y_{2j}\\y_{3j}\\y_{4j}\end{bmatrix}={\phi}\begin{bmatrix}1&amp;\rho&amp;\rho&amp;\rho\\&amp;1&amp;\rho&amp;\rho\\&amp;&amp;1&amp;\rho\\&amp;&amp;&amp;1\end{bmatrix}\]</span></p>
+<p>其中，<span class="math inline">\(\symbf{P}_W\)</span> 表示工作协方差，<span class="math inline">\(\phi\)</span> 是尺度参数，<span class="math inline">\(\rho\)</span> 表示工作相关性。尺度参数和工作相关性的解释与高斯情况下的 <span class="math inline">\(\sigma^2_E\)</span> 和 <span class="math inline">\(\rho\)</span> 的解释在精神上是相同的，但实际的解释又不尽相同。工作协方差模型主要是一种获得边际估计的工具，允许考虑地点方差对标准误和检验统计量的影响。</p>
+<div class="rmdcaution">
+<p><strong>拟似然</strong> (Quasi-likelihood). 当我们引入工作协方差结构时，所得结构的基本形式源自二项 p.d.f.，但其中嵌入了工作协方差。其结果是一个数学形式，它不再是一个概率分布，实际上也不对应于任何可行的概率机制。</p>
+</div>
+<p>在第 <a href="chap5.html#chap5">5</a> 章我们将引入拟似然。Wedderburn (1974) 提出的拟似然，指的是这样一类数学形式，它们虽然与已知概率分布的似然函数共享进行广义线性模型估计所必需的特征，但其期望和协方差结构意味着它们不是真正的似然。所有非高斯边际 GLMM 都依赖于拟似然理论。</p>
+<p>二项边际模型的 GLIMMIX 语句如下：</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model S_1/N_Bin = trt / solution;
+ random _residual_ / subject=loc type=cs;
+ lsmeans trt / diff ilink;</code></pre>
+<p>请注意，除了响应变量以及 LSMEANS 语句中 <code>ILINK</code> 选项的使用外，该程序与高斯边际模型的程序相同。对于非高斯数据，<code>RANDOM _RESIDUAL_</code> 语句定义了工作协方差结构。</p>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20126.png#center" style="width:70.0%"></div>
+<p>在当前的讨论中，最值得注意的结果是 “Trt Least Squares Means” 表中的数据尺度估计和标准误。请注意，这些估计与正态近似的估计相同：这些是边际均值的估计值。它们是 <span class="math inline">\(\tilde\pi_{ij}\)</span> ——不是二项分布的概率，而是边际分布期望——的无偏估计。</p>
+<p>作为对边际 GLMM 的最后评论，请记住，我们对统计模型的定义标准之一为，理想情况下，它应该描述产生观测数据的合理机制。按照这个标准，边际 GLMM 失败了。一旦我们根据工作协方差定义了模型，我们就不再有真正的概率分布。相反，我们有一个拟似然，我们将在第 <a href="chap5.html#chap5">5</a> 章中正式定义它。没有已知的概率机制可以产生边际模型所描述的数据。在我们这里考虑的模型中，条件 GLMM 是唯一一个真正描述可能过程的模型。任何合理的替代方案仍然会有一个两步过程——根据某个分布改变二项概率，然后根据以该地点为条件的二项概率生成二项观测。不管你喜欢与否，该生成机制描述了一个条件模型。边际 GLMM 并没有描述一个过程；它只是允许在边际均值被视为目标时对其进行估计。</p>
+</div>
+<div id="条件模型的最后一个方面残差在高斯-lmm-与单参数非高斯-glmm-中的作用" class="section level3 unnumbered">
+<h3>条件模型的最后一个方面：“残差”在高斯 LMM 与单参数非高斯 GLMM 中的作用<a class="anchor" aria-label="anchor" href="#%E6%9D%A1%E4%BB%B6%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%9C%80%E5%90%8E%E4%B8%80%E4%B8%AA%E6%96%B9%E9%9D%A2%E6%AE%8B%E5%B7%AE%E5%9C%A8%E9%AB%98%E6%96%AF-lmm-%E4%B8%8E%E5%8D%95%E5%8F%82%E6%95%B0%E9%9D%9E%E9%AB%98%E6%96%AF-glmm-%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8"><i class="fas fa-link"></i></a>
+</h3>
+<p>在第 <a href="chap1.html#chap1">1</a> 章中，我们建立了“概率分布形式”作为表示线性模型的首选方式。该讨论使我们认识到，在传统“模型方程”形式的模型中所包含的“误差”或“残差”项，在以“概率分布”形式表述的线性模型的线性预测器中是不应该出现的。对于高斯数据，<span class="math inline">\(\symbf y\mid\symbf b\)</span> 条件分布的均值和方差是独立的参数，必须单独估计。线性预测器估计均值，而估计 <span class="math inline">\(Var(\symbf y\mid\symbf b)\)</span> 所需的信息必须来自其他地方。我们在第 <a href="chap2.html#chap2">2</a> 章中看到，从线性预测器中排除“残差”相当于从估计 <span class="math inline">\(Var(\symbf y\mid\symbf b)\)</span> 的框架 ANOVA 的残差分量中去除信息。</p>
+<p>更进一步，我们提出以下问题。对于具有单参数非高斯分布（如二项分布或泊松分布）的数据的模型，既然我们不需要框架 ANOVA 中的“最后一项”来估计方差，那么该项是否可能有其他作用呢？在某些情况下，答案是“是的”。这里我们利用多地点数据来说明这一点。</p>
+<p>回想第 <a href="chap2.html#chap2">2</a> 章用于帮助构建线性预测器的“Fisher会怎么做？”框架 ANOVA 练习。表 3.3 总结了多地点数据的这一练习。</p>
+<details><summary><font color="#8B2232">表 3.3</font>
+</summary><img src="figure/table%203.3.png#center" style="width:100.0%"></details><p><br>
+组合框架 ANOVA 的三个版本如表 3.3 所示。三者在地点和处理主效应的表现方式上一致。所得的任何线性预测器必须至少包含 <span class="math inline">\(\eta+\tau_i+L_j\)</span> ——我们在本章中使用多地点数据的所有示例中使用的线性预示器。框架 ANOVA 对最后具有 21 个自由度的项的理解不同。具有高斯数据的模型必须使用 “Combined v.3.”。数据分布对于仅固定效应模型为 <span class="math inline">\(y_{ij}\sim NI\left(\mu_{ij},\sigma^2\right)\)</span>，对于随机地点效应模型为 <span class="math inline">\(y_{ij}\mid L_j\sim NI\left(\mu_{ij},\sigma^2\right)\)</span>。无论哪种方式，都必须保留“残差”来估计 <span class="math inline">\(\sigma^2\)</span>。</p>
+<p>如果每个地点-处理组合没有多个观测，具有高斯数据的模型就无法使用 “Combined v.3.” ANOVA. 如果为 <span class="math inline">\(\sigma^2\)</span> 保留了大于 0 的自由度，就无法在高斯模型中估计地点 × 处理交互作用。</p>
+<p>对于具有二项数据的模型，这是不正确的。在本章迄今为止的所有示例中，我们使用了与高斯模型相同的线性预测器。然而，原则上没有理由不将地点 × 处理交互作用纳入线性预测因子。</p>
+<p>如果我们这样做会发生什么？我们可以将线性预测因子改为 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j+\left(\tau L\right)_{ij}\)</span>，其中 <span class="math inline">\(\left(\tau L\right)_{ij}\)</span> 表示第 <span class="math inline">\(ij\)</span> 个地点 × 处理效应，假定为 <span class="math inline">\(\mathrm{iid~}N\left(0,\sigma_{TL}^2\right)\)</span>，使用 GLIMMIX 程序计算如下</p>
+<pre class="sas"><code>proc glimmix data=MultiLoc_4Trt;
+ class loc trt;
+ model s_1/N_Bin= trt / solution;
+ random intercept trt / subject=loc;
+ /* or alternatively random loc loc*trt; */
+ lsmeans trt / ilink;</code></pre>
+<p>方差分量估计为 <span class="math inline">\(\hat{\sigma}_L^2=0.948\)</span> 以及 <span class="math inline">\(\hat{\sigma}_{TL}^2=0.003\)</span>。相比之下，无交互作用模型 <span class="math inline">\(\hat{\sigma}_L^2=0.946\)</span>。其他估计和检验统计量也发生了可忽略的变化。对于该响应变量，没有证据表明存在不可忽略的地点 × 处理交互作用。不管该项是否保留在模型中，结果都基本相同。</p>
+<p>然而，情况并非总是如此。我们现在考虑相同的数据，但具有不同的响应变量，在 Data Set 3.2 中表示为 S_2。将比较四种分析：</p>
+<ol style="list-style-type: decimal">
+<li>无交互作用的二项条件 GLMM. 线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>。随机地点效应。Logit 连接。这是最开始介绍条件 GLMM 的模型。</li>
+<li>正态近似。响应变量：样本比例。线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>。这是最开始介绍边际分布的模型。</li>
+<li>具有交互作用的二项条件 GLMM。线性预测因子：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j+\left(\tau L\right)_{ij}\)</span>。Logit 连接。</li>
+<li>二项边际 GLMM. 线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i\)</span>。Logit 连接。复合对称工作协方差。</li>
+</ol>
+<p>表 3.4 概述了相关结果。</p>
+<details><summary><font color="#8B2232">表 3.4</font>
+</summary><img src="figure/table%203.4.png#center" style="width:110.0%"></details><p><br>
+表 3.4 中最引人注目的结果是，在关于原假设 <span class="math inline">\(H_0\)</span>：所有 <span class="math inline">\(\tau_i=0\)</span> 的 <span class="math inline">\(F\)</span> 检验中，不包含交互作用的条件 GLMM 与其他三个模型之间存在巨大差异。为什么会存在这种差异呢？在无交互作用的 GLMM 中，线性预测器是 <span class="math inline">\(\eta_{ij}=\eta+\tau_i+L_j\)</span>，并假设给定地点内观测间的所有变异为 <span class="math inline">\(\pi_{ij}(1-\pi_{ij})\)</span>（二项的均值-方差关系的结果）。在每个其他模型中，都规定了每个地点内处理间的相对差异会受到随机过程的干扰。这在正态近似中体现为残差方差 <span class="math inline">\(\sigma^2\)</span>；在边际 GLMM 中体现为尺度参数 <span class="math inline">\(\phi\)</span>。在有交互作用的条件 GLMM 中，根据定义，地点 × 处理交互作用是不同地点的处理之间对数几率比的随机变异。</p>
+<p>无交互作用的条件 GLMM 做出了一个潜在的不切实际的假设，即处理之间的几率比在不同地点保持绝对不变，同时假定每个地点所有处理的平均对数几率在因地点随机变异。若未考虑到各地点间几率比的随机变异，会导致 <span class="math inline">\(F\)</span> 值膨胀，扭曲处理概率的估计，并低估其标准误。这是广义线性混合模型表现出过度分散症状的一种预示。当观测方差大于模型所能解释的方差时，过度分散就会发生。</p>
+<p>与前面的例子一样，正态近似和边际 GLMM 得到了相同的处理期望估计，即前面讨论的边际 <span class="math inline">\(\tilde\pi_i\)</span>。正态近似的标准误没有考虑到二项数据定义中已知的方差异质性。而边际 GLMM 考虑了。这两种分析的 <span class="math inline">\(F\)</span> 值基本一致。</p>
+<p>具有交互作用的条件 GLMM 产生了条件模型中定义的 <span class="math inline">\(\pi_i\)</span> 的精确估计。回想一下，这些是估计的“金发女郎”概率——我们在典型地点的预期。标准误反映了二项分布的均值-方差关系的全部影响。用于检验处理效应的 <span class="math inline">\(F\)</span> 值反映了随机地点 × 处理效应的影响，因此它不像无交互作用的条件 GLMM 那样膨胀。</p>
+<p>同时，<span class="math inline">\(F\)</span> 值明显大于正态近似和边际 GLMM 的 <span class="math inline">\(F\)</span> 值。这不是该数据集的假象。这是由边际分布的偏斜引起的。回想一下，相对于产生数据的实际过程的概率，即 <span class="math inline">\(\pi_i\)</span>，边际“概率”向 0.5 移动。这导致边际 <span class="math inline">\(\tilde\pi_i\)</span> 之间的差异相对于 <span class="math inline">\(\pi_i\)</span> 之间的差异被减弱。这反过来又降低了处理效应检验的功效：假定 I 类错误得到了适当的控制，就像这里具有交互作用的条件 GLMM 所控制的那样，边际 GLMM 的功效总是低于相应的条件 GLMM.</p>
+<div class="rmdtip">
+<p><a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5">3.5</a> 节的关键主题：给定随机效应的数据的条件分布；观测的边际分布；我们实际看到的数据分布是什么；当 ANOVA 应用于非正态数据时会发生什么？；边际分布的两个位置度量以及哪些模型估计了什么？；复合对称；条件模型；边际模型；工作相关性；工作协方差；残差在高斯数据中的作用；非高斯数据中“残差”的另一种可能的理解。</p>
+</div>
+</div>
+</div>
+<div id="sec3-6" class="section level2" number="3.6">
+<h2>
+<span class="header-section-number">3.6</span> 总结<a class="anchor" aria-label="anchor" href="#sec3-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>在许多方面，本章中的材料是这本教科书中最重要的。这些想法很复杂，包括统计建模中一些被广泛误解和误用的概念。具体地，在建模领域，条件模型和边际模型关于推断的区别才刚刚开始被认识和理解。理解这一区别及其对模型编写方式和推断过程的影响，是有效使用现代统计模型的关键先决条件。</p>
+<p>用四个总体思想来概括本章的精髓：</p>
+<ol style="list-style-type: decimal">
+<li><p>统计模型的推断是通过可估和可预测函数进行的。它们构成了线性模型假设检验和区间估计的基础。为了进行统计推断，必须能够用可估或可预测函数来表达研究目标。</p></li>
+<li><p>对于具有非恒等连接函数的广义线性模型，所有估计和推断都发生在模型尺度上——也就是说，对于所有 GLM 为参数向量 <span class="math inline">\(\symbf\beta\)</span>，对于 GLMMs 还需加上随机向量 <span class="math inline">\(\symbf b\)</span>。然而，出于报告目的，通常需要将估计从模型尺度转换为数据尺度。</p></li>
+<li><p>对于混合模型，推断可以广义地适用于由随机模型效应表示的整个总体，或狭义地适用于观测随机效应的子集。可估函数定义了广义推断；可预测函数定义了狭义推断。我们将这些称为推断空间问题。</p></li>
+<li><p>广义推断有两种——条件推断和边际推断。对于高斯数据它们是等价的，而对于非高斯数据则不然。条件推断的目标是给定随机模型效应的观测假定分布的期望值。边际推断的目标是观测边际分布的期望值。除高斯数据外，观测边际分布与响应变量的假定分布不同。例如，对于二项数据，条件广义推断估计二项概率；边际推断则不然。边际广义推断也称为总体平均推断（有点欺骗性）。一般来说，GLMM 的边际分布是高度偏斜的。对于边际广义推断（总体平均推断），可估函数取决于作为位置度量的边际分布均值。对于条件广义推断，可估函数取决于条件分布在 <span class="math inline">\(\symbf M'\symbf b=\symbf 0\)</span> 处的均值，可转译为作为位置度量的边际分布中位数。选择边际还是条件广义推断，本质上是在使用均值还是中位数作为高度偏斜分布的优选位置度量之间的选择。</p></li>
+</ol>
+<p>只有当我们有随机模型效应和非正态数据时，条件-边际问题才会出现。它不出现在高斯数据中，也不出现在仅具有固定效应的非高斯数据中。因此，在 GLMMs 出现之前，建模界的任何人都不会遇到这个问题。鉴于 GLMM 理论相对较新，并且可用的 GLMM 软件在过去十几年中才出现，因此条件-边际问题没有出现在传统的线性模型文献中，直到现在才开始受到重视，这并不奇怪。然而，每当非高斯数据和混合模型结构共存时，例如二项或计数数据的裂区实验，条件-边际问题都存在，无法避免。从这个意义上说，除非理解本章中的问题，否则学习本教材其余部分的材料在某种程度上是没有意义的。</p>
+</div>
+<div id="exe3" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe3"><i class="fas fa-link"></i></a>
+</h2>
+<p>website data set/Exercises for Chapter 3<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：在原书第一版的&lt;a href="https://www.routledge.com/Generalized-Linear-Mixed-Models-Modern-Concepts-Methods-and-Applications/Stroup/p/book/9781439815120"&gt;网站&lt;/a&gt; 的 “Support Material” 栏中。&lt;/p&gt;'><sup>11</sup></a> 中有四个数据集：</p>
+<ul>
+<li>4rt_blocked_1：是一个有四种处理的随机完全区组。</li>
+<li>4rt_blocked_2：是一个有四种处理的均衡不完全区组 (balanced incomplete block, BIB).</li>
+<li>4rt_blocked_3：一个不完全区组设计——在 BIB 意义上不均衡，但扩增了，因此所有处理都重复了四次。</li>
+<li>4rt_blocked_4：一个具有四种处理的不完全区组设计。在线性模型课程中，你会称之为“不连通”的设计——但你可能会错过它的真正含义。</li>
+<li>所有“4rt_”数据集都有 2 个响应变量—— <span class="math inline">\(Y\)</span> 可以假定为正态（高斯）；Count 应假定为泊松。</li>
+<li>regression_y_count：在多个 “reps”（可以是地点、批次、区组等）中应用的定量水平——可以假定响应变量 <span class="math inline">\(Y\)</span> 为正态（高斯）；假定（除非另有指示）响应变量 COUNT 具有泊松分布。</li>
+<li>regression_binomial：在多个 “reps”（可以是地点、批次、区组等）中应用的定量水平——响应变量是二项的（每个重复 × <span class="math inline">\(X\)</span> 的水平中 <span class="math inline">\(N\)</span> 次观测“成功”了 <span class="math inline">\(Y\)</span> 次）。</li>
+</ul>
+<p>使用专注于 PROC GLIMMIX 的 SAS 线性模型软件，将其视为对推断问题的探索——模型与数据尺度、狭义与广义、条件与边际。以下是建议你应该回答的问题。此外，你应该超越自我，提出自己的“当我这样做时会发生什么？”的探索。</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>对于 4rt_blocked_1 数据集—— <span class="math inline">\(Y\)</span> 变量：</p>
+<ol style="list-style-type: lower-alpha">
+<li>使用固定区组写出模型，然后使用随机区组写出模型。</li>
+<li>为固定区组和随机区组模型编写所需的 SAS 语句。</li>
+<li>验证 <code>random block</code> 和 <code>random intercept / subject=block</code> 是否得到相同的结果（并确保你理解原因）</li>
+<li>将 <code>e</code> 选项添加到 LSMEANS 语句中。比较和对比固定区组模型和随机区组模型的结果。这些告诉你什么？为什么它们不同？</li>
+<li>比较并对比 (compare and contrast) 由 LSMEANS 语句计算的处理均值和差异的标准误。说明相似之处和不同之处。</li>
+</ol>
+</li>
+<li>
+<p>对于 4rt_blocked_2 数据集—— <span class="math inline">\(Y\)</span> 变量：</p>
+<ol style="list-style-type: lower-alpha">
+<li>重复 1. 中的 a-e.</li>
+<li>使用 <code>bylevel</code> 和 <code>e</code> 选项运行第二个 LSMEANS 语句。这些与默认的 LSMEANS 相比如何？LSMEANS BYLEVEL 在估计什么？</li>
+<li>写一个 ESTIMATE 语句来计算 trt1 和 trt2 LSMEANS BYLEVEL 估计之差。这些在估计什么？</li>
+<li>通常，你会使用默认的 LSMEANS 结果还是 LSMEANS BYLEVEL 的结果？请简单解释！</li>
+<li>将区组随机模型重写为具有复合对称协方差结构的编辑模型。验证随机区组效应模型和复合对称模型是否产生相同的结果。</li>
+</ol>
+</li>
+<li><p>对 4rt_blocked_2 数据集重复 2.</p></li>
+<li>
+<p>对 4rt_blocked_4 重复 2. 特别注意固定区组模型和随机区组模型结果的比较。</p>
+<p>我们可以提出一个令人信服的论点，称这种设计为“不连通”并未抓住重点。什么是不连通设计？为什么称此设计为不连通？为什么它未抓住重点？【提示：Fisher 会如何看待这个设计？继 Fisher 之后，该设计的另一个名字（通常在实验课程的设计中讨论）是什么？】这是一个充分展示了固定区组思维的局限性的例子——它把你逼到了一个无法逃脱的角落。</p>
+</li>
+<li>
+<p>对于数据集 regression_y_count（此练习使用响应变量 <span class="math inline">\(Y\)</span>）：</p>
+<ol style="list-style-type: lower-alpha">
+<li>写出假定固定 “reps” 的模型，然后写出随机 “reps” 的模型。</li>
+<li>写出这两种模型的 SAS 语句，这里假定固定效应相互独立。</li>
+<li>比较并对比两种分析的结果。</li>
+<li>在 c. 中纳入对“总体平均”回归方程的估计。请注意，随机“rep”模型很容易获得这一点；固定的“rep”模型需要识字的ESTIMATE语句。</li>
+<li>重写随机 “rep” 模型，假定随机截距和随机斜率项在每个 “rep” 内相关。将这些结果与 b. 中的结果进行比较和对比。</li>
+</ol>
+</li>
+<li><p>使用数据集 regression_binomial 重复 5.</p></li>
+<li><p>对数据集 regression_y_count 中的 Count 响应变量重复 1. - 4.</p></li>
+<li><p>（续）对 Count 响应变量重复 1.，但假定计数近似正态。</p></li>
+<li><p>（续）对 Count 响应变量重复 1.，但使用对数变换并假定 log_count 近似正态。</p></li>
+<li><p>比较并对比 7. - 9. 的结果，特别注意边际推断与条件推断问题。</p></li>
+</ol>
+</div>
+</div>
+
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></div>
+<div class="next"><a href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0">►搭建舞台</a></li>
+<li>
+<a class="nav-link" href="#sec3-4"><span class="header-section-number">3.4</span> 问题 2：推断空间</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec3-4-1"><span class="header-section-number">3.4.1</span> 广义推断</a></li>
+<li><a class="nav-link" href="#sec3-4-2"><span class="header-section-number">3.4.2</span> 狭义推断</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec3-5"><span class="header-section-number">3.5</span> 问题 3：条件和边际模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec3-5-1"><span class="header-section-number">3.5.1</span> 正态近似</a></li>
+<li><a class="nav-link" href="#sec3-5-2"><span class="header-section-number">3.5.2</span> 二项 GLMM</a></li>
+<li><a class="nav-link" href="#sec3-5-3"><span class="header-section-number">3.5.3</span> 条件和边际分布</a></li>
+<li><a class="nav-link" href="#sec3-5-4"><span class="header-section-number">3.5.4</span> 可视化边际 p.d.f.</a></li>
+<li><a class="nav-link" href="#sec3-5-5"><span class="header-section-number">3.5.5</span> 正态近似和 GLMM 估计了什么？</a></li>
+<li><a class="nav-link" href="#sec3-5-6"><span class="header-section-number">3.5.6</span> 高斯条件和边际模型</a></li>
+<li><a class="nav-link" href="#sec3-5-7"><span class="header-section-number">3.5.7</span> 非高斯边际模型与条件模型</a></li>
+<li><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%9C%80%E5%90%8E%E4%B8%80%E4%B8%AA%E6%96%B9%E9%9D%A2%E6%AE%8B%E5%B7%AE%E5%9C%A8%E9%AB%98%E6%96%AF-lmm-%E4%B8%8E%E5%8D%95%E5%8F%82%E6%95%B0%E9%9D%9E%E9%AB%98%E6%96%AF-glmm-%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8">条件模型的最后一个方面：“残差”在高斯 LMM 与单参数非高斯 GLMM 中的作用</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec3-6"><span class="header-section-number">3.6</span> 总结</a></li>
+<li><a class="nav-link" href="#exe3">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

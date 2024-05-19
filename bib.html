@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>参考文献 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="Agresti, A. 2013. Categorical Data Analysis, 2nd edition. Akaike, H. 1974. A new look at the statistical model identification. IEEE Transaction on Automatic Control AC-19, 716–723. Anderson, R.L....">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="参考文献 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="Agresti, A. 2013. Categorical Data Analysis, 2nd edition. Akaike, H. 1974. A new look at the statistical model identification. IEEE Transaction on Automatic Control AC-19, 716–723. Anderson, R.L....">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="参考文献 | 广义线性混合模型">
+<meta name="twitter:description" content="Agresti, A. 2013. Categorical Data Analysis, 2nd edition. Akaike, H. 1974. A new look at the statistical model identification. IEEE Transaction on Automatic Control AC-19, 716–723. Anderson, R.L....">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li class="book-part">—</li>
+<li><a class="active" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="bib" class="section level1 unnumbered">
+<h1>参考文献<a class="anchor" aria-label="anchor" href="#bib"><i class="fas fa-link"></i></a>
+</h1>
+<p><br>
+Agresti, A. 2013. Categorical Data Analysis, 2nd edition.</p>
+<p>Akaike, H. 1974. A new look at the statistical model identification. IEEE Transaction on Automatic Control AC-19, 716–723.</p>
+<p>Anderson, R.L. and Nelson, L.A. 1975. A family of models involving intersecting straight lines and concomitant experimental designs used in evaluating response to fertilizer nutrients. Biometrics 31, 303–318.</p>
+<p>Atkinson, A.C. 1969. The use of residuals as a concomitant variable. Biometrika 56, 33–41.Bartlett, M.S. 1947. The use of transformations. Biometrics 3, 39–52.</p>
+<p>Barlett, M.S. 1978. Nearest neighbour models in the analysis of field experiments (with discussion). J Royal Statistical Society B 40, 147–74.</p>
+<p>Bates, D.G. and Watts, D.M. 1988. Nonlinear Regression Analysis and Its Applications. New York: Wiley.</p>
+<p>Bello, N.M. , Steibel J.P. and Pursley J.R. 2006. Optimizing ovulation to first GnRH improved outcomes to each hormonal injection of ovsynch in lactating dairy cows. J Dairy Science 89(9), 3413–3424.</p>
+<p>Bhattacharya, C.G. 1998. Goodness of Yates-Rao procedure for recovery of inter-block. Information Sankhya A 61(1), 134–144.</p>
+<p>Bolker, B.M. , Brooks, M.E. , Clark, C.J. , Geange, S.M. , Poulsen, J.R. , Stevens, H.H. and White, J.S. 2009.</p>
+<p>Generalized linear mixed models: a practical guide for ecology and evolution. Trends in Ecology &amp; Evolution 24(3), 127–135.</p>
+<p>Box, G.E.P. 1976. Science and statistics. Journal of the American Statistical Association 71(356), 791–799. <a href="doi:10.1080/01621459.1976.10480949" class="uri">doi:10.1080/01621459.1976.10480949</a>.</p>
+<p>Box, G.E.P. and Behnken, D.W. 1960. Some new three-level designs for the study of quantitative variables. Technometrics 2, 455–475.</p>
+<p>Box, G.E.P. and Draper, N.R. 1987. Empirical Model Building and Response Surfaces. New York: Wiley.</p>
+<p>Box, G.E.P. , Hunter, J.S. and Hunter, W.G. 2005. Statistics for Experimenters, 2nd edition. New York: Wiley.</p>
+<p>Box, G.E.P. , Jenkins, G.M. and Reinsel, G.C. 2008. Time Series Analysis: Forecasting &amp; Control, 3rd Edition. New York: Wiley.</p>
+<p>Breslow, N.E. and Clayton, D.G. 1993. Approximate inference in generalized linear mixed models. J American Statistical Association 88(421), 9–25.</p>
+<p>Breslow, N.E. and Lin, X. 1995. Bias correction in generalised linear mixed models with a single component of dispersion. Biometrika 81, 81–91.</p>
+<p>Burnham, K.P. and Anderson, D.R. 1998. Model Selection and Inference: A Practical Information-Theoretic Approach. New York: Springer-Verlag.</p>
+<p>Burnham, K.P. and Anderson, D.R. 2002. Model Selection and Multi-Model Inference. New York: SpringerVerlag.</p>
+<p>Casella, G . and Berger, R.L. 2002. Statistical Inference, 2nd edition. Pacific Grove, CA: Duxbury.</p>
+<p>Christiansen, R ., Johnson, W ., Branscum, A . and Hanson, T.E. 2011. Bayesian Ideas and Data Analysis: An Introduction for Scientists and Statisticians. Boca Raton, FL. CRC Press.</p>
+<p>Claassen, E.A. 2014. A Reduced Bias Method of Estimating Variance Components on Generalized Linear Mixed Models PhD Disseration, Lincoln, NE. University of Nebraska.</p>
+<p>Cochran, W.G. and Cox, G.M. 1957. Experimental Designs, 2nd edition. New York: Wiley.</p>
+<p>Cressie, N.A.C. 1993. Statistics for Spatial Data. New York: Wiley.</p>
+<p>Cressie, N.A.C. and Wikle, C.K. 2011. Statistics for Spatio-Temporal Data. New York: Wiley.</p>
+<p>Davidian, M . and Giltinan, D.M. 1995. Nonlinear Models for Repeated Measurement Data. New York: Chapman and Hall.</p>
+<p>Davidian, M . and Giltinan, D.M. 2002. Nonlinear models for repeated measurement data: n update and overview. J Agricultural Biological and Environmental Statistics 8(4), 387–419.</p>
+<p>de Boor, C. 1978. A Practical Guide to Splines. New York: Springer Verlag. <a href="http://dx.doi.org/10.1007/978-1-4612-6333-3" class="uri">http://dx.doi.org/10.1007/978-1-4612-6333-3</a></p>
+<p>Demidenko, E. 2004. Mixed Models: Theory and Applications. New York: Wiley.</p>
+<p>Diggle, P.J. , Heagerty, P ., Liang, K-Y . and Zeger, S.L. 2002. Analysis of Longitudinal Data, 2nd edition. Oxford, UK: Oxford Press.</p>
+<p>Dobson, A.J. and Barnett, A.G. 2008. Introduction to Generalized Linear Models, 3rd edition. Boca Raton, FL: CRC Press.</p>
+<p>Dunnett, C.W. and Hsu J.C. 1992. The factor analytic approach to simultaneous inference in the general linear models. J Computational and Graphical Statistics, 1, 151–168.</p>
+<p>Dunnett, C.W. 1955. A multiple comparison procedure for comparing several treatments with a control. J American Statistical Association 50, 1096–1121.</p>
+<p>Eisenhart, C. 1947. The assumptions underlying the analysis of variance. Biometrics 3, 1–21.</p>
+<p>Federer, W.T. 1955. Experimental Design - Theory and Applications. New York: Macmillan Publishing.</p>
+<p>Federer, W.T. and King, F. 2007. Variations on Split Plot and Split Block Experiment Designs. New York: Wiley.</p>
+<p>Ferrari, S.L.P. and Cribari-Neto, F. 2004. Beta regression for modeling rates and proportions J Applied Statistics 31, 799–815.</p>
+<p>Fisher, R.A. 1935. Comments in Yates, “Complex Experiments.” J Royal Statistical Society Supplement, 2, 181–223.</p>
+<p>Fisher, R.A. and Mackenzie, W.A. 1923. Studies in Crop Variation II: The manurial response of different potato varieties. J Agricultural Science 13, 311–320.</p>
+<p>Fitzmaurice, G ., Davidian, M ., Verbeeke, G . and Molenberghs, G ., ed. 2009. Longitudinal Data Analysis. Boca Raton, FL: Chapman and Hall.</p>
+<p>Frenzel, M ., Stroup, W.W. and Paparozzi, E.T. 2010. After Further Review: An Update on Modeling and Design Strategies For Agricultural Dose-Response Experiments Proceedings of the 22nd Conference on Applied Statistics in Agriculture. Manhattan, KS: Kansas State University Department of Statistics, 245 - 266.</p>
+<p>Gallant, A.R. 1987. Nonlinear Statistical Models. New York: Wiley.</p>
+<p>Geisbrecht, F. G. and Burns, J. C. 1985. Two-stage analysis based on a mixed model: large-sample asymptotic theory and small sample simulation results. Biometrics 41(2), 477–486.</p>
+<p>Gelman, A. 2005. Analysis of variance - Why it is more important than ever. Annals of Statistics 33, 1–53.</p>
+<p>Gelman, A. 2006. Prior distributions for variance parameters in hierarchical models. Bayesian Analysis I, 515–533.</p>
+<p>Gelman, A ., Carlin, J ., Stern, H . and Rubin, D. 2004. Bayesian Data Analysis, 2nd edition. London, UK: Chapman and Hall.</p>
+<p>Gilmour, A.R. 2007. Mixed model regression mapping for QTL detection in experimental crosses. Computational Statistics and Data Analysis 51, 3749–3764.</p>
+<p>Gilmour, A.R. et al. 1995. Average information REML: An efficient algorithm for variance parameter estimation in linear mixed models. Biometrics, 51(4), 1440–1450. JSTOR, <a href="https://doi.org/10.2307/2533274" class="uri">https://doi.org/10.2307/2533274</a>. Accessed 24 Jan. 2024.</p>
+<p>Gimour, A.R., Thompson, R. and Cullis, B.R. 1995. Average information REML: An Efficient Algorithm for Variance Parameter Estimation in Linear Mixed Models. Biometrics 51, 1440–1450.</p>
+<p>Goldberger, A.S. 1962. Best linear unbiased prediction in the generalized regression model. J American Statistical Association, 57, 369–375.</p>
+<p>Goodnight, J. 1979. A tutorial on the SWEEP operator. American Statistician 33(3), 149–158.</p>
+<p>Gotway, C.A. and Stroup, W.W. 1997. A generalized linear model approach to spatial data and prediction. J Agricultural Biological and Environmental Statistics 2, 157–187.</p>
+<p>Green, J.L. , Stroup, W.W. and Fellers, P.S. 2017. Defining program effects: A distribution-based Perspective Statistics and Public Policy 4(1), 1–10.</p>
+<p>Greenhouse, S.W. and Geisser, S. 1959. On methods in the analysis of profile data. Psychometrika 32, 95–112.</p>
+<p>Gu, C. 2002. Smoothing Spline ANOVA Models. New York: Springer-Verlag.</p>
+<p>Guerin, L . and Stroup, W.W. 2000. A simulation study to evaluate PROC MIXED analysis of repeated measures data. Proceedings of the 12th Conference on Applied Statistics in Agriculture. Manhattan, KS: Kansas State University, Department of Statistics, 170–203.</p>
+<p>Hardin, J.W. and Hilbe, J.M. 2003. Generalized Estimating Equations. Boca Raton, FL: Chapman and Hall.</p>
+<p>Hardin, J.W. and Hilbe, J.M. 2018. Generalized Linear Models and Extensions, 4th Edition. College Station, TX: STATA Press.</p>
+<p>Harville, D.A. 1976. Extensions of the Gauss-Markov theorem to include the estimation of random effects. Annals of Statistics 4(2), 384–395.</p>
+<p>Harville, D.A. 1977. Maximum likelihood approaches to variance component estimation and to related problems. J American Statistical Association 72(358), 320–338.</p>
+<p>Harville, D.A. 1997. Matrix Algebra from a Statisticians Perspective. New York: Springer-Verlag.</p>
+<p>Harville, D.A. and Jeske, D.R. 1992. Mean squared error of estimation or prediction under a general linear model. J American Statistical Association 87, 724–731.</p>
+<p>Hastie, T.J. and Tibshriani, R.J. 1990. Generalized Additive Models. Boca Raton, FL: CRC Press.</p>
+<p>Hedecker, D . and Gibbons, R.D. 1994. A random effects ordinal regression model for multilevel analysis. Biometrics 50, 933–944.</p>
+<p>Henderson, C.R. 1963. Selection index and expected genetic advance in Hanson, W.D. and Robinson, H.F. , Statistical Genetics and Plant Breeding. 141–163, National Academy of Science - National Research Council Publication 982.</p>
+<p>Henderson, C.R. 1975. Best linear unbiased estimation and prediction under a selection model. Biometrics 31(2), 423–447.</p>
+<p>Henderson, C.R. 1984. Applications of Linear Models in Animal Breeding. University of Guelph.</p>
+<p>Henderson, C.R. 1985. Best linear unbiased prediction using relationship matrices derived from selected base populations. Journal of Dairy Science 68, 443–448.</p>
+<p>Henderson, C.R. 1950. Estimation of genetic parameters. Annals of Mathematical Statistics 21, 309–310.</p>
+<p>Hilbe, J.M. 2011. Negative Binomial Regression, 2nd edition. Cambridge, UK: Cambridge University Press.</p>
+<p>Huynh, H . and Feldt, L.S. 1970. Conditions under which mean square ratios in repeated measurements designs have exact F-Distributions. Journal of American Statistical Association 65, 1582–1589.</p>
+<p>Isaaks, E. H. and Srivastava, R. M. 1989. Introduction to Applied Geostatistics Oxford. UK: Oxford University
+Press.</p>
+<p>Jansen, J. 1990. On the statistical analysis of ordinal data when extravariation is present. Applied Statistics 39, 75–84.</p>
+<p>Jiang, J. 2007. Linear and Generalized Linear Mixed Models and Their Applications. New York: SpringerVerlag.</p>
+<p>Joe, H . and Zhu, R. 2005. Generalized Poisson distribution: The property of mixture of poisson and comparison with negative binomial distribution. Biometrical Journal, 47, 219–229.</p>
+<p>Johnson, D.L. and Thompson, R. 1995. Restricted Maximum Likelihood Estimation of Variance Components for Univariate Animal Models Using Sparse Matrix Techniques and Average Information. Journal of Dairy Science 78, 449–456.</p>
+<p>Journel, A. G. and Huijbregts, C.J. 1978. Mining Statistics. London, UK: Academic Press.</p>
+<p>Kackar, R.N. and Harville, D.A. 1984. Approximations for standard errors of fixed and random effect in mixed linear models. Journal of American Statistical Association 79(388), 853–862.</p>
+<p>Kenward, M.G. and Roger, J.H. 1997. Small sample inference for fixed effects from restricted maximum likelihood. Biometrics 53(3), 983–997.</p>
+<p>Khuri, A. I. and Cornell, J.A. 1996. Response Surfaces: Designs and Analyses. New York: Marcel-Dekker.</p>
+<p>Konishi, S . and Kitigawa, G. 2008. Information Criteria and Statistical Modeling. New York: Springer-Verlag.</p>
+<p>Kullbach, S . and Leibler, R.A. 1951. On information and sufficiency. Annals of Mathematical Statistics 22, 79–86.</p>
+<p>Laird, N.M. and Ware, J.H. 1982. Random effects models for longitudinal data. Biometrics 38(4), 963–974.</p>
+<p>Lambert, D. 1992. Zero-Inflated Poisson regression models with an application to defects in manufacturing. Technometics 34, 1–14.</p>
+<p>Landes, R.D. , Stroup, W.W. , Paparozzi, E.T. and Conley, M.E. 1999. Nonlinear models for multi-factor plant nutrition experiments. Proceedings of the 11th Conference on Applied Statistics in Agriculture. Manhattan, KS: Kansas State University, Department of Statistics, 105–119.</p>
+<p>Lee, Y . and Nelder, J.A. 1996. Hierarchical generalized linear models (with discussion). Journal of Royal Statististical Society B 58, 619–678.</p>
+<p>Lee, Y ., Nelder, J.A. and Patiwan, Y. 2006. Generalized Linear Models with Random Effects: Unified Analysis Via h-likelihood. Boca Raton, FL: Chapman and Hall.</p>
+<p>Liang, K.-Y. and Zeger, S.R. 1986. Longitudinal data analysis using generalized linear models. Biometrika 73(1), 13–22.</p>
+<p>Lin, X. and Breslow, N.E. 1995. Bias correction in generalized linear mixed models with multiple components of dispersion. J American Statistical Association 91, 1007–1016.</p>
+<p>Linstrom, M.J. and Bates, D.M. 1988. Newton-Raphson and EM algorithms for linear mixed-effects models for repeated-measures data. J American Statistical Association 83, 1014–1022.</p>
+<p>Littell, R.C. 1980. Examples of GLM applications SAS Users’ Group International: Proceedings of the Fifth Annual Conference. Cary, NC: SAS Institute, Inc. 208–214.</p>
+<p>Littell, R.C. , Milliken, G.A. , Stroup, W.W. , Wolfinger, R.D. and Schabenberger, O. 2006. SAS for Mixed Models, 2nd edition. Cary, NC: SAS Institute, Inc.</p>
+<p>Littell, R.C. , Stroup, W.W. and Freund, R.J. 2002. SAS for Linear Models, 4th edition. Cary, NC: SAS Institute, Inc.</p>
+<p>Lohr, V.I. and O’Brien, R.G. 1984. Power Analysis for Univariate Linear Models: SAS Makes It Easy SAS Users’ Group International: Proceedings of the Ninth Annual Conference. Cary, NC: SAS Institute, Inc. 847–852.</p>
+<p>McCaffery, D.F. Lockwood, J.R. , Koretz, D ., Louis,T.A. and Hamilton, L. 2004. Models for value-added modeling of teacher effects. J Educational and Behavioral Statistics 29(1), 67–101.</p>
+<p>McCullagh, P . and Nelder, J.A. 1989 Generalized Linear Models, 2nd edition New York: Chapman and Hall</p>
+<p>McCulloch, C.E. 1997. Maximum likelihood algorithms for generalized linear mixed models. J American Statistical Association 92, 162–170</p>
+<p>McCulloch, C.E. , Searles, S.R. and Neuhaus, J.M. 2008. Generalized, Linear and Mixed Models, 2nd edition. New York: Wiley.</p>
+<p>McLean, R.A. , Sanders, W.L. and Stroup, W.W. 1991. A unified approach to mixed linear models. American Statistician 45, 54–64.</p>
+<p>Mead, R. 1988. The Design of Experiments Cambridge, UK: Cambridge University Press.</p>
+<p>Milliken, G. A. and Johnson, D.E. 2008. Analysis of Messy Data, Vol. 1, 2nd edition. New York: Chapman and Hall.</p>
+<p>Molenberghs, G . and Verbeeke, G. 2006. Models for Discrete Longitudinal Data. New York: Springer-Verlag.</p>
+<p>Morel, J.G. , Bokossa, M.C. and Neerchal, N.K. 2003. Small sample correction for the variance of GEE estimators. Biometrical Journal 45(4), 395–409.</p>
+<p>Mullahy, J. 1986. Specification and testing of some modified count data models. J Econometrics 33, 341–365.</p>
+<p>Murray, D.M. , Varnell, S.P. and Blitstein, J.L. 2004. Design and analysis of group-randomized trials: A review of recent methodological developments. American Journal of Public Health 94, 423–432.</p>
+<p>Myers, R.H. , Montgomery, D.C. and Anderson-Cook, C.M. 2016. Response Surface Methodology: Process and Product Optimization Using Designed Experiments, 4th edition. New York: Wiley.</p>
+<p>Nelder, J.A. 1968. The combination of information in generally balanced designs. J Royal Statistical Society B 30, 303–311.</p>
+<p>Nelder, J.A. 1977. A reformulation of linear models. J Royal Statistical Society A 140(1), 48–77.</p>
+<p>Nelder, J.A. 1994. The Statistics of linear models: back to basics. Statistics and Computing 4, 221-234.</p>
+<p>Nelder, J.A. 1998. The great mixed-model muddle is alive and flourishing, alas!. Food Quality and Preference 9, 157–159.</p>
+<p>Nelder, J.A. and Wedderburn, R.W.M. 1972. Generalized linear models. J Royal Statistical Society A 135(3), 370–384.</p>
+<p>Nelder, J.A. and Lee, Y. 1992. Likelihood, quasi-likelihood and pseudo-likelihood: Some comparisons. J Royal Statistical Society B 54(1), 273–284.</p>
+<p>Nelson, P.R. 1982. Exact critical points for the analysis of means. Communications in Statistics, 11, 699–709.</p>
+<p>Nelson, P.R. 1991. Numerical evaluation of multivariate normal integrals with correlations. The Frontiers of Statistical Scientific Theory &amp; Industrial Applications, 97–114.</p>
+<p>Nelson, P.R. 1993. Additional uses for the analysis of means and extended tables of critical values technometrics. Technometrics 35, 61–71.</p>
+<p>Ntzoufras, I. 2009. Bayesian Modelsing Using WINBugs. Hoboken, NJ: John Wiley and Sons.</p>
+<p>O’Brien, R.G. and Lohr, V.I. 1984. Power Analysis for Linear Models: The Time Has Come SAS Users’ Group International: Proceedings of the Ninth Annual Conference. Cary, NC: SAS Institute, Inc. 840–846.</p>
+<p>Olson, L. M. , Stroup, W. W. , Paparozzi, E. T. and Conley, M. E. 2001. Model building in multifactor plant nutrition experiments. Proceedings of the18th Conference on Applied Statistics in Agriculture. Manhattan, KS: Kansas State Univerity Department of Statistics. 183–206.</p>
+<p>Papadakis, J.S. 1937. Methode statistique pour des experiences sur champ. Bull. Inst. Amel. Plantes a Salonique (23), 13–29.</p>
+<p>Park, T . and Casella, G. 2008. The Bayesian Lasso. Journal of the American Statistical Association 103(482), 681–686.</p>
+<p>Patiwan, Y. 2001. In All Likelihood: Statistical Modelling and Inference Using Likelihood. Oxford, UK: Oxford University Press.</p>
+<p>Paparozzi, E.T. , Stroup, W.W. and Conley, M.E. 2005. How to investigate four-way nutrient interactions in plants: A new look at response surface methods. J American Society for Horticultural Science, 130, 459–468.</p>
+<p>Patterson, H.D. and Thompson, R. 1971. Recovery of inter-block information when block sizes are unequal. Biometrika 58, 545–554.</p>
+<p>Pinheiro, J.C. and Bates, D.M. 1995. Approximations to the log-likelihood function in the non-linear mixed effects model. J Computational and Graphical Statistics 4(1), 12–35.</p>
+<p>Pinheiro, J.C. and Chao, E.C. 2006. Efficient Laplacian and adaptive Gaussian quadrature algorithms for multilevel generalized linear mixed models. J Computational and Graphical Statistics 15, 58–81.</p>
+<p>Prasad, N.G.N. and Rao, J.N.K. 1990. The estimation of the mean squared error of small-area estimators. J American Statistical Association 85(409), 163–171.</p>
+<p>Raudenbush, S.M. 2004. What are value-added models estimating and what does this imply for statistical practice? J Educational and Behavioral Statistics 29(1), 121–129.</p>
+<p>Raudenbush, S.M. 2009. Targets of inference in heirarchical models for longitudinal data in Fitzmaurice, G., Davidian , M., Verbeeke, G . and Molenberghs, G ., ed. Longitudinal Data Analysis, Boca Raton, FL: Chapman and Hall.</p>
+<p>Raudenbush, S.M. and Byrk, A.S. 2002. Heirarchical Linear Models: Applications and Data Analysis Methods. Newbury Park, CA: Sage Press.</p>
+<p>Robinson, G.K. 1991. That BLUP is a good thing. Statical Science 6(1), 15–32. Ruppert, D. W. and, M.P. and Carroll, R.J. 2003. Semiparametric Regression. Cambridge, UK: Cambridge University Press.</p>
+<p>Sanders, W.L. , Saxton, A . and Horn, B. 1997. The Tennessee value-added assessment system: A quantitative outcomes-based approach to educational assessment in J. Millman , Grading Teachers, Grading Schools: Is Student Achievement a Valid Educational Measure? 137–162, Thousand Oaks, CA: Corwin Press, Inc.SAS Institute Inc. 2023. SAS/STAT® 15.3 User’s Guide. Cary, NC: SAS Institute Inc.</p>
+<p>Satterthwaite, F.E. 1941. Synthesis of variance. Psychometrika 6, 309–316.</p>
+<p>Satterthwaite, F.E. 1946. An approximate distribution of estimates of variance components. Biometrics Bulletin 2, 110–114.</p>
+<p>Schabenberger, O. 2008. Aspects of the Analysis of Split-Plot Experiments JSM 2008 Section on Physical and Engineering Sciences. Abstract available: www.amstat.org/meetings/jsm/2008/onlineprogram/index.cfm</p>
+<p>Schabenberger, O . and Gotway, C.A. 2004. Statistical Methods for Spatial Data Analysis. Boca Raton, FL: CRC Press.</p>
+<p>Schabenberger, O . and Pierce, F.J. 2002. Contemporary Statistical Models for the Plant and Soil Sciences. Boca Raton, FL: CRC Press.</p>
+<p>Schall, R. 1991. Estimation in generalized linear models with random effects. Biometrika 78(4), 719–727.</p>
+<p>Schott, J.R. 2005. Matrix Analysis for Statisticians, 2nd edition. New York: Wiley.</p>
+<p>Schwarz, G. 1978. Estimating the dimension of a model. Annals of Statistics 6, 461–464.</p>
+<p>Searle, S.R. 1971. Linear Models. New York: Wiley.</p>
+<p>Searle, S.R. 1987. Linear Models for Unbalanced Data. New York: Wiley.</p>
+<p>Searle, S.R. , Casella, G . and McCulloch, C.E. 1992. Variance Component Estimation. New York: Wiley.</p>
+<p>Self, S.G. and Liang, K.-Y. 1987. Asymptotic properties of maximum likelihood estimators and likelihood ratio tests under nonstandard conditions. J American Statistical Association 398, 605–610.</p>
+<p>Sidak, Z. 1967. Rectangular confidence regions for the means of multivariate normal distributions. J American Statistical Association 62, 626–633.</p>
+<p>Simpson, E.H. 1951. The interpretation of interaction in contingency tables. J Royal Statistical Society B 13, 238–241.</p>
+<p>Snedecor, G . and Cochran, W.G. 1989. Statistical Methods, 8th edition. Ames IA: Iowa State University Press. Speed, T. 2010. And ANOVA thing IMS. Bulletin, 39(4), 16.</p>
+<p>Steel, R.D.G. , Torrie, J.H. and Dickey, D.A. 1996. Principles and Procedures of Statistics: A Biometrical Approach, 3rd edition. New York: McGraw-Hill.</p>
+<p>Stiratelli, R ., Laird, N . and Ware, J.H. 1984. Random effects models for serial observations with binary response. Biometrics 40(4), 961–971.</p>
+<p>Stokes, M.E. , Davis, C.S. and Koch, G.C. 2000. Categorical Data Analysis Using the SAS System, 2nd edition. Cary, NC: SAS Institute, Inc.</p>
+<p>Stroup, W.W. 1999. Mixed Model Procedures to Assess Power, Precision, and Sample Size in the Design of Experiments 1999 Proceedings of the Biopharmaceutical Section. Alexandria, VA: American Statistical Association, 15–24.</p>
+<p>Stroup, W.W. 2002. Power analysis based on spatial effects mixed models: A tool for comparing design and analysis strategies in the presence of spatial variability. J Agricultural, Biological, and Environmental Statistics 7, 491–511.</p>
+<p>Stroup, W.W. , Baenziger, P.S. and Mulitze, D.K. 1994. Removing Spatial Variation from Wheat Yield Trials: A Comparison of Methods Crop Science 86, 62–66.</p>
+<p>Stroup, W.W. and Claassen, E.A. 2020. Pseudo-likelihood versus Quadrature: What we thought we knew, what we think we know, what we are still trying to figure out. J Agricultural, Biological and Environmental Statistics 25, 639–656.</p>
+<p>Stroup, W.W. , Guo, S ., Paparozzi, E.T. and Conley, M.E. 2006. A comparison of models and designs for experiments with nonlinear dose-response relationships. Proceedings of the 18th Conference on Applied Statistics in Agriculture. Manhattan, KS: Kansas State University Department of Statistics, 214–241.</p>
+<p>Stroup, W.W. and Littell, R.C. 2002. Impact of Variance Component Estimates on Fixed Effect Inference in Unbalanced Linear Mixed Models. Proceedings of the 14th Conference on Applied Statistics in Agriculture. Manhattan, KS, Kansas State University Department of Statistics, 32–48.</p>
+<p>Stroup, W.W. , Milliken, G.A. , Wolfinger, R.D. and Claassen, E.A. 2018. SAS for Mixed Models: Introduction and Basic Applications. Cary, NC: SAS Institute, Inc.</p>
+<p>Tibshirani, R.J. 1996. Regression Shrinkage and Selection via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological), 58(1), 267–288.</p>
+<p>Vonesh, E.F. and Chinchilli, V.M. 1997. Linear and Nonlinear Models for the Analysis of Repeated Measurements. New York: Marcel-Dekker.</p>
+<p>Wedderburn, R.W.M. 1974. Quasi-likelihood functions, generalized linear models and the Gauss-Newton method. Biometrika 61(3), 439–447.</p>
+<p>Westfall, P.H. , Tobias, R.D. , Rom, D ., Wolfinger, R.D. and Hochberg, Y. 1999. Multiple Comparisons and Multiple Tests Using the SAS System. Cary, NC: SAS Institute, Inc.</p>
+<p>Williams, R.M. 1952. Experimental designs for serially correlated observations. Biometrika 39, 151–67.</p>
+<p>Wolfinger, R.D. and O’Connell, M. 1993. Generalized linear mixed models: A Pseudo-likelihood Approach. J Statistical Computation and Simulation 4, 233–243.</p>
+<p>Wright, S. 1922. Coefficients of inbreeding and relationship. American Naturalist 56, 330–338. Wu, L. 2010. Mixed Effects Models for Complex Data. Boca Raton, FL: CRC Press.</p>
+<p>Yates, F. 1935. Complex experiments. J Royal Statistical Society 2, 181–223.</p>
+<p>Yates, F. 1940. The recovery of inter-block information in balanced incomplete block designs. Annals of Eugenics 10, 317–325.</p>
+<p>Young, L.J. and Young, J.B. 1998. Statistical Ecology. New York: Springer-Verlag.</p>
+<p>Young, L.J. , Campbell, N.L. and Capuano, G.A. 1998. Analysis of overdispersed count data from single-factor experiments: A comparative study. J Agricultural, Biological, and Environmental Statistics 4, 258–275.</p>
+<p>Zeger, S.L. and Liang K.-Y. 1986. Longitudinal data analysis for discrete and continuous outcomes. Biometrics 42, 121–130.</p>
+<p>Zeger, S.L. , Liang, K.-Y. and Albert, P.S. 1988. Models for longitudinal data: A generalized estimating equation approach. Biometrics 44(4), 1049–1060.</p>
+<p>Zwillinger, D. (editor), 2018. CRC Standard Mathematical Tables and Formulas (Advances in Applied Mathematics), 33rd edition. Boca Raton: CRC Press.</p>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#bib">参考文献</a></li></ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-19.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

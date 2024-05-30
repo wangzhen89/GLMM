@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 12 章 率和比例 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="12.1 率和比例数据类型 率和比例数据 (rate and proportion data) 是指期望值在 0 和 1 之间的数据。我们可以将率和比例分为两种类型：离散型和连续型。当观察的单元由 \(N\) 个不同的实体组成，其中 \(Y\) 具有某些感兴趣的属性时，就会出现离散比例。\(N\) 必须是正整数，\(Y\) 必须是 \(\le N\)...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 12 章 率和比例 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="12.1 率和比例数据类型 率和比例数据 (rate and proportion data) 是指期望值在 0 和 1 之间的数据。我们可以将率和比例分为两种类型：离散型和连续型。当观察的单元由 \(N\) 个不同的实体组成，其中 \(Y\) 具有某些感兴趣的属性时，就会出现离散比例。\(N\) 必须是正整数，\(Y\) 必须是 \(\le N\)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 12 章 率和比例 | 广义线性混合模型">
+<meta name="twitter:description" content="12.1 率和比例数据类型 率和比例数据 (rate and proportion data) 是指期望值在 0 和 1 之间的数据。我们可以将率和比例分为两种类型：离散型和连续型。当观察的单元由 \(N\) 个不同的实体组成，其中 \(Y\) 具有某些感兴趣的属性时，就会出现离散比例。\(N\) 必须是正整数，\(Y\) 必须是 \(\le N\)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li><a class="" href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="" href="chap11.html"><span class="header-section-number">11</span> 计数</a></li>
+<li><a class="active" href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="" href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="" href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap12" class="section level1" number="12">
+<h1>
+<span class="header-section-number">第 12 章</span> 率和比例<a class="anchor" aria-label="anchor" href="#chap12"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec12-1" class="section level2" number="12.1">
+<h2>
+<span class="header-section-number">12.1</span> 率和比例数据类型<a class="anchor" aria-label="anchor" href="#sec12-1"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>率和比例数据</strong> (rate and proportion data) 是指期望值在 0 和 1 之间的数据。我们可以将率和比例分为两种类型：离散型和连续型。当观察的单元由 <span class="math inline">\(N\)</span> 个不同的实体组成，其中 <span class="math inline">\(Y\)</span> 具有某些感兴趣的属性时，就会出现离散比例。<span class="math inline">\(N\)</span> 必须是正整数，<span class="math inline">\(Y\)</span> 必须是 <span class="math inline">\(\le N\)</span> 的非负整数。因此，观察到的比例必为离散的分数：<span class="math inline">\(\frac0N,\frac1N,...,\frac NN\)</span>。例子包括在观察的 <span class="math inline">\(N\)</span> 个组件中，有 <span class="math inline">\(Y\)</span> 个是缺陷品，或者在接受治疗的患者中，有多少患者对治疗反应良好。通常，当 <span class="math inline">\(N = 1\)</span> 时，我们使用二进制分布<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：即伯努利分布。&lt;/p&gt;"><sup>30</sup></a> (binary distribution)，当 <span class="math inline">\(N \ge 2\)</span> 时，我们使用二项分布。对于这些分布，<span class="math inline">\(0\le E (Y/N)=\pi\le1\)</span>；推断的目标是模型对 <span class="math inline">\(\pi\)</span> 的效应。当我们度量诸如叶子感染面积的百分比或土地被淹没的面积的百分比等响应时，就会出现连续的比例。与二项 <span class="math inline">\(\pi\)</span> 一样，连续的比例必须在 0 和 1 之间，但与二项不同，它们显然不是由一组离散的增量产生的。相反，最常使用贝塔分布。</p>
+<p>在 <a href="chap12.html#sec12-2">12.2</a> 节中，我们讨论了实现 GLMM 的两种方法，即伪似然法和积分近似法，特别是在比例数据的背景下在两者之间做出明智选择的标准。在 <a href="chap12.html#sec12-3">12.3</a> 节到 <a href="chap12.html#sec12-4">12.4</a> 节中，我们考虑了二进制和二项数据建模的各个方面。在第 <a href="chap3.html#chap3">3</a> 章中，我们大量使用了二项分布数据的例子来引入 GLM 的概念。这些内容无需重复，因此我们将直接介绍更高级的二项分布 GLMMs。<a href="chap12.html#sec12-3">12.3</a> 节中的例子采用了 logit 连接函数。在 <a href="chap12.html#sec12-4">12.4</a> 节中，我们探索了二项分布数据的其他连接函数。<a href="chap12.html#sec12-5">12.6</a> 节关注二项分布数据中的过离散问题以及应对这一问题的策略。<a href="chap12.html#sec12-6">12.7</a> 节则专注于连续比例数据和贝塔分布的应用。</p>
+</div>
+<div id="sec12-2" class="section level2" number="12.2">
+<h2>
+<span class="header-section-number">12.2</span> 估计方法：伪似然或积分近似<a class="anchor" aria-label="anchor" href="#sec12-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>第 <a href="chap8.html#chap8">8</a>、<a href="chap9.html#chap9">9</a> 和 <a href="chap10.html#chap10">10</a> 章中的所有例子都使用了高斯数据。我们使用 REML 对所有方差分量进行估计，以及基于似然的混合模型方程来估计模型参数和随机效应。对于高斯数据，我们无需在估计方面做出任何选择：协方差分量的残差似然以及线性预测器的似然都是良定且易于处理的。我们根据第 <a href="chap5.html#chap5">5</a> 章知道，对于非高斯混合模型，情况就不同了。我们面临的是良定的但难以处理的似然，或者同样难以处理的拟似然。对于前者，我们可以选择使用线性化方法——例如伪似然 (PL) ——或积分近似——例如拉普拉斯或求积法。在本节中，我们将讨论如何在两者之间进行选择。</p>
+<div id="sec12-2-1" class="section level3" number="12.2.1">
+<h3>
+<span class="header-section-number">12.2.1</span> 伪似然法和积分近似法选择的主要问题<a class="anchor" aria-label="anchor" href="#sec12-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>在决定使用 PL、拉普拉斯法或求积法时，最重要的教训是没有一种通用的选择。为理解这一点，请回顾第 <a href="chap5.html#chap5">5</a> 章中的三个关键概念：1) 求积法和拉普拉斯法是通过真实似然的近似来获得估计的，而 PL，顾名思义，使用伪似然；2) ML 协方差分量估计会向下偏倚，而 REML 估计基本上是无偏的，因此优于 ML 估计；3) 伪似然通过使用伪变量改编了高斯混合模型方程，因此能够进行类 REML 的协方差估计。在第三个概念中隐含了一个假定，即伪变量近似服从正态分布。</p>
+<p>PL 的优点是允许我们使用全系列的混合模型线性预测器和协方差结构。PL 允许我们使用 Satterthwaite 自由度近似和 Kenward-Roger 偏差调整来计算标准误和检验统计量。此外，类 REML 的 PL 使我们能够避免与 ML 方差估计的向下偏差相关的问题。另一方面，PL 很容易受到<strong>边界条件</strong> (boundary conditions) 的影响，在边界条件下，给定随机效应的观测（以及由此得来的伪变量）的条件分布严重偏斜。下面 <a href="chap12.html#sec12-2-2">12.2.2</a> 节中的情形 1 至 5 进行了说明。</p>
+<p>积分近似法的优势在于能够处理实际的对数似然。这使得我们可以计算信息准则、过离散诊断、似然比统计量等，所有这些都需要真实的似然。积分近似法在边界条件下也表现更好，而线性化方法（如 PL）在这种情况下会失效。然而，正如广泛使用的 GLMM 软件（如 GLIMMIX 程序和 R 的 lme4 包）所实现的那样，积分近似法会产生 ML 协方差分量估计。同样，使方差 MLE 不适用于小数据集高斯混合模型推断的相同向下偏差问题也发生于 GLMM 中，如下面 <a href="chap12.html#sec12-2-2">12.2.2</a> 节所示。最后，积分近似法限制了我们可以考虑的模型和可以使用的推断技术的灵活性。</p>
+<p><a href="chap12.html#sec12-2-2">12.2.2</a> 节中的例子说明了我们对二进制和二项数据“边界条件”的理解，并让我们了解伪似然在何时面临挑战以及我们如何处理。该例子还说明了我们对“非边界条件”的理解，以及为什么在这些情况下伪似然优于积分近似法。</p>
+</div>
+<div id="sec12-2-2" class="section level3" number="12.2.2">
+<h3>
+<span class="header-section-number">12.2.2</span> 伪似然和积分近似的小样本行为<a class="anchor" aria-label="anchor" href="#sec12-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>本节通过二项数据简单设计的模拟结果，说明了伪似然和积分近似法的相对优势和劣势。这里展示的结果与 Stroup and Claassen (2020) 的研究结果一致，后者对伪似然和求积法在小样本行为上进行了全面比较。读者可查阅该研究以获取更多详细信息。</p>
+<p>本节中使用的模拟是具有两种处理的完全随机设计。每种处理在 <span class="math inline">\(C\)</span> 个集群 (clusters) 上观察，或者在实验设计术语中，<span class="math inline">\(C\)</span> 是每种处理的实验单元数。每个集群都有 <span class="math inline">\(N\)</span> 个独立的二进制（又名伯努利）试验。响应是一个离散比例，也就是说，我们在每个集群上收集的数据涉及的是 <span class="math inline">\(N\)</span> 次观测中某个感兴趣结果出现了 <span class="math inline">\(Y\)</span> 次。因此，我们假定 <span class="math inline">\(Y\)</span> 服从二项分布，这意味着 <span class="math inline">\(N\)</span> 表示构成观测的独立伯努利试验次数。当 <span class="math inline">\(N=1\)</span> 时，我们得到二项分布的一个特例：二进制分布。</p>
+<p>与设计一致，该模拟使用以下 GLMM：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\tau_{i}+c\left(t\right)_{ij};\quad i=1,2\quad j=1,2,...,C\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应，<span class="math inline">\(c(t)_{ij}\)</span> 表示随机集群效应。</p></li>
+<li><p><span class="math inline">\(c(t)_{ij}\text{ iid }N(0,\sigma^2)\)</span></p></li>
+<li><p><span class="math inline">\(y_{ij}\mid c(t)_{ij}\sim\mathrm{binomial}(N,\pi_i)\)</span></p></li>
+<li><p>连接：<span class="math inline">\(\mathrm{logit}\big(\pi_i\big)=\mathrm{log}\bigg[\pi_i\big/\big(1-\pi_i\big)\bigg]\)</span></p></li>
+</ul>
+<p>处理效应 <span class="math inline">\(\tau_i\)</span> 间接决定了第 <span class="math inline">\(i\)</span> 种处理的预期概率，即 <span class="math inline">\(\pi_i=1/\left(1+e^{-\tau_i}\right)\)</span>。在此模拟中，我们设置 <span class="math inline">\(\tau_1=\tau_2=-1\)</span>（因此 <span class="math inline">\(\pi_i\cong0.27\)</span>）、<span class="math inline">\(\sigma^2 =1\)</span> 并观察 GLMM 估计方法在 <span class="math inline">\(C\)</span> 和 <span class="math inline">\(N\)</span> 的各种组合下的性能。</p>
+<p>我们通过五个标准来评估性能。首先，我们查看方差分量估计 <span class="math inline">\(\hat\sigma^2\)</span> 的平均。我们预设了 <span class="math inline">\(\sigma^2 =1\)</span>，如果估计程序表现良好，则平均 <span class="math inline">\(\hat\sigma^2\)</span> 应该接近 1。其次，我们查看 <span class="math inline">\(\hat\tau_i\)</span> 的平均；我们预设了 <span class="math inline">\(\tau_i=-1\)</span>，因此平均 <span class="math inline">\(\hat\tau_i\)</span> 应该接近 -1。第三，我们查看 <span class="math inline">\(\hat\tau_i\)</span> 的标准误。根据定义，标准误是 <span class="math inline">\(\hat\tau_i\)</span> 抽样分布标准差的估计。我们应该看到观测 <span class="math inline">\(\hat\tau_i\)</span> 的标准差与通过估计程序计算出的平均标准误之间的一致性。第四，我们监测置信区间覆盖率，这里定义为 <span class="math inline">\(\tau_i\)</span> 的 95% 置信区间中包含 <span class="math inline">\(\tau_i = 1\)</span> 的比例。第五个标准是拒绝率，定义为在 <span class="math inline">\(\alpha = 0.05\)</span> 时拒绝 <span class="math inline">\(H_0\colon \tau_1=\tau_2\)</span> 的模拟数据集的比例。由于模拟预设了 <span class="math inline">\(\tau_1=\tau_2\)</span>，因此拒绝率是观察到的 I 类错误率。对于表现准确的方法，I 类错误率应接近 5%。对于求积法，我们还可以跟踪 PROC GLIMMIX 算法选择的求积点数。以下是所选 <span class="math inline">\(C\)</span> 和 <span class="math inline">\(N\)</span> 组合的 1000 个模拟数据集的结果。</p>
+<div class="rmdimportant">
+<p><strong>情形 1</strong>：每种处理有 <span class="math inline">\(C=200\)</span> 个集群；每个集群有 <span class="math inline">\(N=1\)</span> 个二进制观测。</p>
+<div class="inline-figure"><img src="figure/figure%20373.png#center" style="width:90.0%"></div>
+</div>
+<div class="rmdcaution">
+<p><strong>评论</strong>：情形 1 是向研究人员发出的关于在单元水平收集二进制数据的警示。在这个例子中，当 <span class="math inline">\(N=1\)</span> 时，所有的估计程序都表现得很差。然而，有时二进制数据是不可避免的。在本节的后面部分，我们将考虑一个例子。</p>
+</div>
+<div class="rmdimportant">
+<p><strong>情形 2</strong>：每种处理有 <span class="math inline">\(C=200\)</span> 个集群；每个集群有 <span class="math inline">\(N=2\)</span> 个二进制观测。</p>
+<div class="inline-figure"><img src="figure/figure%20374-1.png#center" style="width:90.0%"></div>
+</div>
+<div class="rmdimportant">
+<p><strong>情形 3</strong>：每种处理有 <span class="math inline">\(C=20\)</span> 个集群；每个集群有 <span class="math inline">\(N=10\)</span> 个二进制观测。</p>
+<div class="inline-figure"><img src="figure/figure%20374-2.png#center" style="width:90.0%"></div>
+</div>
+<div class="rmdimportant">
+<p><strong>情形 4</strong>：每种处理有 <span class="math inline">\(C=10\)</span> 个集群；每个集群有 <span class="math inline">\(N=20\)</span> 个二进制观测。</p>
+<div class="inline-figure"><img src="figure/figure%20374-3.png#center" style="width:90.0%"></div>
+</div>
+<div class="rmdimportant">
+<p><strong>情形 5</strong>：每种处理有 <span class="math inline">\(C=4\)</span> 个集群；每个集群有 <span class="math inline">\(N=50\)</span> 个二进制观测。</p>
+<div class="inline-figure"><img src="figure/figure%20374-4.png#center" style="width:90.0%"></div>
+</div>
+<p>重申情形 1 下面的评论，没有一种方法对于二进制数据表现良好。情形 2 到 5 说明了影响方法选择的两个主要想法。对于较小的 <span class="math inline">\(N\)</span>，此处为 <span class="math inline">\(N = 2\)</span> 和 <span class="math inline">\(N = 10\)</span>，<span class="math inline">\(\sigma^2\)</span> 和 <span class="math inline">\(\tau_i\)</span> 的伪似然估计强烈向下偏差，置信区间覆盖率小于期望的 95%，特别是当 <span class="math inline">\(N = 2\)</span> 时。然而，对于情形 4 和 5，其中 <span class="math inline">\(N \ge 20\)</span>，类 REML 伪似然 (RSPL) 在所有标准上均表现准确。对于求积则相反。对于较小的 <span class="math inline">\(N\)</span>（假定 <span class="math inline">\(N \ge 2\)</span>）和较大的 <span class="math inline">\(C\)</span>（此处为 <span class="math inline">\(C \ge 20\)</span>），它表现良好。但是，对于较小的 <span class="math inline">\(C\)</span>（此处为 <span class="math inline">\(C \le 10\)</span>），求积显示了因使用 ML 而非 REML 方差估计进行推断时典型的 <span class="math inline">\(\hat\sigma^2\)</span> 向下偏差和膨胀的 I 类错误率的影响。例如，当 <span class="math inline">\(C = 10\)</span> 时，两种处理的集群总数为 20，残差自由度为 18. 在 ANOVA 设定中，如果残差平方和为 18，则 REML 方差估计为 <span class="math inline">\(\hat{\sigma}_{REML}^2=SSR/DFR=18/18=1\)</span>，而 ML 方差估计为 <span class="math inline">\(\hat{\sigma}_{ML}^2=SSR/2C=18/20=0.9\)</span>。对于 <span class="math inline">\(C = 10\)</span>，这正是我们在两种积分近似法（求积法和拉普拉斯法）以及类 ML 伪似然法中看到的，所有这些都是 ML 方差估计。伪似然法在 <span class="math inline">\(N = 20\)</span> 时仍然显示出向下偏差，但 RSPL 对 I 类错误控制和置信区间覆盖的影响小于求积法的影响。当 <span class="math inline">\(C = 4\)</span> 时，ML 方差估计的向下偏差对覆盖率和 I 类错误率的影响很严重，反映了残差自由度（<span class="math inline">\(DFR = 6\)</span>）和聚类总数（<span class="math inline">\(2C=8\)</span>）之间的差异。</p>
+<p>对于上面显示的所有情形，所有方法在所有模拟数据集上都收敛了。但是，当 <span class="math inline">\(N\)</span> 较小且 <span class="math inline">\(C\)</span> 也较小时，伪似然法确实存在收敛问题。例如，在 <span class="math inline">\(N=2\)</span> 且 <span class="math inline">\(C=5\)</span> 的情况下，RSPL 在 1000 个模拟数据集中的 77 个数据集中未能收敛。对于相同的 <span class="math inline">\(N=2,C=5\)</span> 的情况，求积法在所有 1000 个数据集中都收敛了。</p>
+<p>要点：若 <span class="math inline">\(N \ge 2\)</span>，并且总集群数与残差自由度之间的差异可以忽略不计，则求积法效果良好；如果集群数较少，则求积法效果不佳。如果给定随机效应的观测的分布（在本例中为 <span class="math inline">\(y_{ij}\mid c\left(t\right)_{ij}\)</span>）是合理对称的，即不是过度右偏的，则类 REML 伪似然法效果良好。对于二项数据，我们可以在数据中绘制关于 <span class="math inline">\(N\)</span> 和观察到的比例 <span class="math inline">\(Y/N\)</span> 的二项分布的 PDF，如果图形至少合理对称，不太偏斜，则 RSPL 是首选方法。</p>
+<p>我们鼓励学生尝试 <span class="math inline">\(\tau_i,\sigma^2,C\)</span> 和 <span class="math inline">\(N\)</span> 的其他值。我们鼓励数据分析师使用他们的设计和模型参数进行模拟，并使用模拟结果做出明智的方法选择。</p>
+<p>最后，也许也是最重要的一点是，极端的边界条件往往是不良研究设计的迹象。例如，如果我们设计一个具有二项响应的研究，并且 <span class="math inline">\(C\)</span> 和 <span class="math inline">\(N\)</span> 都很小，那么麻烦是不可避免的。在规划研究设计时，重要的是要考虑到我们对估计程序的行为及其局限性的了解。</p>
+</div>
+</div>
+<div id="sec12-3" class="section level2" number="12.3">
+<h2>
+<span class="header-section-number">12.3</span> 离散比例的四个例子<a class="anchor" aria-label="anchor" href="#sec12-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>本节介绍了四个示例。第 <a href="chap3.html#chap3">3</a> 章讨论了更简单的二项模型。我们在这里的讨论假定读者熟悉前面示例中涵盖的问题。</p>
+<p>本节中的其余示例调查了涉及二项响应变量的常见场景。首先是二进制数据的示例。第二个是嵌套析因，其结构类似于我们在第 <a href="chap2.html#chap2">2</a> 章中利用图 2.5 介绍的设计。第三个是具有二项响应的响应曲面设计。第四个是典型的分类数据的三向列联表。</p>
+<details><summary><font color="#8B2232">图 2.5</font>
+</summary><img src="figure/figure%202.5.png#center" style="width:80.0%"></details><div id="sec12-3-1" class="section level3" number="12.3.1">
+<h3>
+<span class="header-section-number">12.3.1</span> 二进制数据的混合模型<a class="anchor" aria-label="anchor" href="#sec12-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>尽管基于单元水平的二元响应的 GLMM 并不理想，但在许多研究中并没有其他选择。以下示例由 Bello et al. (2006) 提供，说明了这种情况的一个实例。与该示例相关的数据在 SAS Data and Program Library 中显示为 Data Set 12.1. 本例中使用的数据只是 Bello et al. 在其研究中使用的数据的一个代表性子集。此外，本例中的分析也不是 Bello et al. 所使用的分析。此处显示的模型和分析是为了演示目的而选择的。</p>
+<p>这项研究比较了四种同步处理 (synchronization treatments)，它们的目的是调节排卵并评估其对生殖效率的影响。当奶牛进入繁殖周期的适当时间点时，被分成 8 个周期为周的组<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注，原文为: “Cows were blocked by eight weekly groups as they entered the point in their reproductive cycle at which treatment was appropriate.” 查阅原始文献以了解更多详情：&lt;a href="https://doi.org/10.3168/jds.S0022-0302(06)72378-5" class="uri"&gt;https://doi.org/10.3168/jds.S0022-0302(06)72378-5&lt;/a&gt;&lt;/p&gt;'><sup>31</sup></a>。每组奶牛随机分为 4 个处理组，用数据集中的变量 TRT 表示。在 Data Set 12.1 中并未透露具体的处理（盲法）。奶牛按泌乳 1 期、2 期等进行分类。变量 LACN 表示这种分类。在这类研究中，区分第一次、第二次及随后的泌乳期是有趣的，但区分第三次、第四次等泌乳期几乎没有任何有用的信息。因此，本例中的分析使用变量 LACT，编码为 1（第一次泌乳）、2（第二次泌乳）或 3（第二次之后）。Bello et al. 只区分了第一次泌乳和随后的泌乳期。对三个可能感兴趣的协变量进行测量：在 Data Set 12.1 中表示为 XM1, XP2 和 XP3，而非协变量的实际名称。本例中显示的两个响应变量：SynchOv（响应处理的同步排卵：1 = 是，0 = 否）和 CR35（35 天妊娠结局，1 = 妊娠，0 = 未怀孕）。</p>
+<p>完整的 GLMM 为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_{i}+\alpha_{j}+\left(\tau\alpha\right)_{ij}+\sum_{c}\symbf{\beta}_{c}\symbf X_{c}+g_{k}\)</span>，其中 <span class="math inline">\(\tau\)</span> 表示处理效应，<span class="math inline">\(\alpha\)</span> 表示泌乳期代码，<span class="math inline">\(X_c\)</span> 表示第 <span class="math inline">\(c\)</span> 个协变量，<span class="math inline">\(\beta_c\)</span> 表示第 <span class="math inline">\(c\)</span> 个与协变量相关的回归系数，<span class="math inline">\(g_k\)</span> 表示第 <span class="math inline">\(k\)</span> 个组效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li>最初 <span class="math inline">\(g_k\mathrm{~iid~}N\left(0,\sigma_G^2\right)\)</span>，响应 SynchOv 需要对随机模型效应和协方差假定进行修改，这将在下面讨论。</li>
+<li>
+<span class="math inline">\(y_{ijk}\mid g_k\sim\mathrm{Binary}\left(\pi_{ijk}\right)\)</span>，其中 <span class="math inline">\(y_{ijk}\)</span> 可以表示 SynchOv 或 CR35.</li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\eta_{ijk}=\log\biggl[\pi_{ijk}\biggr/\biggl(1-\pi_{ijk}\biggr)\biggr]\)</span></p></li>
+</ul>
+<p>我们先来看看 CR35 的分析。我们使用以下 SAS 语句来实现模型：</p>
+<pre class="sas"><code>proc glimmix data=binary_cow_data method=quadrature;
+ class Group Trt Lact;
+ model cr35=Trt|Lact XM1 XP2 XP3 / dist=binary;
+ random intercept / subject=group;
+ lsmeans Trt / slicediff=(Lact Trt) ilink
+ plot=meanplot(sliceby=Trt join ilink);
+ run;</code></pre>
+<p>鉴于我们上面关于二进制数据估计方法的讨论，请注意 <code>METHOD=QUADRATURE</code> 的使用。</p>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20377.png#center" style="width:60.0%"></div>
+<p>除了准确性考虑之外，使用拉普拉斯或求积分析使我们能够获得 “Conditional Distribution Fit Statistics”，特别是 Pearson <span class="math inline">\(\chi^2/df\)</span>。回想，该统计量有助于评估模型的拟合优度。我们将 <span class="math inline">\(\chi^2/df&gt;&gt;1\)</span> 解释为过离散的症状，可能是因为线性预测器不完整，或者分布在某种程度上被错误指定。条件分布 Pearson <span class="math inline">\(\chi^2/df=0.93\)</span>。拟合统计量表明我们没有过离散的证据。组方差估计 <span class="math inline">\(\hat\sigma_G^2=0.077\)</span> 意味着我们不存在负方差分量问题。近似 <span class="math inline">\(F\)</span> 值提供了 XP2 和 XP3 协变量对 35 天妊娠率影响的证据，但几乎没有 TRT 或 LACT 影响的证据。图 12.1 显示了交互图。</p>
+<details><summary><font color="#8B2232">图 12.1</font>
+</summary><img src="figure/figure%2012.1.png#center" style="width:80.0%"></details><p><br>
+尽管缺乏显著的 TRT 效应，我们可能会将图 12.1 视为具有提示性、等待确证的证据，即无论泌乳次数如何，TRT=1 都会产生相对较高的预期妊娠率，而其他处理仅在特定泌乳次数下产生高妊娠率。TRT 和 LACT 缺乏统计功效可能是因为这是一个较大数据集的样本，但我们应该注意，缺乏功效通常与二进制数据小型数据集中相关。在第 <a href="#chap21"><strong>??</strong></a> 章中，我们讨论功效和精度分析。我们可以使用第 <a href="#chap21"><strong>??</strong></a> 章中介绍的方法来解决这样的问题：如果它们实际上有差异，我们需要在多少组中有多少头牛才能在图 12.1 中显示出具有统计学意义的差异。</p>
+<p>对于响应变量 SynchOv，我们可以按照相同的思路进行操作，除非我们遇到其他估计问题。对于 SynchOv，当我们尝试用所有三个协变量拟合模型时，我们会得到无意义的结果，例如下表的 “Type 3 tests of Fixed Effects”：</p>
+<div class="inline-figure"><img src="figure/figure%20378.png#center" style="width:70.0%"></div>
+<p>事实证明，只有协变量 XM1 能为响应变量 SynchOv 生成一个可操作的模型。同样，这在二进制数据中很常见：我们通常必须简化我们试图拟合的模型，直到找到一个能产生可用结果的模型。</p>
+<p>拟合简化模型时，删除 XP2 和 XP3 得到的组方差估计 <span class="math inline">\(\hat\sigma^2_G\)</span> 为负。我们知道，如果存在单元水平的变异（在本例中为奶牛水平的变异），就可能会出现这种情况。我们可以更改 GLIMMIX 程序中的 RANDOM 语句来添加一个单元水平的随机效应：</p>
+<pre class="sas"><code>random intercept Trt*Lact / subject=group;</code></pre>
+<p>这得到了如下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20379-1.png#center" style="width:60.0%"></div>
+<p>我们在第 <a href="chap3.html#chap3">3</a> 章中看到，这些随机效应可重新表示为具有复合对称协方差的奶牛水平随机模型效应。组方差 <span class="math inline">\(\hat\sigma^2_G=0\)</span> 是因为存在可能表示负复合对称协方差的负解。修改的线性预测器为：</p>
+<p><span class="math display">\[\eta_{ij}=\eta+\tau_i+\alpha_j+\left(\tau\alpha\right)_{ij}+\beta_{XM1}X_{XM1}+u_{ijk}\]</span></p>
+<p>其中 <span class="math inline">\(Cov(\symbf{u}_k)=\sigma_U^2\begin{bmatrix}1&amp;\rho&amp;...&amp;\rho\\&amp;1&amp;...&amp;\rho\\&amp;&amp;...&amp;...\\&amp;&amp;&amp;1\end{bmatrix}\)</span>，以及 <span class="math inline">\(\symbf u_k\)</span> 名义上是一个 <span class="math inline">\(n_k×1\)</span> 向量，由第 <span class="math inline">\(k\)</span> 组 <span class="math inline">\(n_k\)</span> 个奶牛的奶牛水平效应组成。</p>
+<p>GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=Binary_Cow_Data method=quadrature(qpoints=1);
+ class group Trt Lact;
+ model SynchOv=Trt|Lact XM1 / dist=binary;
+ random Trt*Lact / subject=group type=CS;
+ parms (0.93 0);
+ lsmeans Trt*Lact / slicediff=(Lact Trt) ilink 
+ plot=meanplot(sliceby=Trt join ilink);
+ nloptions fconv=1e-07;</code></pre>
+<p>PARMS 语句提供了起始值。GLIMMIX 的默认起始值经常导致程序运行困难。第一个起始值基于研究人员之前对 SynchOV 数据的经验，用于 <span class="math inline">\(\sigma^2_U\)</span>。第二个起始值基于研究人员认为协方差往往可以忽略不计的经验，用于 CS 协方差。还请注意 <code>QPOINTS=1</code> 选项的使用。对于此模型，求积法选择最佳求积点数的默认算法会给出错误消息。对于非独立的协方差结构，求积法通常表现不佳，甚至可能完全不适用。另外，我们可以使用 <code>METHOD=LAPLACE</code>。以下是部分选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20379-2.png#center" style="width:40.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20380-1.png#center" style="width:40.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20380-2.png#center" style="width:50.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20380-3.png#center" style="width:70.0%"></div>
+<p>与 CR35 一样，在固定效应的 III 型检验中，主要证据是协变量效应，此时为 XM1。拟合统计量没有提供过离散的证据。交互图表明在给定的泌乳次数下可能存在 TRT 的简单效应，但我们缺乏具有强大 <span class="math inline">\(p\)</span> 值支持的统计功效来做出声明。</p>
+<p><strong>关于二进制数据的最后评论</strong>：本例说明了试图使用二进制数据 GLMMs 的困难。这是 <a href="chap12.html#sec12-2">12.2</a> 节的模拟结果所预期的。如果数据分析师能够获得有关模型参数合理值的可靠外部信息，则应该考虑使用贝叶斯方法，而非标准 GLMM 软件中提供的线性化或积分近似法。使用外部信息形成合理的先验分布可能有助于克服此示例所示的问题。</p>
+</div>
+<div id="sec12-3-2" class="section level3" number="12.3.2">
+<h3>
+<span class="header-section-number">12.3.2</span> 二项数据的嵌套析因设计<a class="anchor" aria-label="anchor" href="#sec12-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>此示例的数据在 SAS Data and Program Library 中显示为 Data Set 12.2. 该设计采用与图 2.5 所示相同的格式：十个区组，每个区组三个单元；六种处理分为两组。A0 组由标记为 B0, B1 和 B2 的处理组成。A1 组包含处理 B3, B4 和 B5。每组被随机分配到五个区组。每种处理被随机分配给每个区组内的一个单元。每个单元的响应变量是二项的。描述这个过程的模型：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\alpha_i+\beta(\alpha)_{ij}+r_k\)</span>，其中 <span class="math inline">\(\alpha,\beta\)</span> 和 <span class="math inline">\(r\)</span> 分别表示组、处理和区组效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r_i\sim\text{Binomial}\left(n_{ijk},\pi_{ijk}\right)\)</span></li>
+<li><span class="math inline">\(r_k\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\eta_{ijk}=\mathrm{logit}\Big(\pi_{ijk}\Big)=\mathrm{log}\Big[\pi_{ijk}\Big/\Big(1-\pi_{ijk}\Big)\Big]\)</span></p></li>
+</ul>
+<p>按照 <a href="chap12.html#sec12-2-1">12.2.1</a> 节的讨论，我们分两步分析数据。首先，我们使用积分近似法（如果可能的话用求积法）获得过离散诊断 Pearson <span class="math inline">\(\chi^2/df\)</span>。第二步，我们使用类 REML 伪似然（GLIMMIX 的 RSPL 法） 来完成分析，因为 <span class="math inline">\(N\)</span> 和每个实验单元的成功观测比例与 RSPL 一致，与其他方法相比，RSPL 具有更好的方差估计偏差和 I 类错误控制。</p>
+<p>实现步骤 1 的 GLIMMIX 语句如下：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_12C2 method=quad;
+ class block a b;
+ model f/n=a b(a);
+ random a / subject=block;
+ ods html CondFitStatistics;
+ run;</code></pre>
+<p>ODS 语句将输出限制在 “Fit Statistics for Conditional Distribution” 表中，该表包含 Pearson <span class="math inline">\(\chi^2/df\)</span> 统计量。</p>
+<div class="inline-figure"><img src="figure/figure%20381-1.png#center" style="width:50.0%"></div>
+<p>这里 <span class="math inline">\(\chi^2/df=0.75\)</span>。Pearson 卡方统计量没有提供任何证据来质疑我们的分布和线性预测假定。我们继续步骤 2。GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_11C2 method=rspl;
+ class Block a b;
+ model F/N=a b(a); 
+ random a / subject=Block;
+ lsmeans b(a) / slice=a slicediff=a ilink cl;
+run;</code></pre>
+<p>下面显示了我们用于嵌套析因设计的标准列表：</p>
+<div class="inline-figure"><img src="figure/figure%20382-1.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20382-2.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20382-3.png#center" style="width:70.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20382-4.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20382-5.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20383-1.png#center" style="width:100.0%"></div>
+<p>“Covariance Parameter Estimates” 显示 <span class="math inline">\(\hat{\sigma}_R^2=0.478\)</span>。对于 logit 连接，我们将 <span class="math inline">\({\sigma}_R^2\)</span> 解释为区组间对数几率 (log-odds) 的方差——这里是区组内单元的平均对数几率的方差。</p>
+<p>“B(A) Least Squares Means” 表的 “Estmate” 列显示了每个 B(A) 组合的 logit 的模型尺度估计，即 <span class="math inline">\(\hat{\eta}_{ij}=\tilde{\eta}+\tilde{\alpha}_i+\widetilde{\beta(\alpha)}_{ij}\)</span>，其中 <span class="math inline">\(\tilde{\eta},\tilde{\alpha}_i\)</span> 以及 <span class="math inline">\(\widetilde{\beta(\alpha)}_{ij}\)</span> 为 “Solution for Fixed Effects” 表中所示的解。例如，<span class="math inline">\(A_0 B_0\)</span> 的 LSMean 估计为 <span class="math inline">\(\hat{\eta}_{00}=\tilde{\eta}+\tilde{\alpha}_0+\widetilde{\beta(\alpha)}_{00}=-0.2259+0.05988-0.1412=-0.3072\)</span>。标准误如第 <a href="chap6.html#chap6">6</a> 章中的式 <a href="chap6.html#eq:6-15">(6.15)</a> 所示。模型尺度上的置信区间计算为 <span class="math inline">\(\hat{{\eta}}_{ij}\pm t_{(16,0.025)}\times SE\Big(\hat{{\eta}}_{ij}\Big)\)</span>，其中 <span class="math inline">\(t_{(16,0.025)}\)</span> 为用于 95% 置信区间的自由度为 16（DF 列中的数字）的 <span class="math inline">\(t\)</span> 分布的表格值。例如，<span class="math inline">\(A_0 B_0\)</span> 的置信区间为 <span class="math inline">\(\hat{\eta}_{00}\pm t_{(16,0.025)}\times SE\big(\hat{\eta}_{00}\big)=-0.3072\pm2.12\times0.3448\)</span> 给出下限 <span class="math inline">\(-1.038\)</span> 和上限 <span class="math inline">\(0.4236\)</span>，出现在 “Lower” 和 “Upper” 列中。</p>
+<p>数据尺度 LSMeans、概率估计 <span class="math inline">\(\hat\pi_{ij}\)</span> 是根据逆连接计算的，在本例中为逆 logit 连接 <span class="math inline">\(\hat{\pi}_{ij}=1\Big/\Big(1+e^{-\eta_{ij}}\Big)\)</span>。例如，对于 <span class="math inline">\(A_0 B_0\)</span>，<span class="math inline">\(\hat{\pi}_{00}=1/\left(1+e^{-(-0.3072)}\right)=0.4238\)</span>。<span class="math inline">\(\hat\pi_{ij}\)</span> 出现在 LSMeans 表的 “Mean” 列中。<span class="math inline">\(\hat\pi_{ij}\)</span> 的数据尺度标准误是使用 Delta 法则计算的。对于 logit 连接，<span class="math inline">\(SE\Big(\hat{\pi}_{ij}\Big)=\frac{\partial\Big[h\Big(\hat{\eta}_{ij}\Big)\Big]}{\partial\Big(\hat{\eta}_{ij}\Big)}\times SE\Big(\hat{\eta}_{ij}\Big)=\frac{\partial\Big[1\Big/\Big(1+e^{-\hat{\eta}_{ij}}\Big)\Big]}{\partial\Big(\hat{\eta}_{ij}\Big)}\times SE\Big(\hat{\eta}_{ij}\Big)=\hat{\pi}_{ij}\Big(1-\hat{\pi}_{ij}\Big)\times SE\Big(\hat{\eta}_{ij}\Big)\)</span>。对于 <span class="math inline">\(A_0 B_0\)</span>，<span class="math inline">\(SE\big(\hat{\pi}_{00}\big)=(0.4238)\big(1-0.4238\big)\big(0.3448\big)=0.08419\)</span>。数据尺度置信下限和上限（LSMeans 表中的 “Lower Mean” 和 “Upper Mean”）是通过将逆连接应用于模型尺度置信区间来获得的，而非通过使用 Delta 法则导出的数据尺度标准误获得的。例如，对于 <span class="math inline">\(A_0 B_0\)</span>，适当的数据尺度置信限为 <span class="math inline">\(1\Big/\Big(1+e^{-(-1.038)}\Big)=0.2615\)</span>（“Lower Mean”）和 <span class="math inline">\(1/\left(1+e^{-0.4236}\right)=0.6043\)</span>（“Upper Mean”）。</p>
+<p>解释 “Type III Tests for Fixed Effects” 是有问题的：B(A) 的 <span class="math inline">\(p\)</span> 值表明可能发生了某些事情<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;原文：“suggests something may be going on.” &lt;span class="math inline"&gt;\(p=0.0907\)&lt;/span&gt; 表明有显著性的迹象。&lt;/p&gt;'><sup>32</sup></a>，但是，正如我们在第 <a href="chap8.html#chap8">8</a> 章和第 <a href="chap9.html#chap9">9</a> 章的类似示例中看到的那样，对 B(A) 的检验过度聚合了。最好看看各个切片 (slice). 在这里我们看到，对于 <span class="math inline">\(A_0\)</span> 组内的等处理均值检验，<span class="math inline">\(p &gt; 0.65\)</span>。而在 <span class="math inline">\(A_1\)</span> 组内，<span class="math inline">\(p = 0.0296\)</span>。“slicediff” 输出和数据尺度 <span class="math inline">\(\hat\pi_{ij}\)</span> LSMeans 有助于说明问题。处理 4 和 5（A 1, B 1 和 B 2）的概率估计分别为 0.39 和 0.44，并且没有显著差异（<span class="math inline">\(p &gt; 0.33\)</span>）。对于处理 3（A 1, B 0），<span class="math inline">\(\hat{\pi}_{10}=0.2998\)</span> 并且有中等证据（<span class="math inline">\(p = 0.0647\)</span>）表明它与处理 4 不同，并且有更强的证据（<span class="math inline">\(p = 0.0099\)</span>）表明它与处理 5 不同。</p>
+<p>上述所有处理比较均使用基于模型的统计量，无需调整。由于此示例中的数据来自不完全区组设计，我们可能会合理地询问是否应该使用 Kenward-Roger 调整来纠正标准误可能存在的向下偏差以及 <span class="math inline">\(F\)</span> 和 <span class="math inline">\(t\)</span> 统计量可能存在的向上偏差。在 MODEL 语句中添加 Kenward-Roger 选项：</p>
+<pre class="sas"><code>Model F/N = a b(a) / ddfm=kr2;</code></pre>
+<p>这为固定效应和切片的 III 型检验生成以下表格：</p>
+<div class="inline-figure"><img src="figure/figure%20384.png#center" style="width:60.0%"></div>
+<p>对于这些数据，Kenward-Roger 选项中嵌入的 Satterthwaite DF 近似将 <span class="math inline">\(B(A)\)</span> 的 DF 从 16 增加到 24。Satterthwaite 近似延续到 “Test of Effect Slices” 表。在每种情况下，<span class="math inline">\(p\)</span> 值都会降低——这与 Kenward-Roger 调整的预期目的相反。这是一个不使用 <code>DDFM=KR2</code> 选项时更为保守的示例。</p>
+</div>
+<div id="sec12-3-3" class="section level3" number="12.3.3">
+<h3>
+<span class="header-section-number">12.3.3</span> 二项数据的响应曲面<a class="anchor" aria-label="anchor" href="#sec12-3-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>这些数据在 SAS Data and Program Library 中显示为 Data Set 12.3。该研究使用不完全区组的 Box-Behnken 响应曲面设计，其结构与 Data Set 9.3 相同，只是这里的数据是二项的。共有三个定量因子，称为 A, B 和 C，每个因子的水平为 -1, 0 和 1。我们的目标是估计这些数据的简约二阶多项式回归模型。为此，我们使用与 Data Set 9.3 相同的线性预测器，但修改了分布和连接函数。具体来说：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ijkl}=\eta_{ijk}+r_l\)</span>，其中 <span class="math inline">\(r_l\)</span> 表示区组效应以及 <span class="math inline">\(\eta_{ijk}=f\left(A,B,C\right)+\left(\alpha\beta\gamma\right)_{ijk}=\beta_0+\sum_{i=A,B,C}\beta_iX_i+\sum_{i=A,B,C}\beta_{ii}X_i^2+\sum_{i\neq i^{\prime}=A,B,C}\beta_{ii^{\prime}}X_iX_i+\left(\alpha\beta\gamma\right)_{ijk}\)</span>。<span class="math inline">\(\left(\alpha\beta\gamma\right)_{ijk}\)</span> 为总和项（欠拟合项）。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijkl}\mid r_l\sim\text{Binomial}\left(n_{ijk},\pi_{ijkl}\right)\)</span></li>
+<li><span class="math inline">\(r_l\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\text{logit}\Big(\pi_{ijkl}\Big)=\log\Big[\pi_{ijkl}\Big/\Big(1-\pi_{ijkl}\Big)\Big]\)</span></p></li>
+</ul>
+<p>拟合模型涉及 4 个步骤的过程：</p>
+<ol style="list-style-type: decimal">
+<li><p>使用 Pearson <span class="math inline">\(\chi^2/DF\)</span> 评估可能的过离散</p></li>
+<li><p>评估回归模型的欠拟合（此处为二阶多项式）</p></li>
+<li><p>如果步骤 2 提供了保证，则对回归模型进行拟合，并查看是否可以简化。</p></li>
+<li><p>根据步骤 3，对最终模型进行拟合，并获得感兴趣的 ABC 处理组合的预测值。</p></li>
+</ol>
+<p>我们使用求积法来实现步骤 1，并且由于每个实验单元中典型的 <span class="math inline">\(N\)</span> 和成功的比例，我们在步骤 2 到 4 中使用类 REML 的伪似然。注意，步骤 2 到 4 形成了标准响应曲面模型拟合的序列。</p>
+<p>下面的 GLIMMIX 语句允许我们实现步骤 1：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_12C3 method=quad;
+ class block a b c;
+ model y/n = a*b*c;
+ random intercept / subject=block;</code></pre>
+<p>请注意步骤 1 的 model 语句。此时不需要指定二阶回归模型。我们所需要的只是计算 A, B 和 C 因素的综合效应，并获得 Pearson <span class="math inline">\(\chi^2/DF\)</span> 统计量。在本例中，自适应求积程序选择一个求积点。这意味着如果我们使用 <code>METHOD=LAPLACE</code>，我们将得到完全相同的结果。在下面的 “Fit Statistics for Conditional Distribution” 表中显示的 Pearson <span class="math inline">\(\chi^2/DF\)</span> 没有显示过离散的证据。我们继续执行步骤 2。</p>
+<div class="inline-figure"><img src="figure/figure%20385.png#center" style="width:60.0%"></div>
+<p>步骤 2 的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_12C3 method=rspl;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1;
+ random intercept / subject=block;</code></pre>
+<p>这里感兴趣的关键结果是 A*B*C 的 1 型检验，即在拟合二阶回归模型后归因于因素 A, B 和 C 的变异，被解释为二阶响应曲面的欠拟合。相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20386-1.png#center" style="width:60.0%"></div>
+<p>加粗的统计量是本步骤中感兴趣的统计亮：二阶回归欠拟合项 A*B*C 的 <span class="math inline">\(F\)</span> 值为 0.52，<span class="math inline">\(p&gt;0.67\)</span> ——没有欠拟合的证据。我们使用 GLIMMIX 语句继续执行步骤 3：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_12C3 method=rspl;
+ class block;
+ model y/n=xa|xa|xb|xb|xc|xc@2 / htype=1;
+ random intercept / subject=block;</code></pre>
+<p>相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20386-2.png#center" style="width:60.0%"></div>
+<p>我们在 “Type I Tests” 中查找要从模型中排除的项。两个这样的项为因素 C 的二次效应 XC*XC，和线性 A 与线性 B 的交互 XA*XB。它们的 <span class="math inline">\(p\)</span> 值均大于 0.8。XB 和 XC，即 B 和 C 的线性效应，可以说是不显著的，但它们都包含在具有统计学意义的高阶效应中—— XB*XB（<span class="math inline">\(p&lt;0.0026\)</span>）和 XB*XC（<span class="math inline">\(p=0.0483\)</span>）。</p>
+<p>因此，<span class="math inline">\(\eta_{ij}\)</span> 的简化模型为 <span class="math inline">\(\beta_0+\sum_{i=A,B,C}\beta_iX_i+\sum_{i=A,B}\beta_{ii}X_i^2+\beta_{AC}X_AX_C+\beta_{BC}X_BX_C\)</span>。我们使用 GLIMMIX 语句来拟合：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12C3 method=rspl;
+ class block;
+ model y/n=xa|xaxb|xbxa|xcxb*xc / solution; 
+ random intercept / subject=block;</code></pre>
+<p>“Solutions for Fixed Effects” 提供相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20387-1.png#center" style="width:80.0%"></div>
+<p>ESTIMATE 列中的值是最终模型的回归系数估计。我们可以使用它们来确定模型尺度上的预测值，即预测的 logits。例如，对于 <span class="math inline">\(X_{A}=X_{B}=X_{C}=-1\)</span>，使用 ESTIMATE 语句：</p>
+<pre class="sas"><code>Estimate “p_hat at xa=xb=xc= -1” intercept 1 xa -1 xa*xa 1 xb -1 
+ xb*xb -1 xc -1 xa*xc 1 xb*xc 1 / ilink cl;</code></pre>
+<p>以获得模型和数据尺度上的预测值和置信限。输出：</p>
+<div class="inline-figure"><img src="figure/figure%20387-2.png#center" style="width:100.0%"></div>
+<p>出于空间考虑，DF、<span class="math inline">\(t\)</span> 值和 Prob&lt;t 列已从上述输出中删除。模型尺度 <span class="math inline">\(\hat{\eta}_{a=b=c=-1}\)</span> 由回归方程计算得出，即：</p>
+<p><span class="math display">\[\begin{aligned}\hat{\eta}_{a=b=c=-1}=&amp;\;0.71+0.36(-1)-0.90(-1)(-1)+0.16(-1)-1.32(-1)(-1)+0.17(-1)-0.46(-1)(-1)\\&amp;+0.27(-1)(-1)=-2.39\end{aligned}\]</span></p>
+<p>使用 <a href="chap12.html#sec12-2-2">12.2.2</a> 节示例中描述的方法计算标准误和置信区间。我们使用逆连接来获得预测概率 <span class="math inline">\(\hat{\pi}_{a=b=c=-1}=1\Big/\Big(1+e^{-(-2.3925)}\Big)=0.08375\)</span>。<span class="math inline">\(\pi_{a=b=c=-1}\)</span> 的置信下限和上限（“Lower Mean” 和 “Upper Mean”）是通过将逆连接应用于模型尺度下限和上限来获得的。</p>
+<p>此时，我们可以继续绘制曲面估计，就像我们在第 9 章的<a href="chap9.html#exm:ex9-3">示例 9.3</a> 中所做的那样，或者确定 A, B 和 C 水平的最佳组合，或者目标所需的任何其他内容。</p>
+</div>
+<div id="sec12-3-4" class="section level3" number="12.3.4">
+<h3>
+<span class="header-section-number">12.3.4</span> 列联表模型<a class="anchor" aria-label="anchor" href="#sec12-3-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>列联表是分类数据分析的标准工具。<strong>对数线性模型</strong> (log-linear models) 提供了广义线性模型和列联表之间的联系。当使用具有三个或更多因素的列联表时，这些模型特别有价值。在本节中，我们将简要介绍使用双向列联表的对数线性模型的逻辑，然后通过一个具有三个因素的示例进行说明。</p>
+<p>双向列联表具有以下结构：</p>
+<div class="inline-figure"><img src="figure/figure%20388-1.png#center" style="width:30.0%"></div>
+<p>我们根据 A 特征（1 或 2）和 B 特征（1 或 2）对数据集中的每个观测进行分类。A 和 B 类别必须详尽且相互排斥——总体中的每个成员都必须属于 A1 或 A2 以及 B1 或 B2。没有成员可以同时属于 A1 和 A2。归类为 A1 × B1 的观测数，我们用 <span class="math inline">\(f_{11}\)</span> 表示。一般来说，<span class="math inline">\(f_{ij}\)</span> 表示 <span class="math inline">\(A_i× B_j\)</span> 的观测数。</p>
+<p>为构造对数线性模型，我们假定观测数据按照泊松过程“到达” <span class="math inline">\(A_i× B_j\)</span> 单元格。同时，我们用 <span class="math inline">\(\pi_{ij}\)</span> 表示给定的总体成员属于 <span class="math inline">\(A_i× B_j\)</span> 单元格的概率。如果我们总共有 <span class="math inline">\(N\)</span> 个观测，<span class="math inline">\(A_i× B_j\)</span> 单元格中的预期观测数为 <span class="math inline">\(N_{ij}\pi\)</span>。因此，<span class="math inline">\(f_{ij}\sim\text{Poisson}(\pi)\)</span>。如果属于 <span class="math inline">\(A_i\)</span> 和 <span class="math inline">\(B_j\)</span> 的概率是独立的，则 <span class="math inline">\(\pi_{ij} =\pi_i\pi_j\)</span>，其中 <span class="math inline">\(\pi_i\)</span> 表示边际 <span class="math inline">\(P\left\{观测\in A_{i}\right\}\)</span>，<span class="math inline">\(\pi_j\)</span> 表示边际 <span class="math inline">\(P\left\{观测\in B_{j}\right\}\)</span>。在独立的情况下，<span class="math inline">\(f_{ij}\sim\mathrm{Poisson}\left(N{\pi}_i\pi_j\right)\)</span>。</p>
+<p>使用典型连接，我们为 <span class="math inline">\(f_{ij}\)</span> 拟合 GLM。连接函数为 <span class="math inline">\(\log\left(N{\pi}_{ij}\right)\)</span>，在独立的情况下可写为 <span class="math inline">\(\log\left(N\pi_i\pi_j\right)=\log\left(N\right)+\log\left(\pi_i\right)+\log\left(\pi_j\right)\)</span>。我们将后者重写为 <span class="math inline">\(\eta_{ij}=\eta+\alpha_{i}+\beta_{j}\)</span>。我们还可以添加项 <span class="math inline">\((\alpha\beta)_{ij}\)</span>。这给了我们一个<strong>饱和模型</strong> (saturated model)；我们将 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 解释为偏离独立性的程度 (departure from independence). 此外，在分类数据中，我们将 <span class="math inline">\((\alpha\beta)_{ij}\)</span> 解释为<strong>关联</strong> (association) 而非交互。</p>
+<p>如果表有三个或更多因素，则对数线性模型扩展为包括主效应、双向关联项、三向关联项等。这就是对数线性模型的魅力所在。三向及更高的列联表使用起来很笨拙，但对数线性模型允许更精简的方法。</p>
+<p>让我们看看这对于三向列联表是如何工作的。以下是列联表形式的原始数据。这些数据也作为 Data Set 12.4 显示在 SAS Data and Program Library 中。</p>
+<div class="inline-figure"><img src="figure/figure%20388-2.png#center" style="width:30.0%"></div>
+<p>阴影部分分别显示因素 A, B 和 C 的水平。非阴影区域显示了观测频率（对于类别 <span class="math inline">\(A_i\times B_j\times C_k\)</span>，我们用 <span class="math inline">\(f_{ijk}\)</span> 表示）。例如，<span class="math inline">\(f_{111}=94\)</span>。</p>
+<p>我们将这些数据的对数线性模型写为：</p>
+<p><span class="math display">\[\text{logit}\left(\pi_{ijk}\right)=\eta+\alpha_i+\beta_j+\gamma_k+\left(\alpha\beta\right)_{ij}+\left(\alpha\gamma\right)_{ik}+\left(\beta\gamma\right)_{jk}+\left(\alpha\beta\gamma\right)_{ijk}\]</span></p>
+<p>使用以下 GLIMMIX 语句来拟合此模型：</p>
+<pre class="sas"><code>proc glimmix data=ct;
+ class a b c;
+ model freq=a|b|c/d=poisson ddfm=none chisq;</code></pre>
+<p>选项 <code>DDFM=NONE</code> 和 <code>CHISQ</code> 反映了这样一个事实：我们没有像在大多数其他示例中那样具有重复。这些选项指示 GLIMMIX 计算 <span class="math inline">\(\chi^2\)</span> 检验统计量。输出：</p>
+<div class="inline-figure"><img src="figure/figure%20389-1.png#center" style="width:100.0%"></div>
+<p>分母自由度 DenDF=Infty 由 <code>DDFM=NONE</code> 选项产生。我们忽略与 <span class="math inline">\(F\)</span> 相关的结果，而专注于 ChiSq 的结果。模仿通常的析因处理设计策略，我们从三向关联 A*B*C 开始。当双向关联 (two-way association) 取决于第三个因素时，就会出现三向关联 (three-way association)。也就是说，AB 关联与 C<sub>1</sub> 结合时呈现一种形式，但与 C<sub>2</sub> 结合时呈现出完全不同的特征。例如，如果 A 代表环境压力（1 = 不存在，2 = 存在），B 代表医疗状况（1 = 不存在，2 = 存在），C 代表性别，那么，如果 A 和 B 对于男性是关联的，但对女性不是，或者 A 和 B 对两种性别都是关联的，但关联的强度取决于性别，那么可能会出现三向关联。</p>
+<p>对于这些数据，按照任何合理的证据标准，我们没有证据表明存在三向关联（<span class="math inline">\(p&gt;0.70\)</span>），因此我们继续研究双向关联。在这里，我们有 AB 关联的证据（<span class="math inline">\(p=0.0307\)</span>）以及 AC 和 BC 非常强的关联证据（<span class="math inline">\(p&lt;0.0001\)</span>）。对于上面所述的因素解释，我们有证据表明，这种医疗状况的发生与暴露于环境压力有关（AB 关联）、与性别密切相关（BC 关联）。此外我们还有证据表明，暴露于环境压力和性别之间存在关联（AC 关联）。</p>
+<p>我们可以重写模型并使用 ESTIMATE 语句来进一步阐明这些关联。例如，假设我们想要分解环境压力与医疗状况发生情况之间的关联。我们可以使用以下 GLIMMIX 语句：</p>
+<pre class="sas"><code>proc glimmix data=ct;
+ class a b c;
+ model freq=c(a*b)/d=poisson chisq ddfm=none s;
+ estimate 'a1 odds @ c1' c(a*b) 1 0 -1 0 0 0 0 0 / exp;
+ estimate 'a1 odds @ c2' c(a*b) 0 1 0 -1 0 0 0 0 / exp;
+ estimate 'a2 odds @ c1' c(a*b) 0 0 0 0 1 0 -1 0 / exp;
+ estimate 'a2 odds @ c2' c(a*b) 0 0 0 0 0 1 0 -1 / exp;
+ estimate 'odds ratio @ c1' c(a*b) 1 0 -1 0 -1 0 1 0 / exp cl;
+ estimate 'odds ratio @ c2' c(a*b) 0 1 0 -1 0 -1 0 1 / exp cl;
+ estimate 'comb odds ratio' c(a*b) 1 1 -1 -1 -1 -1 1 1 / exp cl;
+run;</code></pre>
+<p>前四个 ESTIMATE 语句计算在 A 和 C 的每个水平上 B1 相对于 B2 的几率。例如，第一个语句在模型尺度上定义 <span class="math inline">\(\log\left(\pi_{111}/\pi_{121}\right)\)</span>，在数据尺度上定义 <span class="math inline">\(\pi_{111}/\pi_{121}\)</span>。如果 B1 表示“不存在医疗状况”，B2 表示“存在医疗状况”，那么我们可以估计给定 A1 和 C1 时不存在该状况相对于存在该状况的可能性——我们可以假定 A1 表示“未暴露于环境压力”，C1 表示女性。我们可以计算 C 的每个水平上 AB 关联状况的几率比——这些是抬头为 “odds ratio @ c1” 和 “odds ratio @ c2” 的 ESTIMATE 语句。最后，我们可以计算在 C 的两个水平上的综合几率比。输出：</p>
+<div class="inline-figure"><img src="figure/figure%20390.png#center" style="width:100.0%"></div>
+<p>标记为 “estimate” 的列位于模型尺度上—— <span class="math inline">\(\log(odds)\)</span> 和 <span class="math inline">\(\log(odds ratio)\)</span> ——而 “Exponentiated estimate” 列位于数据尺度上。根据我们在 estimate 语句中分配系数的方式，我们将 ODDS 解释为估计越大（没有医疗状况的可能性越大）越好。如果我们希望能够将这些视为发生医疗状况的几率，我们可以反转 ESTIMATE 语句中系数的符号。请注意，单独的几率比没有令人印象深刻的 <span class="math inline">\(p\)</span> 值，但组合几率比的 <span class="math inline">\(p\)</span> 值更有说服力。这似乎更多地是样本量的产物。最后，请注意，组合优势比的 <span class="math inline">\(p\)</span> 值与 “type III tests of fixed effects” 中 A*B 效应的 <span class="math inline">\(p\)</span> 值相同：<span class="math inline">\(p=0.0307\)</span>。</p>
+<p>最后要注意的是，在分类数据分析中，多维分析有时是“折叠的” (“collapsed”) ——也就是说，根据某因素对频率求和，从而产生一个更简单的表。例如，在这里，如果我们对因素 C 进行求和，就会得到折叠的表格：</p>
+<div class="inline-figure"><img src="figure/figure%20391-1.png#center" style="width:30.0%"></div>
+<p>我们可以使用 GLIMMIX 语句运行该表的对数线性模型分析：</p>
+<pre class="sas"><code>proc glimmix data=ct;
+ class a b;
+ model freq=a|b/d=poisson ddfm=none chisq;</code></pre>
+<p>我们这样做不需要操纵数据集。结果：</p>
+<div class="inline-figure"><img src="figure/figure%20391-2.png#center" style="width:100.0%"></div>
+<p>请注意，A*B 关联现在没有显示出统计显著性的证据（<span class="math inline">\(p&gt;0.86\)</span>）。这是<strong>辛普森悖论</strong> (Simpson’s Paradox) 的一个例子。如果我们折叠一个与研究中其他因素相关的因素的表格（因素 C 显然就是这样的因素），我们就有可能扭曲关于其余两个因素关联的结论。在本例中扭曲是严重的。根据折叠了因素 C 的表格，我们不仅得出了关于 AB 关联的错误结论，而且完全错过了 C 和其他两个因素之间也存在的可能非常重要的关联。</p>
+<p>辛普森悖论揭示了统计科学基本规则之一：永远不要丢弃数据。</p>
+</div>
+</div>
+<div id="sec12-4" class="section level2" number="12.4">
+<h2>
+<span class="header-section-number">12.4</span> 二项数据的其他连接函数<a class="anchor" aria-label="anchor" href="#sec12-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>尽管我们将 logit 连接视为二项模型的默认连接，但没有规定表明我们必须使用它。Logit 连接的主要原理源于它是二项对数似然中的典型参数。此外，它有一个自然的解释：分类数据分析中的对数几率。然而，在具有二项数据的某些应用中首选其他连接函数，因为它们有助于更清晰的解释，或者因为对于某些二项数据集，logit 连接模型无法准确拟合数据，因此会给出虚假和误导性的结果。</p>
+<p>在本节中，我们考虑两个最常见的其他连接函数的示例——<strong>概率单元</strong><a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：probit=probability unit.&lt;/p&gt;"><sup>33</sup></a> (probit) 连接和<strong>互补双对数</strong> (complimentary-log-log) 连接。</p>
+<p>在第一章中，我们首次提出了 GLM 的思考过程时，就遇到了 probit 连接函数。Probit 假定存在一个潜在的、不可观测的高斯过程，这个过程对我们来说只表现为“成功”或“失败”。Probit 在基于高斯分布发展出成熟理论的学科中具有优势。数量遗传学 (Quantitative genetics) 就是一个重要的例子——高斯方差分量模型具有遗传学意义。当感兴趣的响应变量是二项分布时，probit 连接函数允许这些含义保持不变。</p>
+<p>互补双对数定义为 <span class="math inline">\(\eta=\operatorname{log}\left(-\operatorname{log}\left(1-\pi\right)\right)\)</span>，对于大多数概率接近于零或接近于 1 的数据非常有用。这是二项数据的重要“边界条件”之一。尽管概率和对数在参数空间上是对称的，但互补双对数不需要对称性，因此，理论上，对于很少发生或几乎总是发生的事件，它能提供更好的拟合。</p>
+<div id="sec12-4-1" class="section level3" number="12.4.1">
+<h3>
+<span class="header-section-number">12.4.1</span> 概率单元连接<a class="anchor" aria-label="anchor" href="#sec12-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>此示例回顾嵌套析因 Data Set 12.2. 在上一节中，我们使用 logit 连接拟合模型。现在让我们用 probit 连接拟合它，来比较并对比结果。除了连接函数外，该模型与我们在 <a href="chap12.html#sec12-3-2">12.3.2</a> 节的示例中使用的模型相同。我们将 <span class="math inline">\(\eta_{ijk}=\mathrm{logit}\Big(\pi_{ijk}\Big)\)</span> 替换为 <span class="math inline">\(\eta_{ijk}=\Phi^{-1}\Big(\pi_{ijk}\Big)\)</span>，其中 <span class="math inline">\(\Phi^{-1}\begin{pmatrix}\cdot\end{pmatrix}\)</span> 表示逆高斯或正态累积分布函数。更为常见的是通过逆连接来指定 probit 模型。对于此示例，我们将其写为 <span class="math inline">\(\pi_{ijk}=\Phi\Big(\eta+\alpha_i+\beta\Big(\alpha\Big)_{ij}+r_k\Big)\)</span>，其中线性预测变量的项均如先前在 <a href="chap12.html#sec12-3-2">12.3.2</a> 节的示例中定义。使用以下 GLIMMIX 语句实施分析：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12C2 method=rspl;
+ class Block a b;
+ model F/N=a b(a) / link=probit; 
+ random a / subject=Block;
+ lsmeans b(a) / slice=a slicediff=a ilink;</code></pre>
+<p>GLIMMIX 程序中唯一的更改是在 MODEL 语句中添加了 <code>LINK=PROBIT</code> 选项。相关结果：</p>
+<div class="inline-figure"><img src="figure/figure%20392.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20393-1.png#center" style="width:80.0%"></div>
+<p>这些结果与使用 logit 连接的分析仅略有不同。最大的区别是方差分量估计：使用 probit 连接为 <span class="math inline">\(\hat{\sigma}_R^2=0.178\)</span>；使用 logit 连接为 <span class="math inline">\(\hat{\sigma}_{R}^{2}=0.478\)</span>。在遗传学中，方差可以用性状的遗传力来解释，这种区别很重要。在其他情况下，方差估计只是确保准确的标准误和检验统计量的垫脚石，其差异只是说明了连接函数不相同的事实。probit 的切片 <span class="math inline">\(F\)</span> 值为 0.46 和 4.48，logit 连接的 F 值为 0.43 和 4.42 ——差异可以忽略不计。</p>
+<p>数据尺度均值的标准误——即使用逆连接获得的 <span class="math inline">\(\hat{\pi}_{ij}\)</span> ——使用 Delta 法则确定。表示模型尺度上的 LSMean 估计——显示在 “estimate” 列中——表示为 <span class="math inline">\(\hat\eta_{ij}\)</span>，利用它我们得到模型尺度的估计 <span class="math inline">\(\hat{\pi}_{ij}=\Phi\Big(\hat{\eta}_{ij}\Big)=\int_{-\infty}^{\hat{\eta}_{ij}}\frac{1}{\sqrt{2\pi}}e^{-\frac{z^2}{2}}dz\)</span>。使用 Delta 法则有 <span class="math inline">\(s.e.\Big(\pi_{ij}\Big)=\left.\frac{\partial\Phi\Big(\eta_{ij}\Big)}{\partial\eta_{ij}}\right|_{\eta_{ij}}s.e.\Big(\eta_{ij}\Big)=\left(\frac1{\sqrt{2\pi}}e^{-\frac{\hat{\eta}_{ij}{}^2}2}\right)\times s.e.\Big(\hat{\eta}_{ij}\Big)\)</span>。</p>
+<p>我们在这里看到的是典型情况。probit 和 logit 连接描述了 <span class="math inline">\(\eta\)</span> 和 <span class="math inline">\(\pi\)</span> 之间相似的函数关系。因此，它们往往会产生相似的结果。从纯粹的统计角度来看，没有理由偏好其中一种；我们通常可以期望它们在处理效应方面得出本质上可互换的结论。选择其一的主要原因更多地与产生数据的学科领域及其惯例和知识历史有关。</p>
+</div>
+</div>
+<div id="sec12-4-2" class="section level2" number="12.5">
+<h2>
+<span class="header-section-number">12.5</span> 互补双对数<a class="anchor" aria-label="anchor" href="#sec12-4-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>这些数据使用第 9 章<a href="chap9.html#exm:ex9-3">示例 9.3</a> 中给出的相同不完全裂区结构。然而，此示例的数据是二项的。它们在 SAS Data and Program Library 以 Data Set 12.5 中给出。该模型使用与<a href="chap9.html#exm:ex9-3">示例 9.3</a> 相同的线性预测器，仅分布和连接函数发生了变化。模型为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\alpha_i+\beta_j+\left(\alpha\beta\right)_{ij}+r_k+\left(ar\right)_{ik}+\left(br\right)_{jk}\)</span></p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r_k,(ar)_{ik},(br)_{jk}\thicksim\mathrm{Binomial}\Big(n_{ijk},\pi_{ijk}\Big)\)</span></li>
+<li><span class="math inline">\(r_k\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+<li><span class="math inline">\(\left(ar\right)_k\mathrm{~iid~}N\left(0,\sigma_{AR}^2\right)\)</span></li>
+<li><span class="math inline">\(\left(br\right)_k\text{ iid }N\left(0,\sigma_{BR}^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接：我们将比较 <span class="math inline">\(\eta_{ijk}=\mathrm{logit}\left(\pi_{ijk}\right)\)</span> 和 <span class="math inline">\(\eta_{ijk}=\operatorname{log}\left(-\operatorname{log}\left(1-\pi_{ijk}\right)\right)\)</span></p></li>
+</ul>
+<p>后者连接是互补双对数。逆连接为 <span class="math inline">\(\pi_{ijk}=1-\exp\biggl[\exp\bigl(\eta_{ijk}\bigr)\biggr]\)</span>。熟悉非线性模型的读者会认为这是一个固定截距为 0 且固定渐近线为 1 的 Gompertz 模型。我们可能需要考虑这个连接函数的原因是，Data Set 12.5 中的样本比例都很大，其中大多数大于 0.9，相当多的样本比例等于 1. 此外，如此接近 1 的比例表明，应该使用积分近似，而不是伪似然。由于随机效应模型的复杂性，我们使用拉普拉斯法代替求积法。</p>
+<p>我们首先拟合 logit 连接。GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=ds9d2 method=laplace;
+ class block a b;
+ model y/n=a|b; /* note: default binomial link is the logit */
+ random intercept a b / subject=block;
+ output out=check_fit_l pred(ilink)=p_hat_logit;</code></pre>
+<p>OUTPUT 语句创建了一个新的数据集，其中包含预测的 <span class="math inline">\(\hat{\pi}_{ijk}\)</span>，使我们能够将其与观测样本比例 <span class="math inline">\(p_{ijk}=y_{ijk}/n_{ijk}\)</span> 进行比较。以下是选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20394.png#center" style="width:50.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20395-1.png#center" style="width:80.0%"></div>
+<p><span class="math inline">\(p_{ijk}\)</span> 和 <span class="math inline">\(\hat\pi_{ijk}\)</span> 之间的相关性为 0.97. Pearson <span class="math inline">\(\chi^2/df\)</span> 没有给出过离散的证据。从这些迹象来看，基于 logit 的模型似乎很合适。</p>
+<p>互补双对数如何？相应的 GLIMMIX 语句与我们用于 logit 的语句相同，除了 MODEL 语句：</p>
+<pre class="sas"><code>proc glimmix data=ds8d2 method=laplace;
+ class block a b;
+ model y/n=a|b/ link=cll;
+ random intercept a b / subject=block;
+ output out=check_fit_c pred(ilink)=p_hat_ccll;</code></pre>
+<p><code>LINK=CLL</code> 覆盖默认连接并替换为互补双对数。结果：</p>
+<div class="inline-figure"><img src="figure/figure%20395-2.png#center" style="width:80.0%"></div>
+<p><span class="math inline">\(p_{ijk}\)</span> 和 <span class="math inline">\(\hat\pi_{ijk}\)</span> 之间的相关性为 0.98. <span class="math inline">\(p_{ijk}\)</span> 与 <span class="math inline">\(\hat\pi_{ijk}\)</span> 的图形类似于 logit 的相应图形。</p>
+<p>现在让我们来看看方差分量估计以及 A 和 B 效应的检验。</p>
+<p>对于 logit 模型：</p>
+<div class="inline-figure"><img src="figure/figure%20396-1.png#center" style="width:60.0%"></div>
+<p>对于互补双对数模型：</p>
+<div class="inline-figure"><img src="figure/figure%20396-2.png#center" style="width:60.0%"></div>
+<p>我们立即发现 logit 输出存在问题。尽管我们知道方差分量估计的标准误几乎没有什么用处，但当它们不被计算时，它们确实很重要。这通常是模型估计程序出错的迹象。“type III tests of fixed effects output” 看起来也好不到哪儿去。A*B 的分子自由度不正确，并且所有 <span class="math inline">\(F\)</span> 值似乎都严重膨胀。虽然 logit 模型已经准确地确定了预测值，但对于其他需要的信息却没有做到这一点。在 SASLOG 中，我们发现一条警告 “NOTE: At least one element of the gradient is greater than 1e-3.” 虽然这并不总是一个问题，但它通常表明，虽然程序已经收敛，但收敛的解不一定可靠，因此应该谨慎看待输出结果。这里的问题是 logit 连接不适合对如此接近 <span class="math inline">\(\pi_{ijk}\)</span> 参数空间边界的模型数据进行建模。另一方面，互补双对数分析不太容易出现这种问题。</p>
+<p>使用互补双对数，我们现在可以继续分析。对于这些数据，我们的重点可能是 B 的主效应，因为 B 似乎是唯一接近统计显著性的效应。</p>
+</div>
+<div id="sec12-5" class="section level2" number="12.6">
+<h2>
+<span class="header-section-number">12.6</span> 二项模型中的过离散和“残差”的作用<a class="anchor" aria-label="anchor" href="#sec12-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>早在第 <a href="chap1.html#chap1">1</a> 章中，我们就确定了在建模中通常理解的“残差”——在 <span class="math inline">\(\symbf{y}=\symbf{X\beta}+\symbf{e}\)</span> 中的“<span class="math inline">\(\symbf{e}\)</span>”——在 GLM 中没有地位。在 GLMMs 中也是。随着我们在第 <a href="chap2.html#chap2">2</a> 章中介绍了框架 ANOVA 过程，并在第 <a href="chap8.html#chap8">8</a> 章中将其用于复杂的设计，我们开始意识到源于 ANOVA 的、我们习惯上称为“误差”或“残差”的项对于高斯数据的模型具有特定的含义。它使得能够估计 <span class="math inline">\(\sigma^2\)</span>，<span class="math inline">\(\symbf y\mid \symbf b\)</span> 的方差。</p>
+<p>对于 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 的分布属于单参数指数族的非高斯模型，没有需要估计的尺度参数。因此，变异的最终来源要么发挥不同的作用，要么根本不发挥作用。我们在第 <a href="chap3.html#chap3">3</a> 章中看到了这种作用的暗示。在某些数据集中，我们看到了证据，表明平均参数——二项情形中的 <span class="math inline">\(\pi\)</span> ——在观察的单元水平上受到扰动，超过了“通常”线性预测器所能解释的变异。所谓“通常”线性预测器，我们指的是这样的线性预测器：解释了所有变异源，但不包括观察的单元项——传统 ANOVA 或回归中的“误差”或“残差”。</p>
+<p>传统的线性预测器要求我们假定不存在单元间扰动 (unit-to-unit perturbation)。如果我们仔细想想，我们应该意识到我们不会对高斯数据做出该假定。单元间扰动正是 <span class="math inline">\(\sigma^2\)</span> 所度量的。如果高斯数据中存在单元间扰动，那么单参数指数族数据中也可能会出现这种情况。当它存在并且我们的模型没有考虑它，我们经常在 Pearson <span class="math inline">\(\chi^2/df\)</span> 拟合统计量中看到它存在的证据。</p>
+<p>这是过离散的一个方面，是统计建模中的一个重要问题，也是非高斯模型所特有的，特别是那些具有单参数指数族分布（例如二项和泊松分布）的模型。当观测数据的方差超过模型和假定分布所能解释的方差时，就会出现过离散。过离散的一个重要原因是模型指定不足，即在框架 ANOVA 中省略了最后一项，而事实上它会影响 <span class="math inline">\(E(\symbf y\mid \symbf b)\)</span>。我们通过在框架 ANOVA 的最后一行包含与变异源相对应的项来“修复”该问题。补丁有两种。我们可以向线性预测器添加单元水平随机效应，或者我们可以用工作协方差结构替换随机模型效应。回想第 <a href="chap3.html#chap3">3</a> 章中的术语，前者指定条件 GLMM，后者指定边际 GLMM。适当的策略取决于预期的推断空间。</p>
+<p>让我们通过一个例子来看看它是如何工作的。</p>
+<p><strong>线性预测器指定不足的二项</strong></p>
+<p>此示例的数据来自与 <a href="chap12.html#sec12-3-3">12.3.3</a> 节中示例相同的设计格式——在不完全区组中运行的 Box-Behnken 设计。这些数据在 SAS Data and Program Library 呈现为 Data Set 12.6. 我们从以下 GLIMMIX 语句开始：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12E method=quad;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1;
+ random intercept / subject=block;</code></pre>
+<p>这是 <a href="chap12.html#sec12-3-3">12.3.3</a> 节中示例的步骤 1 和 2 中使用的模型。我们使用求积法获得 Pearson <span class="math inline">\(\chi^2/df\)</span> 过离散诊断，并添加二阶回归模型和回归欠拟合项（A*B*C）来说明过离散的影响。相关结果：</p>
+<div class="inline-figure"><img src="figure/figure%20398.png#center" style="width:60.0%"></div>
+<p>注意两个问题。首先，Pearson <span class="math inline">\(\chi^2/df=3.55&gt;&gt;1\)</span>。这表明我们错误地指定了 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 的分布或线性预测器。在本例中，我们看到了线性预测器中随机分量指定不足的证据。对于第二个问题，A*B*C 统计量的 <span class="math inline">\(p\)</span> 值为 0.0014，这似乎表明回归欠拟合。回归欠拟合实际上是由于模型随机分量指定不足而导致的过离散现象；由于未指定 <span class="math inline">\(\symbf{Zb}\)</span>，I 类错误率往往会膨胀（通常是严重的）。</p>
+<p>根据预期的推断空间，我们可以通过修改 <span class="math inline">\(\symbf{Zb}\)</span> 来解决这个问题，以解释过离散——条件模型方法，或者我们可以用工作协方差结构代替随机模型效应 <span class="math inline">\(\symbf{Zb}\)</span> ——边际模型方法。回顾第 <a href="chap3.html#chap3">3</a> 章，当预期推断空间涉及“总体的典型成员”（类似于使用中位数作为中心趋势的度量），条件模型是合适的；而边际模型涉及“总体均值”（类似于左偏分布的均值）。</p>
+<div id="sec12-5-1" class="section level3" number="12.6.1">
+<h3>
+<span class="header-section-number">12.6.1</span> 条件模型<a class="anchor" aria-label="anchor" href="#sec12-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>首先回到我们在第 9 章<a href="chap9.html#exm:ex9-3">示例 9.3</a> 中为此设计导出的框架 ANOVA。其中最后一项是 “Unit(block)|A,B,C”“，即调整因素 A, B 和 C 的效应后区组内单元的效应。模型的线性预测器成为：</p>
+<p><span class="math display">\[\eta_{ijkl}=\eta_{ijk}+r_l+u_{ijkl}\]</span></p>
+<p>其中 <span class="math inline">\(\eta_{ijkl},\eta_{ijk}\)</span> 和 <span class="math inline">\(r_l\)</span> 如<a href="chap9.html#exm:ex9-3">示例 9.3</a> 中的定义，<span class="math inline">\(u_{ijkl}\)</span> 表示 Unit(block) | A, B, C 随机效应，并假定 <span class="math inline">\(\text{iid }N (0,\sigma^2_U)\)</span>。使用以下 GLIMMIX 语句实现：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12E method=quad;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1;
+ random intercept a*b*c / subject=block;
+ covtest ‘overD?’ . 0;</code></pre>
+<p>该程序中有两个变化。其一出现在 RANDOM 语句中：我们添加了 A*B*C。与 <code>SUBJECT=BLOCK</code> 结合使用，GLIMMIX 将其读取为 <span class="math inline">\(block* A * B* C\)</span> 变异源，相当于 unit(block) | A,B,C，因为 block, A, B 和 C 完全识别单元随机效应。我们知道这在数学上等价于区组设计的传统 ANOVA 中的“残差”，并且对于高斯混合模型自动计算为残差方差。然而，对于单参数分布（如二项分布），必须将单元水平的随机效应添加到线性预测器中，从而添加到 RANDOM 语句中，否则模型将无法解释单元水平的变异性。第二个变化：我们添加了一个 COVTEST 语句来正式检验我们添加的方差分量等于零的假设，即 <span class="math inline">\(H_0\colon\sigma^2_{RT}=0\)</span>。请注意，我们必须使用积分近似法——拉普拉斯或求积——来获得 COVTEST 的有效似然比检验统计量。</p>
+<p>如果我们使用 <code>METHOD=QUAD</code> 运行此命令，我们会在 SASLOG 中收到以下错误消息: “ERROR: Insufficient resources to perform adaptive quadrature with three quadrature points. METHOD=LAPLACE, corresponding to a single point, may provide a computationally less intensive possibility.” 我们使用 <code>METHOD=LAPLACE</code> 并得到以下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20399.png#center" style="width:100.0%"></div>
+<p>我们看到 Pearson <span class="math inline">\(\chi^2/df =1.78\)</span>。这仍然大于 1，但比 3.55 好得多。COVTEST 的 <span class="math inline">\(\chi^2=13.2,p&lt;0.0001\)</span>，允许我们拒绝 <span class="math inline">\(H_0\colon\sigma^2_{RT}=0\)</span>，其中 <span class="math inline">\(\sigma^2_{RT}\)</span> 表示单元水平的 block × treatmen。总之，这些都告诉我们，增加用于解释单元水平变异的项干了一件好事。我们还看到，二阶回归模型欠拟合的虚假迹象现在已经消失了：A*B*C的 <span class="math inline">\(p\)</span> 值为 0.1918。</p>
+<p>一旦我们解决了过离散和欠拟合问题，我们就使用伪似然继续进行剩余的分析，就像我们在 <a href="chap12.html#sec12-3-3">12.3.3</a> 节的示例中的步骤 2 到 4 所做的那样。从以下 GLIMMIX 语句开始：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12E method=rspl;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1 ddfm=kr2;
+ random intercept a*b*c / subject=block;</code></pre>
+<p>相关输出是回归欠拟合项 A*B*C 的检验。我们用伪似然重新检验，以避免与积分近似法相关的可能的 I 类错误膨胀。</p>
+<div class="inline-figure"><img src="figure/figure%20400-1.png#center" style="width:60.0%"></div>
+<p>使用伪似然法计算 A*B*C 欠拟合项的 <span class="math inline">\(p\)</span> 值为 0.7058，而使用拉普拉斯法的 <span class="math inline">\(p\)</span> 值为 0.1918。这说明了实践中积分近似的 I 类错误膨胀。尽管在本例下我们可能会就欠拟合做出相同的决定，但在其他情况下显然可能会产生这样矛盾的结果：使用拉普拉斯法得出显著欠拟合的结论，而使用伪似然法未发现欠拟合的证据。</p>
+<p>在分析的下一步中使用以下 GLIMMIX 语句，拟合二阶回归模型，看看它是否可以简化。</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12E;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 / htype=1 ddfm=kr2;
+ random intercept a*b*c / subject=block; </code></pre>
+<p>“Type I Test of Fixed Effects” 表几乎没有证据表明 A, B 或 C 对这些数据的成功率有影响。</p>
+<div class="inline-figure"><img src="figure/figure%20400-2.png#center" style="width:60.0%"></div>
+<p>从本节内容中得出的重要观点是关于框架 ANOVA 中最后一项的作用。虽然在 GLM 中，我们倾向于对非高斯模型使用与高斯模型相同的线性预测器，但对于包括二项在内的单参数指数族来说，如果在线性预测器中省略了这一项，那么就会存在过离散的风险。如果 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 假定的分布属于单参数指数族，那么更好的策略是总是在线性预测器中包含单位水平随机效应。</p>
+</div>
+<div id="sec12-5-2" class="section level3" number="12.6.2">
+<h3>
+<span class="header-section-number">12.6.2</span> 边际模型<a class="anchor" aria-label="anchor" href="#sec12-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>在 GLMM 理论和方法得到充分发展之前，一种解决过离散的策略可以追溯到 GLM 的早期实践，即在模型中添加尺度参数，从而创建拟似然。McCullagh and Nelder (1989) 在他们开创性 GLM 教科书中讨论了这种方法。语句 <code>random _residual_</code> 添加了尺度参数。对于本示例，GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_11E;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 / htype=1 ddfm=kr2;
+ random intercept / subject=block; 
+ random _residual_;</code></pre>
+<p>尽管这对于 GLMs 来说是一种潜在有用的策略，但向 GLMM 添加拟似然尺度参数是有问题的。由于该模型现在具有随机模型效应 (block) 和拟似然尺度参数，因此它既不是纯粹的条件模型也不是边际模型。因此，尚不清楚推断空间到底是什么。如果预期的推断空间是本节开头描述的“总体平均”，最好使用正确定义的边际模型，定义如下：</p>
+<ul>
+<li><p>线性预测器：<span class="math display">\[\begin{aligned}\eta_{ijk}=f\left(A,B,C\right)+\left(\alpha\beta\gamma\right)_{ijk}=&amp;\;\beta_0+\sum_{i=A,B,C}\beta_iX_i+\sum_{i=A,B,C}\beta_{ii}X_i^2\\&amp;+\sum_{i\neq i^{\prime}=A,B,C}\beta_{ii^{\prime}}X_iX_{i^{\prime}}+\left(\alpha\beta\gamma\right)_{ijk}\end{aligned}\]</span>
+线性预测器各项的定义如 <a href="chap12.html#sec12-3-3">12.3.3</a> 节和 <a href="chap12.html#sec12-5-1">12.6.1</a> 节中条件响应曲面模型示例所示。</p></li>
+<li><p>拟似然：<span class="math inline">\(y_{ijkl}\sim\text{quasi-Binomial}\left(N_{ijkl},\mu_{ijk}\right)\)</span></p></li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ijk}=\operatorname{log}\left[\mu_{ijk}\big/\left(1-\mu_{ijk}\right)\right]\)</span></p></li>
+<li><p>工作协方差：<span class="math inline">\(\symbf R=\text{diag }[\symbf R_l]\)</span>，其中 <span class="math inline">\(\symbf R_l=\begin{bmatrix}\phi+\rho&amp;\rho&amp;\rho&amp;\rho\\\rho&amp;\phi+\rho&amp;\rho&amp;\rho\\\rho&amp;\rho&amp;\phi+\rho&amp;\rho\\\rho&amp;\rho&amp;\rho&amp;\phi+\rho\end{bmatrix}\)</span> 为第 <span class="math inline">\(l\)</span> 个区组的工作协方差，<span class="math inline">\(\phi\)</span> 表示尺度参数，<span class="math inline">\(\rho\)</span> 表示复合对称 (CS) 工作协方差。</p></li>
+</ul>
+<p>CS 项 <span class="math inline">\(\rho\)</span> 解释了区组方差的边际模型类似物，尺度参数 <span class="math inline">\(\phi\)</span> 解释了单元水平 (BLOCK*A*B*C) 方差的类似物。该策略利用了复合对称与区组 + 随机残差效应的等价性，这在第 3 章 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5-7">3.5.7</a> 节中首次讨论过。</p>
+<p>使用下面的 GLIMMIX 语句来实现这个模型：</p>
+<pre class="sas"><code>proc glimmix data=ch12_ex_12E;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1 ddfm=kr2;
+ random a*b*c / subject=block type=cs residual; </code></pre>
+<p>在 RANDOM 语句中指定 RESIDUAL 以定义复合对称工作协方差。这些 GLIMMIX 语句产生以下输出：</p>
+<div class="inline-figure"><img src="figure/figure%20402.png#center" style="width:60.0%"></div>
+<p>在 “Covariance Parameter Estimates” 表中，CS 给出了工作协方差估计，<span class="math inline">\(\hat\rho=−0.0115\)</span>，“Residual” 给出尺度参数估计 <span class="math inline">\(\hat\phi = 8.224\)</span>。因为这些是工作协方差参数，它们没有内在的解释。二阶回归欠拟合、经 Kenward-Roger 调整的检验，A*B*C 的 <span class="math inline">\(F=1.11\)</span> 且 <span class="math inline">\(p&gt;0.37\)</span>，表明没有欠拟合的证据。</p>
+<p>作为 Kenward-Roger 调整、基于模型的统计量的替代方法，我们可以使用第 6 章 <a href="chap6.html#sec6-6-1">6.6.1</a> 节中介绍的经验估计或三明治估计。经典的、未调整的三明治估计往往会在样本量较小的数据集中产生向上偏差的 <span class="math inline">\(F\)</span> 统计量。Morel et al. (2003) 提出了三明治估计的小样本偏差调整，在本例中推荐使用该调整。使用以下 GLIMMIX 语句，将 MODEL 语句中的 <code>DDFM</code> 选项替换为 PROC 语句中的 <code>EMPIRICAL=MBN</code>：</p>
+<pre class="sas"><code>proc glimmix data=ch11_ex_11E empirical=mbn;
+ class block a b c;
+ model y/n=xa|xa|xb|xb|xc|xc@2 a*b*c / htype=1;
+ random a*b*c / subject=block type=cs residual;</code></pre>
+<p>“Type I Tests” 输出：</p>
+<div class="inline-figure"><img src="figure/figure%20403-1.png#center" style="width:60.0%"></div>
+<p>使用偏差调整三明治估计对回归中的欠拟合项 A*B*C 进行检验，结果为 <span class="math inline">\(F=0.67,p=0.5871\)</span>。使用未调整三明治估计对 A*B*C 进行检验，结果为 <span class="math inline">\(F=3.01,p=0.0723\)</span>，这说明了为什么建议使用 Morel-Bokossa-Neerchal 调整。</p>
+<p>得出欠拟合可以忽略不计的结论后，我们可以继续执行<a href="chap12.html#sec12-3-3">12.3.3</a> 节示例中列出的步骤 3 和 4。使用与其步骤 3 和 4 中相同的 GLIMMIX 语句，不同之处是将条件模型的 RANDOM 语句（G 侧——无 <code>RESIDUAL</code> 选项）替换为边际模型的 RANDOM 语句（R 侧——包含 <code>RESIDUAL</code> 选项）。</p>
+</div>
+</div>
+<div id="sec12-6" class="section level2" number="12.7">
+<h2>
+<span class="header-section-number">12.7</span> 连续比例<a class="anchor" aria-label="anchor" href="#sec12-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>虽然二项分布通常适用于离散比例，但不能应用于连续比例数据。二项要求我们能够用 <span class="math inline">\(Y\)</span> 和 <span class="math inline">\(N\)</span> 来指定响应变量。当响应是“受影响的叶面积比例”或“被淹没的土地面积比例”时，我们将 <span class="math inline">\(Y\)</span> 限制在 0 和 1 之间，但没有明显的 <span class="math inline">\(N\)</span>。</p>
+<p>连续比例可选的分布是贝塔分布。贝塔随机变量的范围介于 0 和 1 之间，并且 p.d.f. 的形状非常灵活。在 <a href="chap12.html#sec12-6-1">12.7.1</a> 节中，我们非常简要地介绍了用于 GLM 的贝塔分布的参数化，这与我们通常在数理统计教材中看到的不同。在 <a href="chap12.html#sec12-6-2">12.7.2</a> 节中，我们使用贝塔分布处理具有连续比例数据的模型。</p>
+<div id="sec12-6-1" class="section level3" number="12.7.1">
+<h3>
+<span class="header-section-number">12.7.1</span> 贝塔分布<a class="anchor" aria-label="anchor" href="#sec12-6-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>在标准的数理统计展示中，贝塔的 p.d.f. 为：</p>
+<p><span class="math display">\[f\begin{pmatrix}y;\alpha,\beta\end{pmatrix}=\frac{1}{B\begin{pmatrix}\alpha,\beta\end{pmatrix}}y^{\alpha-1}\begin{pmatrix}1-y\end{pmatrix}^{\beta-1}\]</span></p>
+<p>其中 <span class="math inline">\(0&lt;y&lt;1;\alpha,\beta&gt;0;B(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}\)</span>。贝塔分布的均值和方差为 <span class="math inline">\(E\begin{pmatrix}y\end{pmatrix}=\frac{\alpha}{\alpha+\beta}\)</span> 和 <span class="math inline">\(Var(y)=\frac{\alpha\beta}{(\alpha+\beta+1)(\alpha+\beta)^2}\)</span>。</p>
+<p>Ferrari and Cribari-Neto (2004) 给出了一种更适合 GLM 的参数化。他们用均值 <span class="math inline">\(\mu\)</span> 和尺度参数 <span class="math inline">\(\phi\)</span> 来参数化贝塔分布。将它们的参数化与标准形式联系起来：$=/(+),=+$ 以及 <span class="math inline">\(Var(y)=[\mu(1-\mu)]/(1+\phi)\)</span>。另外，典型参数为 <span class="math inline">\(\theta=\log[\mu/(1-\mu)]\)</span>，即 logit 连接。</p>
+</div>
+<div id="sec12-6-2" class="section level3" number="12.7.2">
+<h3>
+<span class="header-section-number">12.7.2</span> 使用贝塔分布的连续比例示例<a class="anchor" aria-label="anchor" href="#sec12-6-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>此示例的数据在 SAS Data and Program Library 中显示为 Data Set 12.7. 两种处理，称为 “trt 0” 和 “trt 1”，被随机分配到各 12 个运行。每个运行可分为六个子单元。每个子单位随机分配一个剂量水平。剂量水平为 0, 1, 2, 3, 4 和 5. 剂量不是处理的剂量，因此 trt_0 × dose_0 与 trt_1 × dose_0 不是相同的处理。以框架 ANOVA 的形式描述这项研究，我们有：</p>
+<div class="inline-figure"><img src="figure/figure%20404-1.png#center" style="width:80.0%"></div>
+<p>假设我们也有理由相信对剂量水平的响应是线性的。所得模型为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\tau_{i}+\beta_{1i}D_{j}+\left(\tau\delta\right)_{ij}+r\left(\tau\right)_{ik}\)</span>，其中，<span class="math inline">\(\tau\)</span> 表示处理效应，<span class="math inline">\(\beta_{1i}\)</span> 表示第 <span class="math inline">\(i\)</span> 种处理的线性回归系数，<span class="math inline">\(D_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个剂量水平，<span class="math inline">\((\tau\delta)_{ij}\)</span> 表示超出线性的剂量 × 处理效应，解释为欠拟合，以及 <span class="math inline">\(r(\tau)\)</span> 表示运行效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r\left(\tau\right)_{ik}\sim\mathrm{Beta}\left(\mu_{ijk},\phi\right)\)</span></li>
+<li><span class="math inline">\(r\left(\tau\right)_{ik}\text{ iid }N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\eta_{ijk}=\operatorname{log}\left[\mu_{ijk}\big/\left(1-\mu_{ijk}\right)\right]\)</span></p></li>
+</ul>
+<p>请注意，贝塔分布的 GLMM 程序（如下所示的 GLIMMIX 程序）将拒绝 <span class="math inline">\(y_{ijk} = 0\)</span> 或 <span class="math inline">\(y_{ijk} = 1\)</span> 的观测，也就是说，它们将被视为缺失观测。本例中的数据集不会出现这种情况，但它可能会发生。第 <a href="chap13.html#chap13">13</a> 章介绍了假定分布无法解释的具有零值的 GLMMs 模型，包括专门用于具有零和一的连续比例数据的“贝塔-栅栏” (“Beta-Hurdle”) 模型。</p>
+<p>使用下面的 GLIMMIX 语句开始分析。我们最初关注欠拟合，包括 Pearson <span class="math inline">\(\chi^2/df\)</span>（总体分布和线性预测器诊断）以及 <span class="math inline">\((\tau\delta)_{ij}\)</span>（均值模型对线性的偏离）。</p>
+<pre class="sas"><code>proc glimmix data=rates method=quad;
+ class run trt dose;
+ model proportion=trt d(trt) trt*dose / d=beta htype=1;
+ random intercept / subject=run(trt);</code></pre>
+<p>模型语句中的变量 D 是直接变量形式的剂量水平。因此，D(TRT) 对每种处理的剂量水平进行单独的线性回归建模。TRT*DOSE 是在 CLASS 变量 DOSE 上定义的——它表示欠拟合。我们在这里使用 <code>METHOD=QUAD</code>。自适应程序选择了五个求积点。我们可以验证使用 <code>METHOD=LAPLACE</code> 进行的分析会产生几乎相同的结果。一般来说，如果给定随机模型效应的 <span class="math inline">\(y\)</span> 的贝塔分布相当对称，那么对于具有贝塔响应变量的 GLMMs，PL 似乎表现良好，但如果分布严重偏斜，则 PL 表现较差。</p>
+<p>此时相关输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20405.png#center" style="width:60.0%"></div>
+<p>我们看到 Pearson <span class="math inline">\(\chi^2/df\)</span> 没有显示总体分布或线性预测器欠拟合的证据，并且 TRT*DOSE 没有显示线性回归欠拟合的证据。我们继续步骤 2：</p>
+<pre class="sas"><code>proc glimmix data=rates; 
+ class run trt dose;
+ model proportion=trt d(trt) /noint s htype=1 d=beta;
+ random intercept / subject=run(trt);
+ contrast 'equal intercepts' trt 1 -1;
+ contrast 'equal slopes' d(trt) 1 -1;</code></pre>
+<p>MODEL 语句将线性预测器的固定分量定义为 <span class="math inline">\(\eta_{ij}=\beta_{0i}+\beta_{1i}D_{j}\)</span>，其中 <span class="math inline">\(\beta_{0i}\)</span> 对应于 MODEL 语句中的 TRT. 这是第 <a href="chap8.html#chap8">8</a> 章中描述的标准定性-定量不等斜率回归模型。此时我们主要关注两个 CONTRAST 语句。第一个检验截距相等 <span class="math inline">\(H_0\colon{\beta}_{0,0}={\beta}_{0,1}\)</span>。第二个检验每种处理的剂量回归线是否平行，<span class="math inline">\(H_0\colon{\beta}_{1,0}={\beta}_{1,1}\)</span>。结果：</p>
+<div class="inline-figure"><img src="figure/figure%20406-1.png#center" style="width:80.0%"></div>
+<p>“solutions for fixed effects” 给出了回归系数估计。我们可以使用这些回归方程来获得给定处理和剂量水平的模型尺度上的预测响应。请记住，我们需要将逆连接应用于我们计算的值，以将其转换为数据尺度，即在 0 和 1 之间的比例。</p>
+<p>我们看到截距估计相似，但斜率却不同。这通过等截距和斜率系数的检验得到证实。基于这些结果，我们预期两种处理在 dose = 0 时的响应相似，但随着剂量水平的增加出现差异。</p>
+<p>我们在上面的相关输出中故意不给出的一个输出列表是 “type I test
+of fixed effects.” 有一种观点认为这是“学生必会误读的 SAS 线性模型输出”。以下是该输出：</p>
+<div class="inline-figure"><img src="figure/figure%20406-2.png#center" style="width:60.0%"></div>
+<p>该表确实没有告诉我们任何有关处理效应的信息。回想，在本次运行的线性预测器中，TRT 表示截距系数 <span class="math inline">\(β\beta_{0i}\)</span>。TRT 的 <span class="math inline">\(F\)</span> 检验用于检验 <span class="math inline">\(H_0\colon{\beta}_{0,0}=0\)</span> 以及 <span class="math inline">\(H_0\colon{\beta}_{0,1}=0\)</span>。它不检验处理效应；而只是检验截距是否非零，即在模型尺度上，dose = 0 时的预期响应是否非零？类似地，D(TRT) 是一个自由度为 2 的项，用于联合检验 <span class="math inline">\(H_0\colon{\beta}_{1,0}=0\)</span> 以及 <span class="math inline">\(H_0\colon{\beta}_{1,1}=0\)</span>。</p>
+<div class="rmdcaution">
+<p>同学们，帮自己一个忙，让你的线性模型老师为你感到骄傲。要了解清楚模型参数是什么，并抑制写下“<span class="math inline">\(F=139.43,p&lt;0.0001\)</span>，因此我们有显著的处理效应”的冲动。你的成绩会更好，你的老师也不会因操心而拔那么多头发。</p>
+</div>
+<p>我们可以通过获得指定剂量水平下的预测值和处理差异来继续。例如，我们可以将以下语句添加到 GLIMMIX 程序中，以获得每个剂量的预测值和处理差异。</p>
+<pre class="sas"><code>lsmeans trt / diff at dose=0 ilink oddsratio;
+lsmeans trt / diff at dose=1 ilink oddsratio;
+lsmeans trt / diff at dose=2 ilink oddsratio;
+lsmeans trt / diff at dose=3 ilink oddsratio;
+lsmeans trt / diff at dose=4 ilink oddsratio;
+lsmeans trt / diff at dose=5/ilink oddsratio;</code></pre>
+<p>此处仅显示了剂量 0 和 5 的输出：</p>
+<div class="inline-figure"><img src="figure/figure%20407.png#center" style="width:90.0%"></div>
+<p>我们看到，在 dose=0 时，在 MEAN 下给出的数据尺度上的预期比例非常接近——处理 0 和处理 1 分别为 0.67 和 0.69. 这些值是通过回归方程估计计算模型尺度上的估计，然后应用逆连接而产生的。例如，对于处理 0，截距为 0.696。由于 D=0，因此这是模型尺度上的估计。应用逆连接，我们得到 <span class="math inline">\(1/\left(1+e^{-0.696}\right)=0.667\)</span>。在 dose = 5 时，模型尺度上对处理 0 的预测值为 <span class="math inline">\(0.696+0.2845\times5=2.119\)</span>。因此，数据尺度上的估计比例为 <span class="math inline">\(1/\left(1+e^{-2.119}\right)=0.893\)</span>。最后，我们看到，对于处理 0，随着 D 的增加，预期比例不会像处理 1 那样增加。在 dose = 0 时，几率比接近 0.9。到 dose = 5 剂时，该值已降至 0.23.</p>
+</div>
+</div>
+<div id="sec12-7" class="section level2" number="12.8">
+<h2>
+<span class="header-section-number">12.8</span> 第 12 章主要思想总结<a class="anchor" aria-label="anchor" href="#sec12-7"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li><p>比例数据有两种类型：离散数据和连续数据。</p></li>
+<li><p>离散比例数据意味着二项分布。</p></li>
+<li><p>连续比例数据意味着贝塔分布。</p></li>
+<li><p>离散比例可应用于我们用高斯数据拟合的所有模型——裂区、响应曲面等。</p></li>
+<li><p>二项数据的模型可以是条件的（G 侧随机效应）或边际的（R 侧工作协方差）。它们适用于不同的推断空间。它们不能互换。我们需要决定哪个推断空间是合适的。</p></li>
+<li><p>离散比例模型也可通过对数线性模型用于列联表分析，对数线性模型是分类数据分析的宝贵工具。</p></li>
+<li>
+<p>Logit 和 Probit 连接是二项 GLM 和 GLMM 的标准连接。</p>
+<ul>
+<li>从统计上看几乎没有区别。</li>
+<li>它们之间的选择通常由主题问题驱动。</li>
+</ul>
+</li>
+<li><p>Logit 连接是贝塔 GLM 和 GLMM 的标准连接。</p></li>
+<li><p>如果比例接近 0 或 1，互补双对数很有用。</p></li>
+<li>
+<p>积分近似（求积或拉普拉斯）和线性化（伪似然）之间方法的选择很重要。</p>
+<ul>
+<li>使用求积或拉普拉斯法计算过离散诊断（Pearson <span class="math inline">\(\chi^2/DF\)</span>）以及用于检验方差分量的似然比统计量，然后使用以下指南进行估计和推断。</li>
+<li>无论使用哪种方法，二进制数据都是一个问题；如果可能，请避免使用二进制数据，但如果谨慎地建模，则使用求积或拉普拉斯可能可以完成有用的分析。</li>
+<li>对于集群尺寸较小（小 <span class="math inline">\(N\)</span>）的二项数据：使用拉普拉斯或求积。</li>
+<li>对于集群数较少的二项数据，拉普拉斯和求积容易得到向下偏差的方差估计和膨胀的 I 类错误率——除非 <span class="math inline">\(\symbf y \mid \symbf b\)</span> 的分布强烈偏斜（<span class="math inline">\(N\)</span> 非常小和/或 <span class="math inline">\(\pi\)</span> 接近 0 或 1），否则使用伪似然估计。</li>
+<li>如果集群尺寸为中到大，且集群数为中到大，则求积法、拉普拉斯法和伪似然法会得到类似的结果，但伪似然法允许使用 Satterthwaite 近似和 Kenward-Roger 调整。</li>
+<li>贝塔：根据迄今为止的经验表明的指导原则：当 <span class="math inline">\(\symbf y \mid \symbf b\)</span> 的分布强烈偏斜时，使用拉普拉斯或求积法；当 <span class="math inline">\(\symbf y \mid \symbf b\)</span> 的分布相对对称时，尤其是样本量（或每个处理的实验单元数）较小时，使用伪似然法。</li>
+</ul>
+</li>
+<li>
+<p>框架 ANOVA中的最后一项（单元水平随机效应）。</p>
+<ul>
+<li>对于单参数分布（二进制和二项分布），如果不考虑它，可能会表现为过离散。</li>
+<li>双参数分布（贝塔）有自己的尺度参数。纳入单位水平随机效应是多余的，将与分布的尺度参数混淆。勿将其纳入线性预测器（就像我们对高斯模型所做的那样）。</li>
+<li>出于同样的原因，边际模型（R 侧工作协方差）不适用于具有双参数分布（贝塔）的 GLMMs。</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="exe12" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe12"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>使用文件 Ch_12_problem_1.sas。数据来自一个具有 7 种处理和 7 个区组的均衡不完全区组设计，每个区组能够处理 3 个处理。响应变量 Y 是连续的，可以假定它服从高斯分布。响应变量 <span class="math inline">\(F\)</span> 是每个区组 × 处理（即每个实验单元）上观察到的 <span class="math inline">\(N\)</span> 个对象中的有利结果数。对于每个响应变量，文件包含三个运行，对于高斯响应变量标记为 G1, G2 和 G3，对于二项响应（<span class="math inline">\(F/N\)</span>）标记为 B1, B2 和 B3。G1 和 B1 使用 GLIMMIX 的默认算法。G2 和 B2 使用第 <a href="chap5.html#chap5">5</a> 章中描述的 GLIMMIX MSPL 方法。G3 和 B3 使用 GLIMMIX 的求积算法。</p>
+<ol style="list-style-type: lower-alpha">
+<li>G1 和 B1 的方差估计与其他运行（对于高斯数据是 G2 和 G3，对于二项数据是 B2 和 B3）不同。为什么？</li>
+<li>对于高斯数据，G2 和 G3 产生相同的方差估计，但 B2 和 B3 并不相同。为什么？</li>
+<li>对于高斯数据，哪个运行使用了适合分析数据的方法？</li>
+<li>对于二项数据，哪个运行使用了适合分析数据的方法？如果你的回答是“都不是”，请解释原因。修改 GLIMMIX 语句以使分析是适当的。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_12_problem_2.sas。该文件包含与习题 1 中类似的一个 7 种处理、7 个区组、每个区组 3 个处理的设计的二项数据。展示了两个运行。一个是条件 GLMM，但它并不完全正确。另一个是边际 GLMM，但它也不完全正确。</p>
+<ol style="list-style-type: lower-alpha">
+<li>试图进行条件 GLMM 分析的是哪个运行？</li>
+<li>试图进行条件 GLMM 的分析有什么问题？引用相关证据。</li>
+<li>修改 GLIMMIX 程序以实现条件 GLMM。</li>
+<li>试图进行条件 GLMM 的分析存在什么问题？请解释。</li>
+<li>修改 GLIMMIX 程序以实现边际 GLMM。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_12_problem_3.sas。该习题与第 <a href="chap11.html#chap11">11</a> 章的习题 2 和 3 类似。此文件显示了 SAS 语句，用于在以下假定下模拟来自完全随机设计的数据，该设计具有 2 个处理、每个处理 10 个重复以及一个二项响应变量：</p>
+<ul>
+<li>
+<span class="math inline">\({\eta}_{ij}=\mathrm{logit}\big(p_{i}\big)+u_{ij}\)</span>，其中 <span class="math inline">\(p_i=E\left(y_{ij}\mid u_{ij}\right)\)</span>，<span class="math inline">\(y_{ij}\)</span> 是给定处理 <span class="math inline">\(i\)</span> 的第 <span class="math inline">\(j\)</span> 个单元中 <span class="math inline">\(n_{ij}\)</span> 个个体中“成功”的数量。在本次模拟中，对所有观测有 <span class="math inline">\(p_0=0.3,p_1=0.1,n_{ij}=25\)</span>，并假定 <span class="math inline">\(u_{ij}\text{ iid }N(0,1)\)</span>。</li>
+<li>观测成功数 <span class="math inline">\(y_{ij}\mid u_{ij}\sim\text{Binomial}\left(n_{ij},p_{ij}\right)\)</span>，其中 <span class="math inline">\(p_{ij}=1/\left[1+\exp\left(-\eta_{ij}\right)\right]\)</span>。</li>
+</ul>
+<p>请注意，这些特征对应于 Logit-正态 GLMM。这里显示的 SAS 语句创建了 1000 个模拟实验。PROC UNIVARIATE 语句计算描述性统计量和图表，这些图表描述了每种处理观测成功数的经验分布。模拟还创建了一个名为 true binomial 的变量，使你能够看到由于所有变异源导致的观测成功数与来自 <span class="math inline">\(\text{Binomial}\left(n_{ij},p_{ij}\right)\)</span> 的观测的分布之间的差异，后者经常被（错误地）认为是观测数据的分布。此文件还包含记录两个模型行为的程序。第一个是使用样本比例 <span class="math inline">\(y_{ij}/n_{ij}\)</span> 和二项的正态近似的线性混合模型。第二个是 Logit-正态 GLMM.</p>
+<p>与第 <a href="chap11.html#chap11">11</a> 章的习题 2 和 3 一样，你可以使用这些程序来比较模型在第 <a href="chap11.html#chap11">11</a> 章的习题 2 中给出的相同标准下的行为。你还可以修改模拟代码，以探索这些模型在不同概率、个体数、单元水平方差等情况下的行为。你还可以探索不同的模型，例如 Probit-正态 GLMM，或者不同的估计算法，例如求积或拉普拉斯近似，通过在 GLIMMIX 程序中做出必要的更改来实现。</p>
+</li>
+<li>
+<p>使用文件 Ch_12_problem_4.sas，该文件来自一项研究，旨在比较标准化剂量介于 0（未应用治疗）和 1（最大安全剂量）之间的两种解毒剂的治疗。数据是在 25 个随机选择的“集群”中获取的。在第 <span class="math inline">\(j\)</span> 个集群中，观察 <span class="math inline">\(n_{ij}\)</span> 名个体接受四种剂量的治疗 <span class="math inline">\(i\)</span>：0.1, 0.4, 0.6 和 0.9. 剂量表示最大安全剂量的比例——例如 0.6 表示使用了最大安全剂量的 60%。治疗剂量旨在为个体接种针对某种疾病的疫苗。响应变量是指被感染的个体数。</p>
+<p>研究目的为：</p>
+<ul>
+<li><p>确定不同治疗在剂量反应上是否存在差异。</p></li>
+<li>
+<p>确定所需的最低剂量，以 95% 的把握保证整个总体中最多有 10% 人会被感染。</p>
+<ol style="list-style-type: lower-alpha">
+<li>描述一个适当的模型，即适应上述假定、情况和目标的模型。</li>
+<li>拟合你在 a. 部分描述的模型。报告使用此模型进行估计的相关特征。</li>
+<li>是否有证据表明不同治疗在剂量反应上存在差异？请引用相关证据并解释。</li>
+<li>满足研究目标“95% 的把握保证整个总体中最多 10% 的人被感染”所需的最小剂量是多少？这个结论对两种治疗都适用，还是仅对其中一种治疗适用？如果是后者，是哪一种治疗？请解释，并提供相关的统计证据。</li>
+</ol>
+<p>[提示：在第二个目标中，“…最多 10% 的人口…”告诉你应该使用的模型类型（条件模型或边际模型）？如果目标是“……典型个体被感染的可能性最多为 10%”，你的模型会如何变化？]</p>
+<p>[建议：你可以将剂量建模为分类 (CLASS) 变量或直接变量。如果你选择后者，你可以假定响应随剂量线性变化（在模型尺度上）。另外，假定截距和斜率在随机抽取的集群间变化，并且每种治疗可能不同。]</p>
+</li>
+</ul>
+</li>
+<li>
+<p>使用文件 Ch_12_problem_5.sas。这是一项评估包含 3 × 2 析因结构的 6 种处理研究。该研究以大平原中部的 42 个田地为样本进行。每个田地被划分为 2 × 2 的网格。因素 A 的水平被随机分配到“行”——因为 A 有 3 个水平，并且每个田地只有两个水平的空间，因此 14 个田地接受 A 水平 {1, 2}，14 个田地接受 {1, 3}，14 个田地接受 {2, 3}。因素 B 有两个水平；它们被随机分配到每个田地的“列”。因此，该设计是一个不完全条区。如果田地未显示不良状况，则响应变量为 0；如果显示不良状况，则响应变量为 1.</p>
+<ol style="list-style-type: lower-alpha">
+<li>编写适当模型的所需元素以分析这些数据。</li>
+<li>运行与 a. 中的模型一致的分析。给出以下需求：
+<ol style="list-style-type: lower-roman">
+<li>协方差参数的估计</li>
+<li>清楚显示处理组合响应轮廓的交互图</li>
+<li>每种处理出现不良状况的概率的估计及其 95% 置信区间。</li>
+<li>有关交互的有效的检验。</li>
+</ol>
+</li>
+<li>写一段话总结你的发现。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_12_problem_6.sas。数据基于在内布拉斯加州沙丘进行的一项实验，旨在比较两种类型的种子混合物在不同“灌溉施肥”率（化肥和灌溉的结合）下恢复沙丘环境受损地区的效果。“灌溉施肥”有五个水平，编码为 0, 1, 2, 3, 4 和 5。实验在 8 个田地进行，从目标总体中抽样。在每个田地中，中央枢轴灌溉机可在同心圆中应用三个水平的“灌溉施肥”。另外，每块田地被分成两半，一半接收种子混合类型 1，另一半接收类型 2。下图显示了田地的布局。请注意，由于在任何给定田地中只能有三个“灌溉施肥”水平 ，因此设计必然具有不完全区组的特点。
+<br><img src="figure/figure%2012-6-1.png#center" style="width:20.0%"><br></p>
+<p>感兴趣的响应变量是在生长季节结束时观察到适宜作物生长的田地面积的比例。</p>
+<ol style="list-style-type: lower-alpha">
+<li>给出比例变量 <span class="math inline">\(P\)</span> 的适当模型的所需元素。</li>
+<li>使用 PROC GLIMMIX 的 <code>MEANPLOT</code> 选项获取交互图，展示类型与“灌溉施肥”水平的平均比例的图形。</li>
+<li>进行正式分析以确定：1) “灌溉施肥”水平的线性回归是否足以解释“灌溉施肥”水平对适宜作物生长比例的影响，以及 2) 对于两种类型， “灌溉施肥”对比例的影响是否相同。</li>
+<li>如果合理，则根据 c. 估计线性回归系数，并按类型组合给出每个“灌溉施肥”水平适宜生长的预测比例。如果线性回归不合理，请采取你认为适当的方法来分析这些数据并充分表征“灌溉施肥”和类型效应。</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap11.html"><span class="header-section-number">11</span> 计数</a></div>
+<div class="next"><a href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap12"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="nav-link" href="#sec12-1"><span class="header-section-number">12.1</span> 率和比例数据类型</a></li>
+<li>
+<a class="nav-link" href="#sec12-2"><span class="header-section-number">12.2</span> 估计方法：伪似然或积分近似</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec12-2-1"><span class="header-section-number">12.2.1</span> 伪似然法和积分近似法选择的主要问题</a></li>
+<li><a class="nav-link" href="#sec12-2-2"><span class="header-section-number">12.2.2</span> 伪似然和积分近似的小样本行为</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec12-3"><span class="header-section-number">12.3</span> 离散比例的四个例子</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec12-3-1"><span class="header-section-number">12.3.1</span> 二进制数据的混合模型</a></li>
+<li><a class="nav-link" href="#sec12-3-2"><span class="header-section-number">12.3.2</span> 二项数据的嵌套析因设计</a></li>
+<li><a class="nav-link" href="#sec12-3-3"><span class="header-section-number">12.3.3</span> 二项数据的响应曲面</a></li>
+<li><a class="nav-link" href="#sec12-3-4"><span class="header-section-number">12.3.4</span> 列联表模型</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec12-4"><span class="header-section-number">12.4</span> 二项数据的其他连接函数</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec12-4-1"><span class="header-section-number">12.4.1</span> 概率单元连接</a></li></ul>
+</li>
+<li><a class="nav-link" href="#sec12-4-2"><span class="header-section-number">12.5</span> 互补双对数</a></li>
+<li>
+<a class="nav-link" href="#sec12-5"><span class="header-section-number">12.6</span> 二项模型中的过离散和“残差”的作用</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec12-5-1"><span class="header-section-number">12.6.1</span> 条件模型</a></li>
+<li><a class="nav-link" href="#sec12-5-2"><span class="header-section-number">12.6.2</span> 边际模型</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec12-6"><span class="header-section-number">12.7</span> 连续比例</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec12-6-1"><span class="header-section-number">12.7.1</span> 贝塔分布</a></li>
+<li><a class="nav-link" href="#sec12-6-2"><span class="header-section-number">12.7.2</span> 使用贝塔分布的连续比例示例</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec12-7"><span class="header-section-number">12.8</span> 第 12 章主要思想总结</a></li>
+<li><a class="nav-link" href="#exe12">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

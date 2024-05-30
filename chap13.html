@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 13 章 零膨胀和栅栏模型 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="13.1 介绍 许多数据集的零值比标准分布所能处理的要多。本章介绍的零膨胀模型 (zero-inflated model) 和栅栏模型 (hurdle model) 起源于计数数据，其中零计数的观测比标准泊松或负二项 GLMMs 所能准确建模的还要多。因此，它们通常被称为“零过多” (“too many zeroes”)...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 13 章 零膨胀和栅栏模型 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="13.1 介绍 许多数据集的零值比标准分布所能处理的要多。本章介绍的零膨胀模型 (zero-inflated model) 和栅栏模型 (hurdle model) 起源于计数数据，其中零计数的观测比标准泊松或负二项 GLMMs 所能准确建模的还要多。因此，它们通常被称为“零过多” (“too many zeroes”)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 13 章 零膨胀和栅栏模型 | 广义线性混合模型">
+<meta name="twitter:description" content="13.1 介绍 许多数据集的零值比标准分布所能处理的要多。本章介绍的零膨胀模型 (zero-inflated model) 和栅栏模型 (hurdle model) 起源于计数数据，其中零计数的观测比标准泊松或负二项 GLMMs 所能准确建模的还要多。因此，它们通常被称为“零过多” (“too many zeroes”)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li><a class="" href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="" href="chap11.html"><span class="header-section-number">11</span> 计数</a></li>
+<li><a class="" href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="active" href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="" href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap13" class="section level1" number="13">
+<h1>
+<span class="header-section-number">第 13 章</span> 零膨胀和栅栏模型<a class="anchor" aria-label="anchor" href="#chap13"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec13-1" class="section level2" number="13.1">
+<h2>
+<span class="header-section-number">13.1</span> 介绍<a class="anchor" aria-label="anchor" href="#sec13-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>许多数据集的零值比标准分布所能处理的要多。本章介绍的<strong>零膨胀模型</strong> (zero-inflated model) 和<strong>栅栏模型</strong> (hurdle model) 起源于计数数据，其中零计数的观测比标准泊松或负二项 GLMMs 所能准确建模的还要多。因此，它们通常被称为“零过多” (“too many zeroes”) 模型。但这些模型并不局限于计数数据。例如，连续比例数据通常包含有意义的零和一，这些值不在贝塔分布的参数空间中，但必须以有意义的方式建模，以便充分理解和解释数据。<a href="chap13.html#sec13-5">13.5</a> 节中讨论的贝塔栅栏模型允许我们这样做。</p>
+<p>两类模型——零膨胀模型和栅栏模型——允许在零过多的情况下使用线性模型。两者都使用二进制（开关过程, on-off process）以及适合响应变量的分布（例如离散计数的泊松和负二项）的混合 (mixtures). 两种模型都定义了“关”阶段（只可能出现零计数）和“开”阶段（可能出现非零计数）。它们的区别如下：</p>
+<ul>
+<li><p>在零膨胀模型中，零或非零观测值都可能出现在过程的“开”部分，其概率由过程的“开”部分的分布决定。</p></li>
+<li><p>在栅栏模型中，只有在过程的“开”部分才能观察到非零观测。</p></li>
+</ul>
+<p>因此，区别在于过程的“开”部分发生了什么——在零膨胀模型中，零计数仍然是可能的；在栅栏模型中，只有当过程为“关”时才会出现零计数。</p>
+</div>
+<div id="说明零膨胀模型与栅栏模型的示例" class="section level2 unnumbered">
+<h2>说明零膨胀模型与栅栏模型的示例<a class="anchor" aria-label="anchor" href="#%E8%AF%B4%E6%98%8E%E9%9B%B6%E8%86%A8%E8%83%80%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%A0%85%E6%A0%8F%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%A4%BA%E4%BE%8B"><i class="fas fa-link"></i></a>
+</h2>
+<p>我们可以使用以下示例来思考零膨胀模型和栅栏模型之间的区别。</p>
+<p><strong>零膨胀</strong>：</p>
+<ul>
+<li>在一个场景中，假设我们计算通过有红绿灯的十字路口的汽车。假设人们遵守法律，当红灯亮起时，汽车必须停车——它们不能通过十字路口。当我们在红灯时观察系统时，我们总是观察到零计数。当绿灯亮起时，汽车可以自由通过十字路口。然而，即使绿灯亮起，当车流稀少时也没有汽车通过十字路口。当交通灯为绿色时，任何计数（包括零）都是可能的。</li>
+<li>另一个场景：假设我们的研究涉及计算鹰的数量。如果我们的抽样地点之一位于南极洲，我们肯定不会看到任何鹰。系统为“关”——必为零计数。如果要大平原的一条河道上抽样，我们肯定可以看到老鹰。但在任何特定的抽样地点，我们可能会也可能不会看到鹰。</li>
+</ul>
+<p><strong>栅栏</strong>：</p>
+<ul>
+<li><p>假设我们统计个体在给定一年内去看医生的次数。我们有两类人：过去一年里看过医生的人和没有看过医生的人。对于那些没有看过医生的人，他们去看医生的次数必为零。对于那些看过医生的人，看医生的次数必须至少为一次。这里，“关”状态意味着“没有看过医生”，这必然意味着就诊次数为零。“开”状态意味着“确实去看过医生”，这必然意味着计数大于等于一。“开”状态下没有零计数。</p></li>
+<li><p>另一个场景：我们想要对人们提出的保险索赔数量进行建模，也许是为了比较他们在两种不同保单下的行为。我们有同样有两种人：没有提出索赔的人和提出了索赔的人。如果他们确实提出了索赔，那么计数必须至少为 1。栅栏模型的价值在于，它允许不提出索赔的概率是任意的，不受非零计数分布的限制。</p></li>
+</ul>
+<p>本章主要关注计数数据的零膨胀和栅栏模型。最后一节以连续比例数据为例。原则上，本章所示的方法可以应用于任何类型的数据——二项、高斯、指数等——其零值比单个分布所能考虑的要多。</p>
+<div id="sec13-1-1" class="section level3" number="13.1.1">
+<h3>
+<span class="header-section-number">13.1.1</span> 零膨胀和栅栏模型的正式描述<a class="anchor" aria-label="anchor" href="#sec13-1-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>零膨胀模型和栅栏模型都必须分两部分描述。我们将这些部分称为过程 1（开-关部分）和过程 2（计数（或速率）部分）。</p>
+<div class="rmdimportant">
+<p><strong>过程 1</strong>. 这是一个二进制过程。计数过程“关”的概率为 <span class="math inline">\(\pi\)</span>，“开”的概率为 <span class="math inline">\(1−\pi\)</span>。当过程为“关”时，仅观察到零计数。我们将 <span class="math inline">\(\pi\)</span> 称为<strong>膨胀概率</strong> (inflation probability)。这是因为当系统“关闭”时，零计数会“膨胀”——比任何单个离散计数分布的数量都要多。</p>
+</div>
+<p>对于零膨胀模型和栅栏模型，过程 1 是相同的。两模型的过程 2 有所不同。</p>
+<div class="rmdimportant">
+<p><strong>零膨胀模型的过程 2</strong>：当系统“开启”时，根据离散概率分布，计数可能取值 0, 1, 2,…。因此，零膨胀模型可以一般描述如下。令 <span class="math inline">\(Y\)</span> 表示与零膨胀模型的观测相对应的随机变量，则</p>
+<p><span class="math display" id="eq:13-1">\[\begin{align}
+\Pr\left\{Y=y\right\}=\begin{cases}\pi+\left(1-\pi\right)f\left(0\right)&amp;\text{for }y=0\\\left(1-\pi\right)f\left(y\right)&amp;\text{for }y=1,2,....\end{cases}
+\tag{13.1}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(f (y )\)</span> 是离散概率分布函数，例如泊松或负二项。如果 <span class="math inline">\(f (y )\)</span> 是连续的，则将条件 <span class="math inline">\(y = 1,2 ,...\)</span> 替换为 <span class="math inline">\(y &gt; 0\)</span>。</p>
+<p><strong>栅栏模型的过程 2</strong>：当系统“开启”时，计数必须非零。它们的分布由零截断 (zero-truncated) p.d.f. 表示，形如 <span class="math inline">\(f(y)/\begin{bmatrix}1-f(0)\end{bmatrix},y=1,2,....\)</span>。换句话说，这是 <span class="math inline">\(y\)</span> 的非零值的分布以 <span class="math inline">\(1−f(0)\)</span> 的因子缩放，因此 <span class="math inline">\(\displaystyle\sum_{y=1}^{\infty}f\left(y\right)/{\left[1-f\left(0\right)\right]}=1\)</span>。因此，栅栏模型的概率分布为：</p>
+<p><span class="math display" id="eq:13-2">\[\begin{align}
+\Pr\big\{Y=y\quad\big\}=\begin{cases}\pi&amp;\quad\text{for }y=0\\(1-\pi)\big(f\left(y\right)\big/\big[1-f\left(0\right)\big]\big)&amp;\quad\text{for y = 1,2,....}\end{cases}
+\tag{13.2}
+\end{align}\]</span></p>
+<p>对于连续分布，<a href="chap13.html#eq:13-2">(13.2)</a> 需要调整，例如非零情况下 <span class="math inline">\(y\)</span> 的范围。在 <a href="chap13.html#sec13-5">13.5</a> 节中，我们描述了 <a href="chap13.html#eq:13-2">(13.2)</a> 的修改，特别是针对连续比例的贝塔栅栏模型。</p>
+</div>
+<p>本节其余部分重点介绍计数数据。</p>
+</div>
+<div id="sec13-1-2" class="section level3" number="13.1.2">
+<h3>
+<span class="header-section-number">13.1.2</span> 泊松和负二项数据的零膨胀和栅栏模型<a class="anchor" aria-label="anchor" href="#sec13-1-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们讨论零过多的四种模型：</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>零膨胀泊松</strong> (Zero-inflated Poisson, <strong>ZIP</strong>) 模型。即，p.d.f. <span class="math inline">\(f(y)\)</span> 如上所述，服从泊松分布。</p></li>
+<li><p><strong>零膨胀负二项</strong> (Zero-inflated Negative Binomial, <strong>ZINB</strong>) 模型。即，p.d.f. 服从负二项。</p></li>
+<li><p><strong>泊松栅栏模型</strong>。</p></li>
+<li><p><strong>负二项栅栏模型</strong>。（简称为 NB 栅栏）</p></li>
+</ol>
+<p>这四种形式定义了 GLMM 的条件分布。因此，“零过多” GLMM 的通用描述是：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\symbf{\eta}=\symbf{X}\symbf{\beta}+\symbf{Z}\symbf{b}\)</span></p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li>
+<span class="math inline">\(\symbf y\mid \symbf b\)</span>：p.d.f. 如上所述，可选 ZIP, ZINB, 泊松或 NB 栅栏。</li>
+<li><span class="math inline">\(\symbf{b}\sim N(\symbf{0},\symbf{G})\)</span></li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\symbf\eta=\log(\symbf\mu\mid\symbf b)\)</span></p></li>
+</ul>
+<p>与我们迄今为止看到的所有 GLMM 不同，没有任何 SAS<sup>®</sup> 线性模型软件可以实现这些模型。PROC GENMOD 的 ZIP 和 ZINB 功能有限，但由于 GENMOD 是仅固定效应的程序，因此如果模型需要随机效应，则不能将其视为一个选择。为了实现“零过多” GLMM，我们必须使用非线性混合模型软件，该软件将接受用户定义的用于 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 的对数似然。在 SAS 中，这意味着 PROC NLMIXED。接下来的部分包含示例程序。<a href="chap13.html#sec13-2">13.2</a> 节包含对零膨胀和栅栏混合 (mixed) 模型 PROC NLMIXED 程序构建的逐步介绍。</p>
+</div>
+<div id="sec13-1-3" class="section level3" number="13.1.3">
+<h3>
+<span class="header-section-number">13.1.3</span> 零膨胀对数似然<a class="anchor" aria-label="anchor" href="#sec13-1-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>将对数应用于式 <a href="chap13.html#eq:13-1">(13.1)</a> 中给出的通用形式，得出：</p>
+<p><span class="math display">\[\log L=\begin{cases}\log\left\{\pi+\left(1-\pi\right)f\left(0\right)\right\}&amp;\quad\text{for }y=0\\\log\left(1-\pi\right)+\log\left[f\left(y\right)\right]&amp;\quad\text{for }y=1,2,....\end{cases}\]</span></p>
+<p>所得对数似然为：</p>
+<div class="rmdimportant">
+<p>ZIP 对数似然：</p>
+<p><span class="math display" id="eq:13-3">\[\begin{align}
+\log L=\begin{cases}\log\left\{\pi+(1-\pi)e^{-\lambda}\right\}&amp;\text{ for }y=0\\\\\log\left(1-\pi\right)+\log\left[\frac{e^{-\lambda}\lambda^y}{y!}\right]=\\\quad\quad\log\left(1-\pi\right)+y\log\left(\lambda\right)-\lambda-\log\left(y!\right)&amp;\text{ for }y=1,2,...\end{cases}
+\tag{13.3}
+\end{align}\]</span></p>
+</div>
+<div class="rmdimportant">
+<p>ZINB 对数似然：</p>
+<p><span class="math display" id="eq:13-4">\[\begin{align}
+\log L=\begin{cases}\log\left\{\pi+(1-\pi)e^{-\lambda}\right\}\quad&amp;\text{ for }y=0\\\\\log\left(1-\pi\right)+\log\left[\left(\begin{matrix}y+(1/\phi)-1\\y\end{matrix}\right)\left(\frac{\lambda\phi}{1+\lambda\phi}\right)^y\left(\frac{1}{1+\lambda\phi}\right)^{1/\phi}\right]=\\\quad\quad\log\left(1-\pi\right)+y\log\left(\frac{\lambda\phi}{1+\lambda\phi}\right)-\frac{1}{\phi}\log\left(1+\lambda\phi\right)\\\quad\quad+\log\left\{\begin{pmatrix}y+\begin{pmatrix}1\\\phi\end{pmatrix}-1\\y\end{pmatrix}\right\}\quad&amp;\text{ for }y=1,2,...\end{cases}
+\tag{13.4}
+\end{align}\]</span></p>
+</div>
+</div>
+<div id="sec13-1-4" class="section level3" number="13.1.4">
+<h3>
+<span class="header-section-number">13.1.4</span> 栅栏对数似然<a class="anchor" aria-label="anchor" href="#sec13-1-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>获得栅栏对数似然的第一步是确定 p.d.f. 的零截断形式，即 <span class="math inline">\(f(y)/\begin{bmatrix}1-f(0)\end{bmatrix},\quad y=1,2,...\)</span>。</p>
+<p>零截断泊松：</p>
+<p><span class="math display" id="eq:13-5">\[\begin{align}
+\frac{\left(e^{-\lambda}\lambda^y\right)/y!}{1-e^{-\lambda}}
+\tag{13.5}
+\end{align}\]</span></p>
+<p>零截断负二项：</p>
+<p><span class="math display" id="eq:13-6">\[\begin{align}
+\frac{\begin{pmatrix}y+(1/\phi)-1\\y\end{pmatrix}\left(\frac{\lambda\phi}{1+\lambda\phi}\right)^y\left(\frac1{1+\lambda\phi}\right)^{1/\phi}}{1-\left(\frac1{1+\lambda\phi}\right)^{1/\phi}}
+\tag{13.6}
+\end{align}\]</span></p>
+<p>使用 <a href="chap13.html#eq:13-2">(13.2)</a> 得出泊松和负二项栅栏模型的对数似然分别为：</p>
+<div class="rmdimportant">
+<p>泊松栅栏对数似然：</p>
+<p><span class="math display" id="eq:13-7">\[\begin{align}
+\begin{cases}\log\left(\pi\right)&amp;\quad\text{for } y=0\\\\\log\left(1-\pi\right)+y\log\left(\lambda\right)-\\\quad\quad\lambda-\log\left(y!\right)-\log\left[1-e^{-\lambda}\right]&amp;\quad\text{for } y=1,2,...&amp;\end{cases}
+\tag{13.7}
+\end{align}\]</span></p>
+</div>
+<div class="rmdimportant">
+<p>负二项栅栏对数似然：</p>
+<p><span class="math display" id="eq:13-9">\[\begin{align}
+\begin{cases}\log\left(\pi\right)&amp;\text{for } y=0\\\\\log\left(1-\pi\right)+y\log\left(\frac{\lambda\phi}{1+\lambda\phi}\right)-\left(\frac{1}{\phi}\right)\log\left(1+\lambda\phi\right)+\\\quad\quad\log\left\{\begin{pmatrix}y+1/\phi-1\\y\end{pmatrix}\right\}-\log\left[1-\left(\frac{1}{1+\lambda\phi}\right)^{1/\phi}\right]\quad&amp;\text{for }y=1,2,...&amp;\end{cases}
+\tag{13.8}
+\end{align}\]</span></p>
+</div>
+<p>在我们查看示例之前，还有最后一件事。我们需要使用伽马函数来定义对数似然。我们使用结果 <span class="math inline">\(\Gamma\left(y+1\right)=y!\)</span>。SAS 有两个我们需要的函数：<code>gamma(y)</code> 定义 <span class="math inline">\(\Gamma(y)\)</span>；<code>lgamma(y)</code> 定义 <span class="math inline">\(\log\big[\Gamma(y)\big]\)</span>。</p>
+</div>
+</div>
+<div id="sec13-2" class="section level2" number="13.2">
+<h2>
+<span class="header-section-number">13.2</span> 用于交叉口机动车交通的零膨胀模型<a class="anchor" aria-label="anchor" href="#sec13-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>本示例的数据显示为 Data Set 13.1。本研究的目的是估计通过感兴趣区域内代表性交叉路口的汽车数量。研究数据来自 12 个交叉路口样本。在每个交叉路口，在每个抽样区间内都计算了通过的汽车数量，共有 16 个抽样区间。如果给定抽样区间内的交通灯为红色，则没有汽车可以通过路口（我们假设感兴趣区域内的所有驾驶员都遵守法律）。如果交通灯为绿色，汽车可以合法通过路口，但在任何给定的样本区间内，可能因车流稀少而没有汽车通过。红灯表示系统“关闭”，绿灯表示系统“开启”，但零计数仍有可能。因此，该过程需要零膨胀模型，具体如下：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+I_i+s(I)_{ij}\)</span>，其中 <span class="math inline">\(I_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个路口的效应，<span class="math inline">\(s(I)_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 个路口第 <span class="math inline">\(j\)</span> 个样本区间的效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ij}\mid I_i,s\big(I\big)_{ij}\thicksim\begin{cases}\pi+\left(1-\pi\right)f\left(0\right)&amp;y_{ij}=0\\\left(1-\pi\right)f\left(y_{ij}\right)&amp;y_{ij}=1,2,...\end{cases}\)</span></li>
+<li><span class="math inline">\(I_i\mathrm{~iid~}N\left(0,\sigma_I^2\right)\)</span></li>
+<li><span class="math inline">\(\begin{align}s\left(I\right)_{ij}\text{ iid }N\left(0,\sigma_s^2\right)\tag{13.9}\end{align}\)</span></li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span></p></li>
+</ul>
+<p>对于零膨胀泊松 (ZIP) 模型，<span class="math inline">\(f(y_{ij})\)</span> 是 <span class="math inline">\(\text{Poisson}(\lambda_{ij})\)</span> p.d.f.；对于零膨胀负二项 (ZINB)，它是 <span class="math inline">\(NB(\lambda_{ij},\varphi)\)</span>。</p>
+<p>在给出 ZIP 和 ZINB 模型所需的 NLMIXED 语句之前，查看拟合非零膨胀泊松和负二项 GLMM 的输出是有启发的，以了解这些分析有哪些线索表明需要考虑过多的零。</p>
+<div id="sec13-2-1" class="section level3" number="13.2.1">
+<h3>
+<span class="header-section-number">13.2.1</span> 来自标准泊松和负二项 GLMM 模型的零膨胀证据<a class="anchor" aria-label="anchor" href="#sec13-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>用于这些数据的泊松 GLMM 使用的线性预测器、连接函数以及随机路口和样本区间效应的假定分布，如上面的模型 <a href="chap13.html#eq:13-9">(13.9)</a> 所示。唯一的变化是 <span class="math inline">\(y_{ij}\mid I_i,s\big(I\big)_{ij}\)</span> 的分布，在泊松 GLMM 中假定为 <span class="math inline">\(\text{Poisson}(\lambda_{ij})\)</span>。所需的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=traffic method=laplace;
+ class sample intersection;
+ model N_cars= /d=poisson;
+ random intercept sample / subject=intersection;</code></pre>
+<p>该程序使用 <code>METHOD=LAPLACE</code>，因为最开始尝试求积，即
+<code>METHOD=QUAD</code>，在 SASLOG 中会产生警告，“Insufficient resources to perform adaptive quadrature…”，并建议改用拉普拉斯法。暗示存在零膨胀的输出来自 “Conditional Fit Statistics” 和 “Covariance Parameter Estimates” 表。</p>
+<div class="inline-figure"><img src="figure/figure%20414.png#center" style="width:60.0%"></div>
+<p>Pearson <span class="math inline">\(\chi^2/df= 0.06\)</span> 小于泊松正态 GLMM 在 GLIMMIX 程序中常见的 0.15 至 0.25 的范围。此诊断并不一定表明存在零膨胀问题，但与 sample(intersection) 的方差估计 <span class="math inline">\(\hat\sigma_s=8.9\)</span> 结合起来看，确实如此。在泊松 GLMM 是合适模型的情况下，方差分量估计很少超过 2。方差估计值为 8.9 是一个危险信号。</p>
+<p>负二项模型也会产生类似的警告。这些数据的负二项模型从线性预测器中移除了样本随机效应 <span class="math inline">\(s\big(I\big)_{ij}\)</span>，并用 <span class="math inline">\(y_{ij}\mid I_i\sim NB\left({\lambda}_{ij},{\varphi}\right)\)</span> 取代泊松分布。GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=traffic method=quad;
+ class intersection;
+ model N_cars= /d=negbin;
+ random intercept / subject=intersection;</code></pre>
+<p>相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20415-1.png#center" style="width:60.0%"></div>
+<p>与泊松正态结果一样，Pearson <span class="math inline">\(\chi^2/df\)</span> 小于适用于数据的负二项 GLMM 的典型值，但其本身不足以进行诊断。然而，负二项尺度参数，即泊松 GLMM sample(intersection) 方差的类似物，为 <span class="math inline">\(\hat\varphi = 5.4\)</span>。尺度参数估计大于 2 是负二项 GLMM 的危险信号。</p>
+<p>另一种简单但有用的诊断方法是绘制数据的直方图，并将其与以原始数据的均值和尺度为参数的负二项 p.d.f. 进行比较。交通数据的原始平均计数为 2.55，方差为 15.13。对于负二项，方差等于 <span class="math inline">\(\lambda\left(1+\lambda\varphi\right)\)</span>。令 <span class="math inline">\(\lambda\)</span> 等于均值并求解 <span class="math inline">\(\varphi\)</span> 可得到 <span class="math inline">\(\varphi = 1.93\)</span>。以下 SAS 语句计算 <span class="math inline">\(NB\big(\lambda=2.55,\varphi=1.93\big)\)</span> 的 p.d.f.：</p>
+<pre class="sas"><code>data plot;
+ L=2.55; V=15.13;
+ phi=(v-L)/(L**2);
+ P=L*phi/(1+L*phi); M=1/phi;
+ do x=0 to 12;
+ comb=gamma(X+M)/(gamma(X+1)*gamma(M));
+ f_x=comb*(P**X)*((1-P)**M);
+ output;
+ end;
+proc sgplot data=plot;
+ vbar x / response=f_x;
+run;</code></pre>
+<p>变量 <code>X</code> 表示计数变量的值，<code>F_X</code> 表示负二项 p.d.f.：</p>
+<p><span class="math display">\[\binom{x+m-1}{m}p^m\left(1-p\right)^x=\frac{\Gamma(x+m)}{\Gamma(m)\Gamma(x+1)}p^m\left(1-p\right)^x\]</span></p>
+<p>其中 <span class="math inline">\(m=1/\varphi\)</span> 以及 <span class="math inline">\(p=1/(1+\lambda\varphi)\)</span>。</p>
+<p>这是第 11 章式 <a href="chap11.html#eq:11-11">(11.11)</a> 导出的 p.d.f. 的 GLMM 形式。大多数软件包都有计算负二项 p.d.f. 的函数，例如 SAS PDF 函数。然而，这些包通常要求 m 是一个整数，即负二项 p.d.f. 的“数理统计”形式（第 11 章式 <a href="chap11.html#eq:11-10">(11.10)</a> ）而非 GLMM 形式。因此，需要在上面的程序中明确表示的 p.d.f. 形式。</p>
+<p>图 13.1 显示了负二项 p.d.f. 图。图 13.2 显示了原始数据的直方图。</p>
+<details><summary><font color="#8B2232">图 13.1</font>
+</summary><img src="figure/figure%2013.1.png#center" style="width:80.0%"></details><br><details><summary><font color="#8B2232">图 13.2</font>
+</summary><img src="figure/figure%2013.2.png#center" style="width:80.0%"></details><p><br>
+两图之间的不匹配强烈表明零膨胀的存在。超过 60% 的原始数据为零，而我们预期负二项中只有 40% 为零。适当的数据模型需要考虑两个过程，一个过程产生零，另一个过程产生潜在的非零计数。</p>
+</div>
+<div id="sec13-2-2" class="section level3" number="13.2.2">
+<h3>
+<span class="header-section-number">13.2.2</span> 交通数据零膨胀混合模型的实现<a class="anchor" aria-label="anchor" href="#sec13-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>具有随机效应的零膨胀模型需要使用 SAS 中的 NLMIXED 程序，或其他软件包中具有相同功能的程序。无论哪种软件包，构建程序的策略都是相似的。使用以下步骤：</p>
+<p>零膨胀模型的 NLMIXED 程序的逐步构建。此列表给出了要定义的项目的建议顺序，以及路口交通示例的 NLMIXED 语法中的示例语句。要定义的项目及其在此处列出的顺序可用于任何零膨胀或栅栏模型。项目的顺序并非 PROC NLMIXED 程序中语句的顺序，本节末尾给出了具有正确顺序语句的最终程序。</p>
+<ol style="list-style-type: decimal">
+<li><p>线性预测器。对于交通数据为 <span class="math inline">\(\eta_{ij}=\eta+I_i+s(I)_{ij}\)</span>。在 NLMIXED 中由等式定义，例如 <code>ETA = intercept + I_i + sI_ij;</code>。</p></li>
+<li><p>逆连接。<span class="math inline">\(\lambda_{ij}=\exp\left(\eta_{ij}\right)\)</span>。SAS：<code>lambda = exp(eta);</code>。</p></li>
+<li><p>零膨胀概率。零膨胀是一个二进制变量，所以使用 logit 连接来定义。SAS：<code>InfProb = 1/(1+exp(-logit_IP);</code>。<code>Logit_IP</code> 是零膨胀概率的 logit：<span class="math inline">\(\log\big[\pi/(1-\pi)\big]\)</span>。</p></li>
+<li><p>分布：随机效应的分布是在 random 语句中指定的；在 MODEL 语句中指定 <span class="math inline">\(y_{ij}\mid I_{i},s\left(I\right)_{ij}\)</span> 的分布。例如：</p></li>
+</ol>
+<pre class="sas"><code>random I_i ~ normal(0,sdi*sdi) subject=intersection;
+random sI_ij ~ normal(0,sds*sds) subject=sample(intersection);
+model N_cars ~ general(LogL);</code></pre>
+<p><br>
+最好将随机效应的方差表示为标准差的平方（在上述示例中，SDI 和 SDS 分别表示路口和样本随机效应的标准差）。或者，我们可以使用 <code>exp(log_var_I)</code> 和 <code>exp(log_var_S)</code>。该想法是确保 RANDOM 语句中的方差始终非负——负方差估计会导致 NLMIXED 程序崩溃。在 MODEL 语句中，GENERAL 允许用户定义对数似然，需要指定零膨胀或栅栏模型。<code>LogL</code> 的单独式子定义了对数似然。</p>
+<ol start="5" style="list-style-type: decimal">
+<li>定义 ZIP 对数似然，如式 <a href="chap13.html#eq:13-3">(13.3)</a> 所示。ZIP 模型的 SAS 语句为：</li>
+</ol>
+<pre class="sas"><code>if N_cars=0 then do;
+ LogL = log(InfProb + (1-infprob)*exp(-lambda));
+end;
+else if N_cars&gt;0 then do;
+ LogL = log(1-InfProb)–lambda+ncars*log(lambda)–lgamma(N_cars+1);
+end;</code></pre>
+<p><br>
+上述语句可以修改，例如用负二项对数似然替换泊松对数似然，或者用栅栏对数似然替换零膨胀对数似然。</p>
+<ol start="6" style="list-style-type: decimal">
+<li>给出 PARMS 语句中要估计的所有参数的起始值。对于示例中的 ZIP 模型，我们需要 INTERCEPT（<span class="math inline">\(\eta\)</span>）的起始值、膨胀参数（<span class="math inline">\(\log(\pi)\)</span>）的 logit 以及路口和样本效应的标准差（<span class="math inline">\(\sigma_I\)</span> 和 <span class="math inline">\(\sigma_s\)</span>）。由于 N_CARS 的原始均值为 2.55，因此 <span class="math inline">\(\log(2.55)\cong0.9\)</span> 是 <span class="math inline">\(\eta\)</span> 的合理起始值。使用起始值 <span class="math inline">\(\text{logit}(\pi) = 0\)</span> 并将其转换为零膨胀概率的起始值 0.5。或者，我们也可以使用起始值 <span class="math inline">\(\text{logit}(0.6)\cong 0.4\)</span>，这是数据集中零的比例的 logit. GLMM 分析没有给出有关方差分量的合理信息；如果没有任何指导，请使用 <span class="math inline">\(\sigma_I = 1\)</span> 和 <span class="math inline">\(\sigma_s = 1\)</span>。所得 PARMS 语句为：</li>
+</ol>
+<pre class="sas"><code>parms intercept=0.9 logit_IP=0 sdi=1 sds=1;</code></pre>
+<ol start="7" style="list-style-type: decimal">
+<li>包含 ESTIMATE 语句以定义我们希望在输出结果中包含的模型参数的函数。语法是 <code>estimate “title” defining_function;</code>。例如：</li>
+</ol>
+<pre class="sas"><code>estimate “inflation probability” 1/(1+exp(-logit_ip));
+estimate “expected count” exp(intercept);
+estimate “intersection variance” sdi*sdi;</code></pre>
+<p>最终，为 ZIP 模型生成的 PROC NLMIXED 程序为：</p>
+<pre class="sas"><code>proc nlmixed data=traffic;
+parms logit_ip=0 intercept=0.9 sdi=1 sds=1;
+InfProb = 1/(1+exp(-logit_ip));
+eta=intercept + I + sI_ij;
+lambda=exp(eta);
+if N_cars=0 then do;
+ logL=log(InfProb+(1-InfProb)*exp(-lambda));
+end;
+else if N_cars&gt;0 then do;
+ logL=log(1-InfProb)-lambda+N_cars*log(lambda)-lgamma(N_cars+1);
+end;
+model N_cars~general(logL);
+random I_i~Normal(0,sdi*sdi) subject=intersection;
+random sI_ij~normal(0,sds*sds) subject=sample(intersection);
+estimate “Inflation Probability” 1/(1+exp(-logit_ip));
+estimate “Expected count” exp(intercept);
+estimate “Intersection variance” sdi*sdi;
+estimate “sample variance” sds*sds;</code></pre>
+<p>ZINB 模型的程序从 ETA 中删除样本效应 sI_ij，以及与 sI_ij 关联的 RANDOM 和 ESTIMATE 语句，添加负二项尺度参数，并用 ZIP 对数似然替换 ZIP 对数似然（式 <a href="chap13.html#eq:13-4">(13.4)</a>）。ZINB 模型的 NLMIXED 语句：</p>
+<pre class="sas"><code>proc nlmixed data=t;
+ parms logit_ip=0 intercept=0.9 sdi=1 log_phi=0; 
+ InfProb=1/(1+exp(-logit_ip));
+ eta=intercept+I_i; 
+ lambda=exp(eta);
+ scale=exp(log_phi);
+ agg=1/scale;
+   log_choose=lgamma(N_cars+agg)-lgamma(N_cars+1)-lgamma(agg);
+  if N_cars=0 then do;
+   logL=log(InfProb +(1-InfProb)*((1+lambda*scale)**(-agg)));
+  end;
+  else if N_cars&gt;0 then do;
+   logL=log(1-InfProb)+n_cars*log(lambda*scale/ (1+lambda*scale))-
+ log(1+lambda*scale)/scale+log_choose;
+   end;
+ model N_cars~general(logL);
+ random I_i~Normal(0,sdi*sdi) subject=intersection;
+ estimate “Inflation Probability” 1/(1+exp(-logit_ip));
+ estimate “Expected count” exp(intercept);
+ estimate “Intersection variance” sdi*sdi;
+ estimate “NB scale” exp(log_phi);</code></pre>
+<p>选定的输出，从 ZINB 模型开始：</p>
+<div class="inline-figure"><img src="figure/figure%20419.png#center" style="width:100.0%"></div>
+<p>NB 尺度参数估计 <span class="math inline">\(\hat\varphi\)</span> 基本上为零。鉴于当 <span class="math inline">\(\varphi \rightarrow 0\)</span> 时负二项收敛为泊松分布，这些数据的 ZINB 模型简化为 ZIP 模型。选定的 ZIP 输出：</p>
+<div class="inline-figure"><img src="figure/figure%20420.png#center" style="width:100.0%"></div>
+<p>ZINB 和 ZIP 分析的膨胀概率、预期计数和路口方差的估计基本相同。样本方差估计 <span class="math inline">\(\hat\sigma_s^2 \cong0\)</span> 表明我们可以从模型中删除 sample(intercept) 效应 <span class="math inline">\(s(I)_{ij}\)</span>。对这些分析的解释为：63.82% 的样本场合中灯为红色；绿灯亮时，每个样本场合平均有 6.49 辆汽车通过路口。</p>
+</div>
+</div>
+<div id="sec13-3" class="section level2" number="13.3">
+<h2>
+<span class="header-section-number">13.3</span> 零膨胀计数数据回归示例<a class="anchor" aria-label="anchor" href="#sec13-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>此示例的数据出现在 Data Set 13.2 中。这些是来自以下场景的模拟数据。数据是在 18 个随机选择的地点收集的。在第 <span class="math inline">\(i\)</span> 个站点采集了 <span class="math inline">\(n_i\)</span> 个样本——少则 2 个样本，多则 14 个样本，因地点而异。对于每个样本，进行了两个观测：预测变量 (EXPOSURE_LEVEL) 和响应变量 (TOXIN_COUNT)。目标：估计与预测变量和响应变量之间的线性回归。由于站点形成了样本，因此 GLMM 是随机系数回归：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\beta_0+b_{0i}+\left(\beta_{1i}+b_{1i}\right)X_{ij}\)</span>，其中 <span class="math inline">\(X_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 个站点的第 <span class="math inline">\(j\)</span> 个样本的 EXPOSURE_LEVEL，而 <span class="math inline">\(b_{0i}\)</span> 和 <span class="math inline">\(b_{1i}\)</span> 表示特定站点的随机截距和斜率系数。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li>
+<span class="math inline">\(y_{ij}\mid b_{0i},b_{1i}\thicksim\)</span> 下方给出的分布之一</li>
+<li><span class="math inline">\(\begin{bmatrix}b_{0i}\\b_{1i}\end{bmatrix}\thicksim N\left(\begin{bmatrix}0\\0\end{bmatrix},\begin{bmatrix}\sigma_0^2&amp;\sigma_{01}\\\sigma_{01}&amp;\sigma_1^2\end{bmatrix}\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span></p></li>
+</ul>
+<p>与上一节的交通数据一样，我们可以首先拟合标准泊松和负二 GLMM，寻求零膨胀的迹象。我们从泊松正态 GLMM 开始，假定 <span class="math inline">\(y_{ij}\mid b_{0i},b_{1i}\sim\mathrm{Poisson}\Big(\lambda_{ij}\Big)\)</span>。GLIMMIX 语句：</p>
+<pre class="sas"><code>proc glimmix data=biohazard_study method=quad;
+ class site;
+ model toxin_count = exposure_level / dist=poisson s;
+ random int exposure_level / subject=site type=un;</code></pre>
+<p>给出如下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20421-1.png#center" style="width:60.0%"></div>
+<p>过离散诊断，Pearson <span class="math inline">\(\chi^2/df =1.37\)</span> 对于泊松正态 GLMM 来说非常大。回想第 <a href="chap11.html#chap11">11</a> 章，如果模型对数据拟合良好，泊松正态 GLMM 通常会产生 0.15 到 0.25 之间的 Pearson <span class="math inline">\(\chi^2/df\)</span>。随机斜率效应的方差估计 <span class="math inline">\(\hat\sigma^2_1\)</span> 基本上为零，这表明假定斜率之间的随机变异可能是不必要的。</p>
+<p>负二项式 GLMM，假定 <span class="math inline">\(y_{ij}\mid b_{0i},b_{1i}\thicksim NB\Big(\lambda_{ij},\varphi\Big)\)</span>，产生以下结果：“ERROR: QUANEW Optimization cannot be completed.” 这些数据不足以估计假定相关截距和斜率效应（非零 <span class="math inline">\(\sigma_{01}\)</span>）的随机系数负二项模型。简化模型假定 <span class="math inline">\(\sigma_{01}=0\)</span>，从 RANDOM 语句中删除 <code>TYPE=UN</code> 选项，给出以下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20421-2.png#center" style="width:60.0%"></div>
+<p>过离散的诊断为 0.67，并不明显。与泊松正态 GLMM 一样，随机斜率方差估计为零。对于负二项 GLMM，尺度参数 <span class="math inline">\(\hat\varphi=1.25\)</span> 有点大，但并非不合理。</p>
+<p>现在，让我们考虑零膨胀模型，从 ZINB 开始。根据 <a href="chap13.html#sec13-2">13.2</a> 节中描述的相同逐步过程，ZINB 的 NLMIXED 语句为：</p>
+<pre class="sas"><code>proc nlmixed data=biohazard_study;
+ parms logit_IP=0 log_phi=0.2 beta0=-1.25 beta1=0.017 sd0=1 
+  sd1=0.1; 
+    x=exposure_level;
+    y=toxin_count;
+  InfProb = 1/(1+exp(-logit_IP));
+ eta=beta0+b0+(beta1+b1)*x;
+ lamda=exp(eta);
+ /* ZINB log-likelihood */
+ scale=exp(log_phi);
+ nn=1/scale;
+ /* 1/scale translates to N in the math-stat version */
+ /* of the neg bin pdf hence the “nn” variable name */
+ /* define logL for ZINB */
+ log_choose=lgamma(y+nn)-lgamma(y+1)-lgamma(nn);
+ if y=0 then LogL=log(InfProb +(1-InfProb)*
+ ((1+lamda*scale)**(-nn)));
+ else LogL=log(1-InfProb)+y*log(lamda*scale/(1+lamda*scale))-
+    log(1+lamda*scale)/scale+log_choose;
+ /* model &amp; random statement */
+ model y~general(LogL);
+ random b0 b1 ~ normal([0,0],[sd0*sd0,0,sd1*sd1]) subject=site;
+ /* estimate various things of interest */
+ estimate ‘inflation prob’ 1/(1+exp(-logit_IP));
+ estimate ‘NB scale’ exp(log_phi);
+ estimate ‘var_b0’ sd0*sd0;
+ estimate ‘var_b1’ sd1*sd1;
+ estimate ‘yhat at x=0’ exp(beta0);
+ estimate ‘yhat at x=10’ exp(beta0+beta1*10);
+ estimate ‘yhat at x=20’ exp(beta0+beta1*20);</code></pre>
+<p>起始值使用负二项 GLMM 运行的估计。与负二项 GLMM 一样，我们假定 <span class="math inline">\(\sigma_{01}=0\)</span>。请注意，RANDOM 语句的语法采用两个随机效应 B0 和 B1 的二元正态形式。均值向量为 <span class="math inline">\([0,0]\)</span>，RANDOM 语句中的方差为协方差矩阵的下对角线。即 <span class="math inline">\(\begin{bmatrix}{\sigma}_0^2&amp;0\\0&amp;{\sigma}_1^2\end{bmatrix}\)</span> 显示为 <code>[sd0*sd0, 0, sd1*sd1]</code>。选定的结果：</p>
+<div class="inline-figure"><img src="figure/figure%20423.png#center" style="width:100.0%"></div>
+<p>与负二项 GLMM 相比，膨胀概率估计为 <span class="math inline">\(\hat\pi= 0.26\)</span>，负二项尺度参数估计为 <span class="math inline">\(\hat\varphi = 0.49\)</span>（相比于标准负二项 GLMM 的 <span class="math inline">\(\hat\varphi = 1.25\)</span>）。随机斜率系数的方差估计基本上为零，就像我们考虑的所有模型一样。回归估计 <span class="math inline">\(\hat{{\beta}}_0+\hat{{\beta}}_1X_{ij}\)</span> 为 <span class="math inline">\(-0.98+0.017*X_{ij}\)</span>。“Additional Estimates” 表给出了 选定 X 的数据尺度上的预测计数。</p>
+<p>包含 Data Set 13.2 的 SAS 文件和上面显示的 SAS 程序还包含 ZIP 模型的 NLMIXED 程序。由于篇幅原因，这里就不展示了。ZIP 模型的 AICC 拟合统计量为 386.7，而 ZINB 模型的 AICC 拟合统计量为 379.0。因此，对于这些数据，ZINB 模型是首选的零膨胀模型。但请注意，标准负二项模型的 AICC 拟合统计量为 377.3，这一证据对这些数据是否需要零膨胀模型产生了怀疑。</p>
+</div>
+<div id="sec13-4" class="section level2" number="13.4">
+<h2>
+<span class="header-section-number">13.4</span> 零膨胀概率因处理而异的计数数据栅栏模型<a class="anchor" aria-label="anchor" href="#sec13-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>此示例的数据显示在 Data Set 13.3 中。一家公司正试图评估他们的项目的影响，该项目旨在提高产品质量、减少保修索赔数。“TRT 0” 表示项目前的保修索赔数。“Trt 1” 表示项目后的索赔数。</p>
+<p>该公司进行了为期一年的研究，跟踪随机客户样本的保修索赔数。数据集有 274 名在 “Trt 0” 下抽样的个体和 201 名在 “Trt 1” 下抽样的个体。该分析的目的是查看两种处理在保修索赔数上是否有差异，如果有，则描述差异。</p>
+<p>在这个模型中，两种处理的膨胀概率本身可能不同——事实上，如果程序有效，它应该是不同的。我们可以修改似然，使膨胀概率成为处理特异的。这是一个栅栏模型，正如我们在前面描述的例子中提到的，我们可以考虑零膨胀或栅栏模型。<a href="chap13.html#eq:13-2">(13.2)</a> 的修改形式反映了处理对栅栏膨胀概率的效应：</p>
+<p><span class="math display" id="eq:13-10">\[\begin{align}
+\Pr&amp;\left\{Y=y\mid trt=i\right\}=\\&amp;\begin{cases}\pi_i&amp;\quad\text{for }y=0\\\left(1-\pi_i\right)f_i\left(y\right)/\left[1-f_i\left(0\right)\right]&amp;\quad\text{for }y=1,2,...
+\end{cases}
+\tag{13.10}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(i = 0,1\)</span>，<span class="math inline">\(\pi_i\)</span> 表示处理 <span class="math inline">\(i\)</span> 的膨胀概率，<span class="math inline">\(f_i(\cdot)\)</span> 表示给定的第 <span class="math inline">\(i\)</span> 个处理的分布。</p>
+<p>此模型的线性预测器的效应形式为 <span class="math inline">\(\eta_i=\eta+\tau_i\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 表示处理效应。此场景中没有随机效应。由于模型的效应形式不满秩，因此我们必须遵循类似于求解广义逆的估计策略。例如，我们可以遵循 SAS 线性模型程序并将最后的处理效应（在本例中为 <span class="math inline">\(\tau_1\)</span>）置零。更好的策略是使用线性预测器的满秩形式，丢弃截距，从而有 <span class="math inline">\(\eta_i=\tau_i\)</span>。</p>
+<p>泊松栅栏的 AICC 为 1734.8；负二项栅栏的 AICC 为 1549.6。负二项式形式是首选模型。负二项栅栏模型的 NLMIXED 语句：</p>
+<pre class="sas"><code>proc nlmixed data=claims;
+  parameters log_phi=-0.6 tau_0=0 tau_1=0
+             lpi0=0 lpi1=0;
+    y=count;
+ /* linear predictor for the inflation probability */
+ Logit_IP = (trt=0)*lpi0+(trt=1)*lpi1;
+ /* infprob = inflation probability for zeros */
+ /* assume Logit Hurdle zero-inflation */
+ InfProb = 1/(1+exp(-Logit_IP));
+ /* lambda = Negative Binomial mean */
+ eta=(trt=0)*tau_0+(trt=1)*tau_1;
+ lambda = exp(eta);
+ /* Build the Hurdle log likelihood */
+ scale=exp(log_phi);
+ nn=1/scale;
+ log_choose=lgamma(y+nn)-lgamma(y+1)-lgamma(nn);
+ if y=0 then 
+  LogL = log(InfProb);
+ else LogL = log((1-InfProb)) + 
+  y*log(lambda*scale/(1+lambda*scale))- 
+  log(1+lambda*scale)/scale+log_choose-
+  (log(1-(1/(1+lambda*scale))**(1/scale)));
+ model y ~ general(LogL);
+ estimate “NB scale” exp(log_phi);
+ estimate “inflation probability: trt=0” 1/(1+exp(-lpi0));
+ estimate “inflation probability: trt=1” 1/(1+exp(-lpi1));
+ estimate “NB rate: trt=0” exp(tau_0);
+ estimate “NB rate: trt=1” exp(tau_1);
+ title ‘Neg Binomial Hurdle’;</code></pre>
+<p>该程序与之前的程序有两个不同之处。首先，有两个膨胀参数，每个处理对应一个。这反映在定义起始值的 PARAMETERS 语句中，以及定义处理特定通胀参数 logit 的 Logit_IP 语句中。其次，对数似然具有栅栏形式，如 <a href="chap13.html#eq:13-6">(13.6)</a> 所示，而不是我们之前看到的 ZINB 形式 <a href="chap13.html#eq:13-4">(13.4)</a>。除此之外，这个程序和以前的程序本质上是相同的。</p>
+<p>原则上，我们也可以使其他参数特定于处理。在某些应用中，两种处理的尺度参数可能不同。PROC GLIMMIX 不允许使用异质尺度参数（尽管这可能会在未来版本中可以实现），但 NLMIXED 允许更大的灵活性。要改变尺度参数，请在 PARAMETERS 语句中定义两个尺度参数，然后使用类似于此处的膨胀参数语句的特定于处理的变量定义。</p>
+<p>感兴趣的主要处理来自额外的估计语句：</p>
+<div class="inline-figure"><img src="figure/figure%20425.png#center" style="width:100.0%"></div>
+<p>我们看到，处理 0 的膨胀概率估计是 <span class="math inline">\(\hat\pi_0=0.40\)</span>，并且对于处理 1，<span class="math inline">\(\hat\pi_0=0.76\)</span>。这两种处理的速率参数估计分别为 <span class="math inline">\(\hat\lambda_0=3.36\)</span> 和 <span class="math inline">\(\hat\lambda_1=1.79\)</span>。负二项尺度参数估计为：<span class="math inline">\(\hat\varphi=4\)</span>，这解释了为什么负二项栅栏模型比泊松栅栏模型拟合得更好。泊松栅栏模型产生了类似的膨胀概率估计，但预期的数量为 <span class="math inline">\(\hat\lambda_0=4.35\)</span> 和 <span class="math inline">\(\hat\lambda_1=2.60\)</span>。使用泊松模型会导致高估两种处理下提出的索赔数。我们可以定义额外的语句来估计速率参数和膨胀概率之间的差异。我们还可以计算平均索赔总数。例如，对于处理 0，个体有 40% 的机会不提出索赔，而剩余的 60% 的提出索赔的人中，平均索赔数为 3.36. 因此，总体平均索赔数为 <span class="math inline">\(0.6\times 3.36=2.02\)</span>。对于处理 1，该值为 0.43。新处理似乎成功地减少了索赔。</p>
+</div>
+<div id="sec13-5" class="section level2" number="13.5">
+<h2>
+<span class="header-section-number">13.5</span> 具有实际意义零值的连续比例数据的贝塔栅栏模型<a class="anchor" aria-label="anchor" href="#sec13-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>此示例的数据出现在 Data Set 13.4 中，来自一项比较两种控制植物病害处理方法的研究。每种处理均出现在 20 个区组中。假设这些区组是从更大的总体中抽样的。因此线性预测器为：</p>
+<p><span class="math display" id="eq:13-11">\[\eta_{ij}=\tau_i+b_j\]</span></p>
+<p>其中 <span class="math inline">\(\tau_i\)</span> 表示模型尺度上第 <span class="math inline">\(i\)</span> 个处理的处理均值，<span class="math inline">\(b_j\)</span> 表示区组效应，假定 <span class="math inline">\(\mathrm{iid~}N\left(0,\sigma_b^2\right)\)</span>。</p>
+<p>响应变量是受疾病影响的叶面积比例，因此对于无病植物该比例为零。受影响的叶面积比例非零意味着植物患有疾病，比例度量的是疾病造成的损害程度。比例为 1 意味着该植物已死亡——这项研究中的所有植物在度量时都还活着。</p>
+<p>研究人员有两个目标：</p>
+<ol style="list-style-type: decimal">
+<li><p>估计并比较每种处理的无病植物比例。</p></li>
+<li><p>估计并比较接受每种处理的患病植物的损害程度。</p></li>
+</ol>
+<p>响应变量是连续比例；贝塔分布是 <span class="math inline">\(\symbf y\mid \symbf b\)</span> 分布的合理选择。然而，由于贝塔分布仅限于严格介于 0 和 1 之间的观测，因此不能包含 <span class="math inline">\(y_{ij} = 0\)</span> 的值。然而，栅栏模型提供了一种对零点进行建模并解决这两个目标的方法。模型为：</p>
+<ul>
+<li><p>线性预测器：如上所述。</p></li>
+<li><p>分布：<span class="math inline">\(\begin{align}y_{ij}\mid b_j\sim\begin{cases}\pi_i&amp;\quad\text{if }y_{ij}=0\\\left(1-\pi_i\right)\text{beta}\left(\alpha_{ij},\beta_{ij}\right)&amp;\quad\text{if }y_{ij}&gt;0\end{cases}\tag{13.11}\end{align}\)</span></p></li>
+<li><p>连接：<span class="math inline">\(\eta_{ij}=\mathrm{logit}\left(\mu_{ij}\right)\)</span>，其中 <span class="math inline">\(\mu_{ij}=\alpha_{ij}/(\alpha_{ij}+\beta_{ij})\)</span>。</p></li>
+</ul>
+<p>第一个目标是通过估计第 <span class="math inline">\(i\)</span> 个处理的膨胀概率 <span class="math inline">\(\pi_i\)</span> 来实现的。第二个目标是通过估计 <span class="math inline">\(\mu_{i}=1\Big/\Big[1+\exp\Big(-\tau_{i}\Big)\Big]\)</span> 来解决，即接受处理 <span class="math inline">\(i\)</span> 的患病植物受影响的叶面积的平均比例。</p>
+<p>实现贝塔栅栏模型的 PROC NLMIXED 程序如下：</p>
+<pre class="sas"><code>proc nlmixed data=plants;
+ parms lpi1=-0.5 lpi2=-0.1 tau_1=-0.5 tau_2=0 
+       log_phi1=1.5 log_phi2=1.5 log_blk_var=-1.6;
+  Logit_IP=(trt=1)*lpi1+(trt=2)*lpi2;
+  InfProb=1/(1+exp(-Logit_IP));
+  eta=(trt=1)*tau_1+(trt=2)*tau_2+blk_effect;
+  mu=1/(1+exp(-eta));
+  phi=exp((trt=1)*log_phi1+(trt=2)*log_phi2);
+  alpha=phi*mu;
+  beta=phi*(1-mu);
+ if p=0 then LogL=log(InfProb);
+ else LogL=log(1-InfProb)+
+           lgamma(alpha+beta)-lgamma(alpha)-lgamma(beta)+
+           (alpha-1)*log(p)+(beta-1)*log(1-p);
+ model p~general(LogL);
+ random blk_effect~normal([0],[exp(log_blk_var)]) subject=blk;
+ estimate ‘block variance’ exp(log_blk_var);
+ estimate ‘beta scale trt1’ exp(log_phi1);
+ estimate ‘beta scale trt2’ exp(log_phi2);
+ estimate ‘trt 1 inflation prob’ 1/(1+exp(-lpi1));
+ estimate ‘trt 2 inflation prob’ 1/(1+exp(-lpi2));
+ estimate ‘trt 1 proportion’ 1/(1+exp(-tau_1));
+ estimate ‘trt 2 proportion’ 1/(1+exp(-tau_2));
+ contrast ‘trt effect on scale’ log_phi1-log_phi2;
+ contrast ‘trt effect on inf prob = incidence’ lpi1-lpi2;
+ contrast ‘trt effect beta proportion = exten’ tau_1-tau_2;
+ title “Beta Hurdle”;</code></pre>
+<p>NLMIXED 程序中的许多术语在本章前面的示例程序中都很熟悉。变量 LPI1 和 LPI2 是每种处理的 logit 膨胀概率 <span class="math inline">\(\log\big[\pi_i\big/\big(1-\pi_i\big)\big]\)</span>。ETA 和 MU 分别是线性预测器 <span class="math inline">\(\eta_{ij}\)</span> 和贝塔期望值 <span class="math inline">\(\mu_{ij}\)</span>。后者是使用 logit 逆连接函数计算的。每个处理的贝塔尺度参数在对数尺度上估计，那么第 <span class="math inline">\(i\)</span> 个处理的尺度参数计算为 <span class="math inline">\(\varphi_i=\exp(\text{LOG_PHI}i)\)</span>。贝塔分布参数是使用第 12 章 <a href="chap12.html#sec12-6-1">12.7.1</a> 节中首次给出的 Ferrari-Cribari-Neto 参数化计算的：<span class="math inline">\(\alpha_{ij}=\mu_{ij}\varphi_i\)</span> 以及 <span class="math inline">\({\beta}_{ij}=\left(1-{\mu}_{ij}\right){\varphi}_{i}\)</span>。ESTIMATE 语句定义了作为参数估计函数的感兴趣项。该程序引入了 NLMIXED CONTRAST 语句。与 ESTIMATE 语句一样，它们包含一个标题，后跟一个定义对比的函数。该程序中的对比提供了检验统计量，以比较两种处理的贝塔尺度参数、膨胀概率（疾病发生率）和贝塔均值（<span class="math inline">\(\mu_i\)</span>，疾病严重程度）。对比检验统计量计算公式为 <span class="math inline">\(F=\left(\mathrm{contrast\_estimate/contrast\_standard\_error}\right)^2\)</span>。选定的输出：</p>
+<div class="inline-figure"><img src="figure/figure%20427.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20428.png#center" style="width:80.0%"></div>
+<p>两种处理的膨胀概率估计：<span class="math inline">\(\hat{\pi}_1=0.05\)</span> 和 <span class="math inline">\(\hat{\pi}_2=0.45\)</span>。接受处理 1 的植物中有 5% 没有病害（意味着 95% 显示出一些病害迹象），而接受处理 2 的植物中有 45% 没有病害。然而，即使接受处理 1 的植物更有可能出现疾病症状，但按受影响叶面积的平均比例衡量，处理 1 的疾病程度较小：<span class="math inline">\(\hat{\mathfrak{\mu}}_1=0.27\text{ vs. }\hat{\mathfrak{\mu}}_2=0.46\)</span>。对比显示，膨胀概率（<span class="math inline">\(F = 6.0,p = 0.0242\)</span>）之间以及贝塔平均比例（<span class="math inline">\(F = 13.96,p = 0.0014\)</span>）之间存在统计显著差异。另一方面，没有证据表明贝塔尺度参数之间存在差异。我们可以使用两个处理的单个贝塔尺度参数重新计算分析，留作作业。</p>
+</div>
+<div id="exe13" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe13"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>使用文件 Ch_13_problem_1.sas。数据来自在六个地点进行的研究。试验设计是 2 × 2 析因设计。每个地点被分为两个部分。因素 A 的水平被随机分配给各个部分，以便在每个地点 A 的每个水平都被应用。这些部分又被分成两个子部分。在每个部分内，B 的水平被随机分配给子部分。在每个子部分中，收集了大量的样本。响应变量是一个离散计数。该文件包含了研究人员对数据提出的分析方案。</p>
+<ol style="list-style-type: lower-alpha">
+<li>
+<p>根据建议的分析：</p>
+<ol style="list-style-type: lower-roman">
+<li>给出建议分析中使用的模型的必要元素。</li>
+<li>总结主要结果，给出结论。</li>
+<li>建议分析有缺陷，不适合报告。为什么？</li>
+</ol>
+</li>
+<li><p>对于每个“地点 × A × B” 组合，构造观测计数的直方图。（提示：你可以使用 PROC UNIVARIATE 中的 <code>HISTOGRAM</code> 选项或 SGPLOT 程序来实现这一点。）将你的直方图与泊松分布 p.d.f. 进行比较，其中后者的 <span class="math inline">\(\lambda\)</span> 等于有代表性的“地点 × A × B” 组合的观测均值。你的比较应该表明要考虑“零过多”模型。</p></li>
+<li><p>编写适合这些数据的 “零过多” 模型的必需元素。你可以使用零膨胀或栅栏泊松模型。简要描述你的模型选择所隐含的“零过多”机制。</p></li>
+<li><p>使用 PROC NLMIXED 实现你在 c. 中的模型。</p></li>
+<li><p>一位评论家认为“’零过多’泊松模型是杀鸡用牛刀——负二项式模型就足够了。” 实现适合这些数据的负二项模型（提示：它应该是最初提出的分析，但使用负二项分布而不是泊松分布）。</p></li>
+<li><p>比较并对比 d. 和 e. 中的结果和结论。</p></li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_13_problem_2.sas。数据跟踪使用两种不同设计的主要设备在两个使用年限 (age) 下的质量特性（age = 0 表示设备是新的；age = 1 表示设备已达到制造商规定的使用寿命）。响应变量 <span class="math inline">\(P\)</span> 是性能指数：<span class="math inline">\(P=0\)</span> 意味着“没有性能问题，性能完美”；<span class="math inline">\(P=1\)</span> 意味着“完全损坏——产品无法发挥任何性能”。位于 0 到 1 之间的 <span class="math inline">\(P\)</span> 值意味着产品可以工作，但存在一些问题。<span class="math inline">\(P\)</span> 值越小，问题越少，性能越好。该文件包含两项初步分析。</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>对于每个分析，写一段话总结分析的主要特征以及重要结果和结论。</p></li>
+<li><p>一位评论者批评了这两种分析，并认为“双重增强 (doubly augmented) 栅栏模型”更合适——“双重增强” 的意味着包括 <span class="math inline">\(P=0\)</span> 和 <span class="math inline">\(P=1\)</span> 的规定。在这种情况下，为什么要使用栅栏模型而不是零膨胀模型？</p></li>
+<li><p>为这些数据编写适当的栅栏模型所需的元素。研究人员特别想知道 <span class="math inline">\(P=0\)</span> 和 <span class="math inline">\(P=1\)</span> 通胀是否取决于产品设计、使用年限或两者兼而有之。你的模型必须允许估计和检验这些效应。</p></li>
+<li><p>在 PROC NLMIXED 中实现 c. 部分的模型。</p></li>
+<li><p>将 d. 的结果和结论与两个初步分析的结果和结论进行比较并对比。</p></li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_13_problem_3.sas。该数据跟踪职业篮球运动员三个赛季的投篮表现。对于每场比赛，该文件包含比赛分钟数、投篮次数和投中次数。一家体育分析公司有兴趣了解该球员的上场分钟数和投篮命中率（投中次数除以投篮次数）之间是否存在关系。该文件包含数据的初步分析。一位评论家批评了这一分析，称其没有正确考虑球员参加比赛但未投篮的比赛。评论家认为零膨胀二项模型更合适。</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>给出这些数据的适当定义的零膨胀二项模型必需的元素。提示：初步分析正确地假定了的随机季节系数回归，因此至少模型的这一部分不应更改。</p></li>
+<li><p>为什么审稿人会建议对这些数据使用零膨胀模型，而不是栅栏模型？</p></li>
+<li><p>使用 PROC NLMIXED 实现 a. 部分中定义的模型。</p></li>
+<li><p>比较并对比初步分析和 b. 部分的分析的结果和结论。</p></li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></div>
+<div class="next"><a href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap13"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="nav-link" href="#sec13-1"><span class="header-section-number">13.1</span> 介绍</a></li>
+<li>
+<a class="nav-link" href="#%E8%AF%B4%E6%98%8E%E9%9B%B6%E8%86%A8%E8%83%80%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%A0%85%E6%A0%8F%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%A4%BA%E4%BE%8B">说明零膨胀模型与栅栏模型的示例</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec13-1-1"><span class="header-section-number">13.1.1</span> 零膨胀和栅栏模型的正式描述</a></li>
+<li><a class="nav-link" href="#sec13-1-2"><span class="header-section-number">13.1.2</span> 泊松和负二项数据的零膨胀和栅栏模型</a></li>
+<li><a class="nav-link" href="#sec13-1-3"><span class="header-section-number">13.1.3</span> 零膨胀对数似然</a></li>
+<li><a class="nav-link" href="#sec13-1-4"><span class="header-section-number">13.1.4</span> 栅栏对数似然</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec13-2"><span class="header-section-number">13.2</span> 用于交叉口机动车交通的零膨胀模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec13-2-1"><span class="header-section-number">13.2.1</span> 来自标准泊松和负二项 GLMM 模型的零膨胀证据</a></li>
+<li><a class="nav-link" href="#sec13-2-2"><span class="header-section-number">13.2.2</span> 交通数据零膨胀混合模型的实现</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec13-3"><span class="header-section-number">13.3</span> 零膨胀计数数据回归示例</a></li>
+<li><a class="nav-link" href="#sec13-4"><span class="header-section-number">13.4</span> 零膨胀概率因处理而异的计数数据栅栏模型</a></li>
+<li><a class="nav-link" href="#sec13-5"><span class="header-section-number">13.5</span> 具有实际意义零值的连续比例数据的贝塔栅栏模型</a></li>
+<li><a class="nav-link" href="#exe13">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

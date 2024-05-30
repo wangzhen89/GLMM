@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 11 章 计数 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="11.1 介绍 在之前三章中，我们考虑了处理设计结构和“地形”或研究设计结构如何驱动线性预测器构建和后续推断的总体问题。尽管这些章节中提出的策略适用于所有线性模型——高斯模型和非高斯模型——但第 8 章至第 10...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 11 章 计数 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="11.1 介绍 在之前三章中，我们考虑了处理设计结构和“地形”或研究设计结构如何驱动线性预测器构建和后续推断的总体问题。尽管这些章节中提出的策略适用于所有线性模型——高斯模型和非高斯模型——但第 8 章至第 10...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 11 章 计数 | 广义线性混合模型">
+<meta name="twitter:description" content="11.1 介绍 在之前三章中，我们考虑了处理设计结构和“地形”或研究设计结构如何驱动线性预测器构建和后续推断的总体问题。尽管这些章节中提出的策略适用于所有线性模型——高斯模型和非高斯模型——但第 8 章至第 10...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li><a class="" href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="active" href="chap11.html"><span class="header-section-number">11</span> 计数</a></li>
+<li><a class="" href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="" href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="" href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap11" class="section level1" number="11">
+<h1>
+<span class="header-section-number">第 11 章</span> 计数<a class="anchor" aria-label="anchor" href="#chap11"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec11-1" class="section level2" number="11.1">
+<h2>
+<span class="header-section-number">11.1</span> 介绍<a class="anchor" aria-label="anchor" href="#sec11-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在之前三章中，我们考虑了处理设计结构和“地形”或研究设计结构如何驱动线性预测器构建和后续推断的总体问题。尽管这些章节中提出的策略适用于所有线性模型——高斯模型和非高斯模型——但第 <a href="chap8.html#chap8">8</a> 章至第 <a href="chap10.html#chap10">10</a> 章的所有示例都涉及了高斯响应变量。因此，这些章节主要关注混合模型问题。在接下来的五章中，我们将扩大我们的研究领域，明确考虑广义线性模型问题，即与混合模型相结合的非高斯数据所特有的问题。在第 <a href="chap1.html#chap1">1</a> 章和第 <a href="chap3.html#chap3">3</a> 章中，我们通过二项数据的视角预览了 GLMM 问题。我们现在将扩展这些问题。</p>
+<p>我们在本章中从离散计数开始，在第 <a href="chap12.html#chap12">12</a> 章中从率和比例开始。这两种类型的响应变量特别适合引入对于使用 GLMM 至关重要的问题。我们特别关注以下方面：</p>
+<ul>
+<li>识别适当的分布来表征随机变异的来源，目的是选择一个合理的模型。</li>
+<li>提出伪似然和积分近似（求积和拉普拉斯）之间的权衡，使我们能够对给定模型使用哪种方法做出明智的决定。</li>
+<li>引入过离散，这是 GLMM 分析中的一个关键问题；定义它是什么以及考虑它的适当方式。</li>
+<li>决定边际模型或条件 GLMM 是否适用于给定的应用；如何实现和解释每种类型的模型。</li>
+</ul>
+<p>在 <a href="chap11.html#sec11-1-1">11.1.1</a> 节中，我们定义了离散计数数据。由于泊松分布与计数数据的历史关联，我们简要回顾了泊松分布的假设，并概述了这些假设为统计建模带来的问题。<a href="chap11.html#sec11-1">11.1</a> 节继续回顾了计数数据的各种方法，从 GLM 之前到 GLMM，并以模拟研究结束，提供在这些方法中进行选择的基本原理。<a href="chap11.html#sec11-2">11.2</a> 节重点关注过离散，这是计数数据最重要的建模问题。在 <a href="chap11.html#sec11-3">11.3</a> 节中，我们描述了处理过离散的策略，包括边际 GLM 和条件 GLMM，以及用于 GLMM 除泊松分布以外的分布。<a href="chap11.html#sec11-4">11.4</a> 节使用带计数数据的区组设计说明了这些替代方法的实施。最后，<a href="chap11.html#sec11-5">11.5</a> 节使用计数数据的多水平设计对这些策略进行了更高级的说明。</p>
+<div id="sec11-1-1" class="section level3" number="11.1.1">
+<h3>
+<span class="header-section-number">11.1.1</span> 计数数据和泊松分布<a class="anchor" aria-label="anchor" href="#sec11-1-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>术语“计数”是指具有非负整数响应变量的数据。顾名思义，计数来自于跟踪事件发生次数的研究，例如质量改进研究中的缺陷数量、医学研究中的疾病事件数量、生态或农业研究中的昆虫、鸟类或杂草数量、互联网上的网站点击量等。泊松分布在计数数据的建模中占据重要地位。然而，并不是所有的计数过程都会导致泊松分布。泊松-伽马过程产生了一种适合统计建模的负二项分布形式，在生物计数数据中尤其发挥着重要作用。</p>
+<p>我们将泊松 p.d.f. 和对数似然分别写为：</p>
+<ul>
+<li><span class="math inline">\(\begin{align}f\left(y\right)=\frac{e^{-\lambda}\lambda^y}{\Gamma\left(y+1\right)}\tag{11.1}\end{align}\)</span></li>
+<li><span class="math inline">\(\begin{align}\ell(\lambda;y)=y\log(\lambda)-\lambda-\log[\Gamma(y-1)]\tag{11.2}\end{align}\)</span></li>
+</ul>
+<p>期望和方差为 <span class="math inline">\(E(y) = Var(y) = \lambda\)</span>。典型参数是 <span class="math inline">\(\theta= \log(\lambda)\)</span>。对于 GLM 和 GLMM，典型连接是泊松数据的常用连接函数。与本书讨论的其他分布的 GLMM 不同，它们可能会针对某些应用使用其他连接，而用于计数数据的 GLMM 很少使用对数以外的连接函数。</p>
+<p>与本书其他地方讨论的二项分布和指数分布一样，泊松属于单参数指数族。泊松的均值-方差关系的刚性使得基于泊松的 GLM 和 GLMM 特别容易受到过离散的影响，在 <a href="chap11.html#sec11-2">11.2</a> 节详细讨论了这一点。过离散可以说是计数数据的最大建模问题。如果不考虑，过离散的计数数据可能会产生严重膨胀的 I 类错误率和覆盖不足的置信区间。</p>
+<p>在前 GLM 建模时代，对于计数数据使用高斯线性模型或线性混合模型方法，这些方法应用于观察到的计数或转换后的计数。</p>
+<p>为了说明前 GLM 分析并将其与使用泊松 GLM 的基本分析进行比较和对比，让我们通过一个包含完全随机研究设计的计数数据的示例来进行演示。</p>
+</div>
+<div id="sec11-1-2" class="section level3" number="11.1.2">
+<h3>
+<span class="header-section-number">11.1.2</span> 基于前 GLM ANOVA 和泊松 GLMM 的泊松示例分析<a class="anchor" aria-label="anchor" href="#sec11-1-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>此示例的数据来自两处理、完全随机的研究设计。它们展示在 Data Set 11.1 中。我们对两种处理各有五个观测。我们比较两种基于模型的分析：正态近似和泊松 GLM。首先是正态近似：</p>
+<ul>
+<li>线性预测器：</li>
+</ul>
+<p><span class="math display" id="eq:11-5">\[\begin{align}
+\eta_i=\eta+\tau_i
+\tag{11.3}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(\tau\)</span> 表示处理效应。</p>
+<ul>
+<li><p>分布：<span class="math inline">\(y_{ij}\thicksim N\left(\mu_{ij},\sigma^2\right)\)</span>，其中 <span class="math inline">\(y_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 种处理第 <span class="math inline">\(j\)</span> 个单元的观测计数，<span class="math inline">\(i=1,2;j=1,2,\ldots,5\)</span>。</p></li>
+<li><p>连接：恒等，<span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>。</p></li>
+</ul>
+<p>这是标准的单因素 ANOVA 模型。其依据是中心极限定理：对于足够大的计数，泊松随机变量具有近似正态分布。ANOVA 模型的一个弱点源于泊松的均值-方差关系：ANOVA 假定方差齐；除非处理均值相等，否则泊松数据必然违反这一假定。</p>
+<p>这催生使用变换 (Bartlett, 1947) 对 ANOVA 模型进行修改。线性预测器和连接保持不变，但我们用 <span class="math inline">\(t(y_{ij})\)</span>（其中 <span class="math inline">\(t(\cdot)\)</span> 表示一种变换）来替换响应变量。这种变换旨在稳定方差，改进正态近似，或两者兼有。然后，使用 <span class="math inline">\(t(y_{ij})\)</span> 进行 ANOVA 程序。得到的估计在模型尺度上，但我们可以使用逆变换函数 <span class="math inline">\(t^{-1}(\cdot)\)</span> 和以及标准误的 Delta 法则来“反向变换” (“back-transform”) ——前 GLM ANOVA 术语——这些估计。</p>
+<p>对于计数数据，标准变换包括 <span class="math inline">\(t\left(y_{ij}\right)=\sqrt{y_{ij}}\)</span> 和 <span class="math inline">\(t\left(y_{ij}\right)=\log\left(y_{ij}\right)\)</span>，或当 <span class="math inline">\(y_{ij}=0\)</span> 时 <span class="math inline">\(\log \left(y_{ij}+\varepsilon\right);\varepsilon&gt;0\)</span>。McCullach and Nelder (1989) 建议 <span class="math inline">\(t\left(y_{ij}\right)=y_{ij}^{2/3}\)</span> 以便更好地逼近正态。Schabenberger and Pierce (2002) 建议对于小的 <span class="math inline">\(y_{ij}\)</span>（例如当数据中个位数计数占很大比例时）使用 <span class="math inline">\(t\left(y_{ij}\right)=\sqrt{y_{ij}+0.375}\)</span>。</p>
+<p>第二种模型是泊松 GLM：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\begin{align}\eta_i=\eta+\tau_i\tag{11.4}\end{align}\)</span></p></li>
+<li><p>分布：<span class="math inline">\(y_{ij}\sim\text{独立 Poisson}(\lambda_i)\)</span></p></li>
+<li><p>连接函数：<span class="math inline">\(\eta_i=\log(\lambda_i)\)</span></p></li>
+</ul>
+<p>模型 <a href="chap11.html#eq:11-3">(11.3)</a> 和 <a href="chap11.html#eq:11-4">(11.4)</a> 的线性预测器相同，但分布假定和连接函数不同。我们将在下面的示例中看到 GLM 的线性预测器可能是不完整的，下面将详细介绍这一点。</p>
+<p>这些分析比较起来如何？首先，让我们回顾一下如何实现这些分析。使用 GLIMMIX，以下语句指定使用正态近似对 <span class="math inline">\(y_{ij}\)</span> 进行分析：</p>
+<pre class="sas"><code>proc glimmix data=CRD_Counts;
+ class trt;
+ model count=trt;
+ lsmeans trt / diff;</code></pre>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20337.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20338-1.png#center" style="width:80.0%"></div>
+<p>“trt Least Squares Means” 表中标记为 “Standard Error” 的列应该会给我们带来麻烦。对于泊松数据，均值应等于方差。因此对于处理 1 和 2，标准误应该分别为 <span class="math inline">\(\sqrt{4.8/5}=0.98\)</span> 和 <span class="math inline">\(\sqrt{15/5}=1.73\)</span>（因为均值估计为 4.8 和 15）。相反，两个标准误均为 3.70，符合标准 ANOVA 假定，但违反了泊松假定。此外，如果数据确实遵循泊松分布，则标准误比我们预期的要大。</p>
+<p>那么 GLM 之前的补丁（变换）呢？让我们先尝试对数变换。GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=CRD_Counts;
+ class trt;
+ logc=log(count); 
+ model logc=trt;
+ lsmeans trt / cl;
+ ods output lsmeans=lsm;
+run; 
+data data_scale_means;
+ set lsm;
+ lambda_hat=exp(estimate);
+ lower_lambda_CL=exp(lower);
+ upper_lambda_CL=exp(upper);
+ StdErrLambda=exp(estimate)*stderr;
+proc print data=data_scale_means;
+var trt estimate stderr lambda_hat stderrlambda 
+ lower_lambda_CL upper_lambda_CL;</code></pre>
+<p>ODS OUTPUT 语句创建一个包含 “trt Least Squares Means” 表的新数据集。额外的数据步计算“反向变换”。首先，“lambda_hat” 是 <span class="math inline">\(\hat{\lambda}_i=e^{\hat{\eta}_i}=\exp(\text{еstimate})\)</span>，其中 “estimate” 是 数据集名称，是对数计数的处理 LSMean。“StdErrLambda” 指定了“反向变换的标准误”，使用 Delta 法则计算：<span class="math inline">\(SE\Big(\hat{\lambda}_{i}\Big)=\Big(\partial e^{\eta_{i}}/\partial\eta_{i}\Big){\times}SE\Big(\hat{\eta}_{i}\Big)\)</span>。数据尺度上的下限和上限应该对对数变换的上下限进行反向变换（LSMeans 表中的 “lower” 和 “upper”）来计算，而不是 lambda_hat ± t×StdErrLambda.</p>
+<p>如果数据集包含 COUNT 值为零的情况，我们必须将语句 <code>logc=log(count)</code> 替换为一个考虑了零值的语句，例如</p>
+<pre class="sas"><code>if count=0 then logc=log(count+0.1); else logc=log(count);</code></pre>
+<p>IF-THEN_ELSE 语句定义变换。当 COUNT=0 时，我们添加一个小的正增量来使对数计算得以进行。如果我们对所有观测值使用语句 <code>LOGC=LOG(COUNT)</code>，则 GLIMMIX 会将 COUNT=0 的观测视为缺失。</p>
+<p>GLIMMIX 程序的选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20339-1.png#center" style="width:80.0%"></div>
+<p>来自“反向转换”数据步的额外输出：</p>
+<div class="inline-figure"><img src="figure/figure%20339-2.png#center" style="width:100.0%"></div>
+<p>请注意，等处理均值检验的 <span class="math inline">\(p\)</span> 值为 0.0236，而使用未经变换的数据则为 0.0896。这就提出了一个关于变换对功效的影响以及第一类错误的可能性的问题。与未经变换的数据相比，<span class="math inline">\(\lambda_i\)</span> 估计分别为 3.72 和 12.64，而未经变换的数据为 4.8 和 15.0. 数据尺度标准误 “StdErrorLambda” 对于处理 1 为 1.15，处理 2 为 3.91. 我们预计方差和标准误将随着平均计数的增加而增加。反向变换的问题在于 <span class="math inline">\(\exp\left[\left(1/5\right)\sum_{j=1}^5\log\left(y_{ij}\right)\right]\)</span> 与我们寻求的量 <span class="math inline">\(\exp (\eta_i)=\exp(\eta+\tau_i)\)</span> 并不完全相同。变换后我们无法估计后者；反向变换是我们能得到最接近它的值，但又不是同一回事。差值的估计，-1.22，是在模型尺度上的——也就是说，它是处理平均对数计数之差。我们无法对该估计进行反向转换并得到任何有意义的结果，因为变换是非线性的。</p>
+<p>我们可以使用类似的程序来计算上面列出的其他变换的分析。如果我们这样做，我们必须相应地调整反向变换。例如，对于平方根变换，语句将是：</p>
+<pre class="sas"><code>lambda_hat=estimate**2;
+StdErrLambda=2*estimate*stderr;</code></pre>
+<p>在 “StdErrLambda” 语句中，我们使用 <code>2*ESTIMATE*STDERR</code> 因为 <span class="math inline">\(2\times\hat{\eta}_i=\partial\left(\eta_i^2\right)/\partial\eta_i\)</span>，这是 Delta 法则所需的项。</p>
+<p>对于 GLM，我们使用 GLIMMIX 语句：</p>
+<pre class="sas"><code>proc glimmix data=CRD_Counts;
+ class trt;
+ model count=trt / d=poisson;
+ lsmeans trt / diff ilink cl;</code></pre>
+<p>这是未变换数据的原始程序，但在 MODEL 语句中添加了 <code>D=POISSON</code>，在 LSMEANS 语句中添加了 <code>ILINK</code>。以下是选定的输出：</p>
+<div class="inline-figure"><img src="figure/figure%20340-1.png#center" style="width:80.0%"></div>
+<p>这些结果中有两项应该引起我们的注意。首先，<span class="math inline">\(F\)</span> 值 23.61 明显大于两个 ANOVA 模型的 <span class="math inline">\(F\)</span> 值，未变换计数的 <span class="math inline">\(F\)</span> 值为 3.81，对数计数的 <span class="math inline">\(F\)</span> 值为 7.78. 第二，对于 <span class="math inline">\(\hat\lambda_i\)</span> 的数据尺度标准误（“Least Squares Means” 表中的 “Standard Error Mean”），分别为 0.98 和 1.73，与泊松理论（<span class="math inline">\(\sqrt{\hat\lambda_i\big/5}\)</span>）一致，但明显小于 ANOVA 模型的标准误：对于未变换计数的两种处理，均为 3.70；对于对数计数的处理 1 和处理 2，分别为 1.15 和 3.91. 在 “Fit Statistics” 表中的 GLM 欠拟合统计量 “Pearson chi-square/DF” 提供了一些见解。回顾第 <a href="chap5.html#chap5">5</a> 章的理论：指数族成员的方差是尺度参数和方差函数的乘积，<span class="math inline">\(Var(y)=\phi V(\mu)\)</span>。对于泊松分布，<span class="math inline">\(\phi = 1\)</span>，Pearson <span class="math inline">\(\chi^2/df\)</span> 是 <span class="math inline">\(\phi\)</span> 的估计。如果给定随机模型效应的观测分布确实是泊松分布，则 Pearson <span class="math inline">\(\chi^2/df\)</span> 应该接近于 1. 对于该模型，Pearson <span class="math inline">\(\chi^2/df=5.81\)</span>，这强烈表明由 <a href="chap11.html#eq:11-4">(11.4)</a> 给出的线性预测器所指定的 GLM 存在较严重的欠拟合问题。</p>
+<p>查看针对这些数据的“Fisher 会怎么做？” 框架 ANOVA 表，可以洞察为什么 GLM 模型 <a href="chap11.html#eq:11-4">(11.4)</a> 是不充分的。</p>
+<div class="inline-figure"><img src="figure/figure%20340-2.png#center" style="width:60.0%"></div>
+<p>对于这些数据，一个合适的模型应该在变异源和模型所解释的效应之间具有一一对应关系。在计数和对数计数的 ANOVA 模型——模型 <a href="chap11.html#eq:11-3">(11.3)</a> 中——线性预测器中的 <span class="math inline">\(\tau_i\)</span> 解释处理效应，而残差方差解释单元水平—— observation(treatment) ——的变异。在 GLM ——模型 <a href="chap11.html#eq:11-4">(11.4)</a> 中—— <span class="math inline">\(\tau_i\)</span> 解释处理效应，但没有解释单元水平变异的项。像泊松分布这样的单参数指数族成员没有类似于高斯分布的 <span class="math inline">\(\sigma^2\)</span> 的单独尺度参数来解释单元水平的变异。这种未能解释数据中所有变异性的情况称为<strong>过离散</strong> (overdispersion)，下面在 <a href="chap11.html#sec11-2">11.2</a> 节中详细讨论。在这个例子中，对 GLM 的一个简单修改，即添加一个单元水平的随机效应，就可以解决这个问题。修改后的模型成为 GLMM，如下所示：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+u_{ij}\)</span>，其中 <span class="math inline">\(u_{ij}\)</span> 表示 observation(treatment) 随机效应。</li>
+<li>分布：<span class="math inline">\(\begin{align}y_{ij}\mid u_{ij}\sim\mathrm{Poisson}\Big(\lambda_{ij}\Big);u_{ij}\mathrm{~iid~}N\Big(0,\sigma_{U}^{2}\Big)\tag{11.5}\end{align}\)</span>
+</li>
+<li>连接函数：<span class="math inline">\({\eta}_{ij}=\log\left(\lambda_{ij}\right)\)</span>
+</li>
+</ul>
+<p>该模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=CRD_Counts;
+ class trt unit;
+ model count=trt / d=poisson;
+ random unit / subject=trt;
+ lsmeans trt / diff ilink cl;</code></pre>
+<p>除了添加了 RANDOM 语句之外，这些语句与上述 GLM 模型的语句相同。我们也可以将 RANDOM 语句写为：</p>
+<pre class="sas"><code>random unit(trt);</code></pre>
+<p>或者</p>
+<pre class="sas"><code>random intercept / subject=unit(trt);</code></pre>
+<p>GLIMMIX 程序以相同的方式读取所有三个 RANDOM 语句。选定的结果：</p>
+<div class="inline-figure"><img src="figure/figure%20341.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20342.png#center" style="width:100.0%"></div>
+<p>对于计数的 ANOVA，<span class="math inline">\(p\)</span> 值为 0.0402，而对于对数计数的 ANOVA，<span class="math inline">\(p\)</span> 值为 0.0236。<span class="math inline">\(\lambda_1\)</span> 和 <span class="math inline">\(\lambda_2\)</span> 的数据尺度估计出现在 “trt Least Squares Means” 表的 “mean” 列中。它们是通过将逆连接 <span class="math inline">\(e^{\hat\eta_i}\)</span> 应用于模型尺度估计 <span class="math inline">\(\hat\eta_i\)</span> 来获得的：<span class="math inline">\(\hat\eta_1=1.4562\)</span> 以及 <span class="math inline">\(\hat\eta_2=2.5824\)</span>，出现在 “estimates” 列中。数据尺度均值估计为 <span class="math inline">\(\hat\lambda_1=4.29\)</span> 以及 <span class="math inline">\(\hat\lambda_2=13.23\)</span>，而计数 ANOVA 的相应值为 4.8 和 15.0，对数计数 ANOVA 则为 3.73 和 13.64. 数据尺度标准误（“Standard Error Mean”）是通过对模型尺度标准误（“Standard Error”）应用 Delta 法则得到的，即 <span class="math inline">\(SE\left(\hat{\lambda}_i\right)=\left(\partial e^{\eta_i}/\partial\eta_i\right)\times SE\left(\hat{\eta}_i\right)\)</span>。对于处理 1，该值为 1.50，对于处理 2 则为 3.97，与 ANOVA 模型不同，但至少在相似的范围内。</p>
+<p>“Lower” 和 “Upper” 列给出了模型尺度 “estimates” 的 95% 置信限。置信区间计算为 <span class="math inline">\(\hat{{\eta}}_i\pm t_{(8,0.05)}\times SE\big(\hat{{\eta}}_i\big)\)</span>。例如，对于 TRT 1 为 <span class="math inline">\(1.4562\pm 2.306 × 0.3490\)</span>，给出区间 <span class="math inline">\((0.6513, 2.261)\)</span>。“Lower Mean” 和 “Upper Mean” 列给出了数据尺度的置信限。与上面讨论的反向变换一样，数据尺度置信限是通过将反向连接应用于模型尺度置信限而获得的，而非使用数据尺度标准误获得的。</p>
+<p>模型尺度估计之差 <span class="math inline">\(\hat{\tau}_1-\hat{\tau}_2=-1.126\)</span>，而对数计数 ANOVA 为 −1 22. 与对数计数 ANOVA 一样，应用反向连接不会将模型尺度差异转换为数据尺度 <span class="math inline">\(\hat{\lambda}_1-\hat{\lambda}_2\)</span>。但是，我们可以添加语句</p>
+<pre class="sas"><code>estimate “lambda ratio” trt 1 -1 / exp cl;</code></pre>
+<p>来获取 <span class="math inline">\(\exp\left(\hat{\tau}_1-\hat{\tau}_2\right)=\hat{\lambda}_1/\hat{\lambda}_2\)</span>，数据尺度处理均值比的估计。由于篇幅原因，结果未显示，但该语句包含在 Data_Set_11_1 SAS 文件提供的程序中。</p>
+</div>
+<div id="sec11-1-3" class="section level3" number="11.1.3">
+<h3>
+<span class="header-section-number">11.1.3</span> 比较前 GLM 与 GLMM 的行为——为模型选择提供依据<a class="anchor" aria-label="anchor" href="#sec11-1-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>我们应该报告哪个分析结果？正如 Walt Federer 常说的: “Don’t argue, take
+data.” 回答这个问题的合理方法是进行统计实验、模拟，然后找出答案。以下是基于使用与本例相同设计的模拟对方法进行的比较——两种处理，每种处理有五个相互独立的观测。使用 <span class="math inline">\(y_{1j}\mid u_{1j}\sim\mathrm{Poisson}(\lambda_{1j})\)</span> 和 <span class="math inline">\(y_{2j}\mid u_{2j}\sim\mathrm{Poisson}(\lambda_{2j})\)</span> 生成 1000 个模拟的观测，其中 <span class="math inline">\(y_{ij}\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理的第 <span class="math inline">\(j\)</span> 个观测的观测计数，<span class="math inline">\(u_{ij}\)</span> 表示单元的变异并假定 <span class="math inline">\(\mathrm{iid~}N\left(0,\sigma_{U}^{2}\right)\)</span>，<span class="math inline">\(\lambda_{ij}=\exp\biggl[\log\bigl(\lambda_{i}\bigr)+u_{ij}\biggr]\)</span>，以及 <span class="math inline">\(\lambda_i\)</span> 是第 <span class="math inline">\(i\)</span> 个处理的平均计数。在模拟中，单元方差设为 <span class="math inline">\(\sigma^2_U=0.4\)</span>，这一数值是由上述 GLMM 分析所建议的，其中得到的单元方差估计为 <span class="math inline">\(\hat\sigma_U^2=0.37\)</span>。模拟数据采用模型 <a href="chap11.html#eq:11-3">(11.3)</a> 进行分析，采用未变换的计数以及变换 <span class="math inline">\(\log\left({y}_{ij}\right),\sqrt{y_{ij}},y^{2/3}\)</span> 和 <span class="math inline">\(\sqrt{y_j + 0.375}\)</span>，同时也使用了带有和不带单元水平随机效应的广义线性模型，即模型 <a href="chap11.html#eq:11-4">(11.4)</a> 和模型 <a href="chap11.html#eq:11-5">(11.5)</a>。</p>
+<p>使用以下标准对各分析进行比较：</p>
+<ul>
+<li><p>I 类错误率：当 <span class="math inline">\(\lambda_1=\lambda_2=0.5\)</span> 时，取 <span class="math inline">\(\alpha=0.05\)</span>，观察到的 <span class="math inline">\(H_0\colon\tau_1=\tau_2\)</span> 的拒绝次数除以 1000。</p></li>
+<li><p>当 <span class="math inline">\(\lambda_1=5,\lambda_2=15\)</span> 时的功效，即 <span class="math inline">\(H_0\colon\tau_1=\tau_2\)</span> 的拒绝率。</p></li>
+<li><p>每个处理均值估计 <span class="math inline">\(\hat\lambda_i\)</span> 的平均值、其抽样分布的标准差及其平均标准误。</p></li>
+<li><p>差值估计 <span class="math inline">\(\hat\lambda_2-\hat\lambda_1\)</span> 的平均值和四分位数间距。</p></li>
+</ul>
+<p>对于不等处理情况，给出了处理均值估计和差异的结果，其中 <span class="math inline">\(\lambda_1 = 5\)</span> 和 <span class="math inline">\(\lambda_2 = 15\)</span>。在 1000 次模拟实验中，对于 <span class="math inline">\(\alpha = 0.05\)</span> 的检验，观察到的 I 类错误率在 <span class="math inline">\(\alpha\pm3\times\sqrt{\alpha(1-\alpha)/1000}=0.05\pm0.02\)</span> 之间的概率大约为 0.99。任何观察到的 I 类错误率小于 0.03 或大于 0.07 都表明该程序没有准确控制 I 类错误，因此不应使用。在 I 类错误控制可接受的检验中，优先选择功效最大的模型。估计的标准误应估计 估计的抽样分布的标准差，因此我们应该看到这两者之间的一致性。若不一致则表明分析方法的性能不佳。估计应接近它们旨在估计的参数。表 11.1 显示了模拟结果。</p>
+<details><summary><font color="#8B2232">表 11.1</font>
+</summary><img src="figure/table%2011.1.png#center" style="width:100.0%"></details><p><br>
+未变换的正态近似显示出可接受的 I 类错误控制，但相对于其他方法功效较低。未变换 ANOVA 估计的是第 <a href="chap3.html#chap3">3</a> 章中描述的 <span class="math inline">\(y_{ij}\)</span> 的边际分布的均值（并非 <span class="math inline">\(\lambda_i\)</span> 和 <span class="math inline">\(\lambda_1-\lambda_2\)</span> ——处理均值估计的名义目标）。对数变换和带有 <span class="math inline">\(u_{ij}\)</span> 的 GLMM 在拒绝率（I 类错误和功效）以及 <span class="math inline">\(\lambda_i\)</span> 和 <span class="math inline">\(\lambda_1-\lambda_2\)</span> 的准确估计方面表现相似。GLMM 在 <span class="math inline">\(SD\left(\hat{\lambda}_i\right)\)</span> 与 <span class="math inline">\(\text{average }SE\Big(\hat{\lambda}_i\Big)\)</span> 之间显示出略微更好的一致性。没有其他变换像对数变换那样表现良好。不包含单元效应的 Poisson GLM 显示出不可接受的、膨胀的 I 类错误率，说明了过离散的主要影响。</p>
+<p>最后，尽管对数变换和 GLMM 对于本例中的简单设计表现相似，但对于更复杂的设计，两者在 I 类错误率控制上仍然相当，但 GLMM 模型具有更大的功效和更准确的处理均值估计。因此，这为在使用变换的 LMMs 与 GLMMs 之间提供了有力的理由。</p>
+</div>
+</div>
+<div id="sec11-2" class="section level2" number="11.2">
+<h2>
+<span class="header-section-number">11.2</span> 计数数据的过离散<a class="anchor" aria-label="anchor" href="#sec11-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>并非所有产生计数数据的过程都可以用泊松分布来建模。如果我们假设响应变量Y服从泊松分布，我们就隐式地假定 <span class="math inline">\(E(Y|\lambda) = \lambda\)</span> 和 <span class="math inline">\(Var(Y) = \lambda\)</span>。但这并不总是我们看到的情况。在一些学科中，例如生态学，计数数据很常见，但满足泊松假定的计数数据并不常见。更常见的是，我们看到数据的方差超过了其均值，而且通常是大幅超过。我们称这种现象为<strong>过离散</strong> (overdispersion).</p>
+<div id="sec11-2-1" class="section level3" number="11.2.1">
+<h3>
+<span class="header-section-number">11.2.1</span> 过离散的定义<a class="anchor" aria-label="anchor" href="#sec11-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>正式地说，当观测方差超过假定模型下 <span class="math inline">\(y\)</span> 的分布的理论方差时，就认为存在过离散现象。对于高斯数据，过离散现象不可能发生，因为均值 <span class="math inline">\(\mu\)</span> 和方差 <span class="math inline">\(\sigma^2\)</span> 是不相关的；给定一个μ，在参数空间中原则上并不排除任何σ²的值。在 GLM 的术语中，高斯的方差函数 <span class="math inline">\(V(\mu) = 1\)</span>。对于高斯数据来说，过离散不是一个可理解的概念。另一方面，对于任何具有非平凡方差函数的分布或拟似然函数，过离散在理论上都是可能的。特别地，对于属于单参数指数族的分布来说，过离散尤其可能，因为它们缺乏一个尺度参数来缓和均值-方差关系。对于泊松分布，如果均值等于 <span class="math inline">\(\lambda\)</span>，方差也必须等于 <span class="math inline">\(\lambda\)</span>。因此，泊松模型特别容易受到过离散的影响。</p>
+<p>为说明过离散可能的情形，请考虑一个多站点 (multi-site) 研究，在每个站点我们都在几个位置采集计数数据。我们可能看到这种情况的例子包括环境监测、生态学、流行病学以及各种农业学科。例如，在农业研究中，我们可能会抽取几个田块，并在每个田块内使用多个样带来获取昆虫、杂草或我们正在研究的任何对象的计数。</p>
+<p>在我们的示例中，假定我们有 20 个站点，并且在每个站点中，我们对 10 个样带或位置进行抽样。然后，我们计算每个站点内横断面计数之间的样本方差并绘制图形。图 11.1 显示了一种可能的图；图 11.2 显示了另一个。</p>
+<details><summary><font color="#8B2232">图 11.1</font>
+</summary><img src="figure/figure%2011.1.png#center" style="width:80.0%"></details><br><details><summary><font color="#8B2232">图 11.2</font>
+</summary><img src="figure/figure%2011.2.png#center" style="width:80.0%"></details><p><br>
+图 11.1 显示了我们期望看到的泊松是否准确地表征了 <span class="math inline">\(\symbf y\mid \boldsymbol{\mathrm{site}}\)</span> 的概率分布。均值-方差关系近似线性，斜率为 1. 图 11.2 就是我们经常看到的：方差-均值关系更接近二次而不是线性。图 11.2 显示了过离散计数数据的特征图。</p>
+<p>计数数据发生过离散的原因有：</p>
+<ol style="list-style-type: decimal">
+<li><p>均值模型指定错误 (mis-specified)，例如响应变量与模型尺度上的解释变量显示出曲线关系，但我们拟合了线性回归模型。</p></li>
+<li><p>线性预测器欠指定 (under-specified). 当我们忽略与变异源相对应的随机效应时，就会发生这种情况，例如未包括重复单元项（如上一节中的 GLM ——模型 <a href="chap11.html#eq:11-4">(11.4)</a>）或在裂区数据的模型中排除了整区误差项。</p></li>
+<li><p>我们假定了错误的分布。在学习本章时，我们将考虑其他的计数分布。</p></li>
+</ol>
+<p>如果我们未能考虑到过离散，我们就会低估标准误并使检验统计量膨胀，从而导致通常的后果：I 类错误率过高以及置信区间覆盖范围较差。</p>
+</div>
+<div id="sec11-2-2" class="section level3" number="11.2.2">
+<h3>
+<span class="header-section-number">11.2.2</span> 检测过离散<a class="anchor" aria-label="anchor" href="#sec11-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>如果我们有幸拥有能够构建如图 11.1 或图 11.2 所示的均值-方差图形的数据，检测过离散就很容易。然而，通常情况下，我们并没有这样的数据。我们手头可用的两种诊断工具是残差图和 Pearson <span class="math inline">\(\chi^2/df\)</span> 拟合统计量。</p>
+<p>在普通最小二乘法中，残差是指观测值与预测值之差。在 GLMM 中，我们可以用两种不同的方式来考虑残差：</p>
+<ol style="list-style-type: decimal">
+<li><p>在模型尺度上：对于真正的 GLMM<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：非 LMM、GLM、LM 的 GLMM。&lt;/p&gt;"><sup>25</sup></a>，残差向量是 <span class="math display" id="eq:11-9">\[\symbf{y}^*-\symbf{\hat{\eta}}\]</span>，其中 <span class="math inline">\(\symbf y^*\)</span> 是第 <a href="chap5.html#chap5">5</a> 章定义的伪变量。</p></li>
+<li><p>在数据尺度上：对于真正的 GLMM，数据尺度残差向量为 <span class="math inline">\(\symbf{y}-\symbf{\hat{\mu}}=\symbf{y}-h(\symbf{\hat{\eta}})\)</span>，其中 <span class="math inline">\(h(\cdot)\)</span> 是逆连接函数。</p></li>
+</ol>
+<p>请注意，对于高斯模型这两者等价，因为 LM 和 LMM 使用恒等连接。</p>
+<p>上面定义的残差称为<strong>原始残差</strong> (raw residuals). 通常，我们可以通过将残差调整到度量尺度上来了解更多信息。我们通过将残差除以某种标准差或标准误的度量来实现这一点。<strong>Pearson 残差</strong>使用条件分布的方差估计：</p>
+<ul>
+<li><p>在模型尺度上，Pearson 残差为 <span class="math inline">\(\begin{align}\frac{\symbf{y}^{*}-\hat{\symbf{\eta}}}{\sqrt{\widehat{Var}\left(\symbf{y}^{*}\mid\symbf{b}\right)}}\tag{11.6}\end{align}\)</span></p></li>
+<li><p>在数据尺度上，Pearson 残差为 <span class="math inline">\(\begin{align}\frac{\mathbf{y}-h(\mathbf{\hat{\eta}})}{\sqrt{\widehat{Var}(\mathbf{y}\mid\mathbf{b})}}\tag{11.7}\end{align}\)</span></p></li>
+</ul>
+<p><strong>学生化残差</strong> (Studentized residual) 使用残差的估计方差：</p>
+<ul>
+<li>在模型尺度上，学生化残差为 <span class="math inline">\(\begin{align}\frac{\symbf{y}^{*}-\hat{\symbf{\eta}}}{\sqrt{\widehat{Var}(\symbf{y}^{*}-\hat{\symbf{\eta}})}}\tag{11.8}\end{align}\)</span>
+</li>
+</ul>
+<p>学生残差仅在模型尺度上计算。因此，为了诊断过离散，我们有五个潜在的残差图：原始的、Pearson 或学生化残差与模型尺度上线性预测器估计—— <span class="math inline">\(\hat{\symbf\eta}\)</span> ——之间的关系，以及原始的或 Pearson 残差与数据尺度上的均值估计—— <span class="math inline">\(\hat{\symbf\mu}\)</span> ——之间的关系。均值-方差关系的证据可能会出现在某些（但不是全部）图中。我们使用 PROC GLMIMMIX 的 <code>PLOT</code> 选项获得残差图。</p>
+<p>对于我们的多站点示例，使用图 11.2 中的数据，假设站点效应是随机的，则 <span class="math inline">\(\symbf y\mid \boldsymbol{\mathrm{site}}\sim\text{Poisson}\)</span>，我们有 GLMM：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_i=\eta+f_i\)</span> 其中 <span class="math inline">\(f_i\)</span> 表示站点效应</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ij}\mid f_i\sim\text{ 独立 Poisson}(\lambda_i)\)</span></li>
+<li><span class="math inline">\(f_i\mathrm{~iid~}N\left(0,\sigma_F^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接：<span class="math inline">\(\eta_i=\log(\lambda_i)\)</span></p></li>
+</ul>
+<p>GLIMMIX 语句为：</p>
+<pre class="sas"><code>ods graphics on;
+proc glimmix data=p plot=residualpanel(unpack ilink) 
+     =residualpanel(unpack ilink) plot=studentpanel(unpack noilink);
+ class f;
+ model count_pw= /d=poisson;
+ random intercept / subject=f;</code></pre>
+<p>我们可以有多个 PLOT 语句。<code>RESIDUALPANEL</code> 用于调用原始残差。<code>STUDENTPANEL</code> 用于调用学生化残差。<code>PEARSONPANEL</code> 用于调用皮尔逊残差。<code>ILINK</code> 调用数据尺度残差；而 <code>NOILINK</code> 调用模型尺度残差。<code>UNPACK</code> 允许一次呈现一个图；否则，它们会以图形集合的形式出现，包括直方图、Q-Q 图和箱线图。在这里，我们只想查看残差与预测值的关系。以下是三个示例图：</p>
+<div class="inline-figure"><img src="figure/figure%20347.png#center" style="width:50.0%"></div>
+<p>图 (a) 显示了均值-方差关系的明显视觉证据。随着“预测均值” <span class="math inline">\(\hat\mu\)</span> 的增加，相关残差变得更加分散。然而，该图不一定能很好地诊断过度离散。从图 (a) 很难看出均值-方差关系是否更接近上面图 11.1 或图 11.2 所示的关系。在本章后面，我们将讨论负二项分布作为取代泊松分布的一种不太容易受到过离散影响的分布。而假定 <span class="math inline">\(y_{ij}\mid f_i\sim\text{Poisson}\)</span> 或 <span class="math inline">\(y_{ij}\mid f_i\sim\text{negative binomial}\)</span> 的 GLMM 与图 (a) 基本相同。</p>
+<p>图 (b) 关于过离散的信息不多。而图 (c) 确实显示了过离散的证据。在模型尺度——即对数计数尺度上——图 (c) 展示了随着线性预测器 <span class="math inline">\(\hat\eta\)</span> 的增加，调整方差的残差变异性增大。如果模型准确地描述了均值-方差关系，那么学生化残差就不应该显示出随着 <span class="math inline">\(\hat\eta\)</span> 的增加，残差散布增加的视觉证据。例如，将假定分布改为 <span class="math inline">\(y_{ij}\mid f_i\sim\text{negative binomial}\)</span>，会产生以下学生化残差关于 <span class="math inline">\(\hat\eta\)</span> 的图。</p>
+<div class="inline-figure"><img src="figure/figure%20348-1.png#center" style="width:80.0%"></div>
+<p>随着线性预测器值的增加，学生化残差的散布在视觉上增加，特别是当 <span class="math inline">\(\hat\eta&gt;2\)</span> 时，出现在图 (c) 的泊松模型中，但未出现在负二项的相应图中。由于篇幅原因，未显示 Pearson 残差图。对于计数数据，学生化和 Pearson 会生成视觉上相似的残差图。</p>
+<p>另一个主要的诊断工具是 Pearson <span class="math inline">\(\chi^2/df\)</span>。Pearson <span class="math inline">\(\chi^2/df&gt;&gt;1\)</span> 被认为是过离散的证据。比 1 大多少是一个有点不精确的判断，但 Pearson <span class="math inline">\(\chi^2/df&gt;2\)</span> 无疑是过离散的证据。对于这些数据，拟合统计量为</p>
+<div class="inline-figure"><img src="figure/figure%20348-2.png#center" style="width:50.0%"></div>
+<p>注意，我们得到的是广义 <span class="math inline">\(\chi^2/df\)</span>，而不是 Pearson 统计量。我们看到的是使用 GLMM PL 估计的默认输出。广义卡方统计量度量条件分布和随机模型效应的综合拟合优度<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：这是对 &lt;span class="math inline"&gt;\(\symbf y\)&lt;/span&gt; 和 &lt;span class="math inline"&gt;\(\symbf b\)&lt;/span&gt; 联合分布的拟合优度&lt;/p&gt;'><sup>26</sup></a>。因此，这是一个过度聚合的统计量：我们假定为泊松的是 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的条件分布，而不是 <span class="math inline">\(\symbf y\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的联合分布。为评估前者，我们需要条件分布 Pearson <span class="math inline">\(\chi^2/df\)</span>。我们必须使用 <code>METHOD=LAPLACE</code> 或 <code>METHOD=QUAD</code> 来获得它。在拉普拉斯法下，对于泊松 GLMM，Pearson <span class="math inline">\(\chi^2/df=2.26\)</span>，而对于负二项 GLMM，Pearson <span class="math inline">\(\chi^2/df=0.88\)</span>。</p>
+<p>这些是常见的诊断工具，使我们能够在 GLMM 的标准分析中检测图 11.2 中的数据中的过离散。我们现在考虑处理计数数据过离散的各种策略。</p>
+</div>
+</div>
+<div id="sec11-3" class="section level2" number="11.3">
+<h2>
+<span class="header-section-number">11.3</span> 处理过离散的策略<a class="anchor" aria-label="anchor" href="#sec11-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>从技术上讲，“处理过离散”是一种错误的说法。更好的说法是“充分考虑数据的变异性以避免过离散”。为此，我们可以选择多种策略。要了解这些策略以及哪种策略适合给定的应用，首先要列出变异源。“合理”模型是变异源与模型元素之间具有一一对应的模型。不考虑所有变异源的模型可能会导致过离散。对于给定的应用，“合理”模型不一定是最合适的模型，但将候选模型限制为“合理”的模型可以建设性地缩小我们的选择范围。</p>
+<p>为了说明如何确定“合理”模型，请考虑 <a href="chap11.html#sec11-1-2">11.1.2</a> 节中的完全随机设计示例。变异源是 treatment 和 unit(treatment). 我们已经看到，具有线性预测器 <span class="math inline">\(\eta_{ij}=\log\bigl(\lambda_{ij}\bigr)=\eta+\tau_{i}\)</span> 的 GLM 由于没有考虑可归因于 unit(treatment) 的变异而表现出过离散。添加单元水平的随机效应，即 <span class="math inline">\(u_{ij}\thicksim N\left(0,\sigma_{U}^{2}\right)\)</span>，是考虑 unit(treatment) 变异源并从而避免过离散的一种方式。但是还有其他方法，列于表 11.2 中。</p>
+<details><summary><font color="#8B2232">表 11.2</font>
+</summary><img src="figure/table%2011.2.png#center" style="width:100.0%"></details><p><br>
+请注意，这些模型的不同之处在于每个模型如何解释 unit(treatment) 变异性。所有模型都有一个固定效应 <span class="math inline">\(\tau_i\)</span> 来解释处理。拟似然 GLM 使用拟似然尺度参数解释单元水平的变异性。两个 GLMM 具有随机单位水平效应 <span class="math inline">\(u_{ij}\)</span>，每个模型对 <span class="math inline">\(u_{ij}\)</span> 的分布做出不同的假定。我们现在更详细地考虑每种方法。</p>
+<div id="sec11-3-1" class="section level3" number="11.3.1">
+<h3>
+<span class="header-section-number">11.3.1</span> 具有拟似然尺度参数的 GLM<a class="anchor" aria-label="anchor" href="#sec11-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>这一策略来自 McCullogh and Nelder (1989) 提出的过离散“补丁” (“fix”). 在此模型中，线性预测器与过离散的 GLM<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;译者注：“过离散的 GLM”表示存在过离散问题的 GLM，后同。&lt;/p&gt;"><sup>27</sup></a> 相同，例如，对于 <a href="chap11.html#sec11-1-2">11.1.2</a> 节中的完全随机设计示例，我们添加了一个过离散尺度参数，将泊松 <span class="math inline">\(Var\left(y_{ij}\right)=\lambda_{ij}\)</span> 替换为 <span class="math inline">\(Var\left(y_{ij}\right)=\phi\lambda_{ij}\)</span>。换句话说，对于观测的假定，我们将泊松分布（其对数似然为 <span class="math inline">\({y}\operatorname{log}(\lambda)-\lambda-\operatorname{log}[\Gamma(y-1)]\)</span>）替换为“泊松拟分布”（其拟似然为 <span class="math inline">\(\left(y\log(\lambda)-\lambda\right)/\phi\)</span>）。这种“补丁”的前提是 <span class="math inline">\(\phi &gt; 1\)</span> 可以准确地对观测方差进行建模。这是 GLM 文献中的“经典”补丁方法，但在许多情况下是最不可能有效的，正如我们将在下面看到的。</p>
+<p>该策略修改了推断的目标。回想第 <a href="chap3.html#chap3">3</a> 章，在 GLMM 中，如果给定随机效应的观测 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的条件分布具有期望值 <span class="math inline">\(E(\symbf y\mid\symbf b) =\symbf \mu\)</span>，则 <span class="math inline">\(\symbf b\)</span> 的边际分布具有 <span class="math inline">\(E(\symbf y) = \symbf\mu_Y\)</span>，并且，除非 <span class="math inline">\(\symbf y\)</span> 和 <span class="math inline">\(\symbf b\)</span> 均为高斯分布，否则 <span class="math inline">\(\symbf\mu\ne \symbf\mu_Y\)</span>。我们在 <a href="chap11.html#sec11-1">11.1</a> 节的例子中看到了这一点。直接应用于未变换数据的 ANOVA 模型会生成边际处理均值的估计，该估计与第 <span class="math inline">\(i\)</span> 个处理的泊松期望计数 <span class="math inline">\(\lambda_i\)</span> 不同。虽然与经典 ANOVA 模型相比，其方差假定更为现实，但拟似然 GLM 也以边际均值为目标。</p>
+<p>以边际均值为目标的模型称为<strong>边际模型</strong> (marginal model)；以计数数据的 <span class="math inline">\(E(\symbf y\mid\symbf b)\)</span>（即 <span class="math inline">\(\lambda_i\)</span>）为目标的模型称为<strong>条件模型</strong> (conditional model). 换句话说，条件均值是总体中典型成员的期望计数，而边际均值是总体的总计数除以总体大小。如果我们想知道一个典型患者可能发生哮喘事件的预期数量，我们的目标是 <span class="math inline">\(E(\symbf y\mid\symbf b)=\lambda\)</span>。如果我们想知道人均哮喘事件的预期数量，或者医疗基础设施应计划能够处理的哮喘事件数量，我们的目标是 <span class="math inline">\(E(\symbf y ) = \symbf\mu\)</span>，即边际均值。两者不可互换 (not interchangeable) ——在使用 GLMM 时，必须做出的必要决策之一是：适当的推断空间是什么？也就是说，适当的推断目标是什么？</p>
+<p>作为说明，<a href="chap11.html#sec11-1-2">11.1.2</a> 节中示例的边际拟泊松 GLM 的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=CRD_Counts;
+ class trt unit;
+ model count=trt / d=poisson;
+ random _residual_;
+ lsmeans trt / diff ilink cl;</code></pre>
+<p>处理均值估计为：</p>
+<div class="inline-figure"><img src="figure/figure%20351.png#center" style="width:100.0%"></div>
+<p>请注意，数据尺度处理均值估计（标记为 “Mean” 的列）分别为 <span class="math inline">\(\hat\mu_{Y,1}=4.8\)</span> 和 <span class="math inline">\(\hat\mu_{Y,2}=15\)</span>（分别对应处理 1 和 2），与高斯 ANOVA 模型对未变换计数的估计相同。与高斯 ANOVA 模型不同，边际泊松 GLM 具有 <span class="math inline">\(SE(\hat \mu_{Y,i})\)</span> 标记为 “Standard Error Mean”，两种处理分别为 2.36 和 4.18，准确反映了方差随计数数据均值的增加而增加这一事实，也准确反映了用于解释 unit(observation) 变异的标准误的大小。</p>
+<p>在 20 世纪 90 年代发展出可行的 GLMM 方法之前，拟似然尺度参数一度被认为是过离散的标准补丁。从 GLMM 发展的事后角度来看，只有当预期的推断空间是边际模型的空间时，拟似然尺度参数策略才有意义。</p>
+</div>
+<div id="sec11-3-2" class="section level3" number="11.3.2">
+<h3>
+<span class="header-section-number">11.3.2</span> 泊松-正态 GLMM<a class="anchor" aria-label="anchor" href="#sec11-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>这是 <a href="chap11.html#sec11-1-2">11.1.2</a> 节的示例中模型 <a href="chap11.html#eq:11-5">(11.5)</a> 所采用的策略。我们将其称为泊松-正态 GLMM，因为条件分布为 <span class="math inline">\(y_{ij}\mid u_{ij} \sim \text{Poisson}(\lambda)\)</span> 且线性预测器具有高斯（正态）分布。具体而言，<span class="math inline">\({\eta}_{ij}={\eta}+{\tau}_i+u_{ij}\)</span>，其中 <span class="math inline">\(u_{ij}\thicksim N\left(0,\sigma_U^{2}\right)\)</span>，或等价地 <span class="math inline">\(\eta_{ij}\sim N\big(\eta+\tau_i,\sigma_U^2\big)\)</span>。一般来说，为避免过离散，如果给定随机效应的观测的假定分布是单参数指数族的一员，我们将 unit(observation) 效应 <span class="math inline">\(u_{ij}\)</span> 包含在线性预测器中。因此，如果 <span class="math inline">\(y_{ij}\mid u_{ij}\)</span> 具有泊松分布、二项分布或指数分布，线性预测器为 <span class="math inline">\({\eta}_{ij}={\eta}+{\tau}_i+u_{ij}\)</span>，而如果 <span class="math inline">\(y_{ij}\mid u_{ij}\)</span> 具有高斯分布或其他双参数分布（例如下面的负二项），线性预测器不包括 <span class="math inline">\(u_{ij}\)</span>，因为它的方差 <span class="math inline">\(\sigma_U^2\)</span> 会与 <span class="math inline">\(y_{ij}\mid u_{ij}\)</span> 分布的内在尺度参数混淆。</p>
+</div>
+<div id="sec11-3-3" class="section level3" number="11.3.3">
+<h3>
+<span class="header-section-number">11.3.3</span> 泊松-伽马 / 负二项 GLMM<a class="anchor" aria-label="anchor" href="#sec11-3-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>如表 11.2 所示，用于单元效应 <span class="math inline">\(u_{ij}\)</span> 的高斯分布是一种选择，但不是唯一的选择。计数数据单元效应分布的一个常见替代方案是伽马。对于 <a href="chap11.html#sec11-1-2">11.1.2</a> 节中的完全随机设计，所得模型为<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content='&lt;p&gt;译者注：注意在负二项分布中尺度参数记为 &lt;span class="math inline"&gt;\(\varphi\)&lt;/span&gt;，而在泊松分布中为 &lt;span class="math inline"&gt;\(\phi\)&lt;/span&gt;。&lt;/p&gt;'><sup>28</sup></a>：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\({\eta}_{ij}={\eta}+{\tau}_i+\log(u_{ij})\)</span></p></li>
+<li><p>分布：<span class="math inline">\(\begin{align}y_{ij}\mid u_{ij}\thicksim\mathrm{Poisson}\big(\lambda_{ij}u_{ij}\big);\quad u_{ij}\thicksim\Gamma\big(1/\varphi,\varphi\big)\tag{11.9}\end{align}\)</span></p></li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ij}=\operatorname{log}\left(\lambda_{ij}u_{ij}\right)=\operatorname{log}\left(\lambda_{ij}\right)+\operatorname{log}\left(u_{ij}\right)\)</span></p></li>
+</ul>
+<p>因此，<span class="math inline">\(\log (\lambda_{ij})\)</span> 是 <span class="math inline">\(\eta+\tau_i\)</span> 的连接函数。本书中定义的 GLMM 假定随机模型效应具有高斯分布，并且大多数 GLMM 软件（包括 PROC GLIMMIX）不允许非高斯随机效应。然而，如果我们取 <span class="math inline">\(y_{ij}\)</span> 和 <span class="math inline">\(u_{ij}\)</span> 的联合分布，并关于 <span class="math inline">\(u_{ij}\)</span> 积分，则 <span class="math inline">\(y_{ij}\)</span> 的边际分布是负二项分布的 GLMM 友好形式，Hilbe (2011) 称之为 NB-C 负二项。我们现在展示它的推导。</p>
+<p>在标准概率论中，我们使用二项的替代形式来激发负二项的导出。我们不问二项问题—— <span class="math inline">\(N\)</span> 个独立的伯努利试验中 <span class="math inline">\(X\)</span> 次成功的概率是多少——而是问这样一个问题：“<span class="math inline">\(N+x\)</span> 个独立的贝努利试验恰好获得 <span class="math inline">\(N\)</span> 次成功的概率是多少？”沿着这个思路，我们将负二项 p.d.f. 写为：</p>
+<p><span class="math display" id="eq:11-10">\[\begin{align}
+f\left(y;N,\pi\right)=\begin{pmatrix}N+x-1\\N-1\end{pmatrix}\pi^N\begin{pmatrix}1-\pi\end{pmatrix}^x
+\tag{11.10}
+\end{align}\]</span></p>
+<p>这激发了使用负二项解决率和比例的问题。这不是我们通常在 GLM 中使用负二项的方式。</p>
+<p>负二项的另一用途是将其作为计数分布。Hilbe (2011) 将其称为<strong>典型负二项</strong> (canonical negative binomial, <strong>NB-C</strong>). 假定泊松的率参数是平均计数 <span class="math inline">\(\lambda\)</span> 和伽马随机变量 <span class="math inline">\(u\)</span> 的乘积，伽马随机变量在观察的单元水平扰动率参数。假定 <span class="math inline">\(E(u)=1\)</span>。正式地，<span class="math inline">\(y\mid u\thicksim\mathrm{Poisson}(\lambda u)\)</span> 以及 <span class="math inline">\(u \sim\text{Gamma}(1/\varphi,\varphi)\)</span>。观测计数的条件分布为 <span class="math inline">\(f\left(y\mid u\right)=\frac{e^{-\lambda u}\left(\lambda u\right)^y}{y!}\)</span>。因此 <span class="math inline">\(y\)</span> 的边际分布为：</p>
+<p><span class="math display">\[\begin{aligned}\int_{u=0}^{\infty}f\left(y\mid u\right)f\left(u\right)du&amp;=\int_{0}^{\infty}\frac{e^{-\lambda u}\left(\lambda u\right)^{y}}{y!}\frac{1}{\Gamma(1/\varphi)\left(\varphi\right)^{1/\varphi}}u^{{\left(\begin{array}{c}1/\varphi\end{array}\right)-1}}e^{{-\mu/\varphi}}du\\&amp;=\frac{\lambda^{y}\varphi^{{-1/\varphi}}}{y!\Gamma\begin{pmatrix}1/\varphi\end{pmatrix}}\int_{u=0}^{\infty}e^{-\lambda u}u^{y}u^{{\left(\begin{array}{c}1/\varphi\end{array}\right)-1}}e^{{-(1/\varphi)u}}du\end{aligned}\]</span></p>
+<p>注意到 <span class="math inline">\(y! = Γ(y+ 1)\)</span>，合并积分中的项，并乘以和除以关键常数，我们有：</p>
+<div class="inline-figure"><img src="figure/figure%20352.png#center" style="width:100.0%"></div>
+<p>请注意现在积分是关于 <span class="math inline">\(\text{Gamma}\big(y+(1/\varphi),\lambda+(1/\varphi)\big)\)</span> 分布的密度函数的积分，因此等于 1，因此我们有：</p>
+<p><span class="math display" id="eq:11-11">\[\begin{align}
+\binom{y+(1/\varphi)-1}y\Bigg(\frac\lambda{\lambda+(1/\varphi)}\Bigg)^y\Bigg(\frac{(1/\varphi)}{\lambda+(1/\varphi)}\Bigg)^{1/\varphi}=\Bigg(\begin{matrix}y+(1/\varphi)-1\\y\end{matrix}\Bigg)\Bigg(\frac{\lambda\varphi}{1+\lambda\varphi}\Bigg)^y\Bigg(\frac1{1+\lambda\varphi}\Bigg)^{(1/\varphi)}
+\tag{11.11}
+\end{align}\]</span></p>
+<p>因此，<span class="math inline">\(y\)</span> 的边际分布是负二项，均值为 <span class="math inline">\(\lambda\)</span>，方差为 <span class="math inline">\(\lambda(1+\lambda\varphi)\)</span>。对于 GLM 目的，我们将该分布记作：</p>
+<p><span class="math display" id="eq:11-12">\[\begin{align}
+y\sim NB(\lambda,\varphi)
+\tag{11.12}
+\end{align}\]</span></p>
+<p>将数理统计教材中的参数化 <a href="chap11.html#eq:11-10">(11.10)</a> 与 GLM 参数化 <a href="chap11.html#eq:11-11">(11.11)</a> 联系起来，p.d.f. <a href="chap11.html#eq:11-10">(11.10)</a> 中的 <span class="math inline">\(\pi\)</span> 等价于 p.d.f. <a href="chap11.html#eq:11-11">(11.11)</a> 中的 <span class="math inline">\(1/(1+\lambda\varphi)\)</span>，而 <span class="math inline">\(N\)</span> 等价于 <span class="math inline">\(1/\varphi\)</span>。请注意，在“数理统计”形式中，<span class="math inline">\(N\)</span> 必须是整数，而在 NB-C 形式中，<span class="math inline">\(1/\varphi\)</span> 必须大于零。</p>
+<p>另一种设想泊松和负二项计数过程之间差异的方法是回到概率论中泊松分布的开发。想象一个有 <span class="math inline">\(N\)</span> 个单元格的网格。每个单元格可以是未被占用的，也可以恰好被一个对象占用。设 <span class="math inline">\(\pi=P\{单元格被占用\}\)</span>。假定所有单元格都是相互独立的。那么 <span class="math inline">\(Y\)</span> 个单元被占用的概率是 <span class="math inline">\(\binom Ny\pi^y\left(1-\pi\right)^{N-y}\)</span>。如果我们保持网格的总大小不变，但将其划分为更小（因此更多）的单元格，则当单元格大小 <span class="math inline">\(\rightarrow 0\)</span> 以及 <span class="math inline">\(N \rightarrow \infty\)</span> 并保持 <span class="math inline">\(N\pi\)</span> 不变时，<span class="math inline">\(Y\)</span> 的极限分布为 <span class="math inline">\(\text{Poisson}(\lambda)\)</span>，其中 <span class="math inline">\(\lambda=N\pi\)</span>。</p>
+<p>现在把它视作一个生物过程。假设我们有植物和昆虫。昆虫可以在给定的植物上，也可以不在——令 <span class="math inline">\(\pi=P\{昆虫在植物上\}\)</span>。假设昆虫一次只来一只，每只昆虫到达我们的目标植物的概率为 <span class="math inline">\(\pi\)</span>，所有昆虫的行为相互独立。那么我们的植物有 <span class="math inline">\(y\)</span> 只昆虫的概率是 <span class="math inline">\(\binom Ny\pi^y\left(1-\pi\right)^{N-y}\)</span>。现在，如果我们让 <span class="math inline">\(N \rightarrow \infty\)</span> 并保持 <span class="math inline">\(N\pi\)</span> 不变，则我们具有相同的极限分布，<span class="math inline">\(Y\sim\text{Poisson}(\lambda)\)</span>，其中 <span class="math inline">\(\lambda=N\pi\)</span>。</p>
+<p>另一方面，假设一旦一只昆虫进入了系统，下一只昆虫的行为就不是独立的。举一个简单的例子，想象第一只昆虫飞向我们的植物的概率为 <span class="math inline">\(\pi = 0.5\)</span>，现在，对于第二只昆虫，无论第一只昆虫如何，<span class="math inline">\(\pi \ne 0.5\)</span>，如果第一只昆虫在我们的植物上，则昆虫以 <span class="math inline">\(\pi = 2/3\)</span> 进入我们的植物，否则 <span class="math inline">\(\pi = 1/3\)</span>。这意味着，对于 <span class="math inline">\(N=2\)</span>，植物上有 <span class="math inline">\(Y=0,1\)</span> 或 <span class="math inline">\(2\)</span> 个昆虫的概率均为 <span class="math inline">\(1/3\)</span>。</p>
+<p>与二项过程的标准发展不同，我们现在看到了 Bose-Einstein 统计量的萌芽。如果我们沿着这条思路继续下去，即新昆虫更可能“选择”已有很多昆虫的植物，而非昆虫较少的植物，我们得到的是一个极限分布为几何分布的过程，这是负二项分布的一个特殊情况，其尺度参数 <span class="math inline">\(\varphi = 1\)</span>。经过一些调整，这个过程可以推广到负二项分布。从这个角度来看，负二项分布似乎是许多生物过程的自然模型，而泊松分布则显得明显不现实。昆虫聚集在有利的位置，避开不利的位置。人们往往喜欢住在城市，或者至少是有工作和便利设施的小镇。生物体很少会在地图上随机选择一个地方，而不考虑当地的条件。</p>
+<p>在结束本节之前回到模型 <a href="chap11.html#eq:11-9">(11.9)</a>，在决定对 <span class="math inline">\(\symbf y\mid\symbf b\)</span> 的分布假定为负二项还是泊松时，一个看似合理的标准是检验负二项尺度参数——具体来说，<span class="math inline">\(H_0\colon \varphi =0\)</span>。这基于如下结果。</p>
+<p>当负二项的尺度参数 <span class="math inline">\(\varphi\)</span> 趋于零时，计数数据形式的负二项式—— 式 <a href="chap11.html#eq:11-11">(11.11)</a> ——收敛到泊松分布。</p>
+<p>证明：重写 <a href="chap11.html#eq:11-11">(11.11)</a> 中的 p.d.f.</p>
+<p><span class="math display" id="eq:11-13">\[\begin{align}
+\begin{pmatrix}y+\begin{pmatrix}1/\varphi\end{pmatrix}-1\\y\end{pmatrix}\biggl(\frac{\lambda\varphi}{1+\lambda\varphi}\biggr)^y\biggl(\frac1{1+\lambda\varphi}\biggr)^{1/\varphi}=\frac{\lambda^y}{y!}\frac{\Gamma\big(y+\begin{array}{c}1/\varphi\\\end{array}\big)}{\Gamma(1/\varphi)}\biggl(\frac\varphi{1+\lambda\varphi}\biggr)^y\biggl(\frac1{1+\lambda\varphi}\biggr)^{1/\varphi}
+\tag{11.13}
+\end{align}\]</span></p>
+<p>当 <span class="math inline">\(\varphi \rightarrow 0\)</span> 时，p.d.f. <a href="chap11.html#eq:11-13">(11.13)</a> <span class="math inline">\(\rightarrow \frac{\lambda^ye^{-\lambda}}{y!}\)</span>，泊松 p.d.f.</p>
+<p>对于负二项模型，<span class="math inline">\(Var\left(y\mid b\right)=\lambda\left(1+\varphi\lambda\right)\)</span>。若 <span class="math inline">\(\varphi = 0\)</span>，则 <span class="math inline">\(Var\left(y\mid b\right)\)</span> 简化为 <span class="math inline">\(\lambda\)</span>，即泊松方差。</p>
+<p>使用标准似然比检验进行检验的局限性在于，在 <span class="math inline">\(H_0\colon \varphi =0\)</span> 下，检验需要计算 <a href="chap11.html#eq:11-11">(11.11)</a> 中的 <span class="math inline">\(1/\varphi\)</span> 项，但当 <span class="math inline">\(\varphi =0\)</span> 时，<span class="math inline">\(1/\varphi\)</span> 项是未定义的。在下面的 <a href="chap11.html#sec11-4-4">11.4.4</a> 节中，我们说明了如何绕过这一局限。</p>
+</div>
+<div id="sec11-3-4" class="section level3" number="11.3.4">
+<h3>
+<span class="header-section-number">11.3.4</span> 广义泊松<a class="anchor" aria-label="anchor" href="#sec11-3-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>Joe and Zhu (2005) 提出了泊松 p.d.f 的以下推广：</p>
+<p><span class="math display" id="eq:11-14">\[\begin{align}
+f\left(y;\lambda,\xi\right)=\frac\lambda{y!}\left(\lambda+\xi y\right)^{y-1}e^{-(\lambda+\xi y)}
+\tag{11.14}
+\end{align}\]</span></p>
+<p>这称为<strong>广义泊松</strong> (generalized Poisson). 请注意，期望值和方差分别为 <span class="math inline">\(E\big(y\big)=\mu=\frac{\lambda}{1-\xi}\)</span> 和 <span class="math inline">\(Var(y)=\frac{\mu}{\left(1-\xi\right)^2}\)</span>。我们将 <span class="math inline">\(\xi\)</span> 解释为过离散参数。</p>
+<p>注意到对于 <span class="math inline">\(\xi=0\)</span>，我们有 <span class="math inline">\(f\left(y;\lambda,0\right)=\frac{\lambda}{y!}(\lambda)^{y-1}e^{-(\lambda)}=\frac{e^{-\lambda}\lambda^y}{y!}\)</span>。也就是说，当 <span class="math inline">\(\xi = 0\)</span> 时，我们得到标准泊松分布。然而，与负二项不同，我们可以评估在 <span class="math inline">\(\xi = 0\)</span> 处的对数似然，这意味着我们可以计算似然比统计量来检验 <span class="math inline">\(H_0\colon \varphi =0\)</span>。</p>
+<p>下一节将介绍一个示例，说明本节中讨论的每个建模策略的实施和解释。</p>
+</div>
+</div>
+<div id="sec11-4" class="section level2" number="11.4">
+<h2>
+<span class="header-section-number">11.4</span> 区组设计示例<a class="anchor" aria-label="anchor" href="#sec11-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>此示例的数据出现在 Data Set 11.3 中。研究设计包括在十个完全区块中观察的三种处理，并以计数作为响应变量。如果观测呈高斯分布，我们将使用具有线性预测器 <span class="math inline">\(\mu_{ij}=\mu+\tau_{i}+r_{j}\)</span> 的 LMM，其中 <span class="math inline">\(\tau_i\)</span> 表示处理效应，<span class="math inline">\(r_{j}\)</span> 表示区组效应，假定 <span class="math inline">\(r_j\text{ iid } N\left(0,\sigma_R^2\right)\)</span> 以及 <span class="math inline">\(y_{ij}\mid r_j\sim N\left(\mu_{ij},\sigma^2\right)\)</span>。对于计数数据，我们使用基于 LMM 的泊松 GLMM 开始分析。模型为：</p>
+<ul>
+<li>线性预测器：</li>
+</ul>
+<p><span class="math display" id="eq:11-17">\[\begin{align}
+\eta_{ij}=\eta+\tau_{i}+r_{j}
+\tag{11.15}
+\end{align}\]</span></p>
+<ul>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ij}\mid r_j\sim\mathrm{Poisson}{\left(\lambda_{ij}\right)}\)</span></li>
+<li><span class="math inline">\(r_j\text{ iid } N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span>
+</li>
+</ul>
+<p>请注意，这是一个“朴素” GLMM，因为它没有考虑单元水平的变异。用于实现该模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix method=laplace data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=poisson;
+ random intercept / subject=blk;</code></pre>
+<p>请注意，我们使用 <code>METHOD=LAPLACE</code>（或者 <code>METHOD=QUAD</code>）来获取 Pearson <span class="math inline">\(\chi^2/df\)</span> 拟合统计量。“Fit Statistics” 输出：</p>
+<div class="inline-figure"><img src="figure/figure%20355-1.png#center" style="width:60.0%"></div>
+<p>卡方/DF = 6.88，这是过离散的有力证据。我们可留意 “type III tests of fixed effects” 和 LSMeans，以便我们可以将它们与后续解释过离散的分析进行比较。</p>
+<div class="inline-figure"><img src="figure/figure%20355-2.png#center" style="width:80.0%"></div>
+<p>该输出的显著特征是 <span class="math inline">\(F\)</span> 值为 48.49. 鉴于存在过离散的有力证据，我们应该认为该 <span class="math inline">\(F\)</span> 统计量是高度可疑的。</p>
+<p>要了解为什么上述 GLMM 是“朴素的”，请考虑“Fisher 会怎么做?”框架 ANOVA 中的变异源以及每个模型如何解释这些变异源。</p>
+<div class="inline-figure"><img src="figure/figure%20356-1.png#center" style="width:70.0%"></div>
+<div id="sec11-4-1" class="section level3" number="11.4.1">
+<h3>
+<span class="header-section-number">11.4.1</span> 边际模型<a class="anchor" aria-label="anchor" href="#sec11-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p><a href="chap11.html#sec11-3-1">11.3.1</a> 节中描述的方法向模型 <a href="chap11.html#eq:11-15">(11.15)</a> 添加了拟似然尺度参数，以考虑单位水平的变异性。这样做创建了 Stroup et al. (2018) 所谓的“拟边际” (“quasi-likelihood”) 模型，定义为在线性预测器中具有随机效应（在本例中为区组效应 <span class="math inline">\(r_j\)</span>）和拟似然项（在本例中为尺度参数 <span class="math inline">\(\phi\)</span>）的 GLM. 拟边际模型既不针对条件推断空间，即 <span class="math inline">\(E\Big(y_{ij}\mid r_{j}\Big)=\lambda_{ij}\)</span>，也不针对边际推断空间，即 <span class="math inline">\(\mu_Y\)</span>。相反，它针对某个中间 (in-between) 推断空间。我们首先展示了这种拟边际模型的实施和产生的结果，然后为来自区组设计的数据提供真正的边际模型。</p>
+<p>调用拟边际模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix /*method=laplace*/ data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=poisson;
+ random intercept / subject=blk;
+ random _residual_;
+ lsmeans trt/ilink;</code></pre>
+<p>我们保留 <code>DIST=POISSON</code> 指定，但添加语句 <code>RANDOM _RESIDUAL_</code>。这会导致对尺度参数进行估计，并随后将其用作所有标准误和检验统计量的调整。GLIMMIX 使用广义 <span class="math inline">\(\chi^2 /df = \hat\phi\)</span>。McCullach and Nelder (1989) 使用偏差统计量来计算 <span class="math inline">\(\hat\phi\)</span>。默认泊松分析的所有标准误均乘以 <span class="math inline">\(\hat\phi\)</span>，所有 <span class="math inline">\(F\)</span> 值除以 <span class="math inline">\(\hat\phi\)</span>。请注意，因为我们创建了拟似然，所以我们不能使用拉普拉斯或求积法：我们必须使用 PL 或其在其他软件包中的等价项。相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20356-2.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20357-1.png#center" style="width:100.0%"></div>
+<p>处理样本均值，即边际 <span class="math inline">\(\mu_Y\)</span> 的估计分别为 8, 13.3 和 25.7，如果我们拟合本节开头描述的高斯 LMM 或真正的边际 GLMM，就会得到这些值。而在拟边际模型下，上方 “trt Least Squares Means” 表中的 “Mean” 所给出的均值估计分别为 5.97, 9.92 和 19.18.</p>
+<p>真正的边际模型通过工作协方差结构解释所有随机变异源（在本例中为区组和单元）。在这种情况下，我们可以借用第 3 章 <a href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html#sec3-5-5">3.5.5</a> 节中介绍的复合对称模型，得到以下边际 GLMM：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\begin{align}\eta_i=\log\left(\mu_{Y,i}\right)=\eta+\tau_i\tag{11.16}\end{align}\)</span></p></li>
+<li><p>分布：<span class="math inline">\(\text{quasi-Poisson}\left(\mu_{Y,i}\right)\)</span>，其中 <span class="math inline">\(\mu_{Y,i}\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理的边际平均计数</p></li>
+<li><p>工作协方差 <span class="math inline">\(\begin{bmatrix}\symbf{R}_1&amp;\symbf{0}&amp;...&amp;\symbf{0}\\\symbf 0&amp;\symbf{R}_2&amp;...&amp;\symbf{0}\\...&amp;...&amp;...&amp;...\\\symbf{0}&amp;\symbf{0}&amp;...&amp;\symbf{R}_{10}\end{bmatrix}\)</span>，其中 <span class="math inline">\(\symbf{R}_j=\begin{bmatrix}\phi+\sigma_{cs}&amp;\sigma_{cs}&amp;\sigma_{cs}\\\sigma_{cs}&amp;\phi+\sigma_{cs}&amp;\sigma_{cs}\\\sigma_{cs}&amp;\sigma_{cs}&amp;\phi+\sigma_{cs}\end{bmatrix}\)</span> 表示第 <span class="math inline">\(j\)</span> 个区组的工作协方差阵。<span class="math inline">\(\phi\)</span> 表示拟似然尺度参数，<span class="math inline">\(\sigma_{cs}\)</span> 表示复合对称工作协方差参数。</p></li>
+</ul>
+<p>在许多 GLM 书籍和软件包中，复合对称工作协方差也称为<strong>可交换工作协方差</strong> (exchangeable working covariance). 以下 PROC GLIMMIX 语句实现 <a href="chap11.html#eq:11-16">(11.16)</a> 中给出的复合对称边际模型：</p>
+<pre class="sas"><code>proc glimmix /*method=laplace*/ data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=poisson s;
+ random trt / subject=blk type=cs residual;
+ lsmeans trt/ilink;
+ title ‘ Poisson model + CS working covariance’;</code></pre>
+<p>在 RANDOM 语句中，<code>RESIDUAL</code> 与非高斯分布一起指定边际工作协方差，<code>SUBJECT=BLK</code> 指定分块对角阵，其维度由 TRT 确定（即，TRT 具有三个水平，因此分块对角阵为 <span class="math inline">\(3 ×3\)</span> 的）并且 <code>TYPE=CS</code> 指定工作协方差的复合对称形式。请注意，<code>LAPLACE</code> 和 <code>QUADRATURE</code> 法不能与边际模型（即具有非高斯响应变量以及 RANDOM 语句中的 <code>RESIDUAL</code> 的模型）一起使用。上述语句中的 <code>METHOD=LAPLACE</code> 被注释掉，以提醒读者它不能与该模型一起使用。选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20358-1.png#center" style="width:100.0%"></div>
+<p>在 “Covariance Parameter Estimates” 表中，CS 的估计，subject BLK 是工作协方差估计 <span class="math inline">\(\hat\sigma_{cs} = 8.87\)</span> 并且 “residual” 是拟似然尺度估计 <span class="math inline">\(\hat\phi = 20.61\)</span>。作为工作协方差中的参数，这两种估计都没有内在的解释。请注意，“trt Least Squares Means” 表中的数据尺度均值是处理样本平均计数 8, 13.3 和 25.7，正如在真正的边际模型中应有的那样。</p>
+</div>
+<div id="sec11-4-2" class="section level3" number="11.4.2">
+<h3>
+<span class="header-section-number">11.4.2</span> 泊松-正态 GLMM<a class="anchor" aria-label="anchor" href="#sec11-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>本例中区组设计的泊松-正态 GLMM 如下：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+r_j+u_{ij}\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 和 <span class="math inline">\(r_j\)</span> 与模型 <a href="chap11.html#eq:11-15">(11.15)</a> 中的情况相同，<span class="math inline">\(u_{ij}\)</span> 表示单元效应。对于区组设计，单位效应在数学上与区组 × 处理的交互作用相同，因此可以等价地表示为 <span class="math inline">\(rt_{ij}\)</span>。<span class="math inline">\(rt_{ij}\)</span> 表示法在编写软件语句时非常有用；大多数软件包都要求将单元效应指定为区组 × 处理效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ij}\mid r_j,rt_{ij}\sim \text{Poisson}\left(\lambda_{ij}\right)\)</span></li>
+<li><span class="math inline">\(r_j\mathrm{~iid~}N\left(0,\sigma_R^2\right);\quad\left(rt\right)_{ij}\mathrm{~iid~}N\left(0,\sigma_{RT}^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ij}=\log(\lambda_{ij})\)</span></p></li>
+</ul>
+<p>我们可以使用以下 GLIMMIX 语句来获得 Pearson <span class="math inline">\(\chi^2/df\)</span> 过离散诊断。其中我们可以使用 <code>METHOD=QUAD</code> 而不是 <code>LAPLACE</code>。</p>
+<pre class="sas"><code>proc glimmix method=laplace data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=poisson;
+ random intercept trt / subject=blk;</code></pre>
+<p>此程序与“朴素”泊松 GLMM 模型 <a href="chap11.html#eq:11-15">(11.15)</a> 的 GLIMMIX 程序之间的唯一区别是在 RANDOM 语句中包含了 TRT 项；与 <code>SUBJECT=BLK</code> 结合使用，这定义了区组 × 处理随机效应（也称为单元水平效应）。相关结果：</p>
+<div class="inline-figure"><img src="figure/figure%20359-1.png#center" style="width:60.0%"></div>
+<p>这有力地证明我们已经有效消除了过离散。请注意，对于泊松-正态模型，Pearson <span class="math inline">\(\chi^2/df\)</span> 通常在 0.15 和 0.25 之间，而不是接近 1。这是唯一一个出现这种异常的 GLMM.</p>
+<p>拉普拉斯法和求积法计算最大似然方差分量估计。Stroup and Claassen (2020) 发现，与 LMM 相应的方法一样，这些积分近似法产生的最大似然估计会产生向下偏差的方差估计，从而产生向上偏差的检验统计量和向下偏差的标准误。另一方面，只要期望计数使得针对 <span class="math inline">\(y_{ij}\mid r_{j},rt_{ij}\)</span> 假定的泊松分布至少近似对称，由伪似然算法生成的类 REML 估计就可以提供更好的 I 类错误控制和更准确的置信区间覆盖。有关伪似然与求积问题的更多讨论，请参见第 12 章 <a href="chap12.html#sec12-2">12.2</a> 节。</p>
+<p>根据 Stroup-Claassen 的建议，我们使用以下 PROC GLIMMIX 语句来完成分析。</p>
+<pre class="sas"><code>proc glimmix data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=poisson;
+ random intercept trt / subject=blk;
+ lsmeans trt/ilink;
+ title ‘ Poisson model + blk*trt (unit) effect’;</code></pre>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20359-2.png#center" style="width:70.0%"></div>
+<p>区组 × 处理（单元水平）方差分量估计为 <span class="math inline">\(\hat\sigma^2_{RT}=0.98\)</span>。将其解释为区组间对数方差比的 <span class="math inline">\(\log(\lambda_{1j}/\lambda_{2j}\)</span>。区组方差估计为 <span class="math inline">\(\hat\sigma_R^2=0.62\)</span>。</p>
+<div class="inline-figure"><img src="figure/figure%20359-3.png#center" style="width:70.0%"></div>
+<p>将该 <span class="math inline">\(F\)</span> 值与“朴素”泊松 GLM 的 48.49、具有拟似然尺度参数的朴素模型的 4.50 以及边际 CS 模型的 2.20 相比。在这里，我们理解了为什么在这个例子描述的情况下，尺度参数不能有效地控制 I 类错误。假定在单元水平上存在均值和方差之间的二次关系，仅使用拟边际尺度参数并不足以解释单元水平的方差，而边际模型（如果它是适当的推断目标）或泊松-正态 GLMM 可以。未能考虑单元水平的方差会导致 <span class="math inline">\(F\)</span> 值膨胀。</p>
+<div class="inline-figure"><img src="figure/figure%20360.png#center" style="width:100.0%"></div>
+<p>与前面两个分析中的估计不同，我们在 “Mean” 列中看到的值分别为 5.2, 6.9 和 11.3，分别对应处理 1、2 和 3，这些是泊松速率参数真正的广义推断空间估计。</p>
+<p>虽然这里没有显示，但我们也可以使用 <code>COVTEST</code> 进行 <span class="math inline">\(H_0\colon\sigma_{RT}^2=0\)</span> 的似然比检验。这将正式检验在线性预测器中包含 <span class="math inline">\(rt_{ij}\)</span> 的合理性。</p>
+</div>
+<div id="sec11-4-3" class="section level3" number="11.4.3">
+<h3>
+<span class="header-section-number">11.4.3</span> 负二项 GLMM<a class="anchor" aria-label="anchor" href="#sec11-4-3"><i class="fas fa-link"></i></a>
+</h3>
+<p>使用式 <a href="chap11.html#eq:11-11">(11.11)</a> 的结果，如果假定单元水平效应分布于 <span class="math inline">\(\Gamma\left(1/\varphi,\varphi\right)\)</span>，则给定其他随机效应（在本例中为区组效应）的观测具有负二项分布。正式地，模型为：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+r_j\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ij}\mid r_j\sim\mathrm{NB}\Big(\lambda_{ij},\varphi\Big)\)</span></li>
+<li><span class="math inline">\(r_j\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span>
+</li>
+</ul>
+<p>请注意，我们在线性预测器中未包括单元水平项。因为这样做会将单元效应方差与负二项尺度参数混淆。回想“合理模型”的标准，变异源和模型中解释它们的项之间必须一一对应。我们不想省略术语，就像模型 <a href="chap11.html#eq:11-15">(11.15)</a> “朴素 GLMM”一样。我们也不想指定多个项来解释单个变异源，例如在一个已经通过负二项尺度参数 <span class="math inline">\(\varphi\)</span> 来解释单元效应的模型中包括单元水平的随机效应。</p>
+<p>实施该分析的 GLIMMIX 语句与“朴素”泊松分布相同，只是我们将 <code>DIST=POISSON</code> 替换为 <code>DIST=NEGBIN</code>。与泊松-正态一样，我们采用两步法。第一步，使用拉普拉斯或求积法，我们获得拟合统计量。第二步，根据 Stroup and Claassen (2020) 的建议，我们使用伪似然法计算推断统计量。第一步的语句：</p>
+<pre class="sas"><code>proc glimmix method=laplace data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=negbin;
+ random intercept / subject=blk;</code></pre>
+<p>相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20361-1.png#center" style="width:50.0%"></div>
+<p>Pearson <span class="math inline">\(\chi^2/df=0.68\)</span> 表明没有过离散的证据。现在，第二步的语句：</p>
+<pre class="sas"><code>proc glimmix data=RCBD_counts;
+ class blk trt;
+ model y=trt/dist=negbin;
+ random intercept / subject=blk;
+ lsmeans trt /ilink;
+ nloptions maxiter=50;</code></pre>
+<p>该算法在默认的 20 次迭代中不会收敛。包含 <code>NLOPTIONS MAXITER = 50</code> 以允许收敛所需的额外迭代。选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20361-2.png#center" style="width:70.0%"></div>
+<p>SCALE 的估计为 <span class="math inline">\(\hat\varphi=0.85\)</span>。这与具有 <code>RANDOM _RESIDUAL_</code> 语句的泊松模型的拟似然尺度参数不同。它们对均值-方差关系的影响不同。例如，若 <span class="math inline">\(\lambda=10\)</span>，泊松拟似然尺度参数将意味着 <span class="math inline">\(y_{ij}\mid r_k\)</span> 的方差为 <span class="math inline">\(\phi\lambda=10.77\times10=107.7\)</span>。负二项则意味着方差为 <span class="math inline">\(\lambda+\phi\lambda^2=10+0.85\times10^2=95\)</span>。对于 <span class="math inline">\(\lambda=15\)</span>，方差分别为 <span class="math inline">\(\phi\lambda=10.77\times15=161.55\)</span> 和 <span class="math inline">\(\lambda+\phi\lambda^2=15+0.85\times15^2=206.25\)</span>。我们可以看到这是如何改变均值-方差关系的。</p>
+<p>处理效应检验统计量：</p>
+<div class="inline-figure"><img src="figure/figure%20361-3.png#center" style="width:80.0%"></div>
+<p>与泊松-正态模型获得的结果类似。LSMeans 为：</p>
+<div class="inline-figure"><img src="figure/figure%20362-1.png#center" style="width:100.0%"></div>
+<p>这些与之前看到的两组均值不同。负二项速率参数 <span class="math inline">\(\lambda_i\)</span> 的估计出现在标记为 “Mean” 的列中。它们与从泊松-正态 GLMM 获得的估计具有类似的解释，但它们源于不同的过程。一般来说，如果真实过程更接近泊松正态，则负二项 GLMM 会高估 <span class="math inline">\(\lambda_i\)</span>（第 <span class="math inline">\(i\)</span> 个处理的期望计数）。如果过程更接近泊松/伽马/负二项，则泊松-正态 GLMM 会低估 <span class="math inline">\(\lambda_i\)</span>。没有任何统计量可以决定性地说明泊松-正态分布或负二项 GLMM 是否提供更好的拟合。例如，泊松-正态的 AICC 为 227.68，负二项的 AICC 为 227.40。截至目前，对于泊松-正态与负二 GLMM 之间的选择，尚无可靠的诊断工具，尤其是对于像本例这样的小数据集。更好的做法是根据导致泊松或负二项的过程描述，并结合领域知识来做出选择。</p>
+</div>
+<div id="sec11-4-4" class="section level3" number="11.4.4">
+<h3>
+<span class="header-section-number">11.4.4</span> 检验负二项尺度参数？<a class="anchor" aria-label="anchor" href="#sec11-4-4"><i class="fas fa-link"></i></a>
+</h3>
+<p>此时，我们可能想要检验 <span class="math inline">\(H_0\colon \varphi = 0\)</span>，注意到当 <span class="math inline">\(\varphi\rightarrow0\)</span> 时，负二项收敛到泊松分布。然而，构建 <span class="math inline">\(\varphi = 0\)</span> 的似然比检验并不像看起来那么简单。在 PROC GLIMMIX 中，我们使用 COVTEST 语句获取协方差参数的似然比检验统计量。在本例中，语句为：</p>
+<pre class="sas"><code>Covtest “H_0: NB scale =0” . 0;</code></pre>
+<p>在 “Covariance Parameter Estimates” 表中，首先列出了区组方差，然后列出 NB 尺度参数。标题后面的 <code>.</code> 表示我们不检验区组方差，<code>0</code> 表示我们要检验 <span class="math inline">\(H_0\colon \varphi = 0\)</span>。我们得到以下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20362-2.png#center" style="width:70.0%"></div>
+<p>请注意，-2 倍对数似然和 <span class="math inline">\(\chi^2\)</span> 都是 6E21 ——一个无意义的数字，表明计算无法进行。检查式 <a href="chap11.html#eq:11-11">(11.11)</a>，我们就能明白其中的原因。似然比检验需要在原假设下确定对数似然，但对数似然中有一项为 <span class="math inline">\(1/\varphi\)</span> —— 这在 <span class="math inline">\(\varphi=0\)</span> 时未定义。换句话说，对于负二项模型，<span class="math inline">\(H_0\colon \varphi = 0\)</span> 的似然比检验是未定义的。解决该问题的办法是比较具有相同线性预测器的“朴素”泊松模型和负二项模型——在本例中，是模型 <a href="chap11.html#eq:11-15">(11.15)</a> 和负二项 GLMM ——的 -2 倍对数似然拟合统计量并将差值视为 <span class="math inline">\(\chi^2_{(1)}\)</span> 统计量。</p>
+</div>
+<div id="sec11-4-5" class="section level3" number="11.4.5">
+<h3>
+<span class="header-section-number">11.4.5</span> 广义泊松<a class="anchor" aria-label="anchor" href="#sec11-4-5"><i class="fas fa-link"></i></a>
+</h3>
+<p>区组设计数据的广义泊松 GLMM 为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+r_j\)</span></p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ij}\mid r_j\sim\text{Generalized Poisson}\left(\lambda_{ij},\xi\right)\)</span></li>
+<li><span class="math inline">\(r_j\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span></p></li>
+</ul>
+<p>广义泊松分布并不在 PROC GLIMMIX 中 <code>DISTRIBUTION=</code> 选项所提供的分布中，但 SAS/STAT<sup>®</sup> (2023) 文档中的示例 38.14 展示了实现广义泊松的程序语句。对于 Data Set 11.3，这些语句是：</p>
+<pre class="sas"><code>proc glimmix method=laplace data=RCBD_counts;
+ class blk trt;
+ model y=trt/ link=log s;
+ random int / subject=blk;
+ xi = (1 - 1/exp(_phi_));
+ variance_ = _mu_ / (1-xi)/(1-xi);
+ if (_mu_=.) or (_linp_ = .) then _logl_ = .;
+ else do;
+  mustar = _mu_ - xi*(_mu_ - y);
+  if (mustar &lt; 1E-12) or (_mu_*(1-xi) &lt; 1e-12) then
+   _logl_ = -1E20;
+   else do;
+   _logl_ = log(_mu_*(1-xi)) + (y-1)*log(mustar) - 
+            mustar - lgamma(y+1);
+   end;
+  end;
+ lsmeans trt/ilink;
+ covtest ‘scale=0’ . 0;
+title ‘ Generalized Poisson model ‘;</code></pre>
+<p>程序语句定义用户指定的对数似然函数和方差函数。对于具有用户定义分布的程序，我们必须使用 <code>METHOD=LAPLACE</code> 或 <code>METHOD=QUAD</code>。请注意，变量 <code>xi</code> 是过离散参数 <span class="math inline">\(\xi\)</span>。所有以下划线开头和结尾的变量，例如 <code>_PHI_</code>，都是保留的变量名，是 GLIMMIX 内部架构的一部分。 GLIMMIX 将尺度参数 <code>_PHI_</code> 定义为非负数，因此在程序中重新参数化以定义适当的边界：<span class="math inline">\(0&lt;\xi&lt;1\)</span>。有关详细信息，请参阅 SAS/STAT<sup>®</sup> 文档。相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20363.png#center" style="width:50.0%"></div>
+<p>与之相比，负二项的 <span class="math inline">\(\chi^2/df\)</span> 为 0.68. 负二项和广义泊松的 AICC 统计量分别为 227.4 和 228.81. Pearson <span class="math inline">\(\chi^2/df\)</span> 和 AICC 统计量都没有提供强烈支持一种分布优于另一种的证据，尽管使用这两种准则，负二项似乎要好一些。广义泊松是一种重尾分布，这意味着我们预期零计数和较大的计数在广义泊松下比在负二项下更常见。检查数据可能会有所帮助。</p>
+<div class="inline-figure"><img src="figure/figure%20364-1.png#center" style="width:60.0%"></div>
+<p>这里的 “scale” 估计是指 SAS 内部变量 <code>_PHI_</code>。使用上述定义，我们将广义泊松的 <span class="math inline">\(\hat\xi\)</span> 计算为 <span class="math inline">\(1-\left(1/e^{_-PHI_{-}}\right)=1-\left(1/e^{1.4338}\right)=0.762\)</span>。</p>
+<div class="inline-figure"><img src="figure/figure%20364-2.png#center" style="width:60.0%"></div>
+<p>与负二项模型的 <span class="math inline">\(F = 1.31\)</span> 相比。我们可以继续比较处理均值估计等等，这里就不展示了。这些数据的广义泊松模型和负二项模型之间的差异既不显著也不重要。然而，对于其他数据集并不一定如此。</p>
+<div class="inline-figure"><img src="figure/figure%20364-3.png#center" style="width:80.0%"></div>
+<p>该输出是运行该模型的有力理由。在这里，我们对数据的“泊松性” (“Poisson-ness”) 进行了合理的检验。<span class="math inline">\(\chi^2=123.8\)</span> 表明存在 <span class="math inline">\(\xi &gt; 0\)</span> 的压倒性证据，因此标准泊松模型 <a href="chap11.html#eq:11-15">(11.15)</a> 不适合本数据。合理的推断必须来自解释过离散的模型之一：广义泊松模型、负二项模型或线性预测变量中包含区组 × 处理的泊松-正态模型。</p>
+</div>
+</div>
+<div id="sec11-5" class="section level2" number="11.5">
+<h2>
+<span class="header-section-number">11.5</span> 多水平实验的计数数据<a class="anchor" aria-label="anchor" href="#sec11-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap3.html#chap3">3</a> 章中，我们首先遇到了条件模型和边际模型之间的区别。我们在上一节中进一步发展了这一主题。我们知道，对于非高斯 GLMM，两者不仅产生不同的结果，而且针对不同的参数。因此，我们不能对模型的构建或解释含糊其辞。我们需要确保我们思考问题的方式与我们的模型目标参数一致，即与预期的推断空间一致。非高斯边际模型和条件模型为含糊不清的解释敞开了大门<a class="footnote-ref" tabindex="0" data-toggle="popover" data-content="&lt;p&gt;原文：Non-Gaussian marginal and conditional models constitute an open invitation for sloppy interpretation.&lt;/p&gt;"><sup>29</sup></a>。</p>
+<p>为充分理解所涉及的问题，让我们考虑一个多水平的例子。数据显示为 Data Set 11.4. 处理设计使用 7 × 4 析因结构——因素 A 具有七个水平、因素 B 具有四个水平。四个区组被分成七个单元，因素 A 的水平被随机分配到这些单元。每个单元被分成四个子单元，因素 B 的水平被随机分配到这些子单元。因此，“Fisher 会怎么做？” 框架 ANOVA 表为：</p>
+<div class="inline-figure"><img src="figure/figure%20365.png#center" style="width:70.0%"></div>
+<p>数据是计数。因此，遵循我们标准流程的“初步近似”模型是：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}+r_k+(ra)_{ik}\)</span>，其中 <span class="math inline">\(\alpha,\beta\)</span> 和 <span class="math inline">\(r\)</span> 分别表示 A, B 和区组效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r_k,\left(ra\right)_{ik}\thicksim \text{Poisson}\left(\lambda_{ijk}\right)\)</span></li>
+<li><span class="math inline">\(r_k\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+<li><span class="math inline">\(\left(ra\right)_{ik}\mathrm{~iid~}N\left(0,\sigma_{RA}^2\right)\)</span></li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ijk}=\log\left(\lambda_{ijk}\right)\)</span></p></li>
+</ul>
+<p>像往常一样，我们使用 <code>METHOD=LAPLACE</code> 进行初步运行。对于这些数据，Pearson <span class="math inline">\(\chi^2/df=4.50\)</span>。我们需要对模型进行适当的修正以解决过离散问题。为此，我们回顾 <a href="chap11.html#sec11-3">11.3</a> 节和 <a href="chap11.html#sec11-4">11.4</a> 节中所示的步骤。我们不会在这里重复它们。出于说明目的，我们展示了两个模型的实现：边际模型（当推断目标为边际均值时使用）和负二项 GLMM（当推断目标是 <span class="math inline">\(E\big(y_{ijk}\mid r_k,ra_{ik}\big)=\lambda_{ijk}\)</span> 时是适当的选择，这是总体的典型成员预期的广义推断空间计数）。</p>
+<div id="sec11-5-1" class="section level3" number="11.5.1">
+<h3>
+<span class="header-section-number">11.5.1</span> 边际模型<a class="anchor" aria-label="anchor" href="#sec11-5-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>边际模型为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\begin{align}\eta_{ijk}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}+r_k\tag{11.17}\end{align}\)</span></p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r_k\sim \text{quasi-Poisson}\left(\lambda_{ijk}\right)\)</span></li>
+<li><span class="math inline">\(r_k\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+<li>
+<span class="math inline">\(Var\left(\symbf{y}_{ik}\mid r_k\right)=\symbf{\lambda}_{ik}\left(\symbf{I}_4\phi+\symbf{J}_{4\times4}\sigma_{cs}\right)\)</span> 其中 <span class="math inline">\(\symbf{y'}_{ik}=\begin{bmatrix}y_{i1k}&amp;y_{i2k}&amp;y_{i3k}&amp;y_{14k}\end{bmatrix}\)</span> 表示每个单元内的四个子单元的观测，以及 <span class="math inline">\(\symbf{\lambda'}_{ik}=\begin{bmatrix}\lambda_{i1k}&amp;\lambda_{i2k}&amp;\lambda_{i3k}&amp;\lambda_{14k}\end{bmatrix}\)</span> 表示 <span class="math inline">\(y_{ijk}\)</span> 相关的方差函数。</li>
+</ul>
+</li>
+<li><p>连接函数：<span class="math inline">\(\eta_{ijk}=\log\left(\lambda_{ijk}\right)\)</span></p></li>
+</ul>
+<p><span class="math inline">\(Var\left(\symbf{y}_{ik}\mid r_k\right)\)</span> 遵循我们在第 <a href="chap5.html#chap5">5</a> 章和第 <a href="chap6.html#chap6">6</a> 章中开发的一般结构，<span class="math inline">\(Var\left(\symbf{y}\mid\symbf{b}\right)=\symbf{V}_\mu^{1/2}\symbf{A}_W\symbf{V}_\mu^{1/2}\)</span>。工作协方差阵为 <span class="math inline">\(\symbf{A}_W=\symbf{I}_4\phi+\symbf{J}_{4\times4}\sigma_{cs}\)</span>。复合对称参数 <span class="math inline">\(\sigma_{cs}\)</span> 是条件 GLMM 中全区方差 <span class="math inline">\(\sigma_{RA}^2\)</span> 的类似项，尺度参数 <span class="math inline">\(\symbf\phi\)</span> 是裂区（或 <span class="math inline">\(B × block(A)\)</span>）方差的类似项。</p>
+<p>请注意，模型 <a href="chap11.html#eq:11-17">(11.17)</a> 在技术上是一个拟边际模型，因为尽管复合对称工作协方差考虑了整区和裂区方差，但它也不能考虑区组方差。区组效应必须在线性预测器中作为一个不同的项出现。Stroup and Claassen (2020) 指出，如果区组合理地代表了研究中可能包含的区组总体的一个样本（例如，具有随机选择的不同结果），那么将区组作为固定效应建模会显著夸大检验统计量并增加 I 类错误率。除非有充分的理由，最好将区组作为随机效应进行建模。</p>
+<p>边际模型 <a href="chap11.html#eq:11-17">(11.17)</a> 中的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=sp_counts; 
+ class a b blk;
+ model count = a b a*b / dist=Poisson;
+ random intercept/subject=blk;
+ random b / type=cs subject=blk*a residual; 
+ lsmeans a*b/ilink;</code></pre>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20366-1.png#center" style="width:60.0%"></div>
+<p>在 “Covariance Parameter Estimates” 表中，Subject 为 “blk” 的 “intercept” 是区组方差估计 <span class="math inline">\(\hat\sigma_R^2=0.06\)</span>，Subject 为 “a*blk” 的 “CS” 是复合对称工作协方差估计 <span class="math inline">\(\hat\sigma_{cs}=346\)</span>，以及 “residual” 是工作协方差尺度参数估计 <span class="math inline">\(\hat\phi = 9.23\)</span>。</p>
+<div class="inline-figure"><img src="figure/figure%20366-2.png#center" style="width:70.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20367-1.png#center" style="width:80.0%"></div>
+<p>为节省空间，仅展示因素 A 水平 1 和 7 的 LSMeans.</p>
+<p>请注意，GLIMMIX 默认算法产生的分母自由度与本节开头的 ANOVA 表中的分母自由度不匹配。修改 MODEL 语句，如下所示：</p>
+<pre class="sas"><code>model count = a b a*b / dist=Poisson df=18,63,63;</code></pre>
+<p>正确的 “Type III test of fixed effects” 表为：</p>
+<div class="inline-figure"><img src="figure/figure%20367-2.png#center" style="width:60.0%"></div>
+</div>
+<div id="sec11-5-2" class="section level3" number="11.5.2">
+<h3>
+<span class="header-section-number">11.5.2</span> 负二项 GLMM<a class="anchor" aria-label="anchor" href="#sec11-5-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>回想，泊松 GLMM 显示了过离散的有力证据。我们在这里省略了步骤，但负二项 GLMM 是考虑过离散的优选模型。正式地，该模型为：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\alpha_i+\beta_j+(\alpha\beta)_{ij}+r_k+(ra)_{ik}\)</span>，其中 <span class="math inline">\(\alpha,\beta\)</span> 和 <span class="math inline">\(r\)</span> 分别表示 <a href="chap11.html#eq:11-17">(11.17)</a> 中的 A, B 和区组效应。</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid r_k,(ra)_{ik}\thicksim NB\Big(\lambda_{ijk},\varphi\Big)\)</span></li>
+<li><span class="math inline">\(r_k\mathrm{~iid~}N\left(0,\sigma_R^2\right)\)</span></li>
+<li><span class="math inline">\(\left(ra\right)_{ik}\mathrm{~iid~}N\left(0,\sigma_{RA}^2\right)\)</span></li>
+</ul>
+</li>
+<li>连接函数：<span class="math inline">\(\eta_{ijk}=\log\left(\lambda_{ijk}\right)\)</span>
+</li>
+</ul>
+<p>此模型的 PROC GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=example_12_4;
+ class a blk b;
+ model count = a b a*b / dist=NegBin;
+ random intercept a / subject=blk; 
+ lsmeans a*b/ilink;
+ nloptions maxiter=50;</code></pre>
+<p>根据 Stroup and Claassen (2020) 的建议，我们对这些数据使用默认的伪似然法。结果：</p>
+<div class="inline-figure"><img src="figure/figure%20368-1.png#center" style="width:80.0%"></div>
+<p>除了区组方差之外，两种分析的协方差参数估计值是不可比的。虽然在这两种情况下，<span class="math inline">\(\hat\sigma_R^2\)</span> 都显得很小，但拟边际模型的估计大约是 GLMM 估计的 15 倍（0.06 与 0.004）。如果我们只是使用 BLK 来消除变异，那么这种差异影响很小。但如果 <span class="math inline">\(\hat\sigma_R^2\)</span> 具有内在的解释意义，或者我们需要用它来规划后续研究，那么我们就需要仔细考虑拟边际模型或条件 GLMM 哪一个最能针对我们预期的推断。在这种情况下，<span class="math inline">\(F\)</span> 值的数量级差异不大，但结论可能大相径庭。两者都告诉我们 A*B 交互作用似乎可以忽略不计。</p>
+</div>
+</div>
+<div id="sec11-6" class="section level2" number="11.6">
+<h2>
+<span class="header-section-number">11.6</span> 第 11 章主要思想总结<a class="anchor" aria-label="anchor" href="#sec11-6"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li><p>计数数据 GLM 和 GLMM 的基本原理：历史上与 ANOVA 和 OLS 线性模型一起使用的正态近似和标准变换表现不佳。</p></li>
+<li>
+<p>从历史上看，泊松一直是计数数据 GLM、GLMM 的标准选择。</p>
+<ul>
+<li>作为单参数指数，泊松很容易出现过离散。</li>
+<li>许多学科的证据表明了这一点。</li>
+<li>始终从过离散诊断开始分析。
+<ul>
+<li>条件 Pearson <span class="math inline">\(\chi^2/df\)</span>。</li>
+<li>残差图。</li>
+<li>均值-方差图（可行的时候）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>过离散补丁：</p>
+<ul>
+<li>线性尺度参数。这是经典的“补丁”，但历史经验表明其有效性存疑。
+<ul>
+<li>可能不能有效地控制 I 类错误。</li>
+<li>可能产生具有模糊推断空间的模型（既不是边际的，也不是条件的）。</li>
+</ul>
+</li>
+<li>具有工作协方差的边际模型，它解释了所有的变异源（假设预期的推断空间需要边际均值）。</li>
+<li>泊松-正态：泊松 + 在框架 ANOVA 中的观测单位效应。</li>
+<li>用负二项或广义泊松代替泊松。</li>
+<li>泊松-正态、负二项和广义泊松都假定适当的推断空间需要条件均值（预期计数，<span class="math inline">\(\lambda\)</span>），但它们假定产生数据的过程不同。</li>
+<li>零膨胀和栅栏模型（见第 <a href="chap13.html#chap13">13</a> 章）。</li>
+</ul>
+</li>
+<li>
+<p>几年前，传统观点认为：“一般来说，使用积分近似法，而不是 PL.”但事实证明这在许多情况下并不如此。</p>
+<ul>
+<li>如果给定随机模型效应的计数 <span class="math inline">\(\symbf y \mid\symbf b\)</span> 的分布相当对称，则 PL 会给出更准确的结果并更好地控制 I 类错误。</li>
+<li>当 <span class="math inline">\(\symbf y \mid\symbf b\)</span> 预期具有强偏斜分布时，使用积分近似。</li>
+<li>我们必须使用积分近似来获得过离散诊断、信息准则和似然比检验（例如方差分量）。</li>
+</ul>
+</li>
+<li>
+<p>边际 GLMMs</p>
+<ul>
+<li>线性拟似然过离散（尺度）参数或工作协方差取决于变异源。</li>
+<li>适用于边际推断。</li>
+<li>免责声明：决定在给定应用中边际或条件推断空间是否合适，是定义合适模型的一部分。</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="exe11" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe11"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>使用文件 Ch_11_problem_1.sas 中的数据。这些数据来自一个包含 7 个区组、7 种处理的区组设计。每个区组最多有 4 种处理，因此这是一个均衡不完全区组设计。响应变量是一个离散计数。</p>
+<ol style="list-style-type: lower-alpha">
+<li>考虑具有如下元素的模型：
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\tau_i+b_j\)</span>，其中 <span class="math inline">\(\tau_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个处理效应以及 <span class="math inline">\(b_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个区组效应。</li>
+<li>分布：<span class="math inline">\(y_{ij}\mid b_j\sim\mathrm{Poisson}\left(\lambda_{ij}\right);\quad b_j\text{ iid }N\left(0,\sigma_b^2\right)\)</span>
+连接函数：<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{ij}\right)\)</span>
+</li>
+</ul>
+</li>
+</ol>
+<p>该模型是否适合分析这些数据？（提示：它不适合。）请解释原因，并引用相关证据。</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li><p>鉴于 a. 中的模型不合适，请修改模型使其合适，并假定所需的推断空间是广义的，并且旨在适用于总体中的典型成员。</p></li>
+<li><p>使用你在 b. 中提出的模型对数据进行完整且适当的分析。编写一份简短报告，总结你的分析。</p></li>
+<li><p>假设研究者想要推断的空间不再是 b. 中给出的，而是需要拟合一个边际模型。那么 /* Run M */ 中的程序语句所隐含的模型是否适合这个目的。（提示：它不适合。）请解释原因。</p></li>
+<li><p>修改 /* Run M */ 语句以实现一个适当的边际模型分析。</p></li>
+<li><p>/* Run VC <em>/ 和 /</em> Run CS */ 产生的结果是可互换的。请简要解释。</p></li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_11_Problem_2.sas。此文件显示了用于在以下假设下模拟来自完全随机设计数据的 SAS 语句，该设计包含两个处理、每个处理 10 个重复，以及一个离散计数响应变量：</p>
+<ul>
+<li>
+<span class="math inline">\(\eta_{ij}=\log\left(\lambda_{i}\right)+u_{ij}\)</span>，其中 <span class="math inline">\(\lambda_i=E\left(y_{ij}\mid u_{ij}\right)\)</span>，<span class="math inline">\(\lambda_{ij}\)</span> 表示在给定第 <span class="math inline">\(i\)</span> 个处理上第 <span class="math inline">\(j\)</span> 个单元的观测计数。在模拟中，<span class="math inline">\(\lambda_0=2,\lambda_1=5\)</span> 且 <span class="math inline">\(u_{ij}\text{ iid }N\bigl(0,1\bigr)\)</span>。</li>
+<li>观测计数 <span class="math inline">\(y_{ij}\mid u_{ij}\sim\mathrm{Poisson}\left(\lambda_{ij}\right)\)</span>，其中 <span class="math inline">\(\lambda_{ij}=\exp(\eta_{ij})\)</span>。</li>
+</ul>
+<p>请注意，这些特性对应于泊松-正态 GLMM。这里显示的 SAS 语句创建了 1000 个模拟实验。PROC UNIVARIATE 语句计算描述性统计量并绘制图形，以描绘每个处理观测计数的经验分布。模拟还创建了一个变量 true Poisson，它允许你看到由所有变异源导致的观测计数与来自某个分布的观测分布之间的差异，这个分布经常被（错误地）认为是观测数据的分布。</p>
+<p>该文件还展示了你可以使用的语句来描述分析这些数据时各种候选模型的行为。这里展示的两个模型是：假定正态近似的 LMM，即假定 <span class="math inline">\(y_{ij}\mid u_{ij}\)</span> 近似于正态分布并使用标准线性混合模型，以及在第 <a href="chap11.html#chap11">11</a> 章中定义的泊松-正态 GLMM。这些程序记录了在 <span class="math inline">\(\alpha=0.05\)</span> 水平下 <span class="math inline">\(H_0\colon\tau_0=\tau_1\)</span>（或等价地 <span class="math inline">\(H_0\colon\lambda_0=\lambda_1\)</span>）的拒绝率，其中 <span class="math inline">\(\tau_0\)</span> 和 <span class="math inline">\(\tau_1\)</span> 分别为 <span class="math inline">\(\lambda_0,\lambda_1\)</span> 的平均估计，以及实际包含真实 <span class="math inline">\(\lambda_i\)</span> 值（如上面所给）的 95% 置信区间的比例。</p>
+<p>使用此文件来探索在各种假定下各种模型的行为。建议的练习：</p>
+<ol style="list-style-type: lower-alpha">
+<li>负二项 GLMM 的行为与 LMM 和泊松-正态 GLMM 相比如何？</li>
+<li>边际 GLMM 与上述模型相比如何？</li>
+<li>更改参数值以比较不同假定下模型的行为（例如，令 <span class="math inline">\(\lambda_0=\lambda_1\)</span> 以便探索各种模型对 I 类错误的控制）</li>
+</ol>
+</li>
+<li><p>使用文件 Ch_11_problem_3.sas。该文件与 Ch_11_problem_2.sas 类似，但它是基于一个包含 10 个区组和两种处理的完全区组设计模拟的数据，使用的是泊松-伽马过程。具体来说。</p></li>
+</ol>
+<ul>
+<li><p><span class="math inline">\(\eta_{ij}=\log\left(\mu_i\right)+b_j\)</span>，其中 <span class="math inline">\(\mu_0=10\)</span> 且 <span class="math inline">\(\mu_1=5\)</span> 是给定随机区组和单元水平效应时真实的平均计数，<span class="math inline">\(b_j\)</span> 表示随机区组效应并假定 <span class="math inline">\(\text{iid } N(0,\sigma^2_b)\)</span>。</p></li>
+<li><p>表示为 <span class="math inline">\(y_{ij}\)</span> 的观测从 <span class="math inline">\(\text{Poisson}(\lambda_{ij}\mu_{ij})\)</span> 中生成，其中 <span class="math inline">\(\lambda_{ij}=\exp(\eta_{ij})\)</span>，<span class="math inline">\(u_{ij}\)</span> 为单元水平效应，假定具有 <span class="math inline">\(\Gamma(1/\varphi,\varphi)\)</span> 分布。</p></li>
+<li>
+<p>对于文件中所示的模拟，<span class="math inline">\(\sigma^2_b=1\)</span> 且 <span class="math inline">\(\varphi=0.4\)</span>。</p>
+<p>请注意，对于来自区组设计的数据，我们使用了泊松-伽马过程：<span class="math inline">\(y_{ij}\mid b_j,u_{ij}\sim \text{Poisson}\Big(\lambda_{ij}u_{ij}\Big)\)</span> 且 <span class="math inline">\(y_{ij}\mid b_j\sim\text{Negative Binomial}\Big(\lambda_{ij},\varphi\Big)\)</span>。</p>
+<p>这个文件明确展示了使用与习题 2 相同的标准来探索负二项 GLMM 的语句。你可以像习题 2 那样修改这些语句，以描述使用其他候选模型（例如，假定近似正态的 LMM 和泊松-正态 GLMM）或其他分析方法（例如求积法）的分析的行为。</p>
+<p>使用此文件来探索在各种假定下各种模型的行为。建议的练习：</p>
+<ol style="list-style-type: lower-alpha">
+<li>负二项 GLMM 的行为与 LMM 和泊松-正态 GLMM 相比如何？</li>
+<li>边际 GLMM 与上述模型相比如何？</li>
+<li>对于允许使用伪似然法或求积法的 GLMMs，伪似然法和求积法的结果之间的区别是什么？</li>
+</ol>
+</li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>使用文件 Ch_12_problem_4.sas。数据来自一个条-区-区（strip-plot-plot, 又名裂区组, split-block）实验，具有离散的计数响应变量。总共有六个区组，被话划分为三行和三列，总共有 9 个行 × 列的单元。在每个区组中，因素 A 的水平被随机分配给行。因素 B 的水平被随机分配给列。因此，实际上，A × B 处理组合的实验单元是每个区块内的行 × 列。因此，合并的 WWFD 调整的 ANOVA 表为：
+<br><img src="figure/figure%20exe11-4.png#center" style="width:40.0%"><br><ol style="list-style-type: lower-alpha">
+<li><p>为 /* Run 1 */ 隐含的模型写出所有必需的元素。</p></li>
+<li>
+<p>/* Run 1 */ 的输出表明它不适合分析这些数据。</p>
+<ol style="list-style-type: lower-roman">
+<li>哪些统计量说明它不适合分析的相关证据</li>
+<li>简要解释为什么会出现 i. 中的结果。</li>
+</ol>
+</li>
+<li>
+<p>Run 2 和 3 产生了可互换的结果。</p>
+<ol style="list-style-type: lower-roman">
+<li>简要解释为什么。</li>
+<li>这些运行是否适合分析这些数据？请解释。</li>
+</ol>
+</li>
+<li>
+<p>Run 4 产生了广义卡方/DF = 8.25。</p>
+<ol style="list-style-type: lower-roman">
+<li>这并不意味着该分析不适合。请解释。</li>
+<li>什么时候我们会想要使用 Run 4 来进行分析？</li>
+</ol>
+</li>
+<li>
+<p>Run 5 和 6 产生了可互换的结果。</p>
+<ol style="list-style-type: lower-roman">
+<li>写出每个运行中隐含模型的所有必需元素。</li>
+<li>解释为什么它们的结果可互换。</li>
+<li>这些运行是否适合分析这些数据？请解释。</li>
+<li>假设这些运行是适合的，那么我们会在什么时候想要使用它们？请在这里将你的答案与 d-ii. 中关于运行 4 的答案进行对比。</li>
+</ol>
+</li>
+<li>
+<p>Run 7 是一个无意义的模型。</p>
+<ol style="list-style-type: lower-roman">
+<li>解释为什么。</li>
+<li>修改运行 7，以便当想要为这些数据拟合负二项 GLMM 时，它能够产生有效的分析。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>使用文件 Ch_11_problem_5.sas。该文件包含了一项实验的数据，用于测试三个因素（这里称为因素 A, B 和 C）对计算机组件性能特性的影响。每个因素都有两个水平——即处理设计是一个 2<sup>3</sup> 析因设计。实验设置如下：有 20 个芯片。每个芯片都有一个上半部分和一个下半部分。因素 A 的水平被随机分配给每个芯片的上半部分或下半部分。因素 B 的水平被随机分配给每个芯片的前面或后面。芯片的上半部分和下半部分（在两侧）各有两个横穿芯片的条带。因素 C 的水平被随机分配给一个条带，因此上半部分和下半部分都接收 C 的两个水平。图 1（从概念上）展示了一个示例芯片的设计。
+<br><img src="figure/figure%20exe11-5.png#center" style="width:60.0%"><br><ol style="list-style-type: lower-alpha">
+<li><p>完成以下表格，给出该设计的变异源。
+<br><img src="figure/figure%20exe11-5-2.png#center" style="width:60.0%"><br></p></li>
+<li><p>编写所需的 CLASS, MODEL 和 RANDOM 语句，以实现与上述设计一致的分析。</p></li>
+<li><p>验证你在 b. 中建立的模型是否可用于分析这些数据（例如，验证你的模型没有表现出不可接受的过离散证据）。</p></li>
+<li><p>构造数据的交互图。研究团队将因素 C 定义为一种催化剂，他们怀疑在某种程度上能促进 A 和 B 效应的作用。因此，他们希望为因素 C 的每个水平得到 A × B 交互作用的图形。</p></li>
+<li><p>使用 b. 中的模型和 d. 中的交互图来分析数据，并撰写一份简短报告，总结从这项研究中可以得出的结论。务必提供与上述选择一致的支持性统计量。</p></li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></div>
+<div class="next"><a href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap11"><span class="header-section-number">11</span> 计数</a></li>
+<li>
+<a class="nav-link" href="#sec11-1"><span class="header-section-number">11.1</span> 介绍</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec11-1-1"><span class="header-section-number">11.1.1</span> 计数数据和泊松分布</a></li>
+<li><a class="nav-link" href="#sec11-1-2"><span class="header-section-number">11.1.2</span> 基于前 GLM ANOVA 和泊松 GLMM 的泊松示例分析</a></li>
+<li><a class="nav-link" href="#sec11-1-3"><span class="header-section-number">11.1.3</span> 比较前 GLM 与 GLMM 的行为——为模型选择提供依据</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec11-2"><span class="header-section-number">11.2</span> 计数数据的过离散</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec11-2-1"><span class="header-section-number">11.2.1</span> 过离散的定义</a></li>
+<li><a class="nav-link" href="#sec11-2-2"><span class="header-section-number">11.2.2</span> 检测过离散</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec11-3"><span class="header-section-number">11.3</span> 处理过离散的策略</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec11-3-1"><span class="header-section-number">11.3.1</span> 具有拟似然尺度参数的 GLM</a></li>
+<li><a class="nav-link" href="#sec11-3-2"><span class="header-section-number">11.3.2</span> 泊松-正态 GLMM</a></li>
+<li><a class="nav-link" href="#sec11-3-3"><span class="header-section-number">11.3.3</span> 泊松-伽马 / 负二项 GLMM</a></li>
+<li><a class="nav-link" href="#sec11-3-4"><span class="header-section-number">11.3.4</span> 广义泊松</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec11-4"><span class="header-section-number">11.4</span> 区组设计示例</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec11-4-1"><span class="header-section-number">11.4.1</span> 边际模型</a></li>
+<li><a class="nav-link" href="#sec11-4-2"><span class="header-section-number">11.4.2</span> 泊松-正态 GLMM</a></li>
+<li><a class="nav-link" href="#sec11-4-3"><span class="header-section-number">11.4.3</span> 负二项 GLMM</a></li>
+<li><a class="nav-link" href="#sec11-4-4"><span class="header-section-number">11.4.4</span> 检验负二项尺度参数？</a></li>
+<li><a class="nav-link" href="#sec11-4-5"><span class="header-section-number">11.4.5</span> 广义泊松</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec11-5"><span class="header-section-number">11.5</span> 多水平实验的计数数据</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec11-5-1"><span class="header-section-number">11.5.1</span> 边际模型</a></li>
+<li><a class="nav-link" href="#sec11-5-2"><span class="header-section-number">11.5.2</span> 负二项 GLMM</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec11-6"><span class="header-section-number">11.6</span> 第 11 章主要思想总结</a></li>
+<li><a class="nav-link" href="#exe11">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 14 章 多项数据 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="14.1 概述 在第 12 章中，我们考虑了率和比例。离散比例（二进制和二项）可视为具有两个响应类别的分类数据。在本章中，我们考虑具有两个以上类别的分类数据的模型，假定数据具有多项分布 (multinomial distribution)。 对于多项分布，我们取 \(N\) 个观测。每个观测恰好属于 \(C\) 个互斥类别之一。用 \(\pi_c;c=1,2,\ldots,C\)...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 14 章 多项数据 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="14.1 概述 在第 12 章中，我们考虑了率和比例。离散比例（二进制和二项）可视为具有两个响应类别的分类数据。在本章中，我们考虑具有两个以上类别的分类数据的模型，假定数据具有多项分布 (multinomial distribution)。 对于多项分布，我们取 \(N\) 个观测。每个观测恰好属于 \(C\) 个互斥类别之一。用 \(\pi_c;c=1,2,\ldots,C\)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 14 章 多项数据 | 广义线性混合模型">
+<meta name="twitter:description" content="14.1 概述 在第 12 章中，我们考虑了率和比例。离散比例（二进制和二项）可视为具有两个响应类别的分类数据。在本章中，我们考虑具有两个以上类别的分类数据的模型，假定数据具有多项分布 (multinomial distribution)。 对于多项分布，我们取 \(N\) 个观测。每个观测恰好属于 \(C\) 个互斥类别之一。用 \(\pi_c;c=1,2,\ldots,C\)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li><a class="" href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="" href="chap11.html"><span class="header-section-number">11</span> 计数</a></li>
+<li><a class="" href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="" href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="active" href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap14" class="section level1" number="14">
+<h1>
+<span class="header-section-number">第 14 章</span> 多项数据<a class="anchor" aria-label="anchor" href="#chap14"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec14-1" class="section level2" number="14.1">
+<h2>
+<span class="header-section-number">14.1</span> 概述<a class="anchor" aria-label="anchor" href="#sec14-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap12.html#chap12">12</a> 章中，我们考虑了率和比例。离散比例（二进制和二项）可视为具有两个响应类别的分类数据。在本章中，我们考虑具有两个以上类别的分类数据的模型，假定数据具有<strong>多项分布</strong> (multinomial distribution)。</p>
+<p>对于多项分布，我们取 <span class="math inline">\(N\)</span> 个观测。每个观测恰好属于 <span class="math inline">\(C\)</span> 个互斥类别之一。用 <span class="math inline">\(\pi_c;c=1,2,\ldots,C\)</span> 表示从总体中随机抽取的观测属于类别 <span class="math inline">\(c\)</span> 的概率。注意到 <span class="math inline">\(\sum_{c=1}^C\pi_c=1\)</span>。多项分布指的是在我们的样本中，恰好有 <span class="math inline">\(y_1\)</span> 个观测属于第 1 类，<span class="math inline">\(y_2\)</span> 个观测属于第 2 类，依此类推，直到有 <span class="math inline">\(y_C\)</span> 个观测属于第 <span class="math inline">\(C\)</span> 类的概率，其中 <span class="math inline">\(\sum_{c=1}^Cy_c=N\)</span>。其 p.d.f. 为：</p>
+<p><span class="math display" id="eq:14-1">\[\begin{align}
+f\left(y_1,y_2,...,y_C\right)=\frac{N!}{y_1!y_2!...y_C!}\pi_1^{y_1}\pi_2^{y_2}...\pi_C^{y_C}
+\tag{14.1}
+\end{align}\]</span></p>
+<p>我们可以将多项数据分为两种类型：<strong>有序数据</strong> (ordinal data) 和<strong>名义数据</strong> (nominal data)。“有序”指的是有明显顺序的类别，如疾病评级——无症状、轻度症状、中度症状、重度症状，或支持评级——强烈赞成、赞成、既不赞成也不反对、不赞成、强烈不赞成。名义是指没有明显顺序的类别，如眼睛颜色、植物种类或大学专业。</p>
+<p>多项数据的模型建立在与二项数据相同的策略上。我们通过连接函数和一个由 logit 或 probit 等函数表征的潜在过程来阐述其合理性。当使用<strong>累积 logit</strong> 和<strong>累积 probit</strong> 模型充分地拟合数据时，能够以简洁的方式对有序多项数据进行建模。<strong>广义 logit</strong> 和<strong>广义 probit</strong> 模型则不要求类别有序，因此适用于名义多项数据。</p>
+<p>在前 GLMM 时代，有序分类数据通常被赋予数字编码——例如，无症状 = 0、轻度 = 1、中度 = 2、严重 = 3 ——并按照数据近似正态分布进行分析。这带来了两个问题。首先，我们如何知道什么数字编码是“正确的”？为什么要等间距？为什么不是无症状 = 0、轻度 = 1、中度 = 2、重度 = 4；或者无症状 = 0，轻度 = 2，中度 = 5，重度 = 10？其次，即使我们确实认同这种数字编码，我们如何解释平均评分？假定使用 0-1-2-3 等距编码，那么平均评分 1.5 意味着什么？这可能意味着一半的响应是 1，另一半是 2。或者一半是 0，一半是 3。或者六分之一是 0，一半是 1，三分之一是 3。获得 1.5 有三种不同的方法，每种方法都有明显不同的含义和结果。如果我们有两种处理，如果一种处理的平均评分为 1.5，另一种处理的平均评分为 1.75，这意味着什么？同样，我们可以想出很多方法来获得平均评分之间 0.25 的差异——这些方法告诉了我们有关处理的非常不同的信息。我们在本章中考虑的模型将关注点直接集中于多项概率 <span class="math inline">\(\pi_c\)</span> 上，而不是可能无意义且肯定不明确的数字编码。</p>
+<p><a href="chap14.html#sec14-2">14.2</a>, <a href="chap14.html#sec14-3">14.3</a> 和 <a href="chap14.html#sec14-4">14.4</a> 节重点介绍有序数据。<a href="chap14.html#sec14-2">14.2</a> 节介绍了累积 logit 和累积概率 GLMM 的底层逻辑。<a href="chap14.html#sec14-3">14.3</a> 节介绍了一个可以使用两种常见有序数据 GLMM 之一进行分析的示例：使用累积 logit 的<strong>比例几率模型</strong> (proportional odds models) 以及在定量遗传学中称为<strong>阈值模型</strong> (threshold model)、使用累积 probit 的 GLMM。<a href="chap14.html#sec14-4">14.4</a> 节介绍了一个序数数据示例，其中比例几率和阈值模型的假定过于严格。第 <a href="chap14.html#sec14-5">14.5</a> 节介绍了使用广义 logit 模型的名义数据示例。</p>
+</div>
+<div id="sec14-2" class="section level2" number="14.2">
+<h2>
+<span class="header-section-number">14.2</span> 有序类别的多项数据<a class="anchor" aria-label="anchor" href="#sec14-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>回想，对于具有二项数据的 GLM 和 GLMM，我们可以根据图 14.1 总结的关系来可视化 logit 函数和 probit 连接函数。</p>
+<details><summary><font color="#8B2232">图 14.1</font>
+</summary><img src="figure/figure%2014.1.png#center" style="width:80.0%"></details><p><br>
+右手边的垂直轴表示概率 <span class="math inline">\(\pi\)</span>，是累积图的参考尺度，我们将其视为 GLM 或 GLMM 中的逆连接函数：<span class="math inline">\(\pi=h(\eta)=1/\left(1+e^{-\eta}\right)\)</span> 为 logit，<span class="math inline">\(\Phi(\eta)\)</span> 为 probit。</p>
+<p>我们还可以通过质量函数 (mass function) <span class="math inline">\(\frac{\partial h(\eta)}{\partial\eta}\)</span> 来思考逆连接。对于 probit 连接，这是标准高斯 p.d.f.；对于 logit 连接，它不是真正的 p.d.f.，但我们可以用同样的方式将其可视化。这就是图中的钟形曲线。曲线下方的面积对应于图中所示边界点 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}=\symbf{\eta}\)</span> 处的概率。</p>
+<p>有序多项模型将这个思想扩展到三个或更多类别。图 14.2 显示了三分类多项 GLM 或 GLMM 设定的图形。</p>
+<details><summary><font color="#8B2232">图 14.2</font>
+</summary><img src="figure/figure%2014.2.png#center" style="width:80.0%"></details><p><br>
+现在有两个边界，将图细分为三个区域，每个区域对应一个类别。下部 ETA（此处 <span class="math inline">\(\eta = −2\)</span>）显示响应类别 1 和响应类别 2 之间的边界。上部 ETA（此处 <span class="math inline">\(\eta = 1\)</span>）定义类别 2 和 3 之间的边界。对于质量分布（钟形曲线）下边界左侧曲线下方的面积（或者，右手边垂直轴表示的累积概率）对应于 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}=\symbf{\eta}\)</span> 的响应类别为 1 概率。上边界的累积概率（或者钟形曲线下两个阴影区域的合并面积）描述了类别 1 和类别 2 的合并概率。</p>
+<p>在 GLM/GLMM 术语中，图 14.2 上的每个边界对应于一个连接函数。具有 <span class="math inline">\(C\)</span> 类的多项分布需要 <span class="math inline">\(C−1\)</span> 个连接函数来完全指定将响应概率 <span class="math inline">\(\left\{\pi_1,\pi_2,...,\pi_C\right\}\)</span> 与线性预测器相关联的模型。两个常用的模型是累积 logit 模型，也称为比例几率模型，和累积 probit 模型，也称为阈值模型。它们的连接函数如下：</p>
+<p><strong>累积 logit</strong>：</p>
+<p><span class="math display" id="eq:14-2">\[\begin{align}
+&amp;\eta_{1}=\log\left(\frac{\pi_1}{1-\pi_1}\right)=\eta_1+\symbf{X\beta}+\symbf{Zb}\\&amp;{\eta}_{2}=\log\left(\frac{\pi_1+\pi_2}{1-\left(\pi_1+\pi_2\right)}\right)=\eta_2+\symbf{X\beta}+\symbf{Zb}\\&amp;{\eta}_{{C-1}}=\log\left(\frac{\pi_1+\pi_2+...+\pi_{{C-1}}}{1-\left(\pi_1+\pi_2+...+\pi_{{C-1}}\right)}\right)=\eta_{{C-1}}+\symbf{X\beta}+\symbf{Zb}
+\tag{14.2}
+\end{align}\]</span></p>
+<p><strong>累积 probit</strong>：</p>
+<p><span class="math display" id="eq:14-3">\[\begin{align}
+&amp;\eta_1=\Phi^{-1}\left(\pi_1\right)=\eta_1+\symbf{X\beta}+\symbf{Zb} \\
+&amp;\eta_2=\Phi^{-1}\left(\pi_1+\pi_2\right)=\eta_2+\symbf{X\beta}+\symbf{Zb} \\
+&amp;\eta_{C-1}=\Phi^{-1}\left(\pi_1+\pi_2+...+\pi_{C-1}\right)=\eta_{C-1}+\symbf{X\beta}+\symbf{Zb}
+\tag{14.3}
+\end{align}\]</span></p>
+<p>请注意，对于累积 logit 和累积 probit 模型，连接函数之间唯一变化的参数是截距。当 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}=0\)</span> 时，截距定义了类别之间的边界。<span class="math inline">\(\symbf{X\beta}+\symbf{Zb}\)</span> 的变化会将边界移动到一起，以便它们在 <span class="math inline">\(\eta\)</span> 轴上的距离保持恒定。例如，如果我们将 <span class="math inline">\(\symbf{X\beta}+\symbf{Zb}\)</span> 增加 0.5 个单位，我们现在就会得到如图 14.3 所示的连接-概率关系。</p>
+<details><summary><font color="#8B2232">图 14.3</font>
+</summary><img src="figure/figure%2014.3.png#center" style="width:80.0%"></details><p><br>
+请注意，边界之间的相对距离（即连接 <span class="math inline">\(\eta_1\)</span> 和 <span class="math inline">\(\eta_2\)</span> 之间的相对距离）保持不变，但由于整个边界集向右移动，因此与每个类别相关的概率会发生变化。</p>
+<p>每个模型的逆连接如下：</p>
+<p><strong>累积 logit</strong>：</p>
+<p><span class="math display" id="eq:14-4">\[\begin{align}
+&amp;h\left({\eta}_1\right)=1/\left(1+e^{-{\eta}_1}\right)=\pi_1\\&amp;h\left({\eta}_2\right)=1/\left(1+e^{-{\eta}_2}\right)=\pi_1+\pi_2
+\tag{14.4}
+\end{align}\]</span></p>
+<p>据此，我们获得 <span class="math inline">\(\pi_2\)</span> 和 <span class="math inline">\(\pi_3\)</span> 的估计：</p>
+<p><span class="math display">\[\begin{aligned}&amp;\pi_2=h\left(\mathbf{\eta}_2\right)-h\left(\mathbf{\eta}_1\right)\\&amp;\pi_3=1-h\left(\mathbf{\eta}_2\right)\end{aligned}\]</span></p>
+<p><strong>累积 probit</strong>：</p>
+<p><span class="math display" id="eq:14-6">\[\begin{align}
+&amp;h\left({\eta}_1\right)=\Phi\left({\eta}_1\right)=\pi_1\\&amp;h\left({\eta}_2\right)=\Phi\left({\eta}_2\right)=\pi_1+\pi_2
+\tag{14.5}
+\end{align}\]</span></p>
+<p>一旦我们估计了 <span class="math inline">\(h (\eta_1)\)</span> 和 <span class="math inline">\(h (\eta_2)\)</span>，我们就可以获得 <span class="math inline">\(\pi_2\)</span> 和 <span class="math inline">\(\pi_3\)</span>，就像我们对累积 logit 模型所做的那样。</p>
+</div>
+<div id="sec14-3" class="section level2" number="14.3">
+<h2>
+<span class="header-section-number">14.3</span> 比例几率和阈值模型<a class="anchor" aria-label="anchor" href="#sec14-3"><i class="fas fa-link"></i></a>
+</h2>
+<details><summary><font color="#8B2232">图 2.5</font>
+</summary><img src="figure/figure%202.5.png#center" style="width:80.0%"></details><p><br>
+此示例的数据显示为 SAS Data Set 14.1。数据来自使用图 2.5 中介绍的嵌套析因设计——十个区组，每个区组尺寸为 3，六个处理分为组 {0, 1, 2} 和 {3, 4, 5}。每组被随机分配到五个区组。每个处理被随机分配到区组内的一个单元。在每个单元中，进行 <span class="math inline">\(N_{ij}\)</span> 个观测来评估疾病症状。响应变量按顺序分为三类：轻微、中度和严重。因此待分析的数据为 <span class="math inline">\(\left\{y_{\text{轻微,}ij},y_{\text{中度,}ij},y_{\text{严重,}ij}\right\}\)</span>，其中 <span class="math inline">\(y_{cij}\)</span> 表示区组 <span class="math inline">\(j\)</span> 中处理 <span class="math inline">\(i\)</span> 的每个类别的观测数。比例几率和阈值模型在 GLMM 中的共同元素包括：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{cij}=\eta_c+\tau_i+b_j\)</span>，其中 <span class="math inline">\(\eta_{cij}\)</span> 表示第 <span class="math inline">\(ij\)</span> 个处理组合的第 <span class="math inline">\(c\;(c=0,1)\)</span> 个连接。<span class="math inline">\(\eta_c\)</span> 是第 <span class="math inline">\(c\)</span> 个连接的截距，<span class="math inline">\(\tau_i\)</span> 和 <span class="math inline">\(b_j\)</span> 分别表示处理效应和区组效应。请注意，由于存在三个响应类别，因此我们有两个连接函数，每个边界都有一个连接函数，如图 14.2 所示。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{\text{轻微,}ij},y_{\text{中度,}ij},y_{\text{严重,}ij}\mid b_j\thicksim \text{Multinomial}\left(N_{ij},\pi_{\text{轻微,}ij},\pi_{\text{中度,}ij},\pi_{\text{严重,}ij}\right)\)</span></li>
+<li><span class="math inline">\(b_j\mathrm{~iid~}N\left(0,\sigma_B^2\right)\)</span></li>
+</ul>
+</li>
+</ul>
+<div id="sec14-3-1" class="section level3" number="14.3.1">
+<h3>
+<span class="header-section-number">14.3.1</span> 比例几率模型<a class="anchor" aria-label="anchor" href="#sec14-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>比例几率模型的连接函数是累积 logits：</p>
+<ul>
+<li><p><span class="math inline">\(\eta_{0ij}=\log\Bigg(\frac{\pi_{\text{轻微,}ij}}{1-\pi_{\text{轻微,}ij}}\Bigg)\)</span></p></li>
+<li><p><span class="math inline">\(\eta_{1ij}=\log\left(\frac{\pi_{\text{轻微},ij}+\pi_{\text{中度},ij}}{1-\left(\pi_{\text{轻微},ij}+\pi_{\text{中度},ij}\right)}\right)\)</span></p></li>
+</ul>
+<p>请注意，我们可以轻松地将此 GLMM 重新定义为累积 probit 模型（又称阈值模型），方法是将上面显示的连接替换为 <a href="chap14.html#eq:14-3">(14.3)</a> 中显示的逆高斯函数。</p>
+<p>对于所示的累积 logit 模型，我们可以使用以下 PROC GLIMMIX 语句：</p>
+<pre class="sas"><code>proc glimmix data=univar_multinom;
+class blk trt;
+model rating(order=data)=trt/dist=multinomial solution 
+oddsratio;
+random intercept / subject=blk solution; 
+estimate ‘slight, t=0’ intercept 1 0 trt 1 0 ,
+         ‘moderate, t=0’ intercept 0 1 trt 1 0,
+         ‘slight, t=1’ intercept 1 0 trt 0 1 0,
+         ‘moderate, t=1’ intercept 0 1 trt 0 1 0,
+         ‘slight, t=2’ intercept 1 0 trt 0 0 1 0,
+         ‘moderate, t=2’ intercept 0 1 trt 0 0 1 0,
+         ‘slight, t=3’ intercept 1 0 trt 0 0 0 1 0,
+         ‘moderate, t=3’ intercept 0 1 trt 0 0 0 1 0,
+         ‘slight, t=4’ intercept 1 0 trt 0 0 0 0 1 0,
+         ‘moderate, t=4’ intercept 0 1 trt 0 0 0 0 1 0,
+         ‘slight, t=5’ intercept 1 0 trt 0 0 0 0 0 1,
+         ‘moderate, t=5’ intercept 0 1 trt 0 0 0 0 0 1 / ilink;
+freq y;</code></pre>
+<p>CLASS, MODEL 和 RANDOM 语句的出现与我们迄今为止看到的任何其他 GLMM 中的语句一样。隐含在这些语句中的（但对初次使用的用户来说并不明显）：每个区组-处理-类别必须有一行，在本例中分别由变量 BLK, TRT 和 RATING 引用。除了这三个变量外，每行数据还必须包含每个区组-处理-类别的观测次数——此处由变量 Y 引用。以下是以如此格式 (“GLIMMIX-ready”) 安排的数据集前几行样本：</p>
+<div class="inline-figure"><img src="figure/figure%20435.png#center" style="width:40.0%"></div>
+<p>回到 GLIMMIX 语句，(ORDER=DATA) 指定对于分析而言，类别在数据集中出现的顺序被视为从最低到最高的序数类别。请注意，对每个区组-处理-类别组合的观察结果始终以三个为一组出现，并且始终按 SLIGHT（“轻微”）、MODRATE（“中度”）和 SEVERE 的顺序出现。如果我们不在 MODEL 语句中的响应变量中使用 <code>ORDER</code> 选项，GLIMMIX 将按数字或字母顺序重新排列类别，具体取决于我们输入 RATING 为数字还是名称。GLIMMIX 程序 FREQ Y 中的最后一个语句使 GLIMMIX 使用 Y 作为相应 RATING 的观测数。如果没有出现 FREQ 语句，GLIMMIX 则简单地计算每个 TRT、每个 BLK、每个 RATING 下的数据行数。或者，我们可以删除 Y 变量，但每个观测只有一个数据行。例如，我们可以有 1 个数据行用于 BLK 1, TRT 0, RATING SLIGHT，4 个数据行用于 BLK 1, TRT 0, RATING MODRAT，以及 23 个数据行用于 BLK 1, TRT 0, RATING SEVERE。</p>
+<p>ESTIMATE 语句指定可估函数，这些函数形成六种处理的类别之间的边界。例如，第一个估计 “C=0, T=0” 定义了 <span class="math inline">\(\log\big[\pi_{\text{轻微,}0}\big/\big(1-\pi_{\text{轻微,}0}\big)\big]\)</span>，即处理 0 的“轻度”和“中度”类别之间的边界。请注意，这估计 <span class="math inline">\(\log\big[\pi_{\text{slight,}0}\big/\big(1-\pi_{\text{轻微,}0}\big)\big]\)</span>，接受处理 0 的总体中的成员在响应轻微类别概率的 logit. 我们可以对该值进行逆连接，得到概率估计 <span class="math inline">\(\pi_{\text{轻微},0}\)</span>。第二个估计定义了 <span class="math inline">\(\eta_0+\tau_0\)</span>，即处理 0 的中度和严重类别之间边界的线性预测器。它估计累积概率 <span class="math inline">\(\pi_{\text{轻微,}0}+\pi_{\text{中度,}0}\)</span>（在处理 0 下评分不比中度低的概率）的对数。</p>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20436-1.png#center" style="width:70.0%"></div>
+<p>注意两个截距估计。第一个是 <span class="math inline">\(\hat\eta_0=0.3492\)</span>；它定义了轻度和中度类别之间的边界。第二个，<span class="math inline">\(\hat\eta_1=1.9956\)</span> 定义了中度和严重类别之间的边界。TRT 效应估计 <span class="math inline">\(\hat\tau_i\)</span> 表示在不同处理下边界向上或向下移动的距离。在这种情况下，相对于处理 5，所有处理效应都是负的。这意味着处理 0 到 4 都比处理 5 具有较低的“轻微”概率和较高的“严重”概率。请注意，对于比例几率（和阈值）模型，<span class="math inline">\(\tau_i\)</span> 不是特定于类别的；处理效应将边界作为一个整体进行移动。</p>
+<div class="inline-figure"><img src="figure/figure%20436-2.png#center" style="width:50.0%"></div>
+<p>几率比是通过对处理 0 到 4 取 <span class="math inline">\(e^{\hat\tau_i}\)</span> 得到的。这些是处理 i 相对于处理 5 的相邻类别的几率比估计。由于 <span class="math inline">\(\tau_i\)</span> 不是特定于类别的，因此“轻微”与“中等”的几率比等于中等与严重的几率比是相同的（因此称为“比例几率”模型）。</p>
+<div class="inline-figure"><img src="figure/figure%20436-3.png#center" style="width:50.0%"></div>
+<p><span class="math inline">\(F\)</span> 值用于总体检验 <span class="math inline">\(H_0\colon\)</span> 所有 <span class="math inline">\(\tau_i= 0\)</span>。若 <span class="math inline">\(H_0\)</span> 为真，我们将得出结论：所有几率比 = 1。从上面的几率比结果来看，<span class="math inline">\(F\)</span> 及相应的 <span class="math inline">\(p\)</span> 是如此值应该是显而易见的。</p>
+<div class="inline-figure"><img src="figure/figure%20437.png#center" style="width:80.0%"></div>
+<p>这些是各种 <span class="math inline">\(\eta_c+\tau_i\)</span> 的估计。例如，“SLIGHT, T=0” 的估计为<span class="math inline">\(\hat{\eta}_0+\hat{\tau}_0=-2.48\)</span>。我们可以检查上面显示的有关解的表来验证该估计。取逆连接会得到 <span class="math inline">\(\hat{\pi}_{\text{轻微},0}=1/\big(1+e^{2.48}\big)=0.077\)</span>。这是接受处理 0 且响应等级为“轻微”的个体的概率估计。逆连接出现在标记为 MEAN 的右侧第二列中。对于 “MODERATE, T=0”，逆连接为 0.3022。这是估计 <span class="math inline">\(\hat{\pi}_{\text{轻微,}0}+\hat{\pi}_{\text{中度,}0}\)</span>。由此，我们可以分离出处理 0 下中度响应和严重响应的概率。对于中度响应，<span class="math inline">\(\hat{\pi}_{\text{中度,}0}=0.302-0.077=0.225\)</span>；对于严重响应，<span class="math inline">\(\hat{\pi}_{\text{严重,}0}=1-0.302=0.698\)</span>。</p>
+<p>我们可以继续采用这种方式获得其他五种处理的结果。</p>
+</div>
+<div id="sec14-3-2" class="section level3" number="14.3.2">
+<h3>
+<span class="header-section-number">14.3.2</span> 累积 probit：阈值模型<a class="anchor" aria-label="anchor" href="#sec14-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于累积 probit 或阈值模型，我们只需将选项 <code>LINK=CPROBIT</code> 添加到 MODEL 语句中，即：</p>
+<pre class="sas"><code>model rating(order=data)=trt/dist=multinomial link=cprobit 
+solution;</code></pre>
+<p>该程序的其余部分与 <a href="chap14.html#sec14-3-1">14.3.1</a> 节中针对比例几率模型的 GLIMMIX 程序相同。</p>
+<p>对于 <code>DIST=MULTINOMIAL</code>，累积 logit 是默认连接。如果我们更改为累积 probit，输出将包含上面显示的所有相同项目，除了仅在 logit GLMM 下计算的几率比。除了几率比之外，我们的分析与累积 logit 分析完全一样。</p>
+<p>出于空间的考虑，没有展示阈值模型的输出。包含此示例的 SAS 文件具有用于累积 probit 阈值模型的 GLIMMIX 语句。读者可以运行该程序，以验证尽管确切的数字略有不同，但这些数据的比例几率和阈值模型的推断和结论基本相同。</p>
+</div>
+</div>
+<div id="sec14-4" class="section level2" number="14.4">
+<h2>
+<span class="header-section-number">14.4</span> 有序类别的非比例几率模型<a class="anchor" aria-label="anchor" href="#sec14-4"><i class="fas fa-link"></i></a>
+</h2>
+<p>Data Set 14.2 包含这样的有序数据示例：上一节描述的比例几率和阈值模型无法提供准确的分析。这些数据来自对三个品种的一品红植物进行评级的试验。十二名种植者（较大总体的样本）参与其中。在第 <span class="math inline">\(j\)</span> 个种植者的位置，有第 <span class="math inline">\(i\)</span> 个品种的 <span class="math inline">\(N_{ij}\)</span> 株植物需要评级。评委们给每株植物评级为 “A”（优质）、“B”（良好）或 “C”（一般）。</p>
+<p>下表显示了按品种划分的原始评级频率，揭示了拟合比例几率或门槛模型的潜在问题。</p>
+<div class="inline-figure"><img src="figure/figure%20438.png#center" style="width:80.0%"></div>
+<p>对于品种 1，A、B、C 评级的比例大致相等。对于品种 2，大多数评级为 B，A 和 C 评级比例相同但比例要小得多。品种 3 与品种 2 相反：B 级很少，而 A 级和 C 级的比例要大得多且几乎相等。</p>
+<p>图 14.4 显示了三个品种的 logit (eta) 和概率 (p) 之间的关系。与标签 [1] 相对应的虚线显示了品种 1 的概率（垂直）尺度（大约为 0.33 和 0.67）以及 logit（水平）尺度（大约为 -1 和 1）上的类别之间的边界。与 [2] 和 [3] 对应的虚线显示了品种 2 和 3 的类别之间的边界。从图 14.2 和 14.3 中，我们知道对于比例几率和阈值模型，logit 尺度上的边界之间的宽度必须保持恒定——处理效应必须使两条边界线向上或向下移动相同的量。图 14.4 显示该限制不能应用于本例中的一品红评级数据。</p>
+<details><summary><font color="#8B2232">图 14.4</font>
+</summary><img src="figure/figure%2014.4.png#center" style="width:80.0%"></details><p><br>
+如果我们使用以下程序拟合了比例几率模型：</p>
+<pre class="sas"><code>proc glimmix data=Plant_Ratings method=quad;
+ class grower variety;
+ model rating=variety/d=multinomial solution;
+ random intercept variety/subject=grower;
+ estimate ‘A variety 1’ intercept 1 0 variety 1 0 0,
+          ‘A+B variety 1’ intercept 0 1 variety 1 0 0,
+          ‘A variety 2’ intercept 1 0 variety 0 1 0,
+          ‘A+B variety 2’ intercept 0 1 variety 0 1 0,
+          ‘A variety 3’ intercept 1 0 variety 0 0 1,
+          ‘A+B variety 3’ intercept 0 1 variety 0 0 1 / ilink bycat;</code></pre>
+<p>我们得到如下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20439.png#center" style="width:80.0%"></div>
+<p>无论品种如何，A 级的概率估计接近 0.30，B 级的概率估计接近 0.36，C 级的概率估计接近 0.34，并且按品种进行等概率检验的检验统计量 <span class="math inline">\(F = 0.02\)</span> 且 <span class="math inline">\(p &gt; 0.98\)</span>。显然，比例几率模型严重歪曲了这三个品种的评级。</p>
+<p>请注意，如果我们为评级分配一个等间距的数字代码，例如，评级 A 为 “1”，评级 B 为 “2”，评级 C 为 “3”，则每个品种的平均评级基本上是相同的——在本例中接近 2 ——同样是对品种效应的错误表述。</p>
+<p>一个能够准确描绘数据的模型必须取消品种效应在连接函数中相同的限制。我们可以通过拟合允许每个连接函数具有不同品种效应的累积 logit 回归模型或累积 probit 模型来实现这一点。例如，非比例几率累积 logit 回归模型如下：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\begin{align}\eta_{cij}=\eta_{c}+\tau_{ci}+b_{cj}\tag{14.6}\end{align}\)</span>，其中 <span class="math inline">\(\eta_{cij}\)</span> 表示第 <span class="math inline">\(ij\)</span> 个处理区组合的第 <span class="math inline">\(c\)</span> 个连接 (c = 0, 1)，<span class="math inline">\(\eta_c\)</span>、<span class="math inline">\(\tau_{ci}\)</span> 和 <span class="math inline">\(b_{cj}\)</span> 分别表示第 <span class="math inline">\(c\)</span> 个连接的截距、处理效应和区组效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{\text{轻微,}ij},y_{\text{中度,}ij},y_{\text{严重,}ij}\mid b_j\thicksim \text{Multinomial}\left(N_{ij},\pi_{\text{轻微,}ij},\pi_{\text{中度,}ij},\pi_{\text{严重,}ij}\right)\)</span></li>
+<li>
+<span class="math inline">\(b_{0j}\text{ iid }N\Big(0,\sigma_{0B}^2\Big);\;b_{1j}\text{ iid }N\Big(0,\sigma_{1B}^2\Big);\)</span> 其中 <span class="math inline">\(b_{0B}\)</span> 和 <span class="math inline">\(b_{1B}\)</span> 相互独立。</li>
+</ul>
+</li>
+<li>
+<p>连接：</p>
+<ul>
+<li><span class="math inline">\(\eta_{0ij}=\log\left(\frac{\pi_{\text{轻微,}ij}}{1-\pi_{\text{轻微,}ij}}\right)\)</span></li>
+<li><span class="math inline">\(\eta_{1ij}=\log\left(\frac{\pi_{\text{轻微,}ij}+\pi_{\text{中度,}ij}}{1-\left(\pi_{\text{轻微,}ij}+\pi_{\text{中度,}ij}\right)}\right)\)</span></li>
+</ul>
+</li>
+</ul>
+<p>一旦我们拟合了模型，我们就可以通过检验：对于所有 <span class="math inline">\(i=0,1,\ldots5\)</span>，<span class="math inline">\(H_0:\tau_{0i}=\tau_{1i}\)</span> 以及对于所有 <span class="math inline">\(i=0,1,\ldots,5\)</span>，<span class="math inline">\(H_0:b_{0i}=b_{1i}\)</span> 来正式检验比例几率假定 (proportional odds assumption). 因为区组效应是随机的，所以我们分两个阶段进行。首先，检验处理效应的相等性，<span class="math inline">\(H_0:\tau_{0i}=\tau_{1i}\)</span>。如果我们拒绝 <span class="math inline">\(H_0\)</span>，我们就完成了检验。如果我们得出结论，假定两个连接的处理效应相等是成立的，我们可以将具有单独方差分量的模型（<span class="math inline">\(\sigma_{cB}^2;c=0,1\)</span>）的拟合与具有单个方差分量的模型（<span class="math inline">\(\sigma^2_B=0\)</span>）的拟合进行比较。</p>
+<p>我们无法使用 PROC GLIMMIX 拟合非比例几率累积 logit 模型，但可以使用 PROC NLMIXED 拟合。程序语句如下所示，可以在 SAS 文件 Ch_14_2_Poinsettia_Ratings.sas 中获取。NLMIXED 语句为：</p>
+<pre class="sas"><code>proc nlmixed data=Numeric_ratings qpoints=1;
+parms int_0=-0.5 int_1=0.5 tau_01=0 tau_11=0 tau_02=0 tau_12=0 
+sdb=0.5 sdbt=0.25;
+eta_0=int_0+(variety=1)*tau_01+(variety=2)*tau_02+blk_j
+ +bt_1j*(variety=1)+bt_2j*(variety=2)+bt_3j*(variety=3);
+eta_1=int_1+(variety=1)*tau_11+(variety=2)*tau_12+blk_j
+ +bt_1j*(variety=1)+bt_2j*(variety=2)+bt_3j*(variety=3);
+pi_0=1/(1+exp(-eta_0));
+pi_1=1/(1+exp(-eta_1))-1/(1+exp(-eta_0));
+pi_2=1-pi_0-pi_1;
+/* Y=1 =&gt; rating A */
+/* Y=2 =&gt; rating B */
+/* Y=3 =&gt; rating C */
+if y=1 then pi=pi_0;
+else if y=2 then pi=pi_1;
+else pi=pi_2;
+ p = (pi&gt;0 and pi&lt;=1)*pi + (pi&lt;=0)*1e-8 + (pi&gt;1);
+ LogL = log(p);
+ model y ~ general(LogL);
+ random blk_j bt_1j bt_2j bt_3j ~ normal([0,0,0,0],[sdb*sdb,0, 
+ sdbt*sdbt,0,0,sdbt*sdbt,0,0,0,sdbt*sdbt])
+ subject=Grower;
+ estimate ‘blk variance ‘ sdb*sdb;
+ estimate ‘blk*trt variance’ sdbt*sdbt;
+ contrast ‘separate variety effect by link?’ 
+          tau_01-Tau_11,tau_02-Tau_12;
+ contrast ‘variety effect?’ tau_01, Tau_11,tau_02, Tau_12;
+ estimate ‘prob rating=A variety=1’ 1/
+          (1+exp(-(int_0+tau_01)));
+ estimate ‘prob rating=B variety=1’
+          1/(1+exp(-(int_1+tau_11)))-1/
+          (1+exp(-(int_0+tau_01)));
+ estimate ‘prob rating=C variety=1’ 1-(1/
+          (1+exp(-(int_1+tau_11))));
+ estimate ‘prob rating=A variety=2’ 1/
+          (1+exp(-(int_0+tau_02)));
+ estimate ‘prob rating=B variety=2’
+          1/(1+exp(-(int_1+tau_12)))-1/
+          (1+exp(-(int_0+tau_02)));
+ estimate ‘prob rating=C variety=2’ 1-(1/
+          (1+exp(-(int_1+tau_12))));
+ estimate ‘prob rating=A variety=3’ 1/(1+exp(-int_0));
+ estimate ‘prob rating=B variety=3’ 1/(1+exp(-int_1))-1/
+          (1+exp(-int_0));
+ estimate ‘prob rating=C variety=3’ 1-(1/(1+exp(-int_1)));    </code></pre>
+<p>编写此 NLMIXED 程序的策略类似于第 <a href="chap13.html#chap13">13</a> 章中用于零膨胀和栅栏程序的策略。有关详细信息，请参阅 <a href="chap13.html#sec13-2">13.2</a> 节。请注意，品种 3 的处理效应（即 TAU_03 和 TAU_13）不会出现在程序中。由于模型不是满秩的，因此程序遵循 SAS 约定，将最后一个品种效应置零。此外，虽然 PROC GLIMMIX 允许字符型 RATING 变量，但 PROC NLMIXED 要求它们是数字，因此上述 NLMIXED 语句之前有数据步：</p>
+<pre class="sas"><code>data Numeric_ratings;
+ set Plant_Ratings;
+ do i=1 to N_Plants;
+  y=(rating=‘A’)+2*(rating=’B’)+3*(rating=’C’);
+  output;
+ end;</code></pre>
+<p>因此 NLMIXED 程序中就有注释：</p>
+<pre class="sas"><code>/* Y=1 =&gt; rating A */
+/* Y=2 =&gt; rating B */
+/* Y=3 =&gt; rating C */</code></pre>
+<p>请注意，NLMIXED ESTIMATE 语句允许我们编写与所有品种 × 评级组合相关的概率的估计公式。CONTRAST 语句 “separate trt effect by link?” 生成 <span class="math inline">\(H_0\colon\tau_{0i}=\tau_{1i}\)</span> 的检验统计量。</p>
+<p>选定输出：</p>
+<div class="inline-figure"><img src="figure/figure%20442.png#center" style="width:80.0%"></div>
+<p>在 “Parameter Estimates” 表中，两个连接函数的品种效应的符号相反，即对于品种 1，较低的连接函数 TAU_01，<span class="math inline">\(\hat{\tau}_{01}=-0.76\)</span>，而对于较高的连接，<span class="math inline">\(\hat{\tau}_{11}=0.80\)</span>。同样，对于品种 2，<span class="math inline">\(\hat{\tau}_{01}=-3.00\)</span> 以及 <span class="math inline">\(\hat{\tau}_{12}=2.97\)</span>。</p>
+<p>“Additional Estimates” 表显示了每个品种的三个评级的概率估计，与上面给出的原始观测比例一致。“Contrasts” 表显示了强有力的证据，表明每个连接函数的品种效应是不同的，并且对评级概率的组合也有不同的效应，同样与原始比例一致。</p>
+</div>
+<div id="sec14-5" class="section level2" number="14.5">
+<h2>
+<span class="header-section-number">14.5</span> 名义类别：广义 logit 模型<a class="anchor" aria-label="anchor" href="#sec14-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>并非所有多项数据都来自有序类别。广义 logit 连接函数允许我们针对具有名义类别的多项数据拟合 GLM 和 GLMM。在本节中，我们将使用示例 Data Set 14.3 来描述模型并说明其实现和解释。</p>
+<p>数据来自一项田间试验，其目的是评估恢复受到环境破坏的草原地区的方法。本研究的具体目标是：估计灌溉水平对植物物种组成的影响。灌溉有 5 个等级，分别为 0, 2, 4, 6 和 8 个单位。研究在 5 个地点进行，每个地点有 5 个区 (plots)。在每个地点的区中，随机分配灌溉水平。在每个区内，沿着样带采集植物样本并按种类分类。种类 “F” 和 “G” 是理想的，目标是在区恢复时最大限度地增加它们的比例。品种 “W”（代表“杂草”）是不良种类的通用标签。因此，响应变量是每个区中每种植物的数量，下面表示为 <span class="math inline">\(y_{ijs}\)</span>，即第 <span class="math inline">\(j\)</span> 个地点第 <span class="math inline">\(i\)</span> 个灌溉水平下种类 <span class="math inline">\(s\)</span> 的观测频率。</p>
+<p>与累积 logit 模型和 probit 模型一样，广义 logit 模型具有 <span class="math inline">\(C − 1\)</span> 个连接函数，其中 <span class="math inline">\(C\)</span> 表示响应类别的数量。我们将一个类别定义为<strong>参考类别</strong> (reference category). 这可以是任意的，或者在给定研究的背景下，可能存在令人信服的逻辑将特定的响应类别指定为参考类比。实际上，只要我们在分析过程中始终如一，我们使用哪个类别作为参考并不重要。在此示例中，我们使用杂草类别 “W” 作为参考类别。因此，广义 logit 模型：</p>
+<p><span class="math display" id="eq:14-7">\[\eta_{1ij}=\log\left(\frac{\pi_{ij,F}}{\pi_{ij,W}}\right)\\\eta_{2ij}=\log\left(\frac{\pi_{ij,G}}{\pi_{ij,W}}\right)\]</span></p>
+<p>与非比例几率模型 <a href="chap14.html#eq:14-6">(14.6)</a> 类似，广义 logit 模型对每个连接函数都有单独的线性预测器效应。因此，该模型的完整指定如下：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\begin{align}\eta_{c,ij}=\eta_c+\tau_{ci}+L_{cj}+\tau L_{cij}\tag{14.7}\end{align}\)</span>，其中 <span class="math inline">\(c=1,2\)</span> 表示连接函数，<span class="math inline">\(\tau\)</span> 表示灌溉效应，<span class="math inline">\(L\)</span> 表示地点效应。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(y_{ij,F},y_{ij,G},y_{ij,W}\sim\text{Multinomial}\left(N_{ij},\pi_{ij,F},\pi_{ij,G},\pi_{ij,W}\right)\)</span></li>
+<li><span class="math inline">\(L_{cij}\sim N\left(0,\sigma_{L,c}^2\right)\)</span></li>
+<li><span class="math inline">\({\tau}L_{ij,c}\sim N\left(0,{\sigma}_{TL,c}^2\right)\)</span></li>
+</ul>
+</li>
+</ul>
+<p>请注意，现在每个连接函数都有不同的模型效应 <span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span>。通过一些代数运算，我们可以使用以下方程组来表示逆连接：</p>
+<p><span class="math display">\[\begin{bmatrix}e^{\eta_1}\\e^{\eta_2}\\...\\e^{\eta_{C-1}}\end{bmatrix}=\begin{bmatrix}1+e^{\eta_1}&amp;e^{\eta_1}&amp;...&amp;e^{\eta_1}\\e^{\eta_2}&amp;1+e^{\eta_2}&amp;...&amp;e^{\eta_2}\\...&amp;...&amp;...&amp;...\\e^{\eta_{C-1}}&amp;e^{\eta_{C-1}}&amp;...&amp;1+e^{\eta_{C-1}}\end{bmatrix}\begin{bmatrix}\pi_1\\\pi_2\\...\\\pi_{C-1}\end{bmatrix}\]</span></p>
+<p>通过一些额外的代数运算，我们可以证明响应类别 <span class="math inline">\(r\)</span> 的逆连接的一般形式是：</p>
+<p><span class="math display" id="eq:14-8">\[\begin{align}
+\pi_r=\frac{e^{\eta_r}}{1+\sum_{r=1}^{C-1}e^{\eta_r}}\;\text{ for }\;r=1,2,...C-1
+\tag{14.8}
+\end{align}\]</span></p>
+<p>对于参考类别，一旦我们确定了 <span class="math inline">\(\pi_1,\pi_2,...,\pi_{C-1}\)</span>，那么 <span class="math inline">\(\pi_1,\pi_2,...,\pi_{C-1}\)</span>。</p>
+<p>在这个例子中，因为灌溉是定量的，我们可以考虑使用随机系数线性回归以简单地替代模型 <a href="chap14.html#eq:14-7">(14.7)</a> 所示的线性预测器：</p>
+<p><span class="math display" id="eq:14-9">\[\begin{align}
+\eta_{ij,c}=\beta_{0,c}+b_{0j,c}+\left(\beta_{1,c}+b_{1j,c}\right)X_i
+\tag{14.9}
+\end{align}\]</span></p>
+<p>其中 <span class="math inline">\(b_{_{0j, c}}\sim N\left(0,\sigma_{_{0с}}^2\right)\)</span> 以及 <span class="math inline">\(b_{_{0\textit{ j, c}}}\sim N\left(0,\sigma_{_{0\textit{с}}}^2\right)\)</span> 表示 <span class="math inline">\(c\)</span> 类别的连接函数的随机截距和随机系数。<span class="math inline">\(X_i\)</span> 表示与灌溉水平 <span class="math inline">\(i\)</span> 相关的灌溉量，即 <span class="math inline">\(X_{1}=0,X_{2}=2,X_{3}=4,X_{4}=6,X_{5}=8\)</span>。</p>
+<p>分析由两部分组成：</p>
+<ol style="list-style-type: decimal">
+<li>计算线性回归拟合统计量以确定简化模型 <a href="chap14.html#eq:14-9">(14.9)</a> 是否合适。</li>
+<li>根据 1. 的结果决定使用模型 <a href="chap14.html#eq:14-7">(14.7)</a> 还是 <a href="chap14.html#eq:14-9">(14.9)</a> 完成分析。</li>
+</ol>
+<p>以下 GLIMMIX 语句实现第一步。</p>
+<pre class="sas"><code>proc glimmix data=Species_comp method=laplace;
+ class location irrigation species;
+ model species=x irrigation / d=multinomial link=glogit htype=1;
+ random intercept irrigation / subject=location group=species;
+freq n_plants;</code></pre>
+<p><code>HTYPE=1</code> 选项在拟合 IRRIGATION 的线性回归效应后获得其序贯检验统计量。将其解释为线性回归欠拟合统计量。请注意，在使用广义 logit（<code>link=glogit</code>）时，我们必须在 CLASS 语句中包含响应变量（<code>SPECIES</code>），在 RANDOM 语句中包含 <code>GROUP=SPECIES</code>。<code>GROUP</code> 选项允许每个连接函数具有不同的随机效应，如模型 <a href="chap14.html#eq:14-7">(14.7)</a> 和 <a href="chap14.html#eq:14-9">(14.9)</a> 所示。</p>
+<p>相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20445-1.png#center" style="width:50.0%"></div>
+<p>在 “Type I Tests of Fixed Effects” 表中，标记为 IRRIGATION 的统计量 <span class="math inline">\(F =1.81\)</span> 和 <span class="math inline">\(p=0.129\)</span>，表示线性欠拟合，即拟合 X 后的 IRRIGATION。我们可以使用这些欠拟合统计量或 “Fit Statistics” 表中的信息来决定是使用全模型 <a href="chap14.html#eq:14-7">(14.7)</a> 还是随机系数线性回归模型 <a href="chap14.html#eq:14-9">(14.9)</a>。但请注意，IRRIGATION 欠拟合 <span class="math inline">\(F\)</span> 值和 <span class="math inline">\(p\)</span> 值仅适用于线性预测器的固定效应。随机系数线性回归模型也会改变随机效应。从这个意义上讲，比较拟合统计量为模型选择提供了更全面的基础。</p>
+<p>以下 GLIMMIX 语句获得了模型 <a href="chap14.html#eq:14-9">(14.9)</a> 的拟合统计量。</p>
+<pre class="sas"><code>proc glimmix data=Species_comp method=laplace;
+ class location irrigation species;
+ model species=x / d=multinomial link=glogit;
+ random intercept irrigation / subject=location group=species;
+ freq n_plants;</code></pre>
+<p>相关输出：</p>
+<div class="inline-figure"><img src="figure/figure%20445-2.png#center" style="width:30.0%"></div>
+<p>全模型的所有拟合统计量都小于随机系数线性回归模型的相应拟合统计量。为节省篇幅，本节的其余部分将介绍使用全模型进行分析的第二步。包含 Data Set 14.3 的 SAS 文件和本节中使用的 SAS 程序还包含使用随机系数模型完成分析第二步的程序。CLASS, MODEL 和 RANDOM 语句与用于获取上面显示的拟合统计量的语句相同。</p>
+<p>使用全模型进行分析的第二步的 GLIMMIX 程序如下：</p>
+<pre class="sas"><code>proc glimmix data=Species_comp method=Laplace;
+ class species irrigation location;
+ model species=irrigation / d=multinomial solution link=glogit;
+ random intercept irrigation/subject=location group=species 
+ solution; nloptions maxiter=50;
+ /* broad inference space estimates */
+estimate “for x=0” intercept 1 irrigation 1 0,
+  “for x=2” intercept 1 irrigation 0 1 0,
+  “for x=4” intercept 1 irrigation 0 0 1 0,
+  “for x=6” intercept 1 irrigation 0 0 0 1 0,
+  “for x=8” intercept 1 irrigation 0 0 0 0 1 / 
+  bycat ilink;
+ /* location-specific BLUPs */
+ /* locations 1 and 2 shown */
+ /* use SUBJECT options to obtain BLUPs for other locations */
+ estimate “for x=0 loc=1” intercept 1 irrigation 1 0 | 
+ intercept 1 irrigation 1 0,
+  “for x=2 loc=1” intercept 1 irrigation 0 1 0
+  | intercept 1 irrigation 0 1 0,
+  “for x=4 loc=1” intercept 1 irrigation 0 0 1 0
+  | intercept 1 irrigation 0 0 1 0,
+  “for x=6 loc=1” intercept 1 irrigation 0 0 0 1 0
+  | intercept 1 irrigation 0 0 0 1 0,
+  “for x=8 loc=1” intercept 1 irrigation 0 0 0 0 1
+  | intercept 1 irrigation 0 0 0 0 1 / subject 1 0 
+  bycat ilink e;
+ estimate “for x=0 loc=2” intercept 1 irrigation 1 0 | 
+ intercept 1 irrigation 1 0,
+  “for x=2 loc=2” intercept 1 irrigation 0 1 0
+  | intercept 1 irrigation 0 1 0,
+  “for x=4 loc=2” intercept 1 irrigation 0 0 1 0
+  | intercept 1 irrigation 0 0 1 0,
+  “for x=6 loc=2” intercept 1 irrigation 0 0 0 1 0
+  | intercept 1 irrigation 0 0 0 1 0,
+  “for x=8 loc=2” intercept 1 irrigation 0 0 1 0
+  | intercept 1 irrigation 0 0 0 0 1 / subject 0 1 0 
+  bycat ilink e;
+  freq n_plants;
+ods output estimates=est;</code></pre>
+<p>与 <a href="chap14.html#sec14-2">14.2</a> 节中的累积 logit 和 probit 模型不同，广义 logit 模型的 ESTIMATE 语句中的系数仅指模型的截距和灌溉效应，而不指特定的连接函数截距。<code>BYCAT</code> 和 <code>ILINK</code> 选项使 GLIMMIX 为系数指定的效应计算非参考类别的概率估计。<code>SUBJECT</code> 选项控制 BLUP 的位置。<code>E</code> 选项获取 ESTIMATE 语句中计算的项的系数表。此表对于显示 GLIMMIX 如何计算特定地点的 BLUP 特别有用。最后，由于许多 irrigation × location 组合中的种类频率很低，我们使用积分近似而不是伪似然。我们对这些数据使用 <code>METHOD=LAPLACE</code>，因为 <code>METHOD=QUAD</code> 会产生内存不足的错误消息。</p>
+<p>选定结果：</p>
+<div class="inline-figure"><img src="figure/figure%20447.png#center" style="width:80.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20448.png#center" style="width:80.0%"></div>
+<p>方差分量和模型效应的估计仅针对种类 F 和 G 出现；参考类别（在本例中为种类 W）的估计已置零。对于这些数据，种类 G 的随机截距的方差 <span class="math inline">\(\hat{\sigma}_{0,G}^2=0.1192\)</span> 不为零。由于模型不满秩，最高灌溉水平（X = 8）的固定效应已置零。“Estimates” 表中的 ESTIMATE 是根据 “Solutions for Fixed Effects” 表中的相关项计算得出的，例如对于 X = 0 和 种类 F，<span class="math inline">\(\hat{\eta}_{_F}+\hat{\tau}_{_{0,F}}=0.1443-1.5642=-1.4199\)</span>。
+种类比例估计出现在 “Estimates” 表的 MEAN 列中。它们是使用式 <a href="chap14.html#eq:14-8">(14.8)</a> 计算的。例如，当灌溉水平 X = 0 时，种类 G 的比例估计为 <span class="math inline">\(\exp\bigl(\eta_F+\tau_{0,F}\bigr)/\bigl[1+\exp\bigl(\eta_F+\tau_{0,F}\bigr)+\exp\bigl(\eta_G+\tau_{0,G}\bigr)\bigr]=\exp(-1.4199)/\left[1+\exp(-1.4199)+\exp(-1.7983)\right]=0.1718\)</span>。</p>
+<p>尽管由于篇幅原因这里没有显示，但我们可以将 “Solutions for Random Effects” 表与 “Coefficients for Estimate With Multiple Rows” 表结合使用，以查看如何计算 ESTIMATE 列中特定地点的 BLUP 项。</p>
+<p>请注意，“Estimates” 表中的模型尺度 BLUPs 与广义推断空间模型尺度线性预测器不同，这是理所当然的。但是，MEAN 列中出现的比例估计都是相同的广义推断空间值。要获取每个种类的数据尺度特定地点 BLUP 比例，请使用 ODS OUTPUT 从 “Estimates” 表中创建数据集，然后使用以下语句：</p>
+<pre class="sas"><code>proc sort data=est;
+ by label;
+proc transpose data=est out=eta;
+ by label;
+ var estimate;
+run;
+proc print data=eta;
+run;
+data eta;
+ set eta;
+ etaF=col1; etaG=col2;
+ drop col1 col2;
+data blups;
+ set eta;
+ expF=exp(etaF); expG=exp(etaG);
+ probF=expF/(1+expF+expG);
+ probG=expG/(1+expF+expG);
+ probW=1-probF-probG;
+proc print data=blups;
+run;</code></pre>
+<p>结果：</p>
+<div class="inline-figure"><img src="figure/figure%20449.png#center" style="width:100.0%"></div>
+<p>我们看到，随着灌溉水平的提高，杂草的比例 (ProW) 趋于下降，但不同地点之间存在差异。</p>
+</div>
+<div id="sec14-6" class="section level2" number="14.6">
+<h2>
+<span class="header-section-number">14.6</span> 模型比较<a class="anchor" aria-label="anchor" href="#sec14-6"><i class="fas fa-link"></i></a>
+</h2>
+<p>在上一节中，我们比较了完全广义 logit 模型 <a href="chap14.html#eq:14-7">(14.7)</a> 和随机系数线性回归模型 <a href="chap14.html#eq:14-9">(14.9)</a> 的拟合统计量，并据此比较决定使用哪个模型来完成分析。</p>
+<p>我们可以利用这种策略来针对累积 logit 和 probit 模型进行决策，判断是比例几率或阈值线性预测器（所有连接函数具有相同固定效应和随机效应的模型），还是非比例几率方法（为每个连接分别设定固定效应和随机效应）能提供更好的拟合效果，从而更准确地估计分类概率。</p>
+<p>在 <a href="chap14.html#sec14-3">14.3</a> 节中，对一品红评级数据的初步检查促使我们使用了非比例几率模型。由于 PROC GLIMMIX 没有与累积 logit 连接结合使用的非比例几率选项，因此需要编写 PROC NLMIXED 程序来实现该模型。虽然经过初步检查，一品红评级数据的模型选择显而易见，但对于许多数据集，选择并不那么明确。非比例几率累积 logit 模型的 NLMIXED 程序比比例几率的 GLIMMIX 语句更复杂，可能会让许多数据分析师或与其一起工作的主题专家感到害怕。</p>
+<p>由此产生的问题是：在费力编写 NLMIXED 程序之前，有没有办法确定是否需要非比例的几率模型？幸运的是，我们可以利用这样一个事实：在 PROC GLIMMIX 中，我们有 <code>LINK=CLOGIT</code> 默认值（比例几率模型）和 <code>LINK=GLOGIT</code> 选项，它们的线性预测器与非比例几率模型相同。我们用每个连接函数来拟合模型，通过指定 <code>METHOD=LAPLACE</code>，我们可以获得拟合统计量，并将它们用作决定适当模型的基础。</p>
+<p>例如，<a href="chap14.html#sec14-2">14.2</a> 节中的疾病严重性数据生成以下拟合统计量。</p>
+<p><code>LINK=CLOGIT</code>（比例几率模型）：</p>
+<div class="inline-figure"><img src="figure/figure%20450-1.png#center" style="width:30.0%"></div>
+<p><code>LINK=GLOGIT</code> （非比例几率模型）：</p>
+<div class="inline-figure"><img src="figure/figure%20450-2.png#center" style="width:30.0%"></div>
+<p>累积 logit 比例几率模型的拟合统计量总是较小。疾病严重性数据不需要更复杂的模型。</p>
+</div>
+<div id="sec14-7" class="section level2" number="14.7">
+<h2>
+<span class="header-section-number">14.7</span> 第 14 章主要思想总结<a class="anchor" aria-label="anchor" href="#sec14-7"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li><p>多项数据的分析应该关注处理对响应类别的效应而不是平均评分。</p></li>
+<li><p>平均评分仅适用于有序数据，以这种方式聚合数据会损失太多信息。</p></li>
+<li><p>二项 logit 和 probit 模型的概念基础可以自然扩展到多项数据。</p></li>
+<li><p>累积 logit 和 probit 模型仅适用于有序数据。</p></li>
+<li><p>广义 logit 和 probit 模型可用于任何多项数据。</p></li>
+<li><p>对于有序数据，广义 logit 和 probit 可能会不必要地复杂，不够简约，可以使用拟合统计量并比较从每个模型中收获的内容来进行评估。</p></li>
+</ul>
+</div>
+<div id="exe14" class="section level2 unnumbered">
+<h2>练习<a class="anchor" aria-label="anchor" href="#exe14"><i class="fas fa-link"></i></a>
+</h2>
+<ol style="list-style-type: decimal">
+<li>
+<p>使用文件 Ch_14_problem_1.sas。数据来自在 16 个地点进行的研究，代表了更大的目标总体。目的是评估并比较四种处理对分类响应的效应。响应类别为“差”、“一般”和“好”。处理分为两组：第 1 组中的处理 1 和 2；第 2 组中的处理 3 和 4。给定的站点只能接受一组处理。八个站点被随机分配到第 1 组。其他八个站点接受第 2 组。</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>使用框架 ANOVA WWFD 过程来确定这些数据的适当模型必须考虑的变异源。确定哪些变异源应该被认为是随机的。</p></li>
+<li><p>编写一个与 a. 和这项研究的目标一致的模型。给出所有必需的元素。</p></li>
+<li><p>根据需要使用 b. 中的模型和后处理统计量（检验统计量，估计值等），以根据研究目标分析这些数据。其中一定要包括按处理对每个类别中预期反应比例的估计。</p></li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_14_problem_2.sas。数据来自一项比较七种油漆密封处理的研究。油漆损坏信息是从七个随机选择的位置的房屋中收集的。数据是在处理应用后几年收集的。对于每个房屋，记录损坏的主要形式。损坏类别为裂纹、褪色和剥离。</p>
+<ol style="list-style-type: lower-alpha">
+<li>考虑到响应变量的类别，哪种链接函数似乎最合适？（累积 logit？累积 probit？还是广义 logit？）</li>
+<li>根据你在 a. 中的选择以及研究设计，给出分析这些数据的模型必需的元素。</li>
+<li>实现 c. 中的模型，以及任何后处理统计量（检验、对比、按处理和类别估计的概率等）。</li>
+<li>写一份简短的报告总结你的发现。</li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_14_problem_3.sas。在这个虚构的场景中，在火星北半球和南半球的地点采集了暗示早期火星上可能存在生命的样本。数据来自代表北半球样本的九个地点和代表南半球样本的十一个地点。每一个都取几个“核心”。采样材料分为蓝色、绿色、红色或白色。你的任务：研究人员想知道来自北方的材料的颜色比例是否与南方不同。为了解决这一问题，描述、实现、报告并解释适用于这些数据的多项 GLMM 的结果。</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>完成下表，列出变异源。
+<br><img src="figure/figure%2014-3-1.png#center" style="width:30.0%"></p></li>
+<li><p>编写与 a. 一致的模型所需的元素，并完成你的任务。要特别注意清楚地描述连接和线性预测器。</p></li>
+<li><p>执行与 b. 一致的分析。报告并解释相关结果。</p></li>
+<li><p>关于研究人员的问题：是否有证据表明北方和南方的颜色比例存在统计学上的显著差异？相关证据是什么？</p></li>
+</ol>
+</li>
+<li>
+<p>使用文件 Ch_14_problem_4.sas。这些数据来自一项估计辐射暴露量对分类响应效应的研究。数据集中以 0（无曝光）到 1（完全曝光）的比例给出曝光。对 12 个批次进行抽样。对于第 <span class="math inline">\(i\)</span> 批，N_ij个项目接收第 <span class="math inline">\(j\)</span> 个暴露水平（<span class="math inline">\(j=1\)</span> 表示 0 暴露，<span class="math inline">\(j=2\)</span> 表示 0.25 个单位的暴露，……，<span class="math inline">\(j=5\)</span> 表示 1.0 个单位的暴露）。评估每个项目的辐射损伤水平：严重损伤、轻度损伤或无损伤（数据中分别编码为 YH, YM 和 YN）。理论上，伤害会随着暴露量的增加而增加。</p>
+<ol style="list-style-type: lower-alpha">
+<li>在前 GLMM 时代，分析多项数据的标准方法是为类别赋予一个数字代码（如前所述），然后进行传统的 ANOVA。请采用这种方法对这些数据进行分析。总结并解释结果。</li>
+<li>给出适用于分析这些数据的比例几率模型所需的元素。你可以假定连接函数随暴露量的变化而线性变化。同时也假定系数可能因批次而异——即模型中应存在随机系数。</li>
+<li>实现 a. 部分中描述的模型。总结与研究者目标相关的结果。这应包括每个暴露水平的评级类别的概率估计。</li>
+<li>修改你的模型，使其不是比例赔率模型，但在其他方面保持相似。描述不同的元素。</li>
+<li>实现 d. 部分中描述的模型。总结与研究者目标相关的结果。这应包括每个暴露水平的评级类别的概率估计。</li>
+<li>哪种模型和分析似乎更适合报告？请提供相关证据。</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></div>
+<div class="next"><a href="bib.html">参考文献</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap14"><span class="header-section-number">14</span> 多项数据</a></li>
+<li><a class="nav-link" href="#sec14-1"><span class="header-section-number">14.1</span> 概述</a></li>
+<li><a class="nav-link" href="#sec14-2"><span class="header-section-number">14.2</span> 有序类别的多项数据</a></li>
+<li>
+<a class="nav-link" href="#sec14-3"><span class="header-section-number">14.3</span> 比例几率和阈值模型</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec14-3-1"><span class="header-section-number">14.3.1</span> 比例几率模型</a></li>
+<li><a class="nav-link" href="#sec14-3-2"><span class="header-section-number">14.3.2</span> 累积 probit：阈值模型</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec14-4"><span class="header-section-number">14.4</span> 有序类别的非比例几率模型</a></li>
+<li><a class="nav-link" href="#sec14-5"><span class="header-section-number">14.5</span> 名义类别：广义 logit 模型</a></li>
+<li><a class="nav-link" href="#sec14-6"><span class="header-section-number">14.6</span> 模型比较</a></li>
+<li><a class="nav-link" href="#sec14-7"><span class="header-section-number">14.7</span> 第 14 章主要思想总结</a></li>
+<li><a class="nav-link" href="#exe14">练习</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

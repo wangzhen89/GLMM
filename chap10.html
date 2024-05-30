@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>第 10 章 最佳线性无偏预测 | 广义线性混合模型</title>
+<meta name="author" content="Wang Zhen">
+<meta name="description" content="10.1 回顾可估和可预测函数 在第 8 章和第 9 章中，我们考虑了使用可估函数对仅固定效应模型进行推断的策略。在本章中，我们将注意力转向可预测函数，涉及固定和随机模型效应的推断。 回想线性预测器 \(\symbf\eta=\symbf{X}\symbf{\beta}+\symbf{Zb}\) 的可估函数一般形式为 \(\symbf{K'\beta}\)，其中 \(\symbf K\)...">
+<meta name="generator" content="bookdown 0.38 with bs4_book()">
+<meta property="og:title" content="第 10 章 最佳线性无偏预测 | 广义线性混合模型">
+<meta property="og:type" content="book">
+<meta property="og:description" content="10.1 回顾可估和可预测函数 在第 8 章和第 9 章中，我们考虑了使用可估函数对仅固定效应模型进行推断的策略。在本章中，我们将注意力转向可预测函数，涉及固定和随机模型效应的推断。 回想线性预测器 \(\symbf\eta=\symbf{X}\symbf{\beta}+\symbf{Zb}\) 的可估函数一般形式为 \(\symbf{K'\beta}\)，其中 \(\symbf K\)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第 10 章 最佳线性无偏预测 | 广义线性混合模型">
+<meta name="twitter:description" content="10.1 回顾可估和可预测函数 在第 8 章和第 9 章中，我们考虑了使用可估函数对仅固定效应模型进行推断的策略。在本章中，我们将注意力转向可预测函数，涉及固定和随机模型效应的推断。 回想线性预测器 \(\symbf\eta=\symbf{X}\symbf{\beta}+\symbf{Zb}\) 的可估函数一般形式为 \(\symbf{K'\beta}\)，其中 \(\symbf K\)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.7.0/transition.js"></script><script src="libs/bs3compat-0.7.0/tabs.js"></script><script src="libs/bs3compat-0.7.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": {
+        fonts: ["STIX-Web"]
+      },
+      SVG: {
+        font: "STIX-Web"
+      },
+      TeX: {Augment: {
+        Definitions: {macros: {symbf: 'Symbf'}},
+        Parse: {prototype: {
+          csMathchar0mi: function (name, mchar) {
+            var MML = MathJax.ElementJax.mml;
+            var def = {};
+            if (Array.isArray(mchar)) {def = mchar[1]; mchar = mchar[0]}
+            this.Push(this.mmlToken(MML.mi(MML.entity("#x"+mchar)).With(def)));
+          },
+          Symbf: function (name) {
+            var MML = MathJax.ElementJax.mml;
+            var math = this.ParseArg(name);
+            this.Push(MML.mstyle(math).With({mathvariant: "bold"}));
+          }
+        }}
+      }}
+    });
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="现代概念、方法和应用">广义线性混合模型</a>:
+        <small class="text-muted">现代概念、方法和应用</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">译者序</a></li>
+<li><a class="" href="%E6%89%89%E9%A1%B5.html">扉页</a></li>
+<li><a class="" href="%E7%9B%AE%E5%BD%95.html">目录</a></li>
+<li><a class="" href="secpre.html">前言</a></li>
+<li class="book-part">第一篇：基本背景</li>
+<li><a class="" href="chap1.html"><span class="header-section-number">1</span> 建模基础</a></li>
+<li><a class="" href="chap2.html"><span class="header-section-number">2</span> 设计要务</a></li>
+<li><a class="" href="chap3.html"><span class="header-section-number">3</span> 搭建舞台</a></li>
+<li><a class="" href="%E6%90%AD%E5%BB%BA%E8%88%9E%E5%8F%B0.html">►搭建舞台</a></li>
+<li class="book-part">第二篇：估计和推断理论</li>
+<li><a class="" href="chap4.html"><span class="header-section-number">4</span> GLMM 之前的估计和推断基础知识</a></li>
+<li><a class="" href="chap5.html"><span class="header-section-number">5</span> GLMM 估计</a></li>
+<li><a class="" href="chap6.html"><span class="header-section-number">6</span> 推断（一）</a></li>
+<li><a class="" href="chap7.html"><span class="header-section-number">7</span> 推断（二）</a></li>
+<li class="book-part">第三篇：应用</li>
+<li><a class="" href="chap8.html"><span class="header-section-number">8</span> 处理和解释变量结构</a></li>
+<li><a class="" href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></li>
+<li><a class="active" href="chap10.html"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="" href="chap11.html"><span class="header-section-number">11</span> 计数</a></li>
+<li><a class="" href="chap12.html"><span class="header-section-number">12</span> 率和比例</a></li>
+<li><a class="" href="chap13.html"><span class="header-section-number">13</span> 零膨胀和栅栏模型</a></li>
+<li><a class="" href="chap14.html"><span class="header-section-number">14</span> 多项数据</a></li>
+<li class="book-part">—</li>
+<li><a class="" href="bib.html">参考文献</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="chap10" class="section level1" number="10">
+<h1>
+<span class="header-section-number">第 10 章</span> 最佳线性无偏预测<a class="anchor" aria-label="anchor" href="#chap10"><i class="fas fa-link"></i></a>
+</h1>
+<div id="sec10-1" class="section level2" number="10.1">
+<h2>
+<span class="header-section-number">10.1</span> 回顾可估和可预测函数<a class="anchor" aria-label="anchor" href="#sec10-1"><i class="fas fa-link"></i></a>
+</h2>
+<p>在第 <a href="chap8.html#chap8">8</a> 章和第 <a href="chap9.html#chap9">9</a> 章中，我们考虑了使用可估函数对仅固定效应模型进行推断的策略。在本章中，我们将注意力转向可预测函数，涉及固定和随机模型效应的推断。</p>
+<p>回想线性预测器 <span class="math inline">\(\symbf\eta=\symbf{X}\symbf{\beta}+\symbf{Zb}\)</span> 的可估函数一般形式为 <span class="math inline">\(\symbf{K'\beta}\)</span>，其中 <span class="math inline">\(\symbf K\)</span> 满足 <a href="chap6.html#eq:6-1">(6.1)</a> 和 <a href="chap6.html#eq:6-2">(6.2)</a> 中给出的可估性标准，以及可预测函数的一般形式 <span class="math inline">\(\symbf{K^{\prime}\beta}+\symbf{M^{\prime}b}\)</span>。对于仅固定效应模型，推断必须仅限于可估函数。对于混合模型（LMMs 和 GLMMs），推断可以单独应用于可估函数或可预测函数。</p>
+<p>在第 <a href="chap3.html#chap3">3</a> 章中，我们介绍了广义推断和狭义推断这两个术语。广义推断仅使用可估函数。从机制上讲，这意味着 <span class="math inline">\(\symbf M =\symbf 0\)</span>。更准确地说，广义推断意味着在给定 <span class="math inline">\(\symbf M'\symbf b=\symbf 0\)</span> 的情况下估计或检验 <span class="math inline">\(\symbf{K'\beta}\)</span>。换言之，这意味着我们不将注意力限制在随机效应的一组特定水平 <span class="math inline">\(\symbf b\)</span> 上，而是打算将推断广泛应用于由水平 <span class="math inline">\(\symbf b\)</span> 表示的整个总体。对于高斯数据，这种隐含条件很容易被忽视，因为 LMMs 总是可以表示为边际 LMs，其中 <span class="math inline">\(\symbf b\)</span> 的协方差结构嵌入 <span class="math inline">\(\symbf{V}=Var(\symbf{y})\)</span> 中。对于非高斯数据，我们需要牢记这种隐含的条件性，这是因为条件和边际 GLMMs 之间有所区别（在第 <a href="chap3.html#chap3">3</a> 章中介绍）。</p>
+<p>狭义推断可用于两个目的：</p>
+<ol style="list-style-type: decimal">
+<li><p>推断关注于 <span class="math inline">\(\symbf b\)</span> 的某个特定水平或一组水平。例如，Henderson (1950, 1963) 最初开发了混合模型方程，专门用于在遗传研究中估计公畜的育种值，其中公畜是随机模型效应。其他例子包括特定批次的回归（在第 <a href="chap3.html#chap3">3</a> 章中展示）、临床试验中患者的特定效应、特定地点或位置效应（例如，在多家诊所进行的医学试验或农场农业试验）、质量改进中的特定工人的推断 (McLean et al., 1991) 以及评估学生成绩时教师的增值分数 (Sanders et al., 1997). 后者是混合模型推断的一个最新但有争议的应用。我们将在本章的 <a href="chap10.html#sec10-3">10.3</a> 节中概述这一点。</p></li>
+<li><p>主要关注点仍然是固定效应，但使用非零的 <span class="math inline">\(\symbf M\)</span> 来将关于 <span class="math inline">\(\symbf{K'\beta}\)</span> 的推断限制在由 <span class="math inline">\(\symbf b\)</span> 表示的特定子集中。在多地点研究中，例如多诊所医学研究或农场农业研究，我们可能希望查看处理效应在整个总体中是否一致，或者是否有证据表明亚组与固定效应存在交互作用。显然，如果这些亚组在研究之前就已经很明确，那么它们应该被明确地纳入处理设计作为固定效应。然而，当怀疑存在亚组，但我们不确定它们是否存在，以及如果存在，我们对它们的了解不足以纳入设计时。在这些情况下，基于 <span class="math inline">\(\symbf{K^{\prime}\beta}+\symbf{M^{\prime}b}\)</span> 的 BLUPs 可以提供重要的探索性工具。</p></li>
+</ol>
+<p>如第 <a href="chap5.html#chap5">5</a> 章所示，<span class="math inline">\(\symbf\beta\)</span> 和 <span class="math inline">\(\symbf b\)</span> 的估计不同，因为 <span class="math inline">\(\symbf\beta\)</span> 是一个固定参数，而 <span class="math inline">\(\symbf b\)</span> 是一个具有多元正态分布的随机向量。实现值的估计（表示为 <span class="math inline">\(\hat{\symbf b}\)</span>）必须考虑这种分布。</p>
+<p><a href="chap10.html#sec10-2">10.2</a> 节重点介绍如何使用可预测函数对被认为特别感兴趣的 <span class="math inline">\(\symbf b\)</span> 的水平进行推断。<a href="chap10.html#sec10-3">10.3</a> 节重点介绍如何使用可预测函数来操纵推断空间。<a href="chap10.html#sec10-2">10.2</a> 和 <a href="chap10.html#sec10-3">10.3</a> 节介绍了标准随机效应模型或混合模型的基本思想。虽然这两节使用高斯数据的示例来说明主要思想，但除了增加模型尺度和数据尺度外，这些问题同样适用于非高斯数据的可预测函数。最后，在 <a href="chap10.html#sec10-4">10.4</a> 节中，我们使用非标准的 <span class="math inline">\(\symbf Z\)</span> 矩阵对可预测函数的高级应用进行了探索，该应用通过一个在教育改进工作中备受关注的增值模型进行说明。</p>
+</div>
+<div id="sec10-2" class="section level2" number="10.2">
+<h2>
+<span class="header-section-number">10.2</span> 仅随机效应模型中的 BLUP<a class="anchor" aria-label="anchor" href="#sec10-2"><i class="fas fa-link"></i></a>
+</h2>
+<p>术语“仅随机效应模型”是指其唯一固定效应为截距的混合模型。一般来说，我们将线性预测器表示为 <span class="math inline">\(\symbf\eta=\eta+\symbf{Zb}\)</span>。我们可以使用两个最简单的仅随机效应模型来说明<strong>最佳线性无偏预测</strong> (best linear unbiased prediction, <strong>BLUP</strong>) 的重要特征，即基于可预测函数的推断，其中随机模型效应是最重要的。他们是：</p>
+<ul>
+<li>单向模型：
+<ul>
+<li>线性预测器：<span class="math inline">\(\begin{align}\eta_i=\eta+a_i\tag{10.1}\end{align}\)</span>
+</li>
+<li><span class="math inline">\(a_i\mathrm{~iid~}N\left(0,\sigma_A^2\right)\)</span></li>
+</ul>
+</li>
+<li>双向嵌套模型：
+<ul>
+<li>线性预测器：<span class="math inline">\(\begin{align}\eta_{ij}=\eta+a_i+b(a)_{ij}\tag{10.2}\end{align}\)</span>
+</li>
+<li><span class="math inline">\(a_i\text{ iid }N\left(0,\sigma_A^2\right);\;\;b\left(a\right)_{ij}\text{ iid }N\left(0,\sigma_B^2\right)\)</span></li>
+</ul>
+</li>
+</ul>
+<p>我们首先考虑单向模型。</p>
+<div id="sec10-2-1" class="section level3" number="10.2.1">
+<h3>
+<span class="header-section-number">10.2.1</span> 单向随机效应模型<a class="anchor" aria-label="anchor" href="#sec10-2-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>此示例的数据在 SAS Data and Program Library 显示为 Data Set 10.1.假定一个高斯响应变量，即 <span class="math inline">\(y_{ij}\mid a_i\sim N\left(\mu_i,\sigma^2\right)\)</span> 以及恒等连接 <span class="math inline">\(\eta_i=\mu_i\)</span>。因素 A 有 12 个水平。我们首先比较随机效应模型 <a href="chap9.html#eq:10-1">(10.1)</a> 的关键结果与如果我们将 A 效应作为固定效应建模时会得到的结果。将 <a href="chap9.html#eq:10-1">(10.1)</a> 的固定效应版本记为 <span class="math inline">\(\eta_i=\eta_F+\alpha_i\)</span>。对于本例的目的，令 <span class="math inline">\(\eta_R\)</span> 表示随机效应模型的截距。</p>
+<p>我们的第一个比较是对总体均值的估计，这定义为</p>
+<p><span class="math display">\[\mu=\bar{\mu}_\cdot=\left(1/12\right)\sum_{i=1}^{12}\mu_i\]</span></p>
+<p>对于模型的随机效应版本，我们可以使用 GLIMMIX 语句获得这一估计</p>
+<pre class="sas"><code>proc glimmix data=example_10_1;
+ class a;
+ model y= / solution;
+ random intercept / subject=a solution;
+ estimate ‘overall mean’ intercept 1;</code></pre>
+<p>我们将 <code>SOLUTION</code> 选项添加到 MODEL 和 RANDOM 语句中，因为我们将使用这些估计来阐述下面的几个要点。在此之前，让我们看一下这个模型的固定效应版本的 GLIMMIX 语句，并比较 <span class="math inline">\(\hat\mu\)</span> 的结果。</p>
+<pre class="sas"><code>proc glimmix data=example_10_1;
+ class a;
+ model y=a / solution;
+ estimate ‘overall mean’ intercept 1 / e;</code></pre>
+<p>此模型的随机效果版本会产生以下输出：</p>
+<div class="inline-figure"><img src="figure/figure%20305-1.png#center" style="width:50.0%"></div>
+<p>将其与固定效果版本进行比较：</p>
+<div class="inline-figure"><img src="figure/figure%20305-2.png#center" style="width:50.0%"></div>
+<p>估计值相同，均为 <span class="math inline">\(\bar y_{\cdot\cdot}=159\)</span>。但标准误不同。对于仅随机效应模型，只有截距 <span class="math inline">\(\eta\)</span> 是固定的，因此总均值的可估函数为 <span class="math inline">\(\hat\eta=\hat\mu=15.9\)</span>，其标准误为：</p>
+<p><span class="math display">\[\sqrt{\frac{n\hat{\sigma}_A^2+\hat{\sigma}^2}{an}}=\sqrt{\frac{2\times5.5114+1.5308}{12\times2}}=0.7232\]</span></p>
+<p>另一方面，对于仅固定效应模型，<span class="math inline">\(\eta\)</span> 本身不满足可估性准则：<span class="math inline">\(\eta+\left(1/12\right)\sum_{i=1}^{12}\alpha_i\)</span> 是总均值的可估函数，其标准误为</p>
+<p><span class="math display">\[\sqrt{\frac{\hat{\sigma}^2}{an}}=\sqrt{\frac{1.5308}{24}}=0.2526\]</span></p>
+<p>如果我们按照固定效应可估函数的方式定义一个类似的 BLUP，即使用可预测函数 <span class="math inline">\(\eta+\left(1/12\right)\sum_{i=1}^{12}\alpha_i\)</span>，会发生什么呢？我们可以在随机效应模型的 GLIMMIX 程序中添加以下语句来实现这一点：</p>
+<pre class="sas"><code>estimate ‘overall mean narrow’ intercept 12 | intercept 1 / 
+ subject 1 1 1 1 1 1 1 1 1 1 1 1 divisor=12;</code></pre>
+<p>输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20306-1.png#center" style="width:50.0%"></div>
+<p>注意，该可预测函数与具有固定 A 效应的模型中类似定义的可估函数是相同的。这说明了两个重要的原则：</p>
+<ol style="list-style-type: decimal">
+<li><p>将效应定义为固定效应会将推断空间缩小至仅包含实际观察到的水平。因此，对于均衡数据集，对随机效应（在这里是因素 A）的水平进行平均，对该推断范围的缩小作用与将该因素定义为固定效应是一样的。实际上，我们可以使用 BLUP 来明确固定效应模型隐含假定的推断空间。</p></li>
+<li><p>在可预测函数中包含效应会从标准误中删除相应的方差分量。这里，可预测函数 <span class="math inline">\(\eta\)</span> 的标准误差包括 <span class="math inline">\(\hat\sigma_2\)</span>，而 <span class="math inline">\(\eta+\left(1/12\right)\sum_{i=1}^{12}\alpha_i\)</span> 从标准误差中删除了 <span class="math inline">\(\hat\sigma_2\)</span>。</p></li>
+</ol>
+<p>现在让我们来考察因素 A 水平的“均值”。对于 固定 A 效应模型，这些是真正的处理均值，对应于可估函数 <span class="math inline">\(\eta+\alpha_i\)</span>。对于随机 A 效应模型，这些是由可预测函数 <span class="math inline">\(\eta+\alpha_i\)</span> 定义的 BLUPs。我们使用 LSMEAN 语句获得前者：</p>
+<pre class="sas"><code>lsmeans a;</code></pre>
+<p>对于后者，我们使用 ESTIMATE 语句：</p>
+<pre class="sas"><code>estimate ‘blup a_1’ intercept 1 | intercept 1 / subject 1 0;
+estimate ‘blup a_2’ intercept 1 | intercept 1 / subject 0 1 0;
+estimate ‘blup a_3’ intercept 1 | intercept 1 / subject 0 0 1 0;
+estimate ‘blup a_4’ intercept 1 | intercept 1 / subject 0 0 0 1 0;
+estimate ‘blup a_5’ intercept 1 | intercept 1 / subject 0 0 0 0 1 0;
+estimate ‘blup a_6’ intercept 1 | intercept 1 / subject 0 0 0 0 0 1 0;
+estimate ‘blup a_7’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 1 0;
+estimate ‘blup a_8’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 0 1 0;
+estimate ‘blup a_9’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 0 0 1 0;
+estimate ‘blup a_10’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 0 0 0 1 0;
+estimate ‘blup a_11’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 0 0 0 0 1 0;
+estimate ‘blup a_12’ intercept 1 | intercept 1 / subject 0 0 0 0 0 0 0 0 0 0 0 1;</code></pre>
+<p>表 10.1 显示了由此产生的估计和标准误。</p>
+<details><summary><font color="#8B2232">表 10.1</font>
+</summary><img src="figure/table%2010.1.png#center" style="width:80.0%"></details><p><br>
+TRT_MEAN 和 TRT_SE_MEAN 显示了固定 A 效应模型的均值和标准误。在可估函数和估计方程术语中，这些是通过求解 <span class="math inline">\(\symbf{X}^{\prime}\symbf{X\beta}=\symbf{X}^{\prime}\symbf{y}\)</span> 获得的 <span class="math inline">\(\eta+\alpha_i\)</span> 的估计，其中 <span class="math inline">\(\symbf\beta\)</span> 表示由 <span class="math inline">\(\eta\)</span> 和 <span class="math inline">\(\{\alpha_i;i=1,2,\ldots,12\}\)</span> 组成的参数向量。在这里，我们知道估计和标准误分别为 <span class="math inline">\(\bar y_{i\cdot}\)</span> 和 <span class="math inline">\(\sqrt{\sigma^2/an}\)</span>。</p>
+<p>我们从随机 A 效应模型的混合模型方程的解中获得 TRT_BLUP 和 TRT_SE_BLUP。上面我们看到 <span class="math inline">\(\hat\eta= 15.9\)</span>。根据 <a href="chap6.html#eq:6-20">(6.20)</a> 我们知道随机向量 BLUP <span class="math inline">\(\hat{\symbf{b}}=\symbf{ZGV}^{-1}\left(\symbf{y}-\symbf{X\beta}\right)\)</span>。这里，随机效应向量 <span class="math inline">\(\symbf b\)</span> 完全由随机 A 效应组成，即 <span class="math inline">\(\symbf{b}=\symbf a'=\begin{bmatrix}a_1&amp;a_2&amp;...&amp;a_{12}\end{bmatrix}\)</span>。另外，<span class="math inline">\(\symbf{Z}=\symbf{I}_{12}\otimes{\begin{bmatrix}1\\1\end{bmatrix}}\)</span>，且 <span class="math inline">\(\symbf{X\beta} = \symbf\eta\)</span>，其中 <span class="math inline">\(\symbf\eta\)</span> 是 24 × 1 向量。由此，我们可以证明 <span class="math inline">\(\symbf a\)</span> 的第 i 个元素为</p>
+<p><span class="math display">\[\hat{a}_i=\Bigg(\frac{\sigma_A^2}{\Big(\sigma^2+n\sigma_A^2\Big)\Big/n}\Bigg)\Bigg(\bar{y}_{i\cdot}-\bar{y}_{\cdot\cdot}\Bigg)\]</span></p>
+<p>例如，对于 A 的第一水平，<span class="math inline">\(\bar y_{1\cdot}=16.15\)</span>， 所以</p>
+<p><span class="math display">\[\hat{a}_1=\Bigg(\frac{2\times5.5114}{1.5308+(2\times5.5114)}\Bigg)\Bigg(16.15-15.9\Bigg)=0.2195\]</span></p>
+<p>因此，因素 A 水平 1 的 BLUP 为 <span class="math inline">\(\hat{\eta}+\hat{a}_1=15.9+0.2195=16.1195\)</span>。请注意，固定效应 <span class="math inline">\(\hat{\alpha}_1=\bar{y}_{1\cdot}-\bar{y}_{\cdot\cdot}\)</span>。</p>
+<p>请注意，在仅方差分量模型中，<span class="math inline">\(\symbf{G}\symbf{V}^{-1}=\symbf{G}\left(\symbf{Z}\symbf{G}\symbf{Z}^{\prime}+\symbf{I}\symbf{\sigma}^2\right)^{-1}\)</span> 且 <span class="math inline">\(\symbf G\)</span> 是分块对角阵，其分块对角元由 <span class="math inline">\(\symbf I\)</span> 乘以相应随机效应的方差分量组成。</p>
+<p>所得比值将始终 &lt; 1. 我们可以将其视为收缩项；BLUP 有时称为<strong>收缩估计</strong> (shrinkage estimator)，因为它将因素效应的固定效应估计（在本例中为 <span class="math inline">\(\hat\alpha =0.25\)</span>）向零“收缩”，收缩的幅度取决于相关因素的方差，这里是 <span class="math inline">\(\hat\sigma_A^2\)</span> 。对于较大的方差，我们减少因子水平效应估计的依据不那么有说服力，因此我们看到的收缩效应就较少。然而，随着方差的减小，较大的 <span class="math inline">\(\bar y_1,...,\bar y_n\)</span> 越来越不可信，因为较小的 <span class="math inline">\(\sigma_A^2\)</span> 意味着 <span class="math inline">\(a_i\)</span> 应该紧密地分布在零附近。因此，随着 <span class="math inline">\(\sigma_A^2\)</span> 的减小，收缩效应增加。在表 10.1 中，我们看到对于所有 A 的均值小于总体均值 15.9 的情况，相应的 BLUP 值会更大，而对于所有 A 的均值大于 15.9 的情况，相应的 BLUP 值会更小。</p>
+<p>为什么会收缩？收缩在什么时候是有意义的，什么时候没有意义？答案在于实验设计。如果我们有一个标准的“这些是实验方案，我们想要比较它们”的设计，那么我们应该将处理效应视为固定的。然而，假定我们想要比较育种试验中的所有公畜、学校中的所有老师、诊所中的所有病人、工厂或办公室中的所有工人、球队中的所有运动员。这些公畜、老师、病人、工人、运动员等并不是孤立存在的。它们存在于更大的背景中；我们了解它们的效应分布的一些信息。我们试验中的公畜（或老师、病人、工人、运动员等）的分布特征与其他试验中的公畜足够相似，以至于我们可以认为在这个意义上它们属于一个更大的总体。我们可以利用效应分布的信息来改进我们的估计。在这些情况下，假设处理效应是随机的，并使用可预测函数进行收缩是有意义的。</p>
+</div>
+<div id="sec10-2-2" class="section level3" number="10.2.2">
+<h3>
+<span class="header-section-number">10.2.2</span> 双向随机效应嵌套模型<a class="anchor" aria-label="anchor" href="#sec10-2-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>在双向嵌套模型中，我们将因素 B 的水平嵌套在因素 A 的水平内，并对每个 AB 组合进行一个或多个观测。线性预测器和关于随机 A 效应以及 A 内的 B 效应的假定已在 <a href="chap9.html#eq:10-2">(10.2)</a> 中给出。在本节的示例中，我们假定数据是高斯的，具体来说，</p>
+<ul>
+<li><span class="math inline">\(y_{ijk}\mid a_i,b(a)_{ij}\sim N\Big(\mu_{ij},\sigma^2\Big),k=1,2,...,n_{ij};n_{ij}\geq1\)</span></li>
+<li>连接：恒等</li>
+</ul>
+<p>令 <span class="math inline">\(B_i\)</span> 表示与 A 的第 <span class="math inline">\(i\)</span> 个水平组合观察到的 B 的水平数。<span class="math inline">\(B_i\)</span> 不必相等。至少有一个 <span class="math inline">\(B_i\)</span> 应该严格大于 1，但不是所有都需要；对于第 <span class="math inline">\(ij\)</span> 个 AB 组合的观测数 <span class="math inline">\(n_{ij}\)</span> 也是如此。</p>
+<p>我们将考虑该模型描述的两个数据集，一个是均衡的，另一个是不均衡的。设计见表 10.2 和 10.3；相应的数据作为 Data Set 10.2 和 10.3 出现在 SAS Data and Program Library 中。</p>
+<details><summary><font color="#8B2232">表 10.2</font>
+</summary><img src="figure/table%2010.2.png#center" style="width:100.0%"></details><br><details><summary><font color="#8B2232">表 10.3</font>
+</summary><img src="figure/table%2010.3.png#center" style="width:100.0%"></details><p><br>
+均衡设计（表和 Data Set 10.2）的因素 A 有七个水平，B 有两个水平嵌套在 A 的每个水平中，每个 AB 组合有两个观测。不均衡设计的因素 A 有十个水平。B 有两个水平嵌套在 A 的九个水平中，B 的另一个水平嵌套在 A 的第十个水平中。对于 A 的九个水平和 B 的两个水平，其中一个 AB 组合有两个观测，而另一个只有一个。对于 A 的第 10 个水平只有一个观测。</p>
+<p>为什么设计不均衡？框架 ANOVA 给出了原因。</p>
+<div class="inline-figure"><img src="figure/figure%20309.png#center" style="width:80.0%"></div>
+<p>均衡设计不成比例地将自由度分配给 obs(A,B)，从而在估计 <span class="math inline">\(\sigma^2\)</span> 时牺牲了估计 <span class="math inline">\(\sigma_A^2\)</span> 和 <span class="math inline">\(\sigma_B^2\)</span> 的自由度。不均衡设计将自由度平等地分配给模型效应。在固定效应模型中，优先考虑的是最大化 <span class="math inline">\(\sigma^2\)</span> 估计的准确性。因此，均衡设计似乎更合适。然而，在随机效应模型中，必须准确估计所有方差分量，尤其是如果我们还希望获得 BLUPs 时。对于随机效应模型，我们有充分的理由更倾向于采用不均衡设计。</p>
+<div id="sec10-2-2-1" class="section level4" number="10.2.2.1">
+<h4>
+<span class="header-section-number">10.2.2.1</span> 分析——均衡情形<a class="anchor" aria-label="anchor" href="#sec10-2-2-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>与单向设计一样，将使用仅随机效应模型的分析与将 A 和 B 视为固定的模型进行比较是很有指导意义的。这种比较尤为重要，因为许多统计软件程序（SAS 中的例子包括 PROC GLM 和 PROC GENMOD）即使声称具备混合模型能力，实际上却使用普通最小二乘法进行结果计算，我们很快就会发现它们的局限性。本节中的示例进一步强化了我们的理由，以说明为什么此类软件绝不应与包含随机效应的模型结合使用。</p>
+<p>对于均衡和非均衡设计，实现 <a href="chap9.html#eq:10-2">(10.2)</a> 中给出的双向嵌套模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=example_10_2;
+ class a b;
+ model y=;
+ random intercept b / subject=a;</code></pre>
+<p>实现 <a href="chap9.html#eq:10-2">(10.2)</a> 的固定效应模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=example_10_2;
+ class a b;
+ model y=a b(a);</code></pre>
+<p>让我们像处理单向设计时那样开始，先使用 ESTIMATE 语句估计总体均值：</p>
+<pre class="sas"><code>estimate ‘overall mean’ intercept 1 / e;</code></pre>
+<p>我们知道，对于随机效应模型，总体均值的可估函数是 <span class="math inline">\(\eta\)</span>，并且因为我们使用恒等连接，<span class="math inline">\(\hat\eta=\hat\mu\)</span>。对于固定效应模型，我们知道仅 <span class="math inline">\(\eta\)</span> 是不可估的——我们必须对 A 和 B(A) 效应求平均。这产生了可估函数 <span class="math inline">\(\eta+\bar{\alpha}_\cdot+\overline{b(a)}_{\cdot\cdot}\)</span>，因此 A 效应的隐含系数为 1/7，b(a) 效应的隐含系数为 1/14. 我们可以使用 ESTIMATE 语句中 <code>E</code> 选项的系数输出来验证这一点。此外，我们可以将以下 ESTIMATE 语句添加到随机效应模型中，以使用与固定效应“总体均值”相同的系数来计算 BLUP：</p>
+<pre class="sas"><code>estimate ‘overall mean narrow’ intercept 14 | intercept 2 b 1 1 / 
+ subject 1 1 1 1 1 1 1 divisor=14 e;</code></pre>
+<p>对于随机效应模型，总均值输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20310-1.png#center" style="width:50.0%"></div>
+<p>固定效应模型的相应输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20310-2.png#center" style="width:50.0%"></div>
+<p>与单向模型一样，估计相同，但标准误不同。对于固定效应估计和随机效应 BLUP，标准误仅涉及 <span class="math inline">\(\sigma^2\)</span> 。对于真实总体均值的估计，假定 A 和 B(A) 是随机效应，则实际标准误为</p>
+<p><span class="math display">\[\sqrt{\frac{bn\hat{\sigma}_A^2+n\hat{\sigma}_B^2+\hat{\sigma}^2}{abn}}\]</span></p>
+<p>对于 A 的水平，假定固定效应模型，我们可以计算可估函数 <span class="math inline">\(\eta+\alpha_i+\overline{b(a)}_{i\cdot}\)</span> ——请注意，单独的 <span class="math inline">\(\eta+\alpha_i\)</span> 是不可估的。对于随机效应模型，我们可以选择两种形式的可预测函数：</p>
+<ul>
+<li>广义：<span class="math inline">\(\eta+\alpha_i\)</span>
+</li>
+<li>狭义：<span class="math inline">\(\eta+\alpha_i+\overline{b(a)}_{i\cdot}\)</span>
+</li>
+</ul>
+<p>后者与 LSMEAN 系数相匹配，但和 LSMEANS 一样，它只限制了对实际观察到的 B 的水平的推断。前者——广义推断 BLUP ——将推断扩展到观察到的 B(A) 所代表的整个总体。从这个意义上说，广义空间 BLUP 更接近大多数应用中隐含的推断空间。</p>
+<p>对于固定效应模型可估函数和随机效应模型广义推断空间 BLUPs，我们使用单向模型中使用的相同 LSMEANS 和 ESTIMATE 命令。对于狭义推断空间 BLUPs，GLIMMIX 语句，例如，对于 A 的水平 1，为：</p>
+<pre class="sas"><code>estimate ‘blup a_1 narrow’ intercept 2 | intercept 2 b 1 1 / subject 1 0 divisor=2;</code></pre>
+<p>表 10.4 显示了三种替代方案的所得估计/预测及其相关的标准误。</p>
+<details><summary><font color="#8B2232">表 10.4</font>
+</summary><img src="figure/table%2010.4.png#center" style="width:100.0%"></details><p><br>
+没有一个估计是相同的。正如预期的那样，广义推断 BLUPs 具有较大的标准误，因为它们包含将推断扩展到 B(A) 代表的总体而产生的不确定性，也就是说，标准误取决于 <span class="math inline">\(\sigma_B^2\)</span> 和 <span class="math inline">\(\sigma^2\)</span>。标记为 A_BLUP 的广义空间 BLUPs 也显示了单向模型所描述的收缩模式。狭义空间 BLUPs 的收缩模式更为复杂，且特征不那么清晰。</p>
+<p>表 10.4 中显示的标准误是“朴素的”——它们不能校正因使用估计方差分量而产生的偏差。对于固定效应模型的 LSMEANS 来说，这不是一个问题，但对于 BLUPs 来说，即使数据是均衡的，这也是一个问题。严格来说，我们应该对随机效应模型 BLUPs 使用 <code>DDFM=KR</code> 选项。表 10.5 显示了调整后的结果。请注意，估计没有变化，但两组 BLUPs 的标准误发生了变化。</p>
+<details><summary><font color="#8B2232">表 10.5</font>
+</summary><img src="figure/table%2010.5.png#center" style="width:100.0%"></details><p><br>
+最后，广义推断空间 BLUPs 使用了具有固定 A 效应和随机 B(A) 效应的模型相同的系数。这样的模型将产生与此处显示的仅固定效应模型的 LSMEANS 相等的 LSMEANS，但标准误将接近（但不等于）广义空间 BLUPs 的标准误，因为它们也将包括 <span class="math inline">\(\sigma^2_B\)</span>。</p>
+</div>
+<div id="sec10-2-2-2" class="section level4" number="10.2.2.2">
+<h4>
+<span class="header-section-number">10.2.2.2</span> 非均衡情形<a class="anchor" aria-label="anchor" href="#sec10-2-2-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>设计遵循表 10.3 所示的格式。数据显示为 Data Set 10.3。该模型与均衡情况下使用的模型相同。只有 A 的第 i 个水平的 B 水平数量以及第 <span class="math inline">\(ij\)</span> 个 B(A) 水平的观测数发生了变化。GLIMMIX 的 CLASS, MODEL 和 RANDOM 语句与均衡情形中使用的语句相同。</p>
+<p>和以前一样，我们使用 ESTIMATE 语句从总体均值开始</p>
+<pre class="sas"><code>estimate ‘overall mean’ intercept 1 / e;</code></pre>
+<p>对于仅随机效应模型，我们得到：</p>
+<div class="inline-figure"><img src="figure/figure%20311.png#center" style="width:50.0%"></div>
+<p>对于仅固定效应模型，我们得到：</p>
+<div class="inline-figure"><img src="figure/figure%20312-1.png#center" style="width:50.0%"></div>
+<p>不可估性源于固定效应模型的默认算法选择的系数，如 <code>E</code> 选项的输出所示：</p>
+<div class="inline-figure"><img src="figure/figure%20312-2.png#center" style="width:50.0%"></div>
+<p>请注意，可估函数对 A 的每个水平和 B(A) 的每个水平的权重相等——这似乎是一个明智的策略。然而，不存在与该权重相对应的观测值的线性组合，因此该函数不符合可估性标准。</p>
+<p>实际样本总体均值 <span class="math inline">\(\bar{y}_{\cdot\cdot\cdot}=\begin{pmatrix}1/28\end{pmatrix}\sum_{i,j,k}y_{ijk}=18.45\)</span>，以模型术语，这是：</p>
+<p><span class="math display" id="eq:10-3">\[\left(1/28\right)\left\{\sum_{i=1}^9\left[\left(\eta+\alpha_i+b\left(a\right)_{i1}\right)+2\left(\eta+\alpha_i+b\left(a\right)_{i2}\right)\right]+\eta+\alpha_{10}+b\left(a\right)_{10,1}\right\}\]</span></p>
+<p>这对应以下估计语句：</p>
+<pre class="sas"><code>estimate ‘overall sample mean’ intercept 28 a 3 3 3 3 3 3 3 3 3 1
+ b(a) 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 / e divisor=28;</code></pre>
+<p>对于仅随机效应模型，我们需要重写 RANDOM 语句以定义相应的 BLUP。这些语句是</p>
+<pre class="sas"><code>random a b(a);
+estimate ‘overall sample mean’ intercept 28 | a 3 3 3 3 3 3 3 3 3 1
+ b(a) 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 / e divisor=28;</code></pre>
+<p>请注意，A 和 B(A) 的所有系数必须出现在仅随机效应模型中垂直线的右侧。仅固定效应模型和仅随机效应模型均给出估计/BLUP = 18.45 以及标准误 0.126。</p>
+<p>由于数据是有意设计得不均衡的，以实现 A, B(A) 和观测 (AB) 之间的精确平衡，因此在固定效应设计中，将 A 的各个水平进行等权处理似乎更为合理，而不是使用未经校正的样本均值。毕竟，这是调整边际均值估计的基本概念。我们可以使用以下 ESTIMATE 语句在仅固定效应模型中进行此操作：</p>
+<pre class="sas"><code>estimate ‘overall lsmean’ intercept 10 a 1 1 1 1 1 1 1 1 1 1 1 / e divisor=10;</code></pre>
+<p>所得系数为：</p>
+<div class="inline-figure"><img src="figure/figure%20313.png#center" style="width:50.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20314-1.png#center" style="width:50.0%"></div>
+<p>固定效应模型的估计和标准误为：</p>
+<div class="inline-figure"><img src="figure/figure%20314-2.png#center" style="width:50.0%"></div>
+<p>我们可以使用相同的系数来定义仅随机效应模型的 BLUP 类似物。此外，由于可预测函数的系数不需要满足可估性标准，我们可以使用仅固定效应模型在默认“总体均值”中无法使用的系数来定义仅随机效应模型的 BLUP。这两个 ESTIMATE 语句是：</p>
+<pre class="sas"><code>estimate ‘overall lsmean narrow’ intercept 20 | a 2 2 2 2 2 2 2 2 2 2
+ b(a) 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 / e divisor=20;
+estimate ‘overall mean fixed nonest’ intercept 190 | a 19 19 19 19 19 19 19 19 19 19
+ b(a) 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 / e divisor=190;</code></pre>
+<p>结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20314-3.png#center" style="width:50.0%"></div>
+<p>有趣的是，使用固定效应模型选定的但无法使用的系数来估计 BLUP，碰巧得到了与仅随机效应模型中真实总体均值估计 <span class="math inline">\(\hat\eta=\hat\mu\)</span> 相同的点估计，即 18.58。仅固定效应模型选定了正确的系数——这是使用固定效应计算策略计算随机模型效应时产生的伪可估性的另一种表现。</p>
+<div class="rmdcaution">
+<p>我们在这里花时间讨论这个问题的主要原因是，当你使用仅固定效应软件（例如 SAS PROC GLM）时，你所做的正是我们在此处针对仅固定效应模型展示的操作。这里要传达的关键信息是，如果效应是随机的，但你却按照它们是固定的来进行计算，那么你将得到错误的答案。这是不恰当的。不要这样做！！</p>
+</div>
+</div>
+</div>
+</div>
+<div id="sec10-3" class="section level2" number="10.3">
+<h2>
+<span class="header-section-number">10.3</span> 具有固定和随机效应的高斯数据<a class="anchor" aria-label="anchor" href="#sec10-3"><i class="fas fa-link"></i></a>
+</h2>
+<p>在上一节中，我们考虑了仅随机效应模型的最佳线性无偏预测 (BLUP)，也称为收缩估计。这些模型仅允许协方差分量估计和 BLUP，因此它们必须是推断的焦点。对于混合模型，情况不一定如此：通常，我们关注固定效应均值及差异，而协方差估计只是获得所需标准误和检验统计量的重要步骤。然而，当我们想要将推断限制于随机效应的特定子集时，BLUP 对于混合模型非常有用。例如，我们可能想知道该患者的处理均值或差异，而不是所有患者或这组患者的处理均值或差异。为此，我们使用特定个体的 BLUP。我们在第 <a href="chap3.html#chap3">3</a> 章介绍随机系数回归时看到了这种技术。在本节中，我们将扩展这一主题。</p>
+<p>研究混合模型中的 BLUP 也具有更学术性的目的。正如我们在上一节已经看到的，在混合模型软件问世之前，只有带有仅固定效应算法（通常是普通最小二乘法）的线性模型软件和一些“混合模型补救措施”——例如 SAS PROC GLM 中的 RANDOM 语句——是混合模型分析的唯一可用选择。与仅随机效应的情况一样，比较此类软件与真正的混合模型分析所产生的结果是有指导意义的。</p>
+<p>为了说明这些想法，我们使用 Data Set 10.4。数据由两个因素 A 和 B 组成。将因素 A 视为处理，有两个水平。将因素 B 视为具有八个水平的地点（或患者、教师或工人）样本。因此，我们可以将 A 效应视为固定效应，将 B 效应视为随机效应。每个 AB 组合有两个观测——将它们视为每个地点每种处理的两个区 (plots)（其中地点可换为患者、教师或工人）。我们将考虑该数据集的两个方面。在第一小节中，我们对这些数据进行正确的混合模型分析。在第二小节中，我们研究“带有混合模型补救措施的固定效应软件”产生的结果以及它与真正的混合模型分析的比较。</p>
+<div id="sec10-3-1" class="section level3" number="10.3.1">
+<h3>
+<span class="header-section-number">10.3.1</span> 使用 BLUP 进行混合模型分析以修改推断空间<a class="anchor" aria-label="anchor" href="#sec10-3-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>对于这些数据，我们假定如下模型：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ij}=\eta+\alpha_i+b_j+\left(ab\right)_{ij}\)</span>
+</li>
+<li>分布：
+<ul>
+<li><span class="math inline">\(\begin{align}y_{ijk}\mid b_j,(ab)_{ij}\sim N\left(\mu_{ij},\sigma^2\right)\tag{10.3}\end{align}\)</span></li>
+<li><span class="math inline">\(b_j\mathrm{~iid~}N\left(0,{\sigma}_B^2\right)\)</span></li>
+<li><span class="math inline">\((ab)_{ij}\mathrm{~iid~}N\begin{pmatrix}0,\sigma_{AB}^2\end{pmatrix}\)</span></li>
+</ul>
+</li>
+<li>连接：恒等，<span class="math inline">\(\eta_{ij}=\mu_{ij}\)</span>
+</li>
+</ul>
+<p>从逻辑上讲，我们感兴趣的项是方差（<span class="math inline">\(\sigma^2,\sigma^2_B\)</span> 和 <span class="math inline">\(\sigma^2_{AB}\)</span>）的估计、处理均值（即可估函数 <span class="math inline">\(\eta+\alpha_1\)</span> 和 <span class="math inline">\(\eta+\alpha_2\)</span>）、处理差异以及 B 特定水平的处理 BLUP。</p>
+<p>获取这些的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=example_10_4;
+ class a b;
+ model y=a / solution;
+ random intercept a/ subject=b solution;
+ lsmeans a / diff;
+ estimate ‘blup a_1 @ b_1’ intercept 1 a 1 0 | intercept 1 a 1 0/ subject 1 0;
+ estimate ‘blup a_2 @ b_1’ intercept 1 a 0 1 | intercept 1 a 0 1/ subject 1 0;
+ estimate ‘blup diff @ b_1’ a 1 -1 | a 1 -1 / subject 1 0;
+ estimate ‘blup diff @ b_2’ a 1 -1 | a 1 -1 / subject 0 1 0;
+ estimate ‘blup diff @ b_3’ a 1 -1 | a 1 -1 / subject 0 0 1 0;
+ estimate ‘blup diff @ b_4’ a 1 -1 | a 1 -1 / subject 0 0 0 1 0;
+ estimate ‘blup diff @ b_5’ a 1 -1 | a 1 -1 / subject 0 0 0 0 1 0;
+ estimate ‘blup diff @ b_6’ a 1 -1 | a 1 -1 / subject 0 0 0 0 0 1 0;
+ estimate ‘blup diff @ b_7’ a 1 -1 | a 1 -1 / subject 0 0 0 0 0 0 1 0;
+ estimate ‘blup diff @ b_8’ a 1 -1 | a 1 -1 / subject 0 0 0 0 0 0 0 1;</code></pre>
+<p>我们使用 LSMEANS 语句来获取处理均值和差异。前两个 ESTIMATE 语句定义特定于第一个因素 B 水平的两个处理 BLUPs. 接下来的八个语句定义特定于每个 B 水平的处理差异。</p>
+<p>关注的输出：</p>
+<div class="inline-figure"><img src="figure/figure%20316-1.png#center" style="width:50.0%"></div>
+<p>这些分别是 <span class="math inline">\(\sigma^2_B,\sigma^2_{AB}\)</span> 和 <span class="math inline">\(\sigma^2\)</span> 的估计。</p>
+<div class="inline-figure"><img src="figure/figure%20316-2.png#center" style="width:100.0%"></div>
+<p>这些是 <span class="math inline">\(\hat\eta,\hat\alpha_1\)</span> 和 <span class="math inline">\(\hat\alpha_2\)</span> 的解，遵循 SAS 广义逆 SWEEP 算子使用的“末效应置零”约定。</p>
+<div class="inline-figure"><img src="figure/figure%20317-1.png#center" style="width:60.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20317-2.png#center" style="width:90.0%"></div>
+<p>标记为 “Intercept” 的解是 <span class="math inline">\(\hat b_j\)</span> BLUPs；那些标记为 “a 1” 和 “a 2” 的是 <span class="math inline">\(\widehat{(ab)}_{ij}\)</span>的 BLUPs。</p>
+<div class="inline-figure"><img src="figure/figure%20317-3.png#center" style="width:40.0%"></div>
+<p>请注意，a Least Squares Means 分别是可估函数 <span class="math inline">\(\hat\eta+\hat\alpha_1\)</span> 和 <span class="math inline">\(\hat\eta+\hat\alpha_2\)</span>。差值 <span class="math inline">\(\hat\alpha_1-\hat\alpha_2\)</span> 如下所示：</p>
+<div class="inline-figure"><img src="figure/figure%20317-4.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20318-1.png#center" style="width:90.0%"></div>
+<p>A 的水平 A_1 和 A_2 的 B_1 特定 BLUP 分别为 <span class="math inline">\(\hat{\eta}+\hat{\alpha}_1+\hat{b}_1+\widehat{(ab)}_{11}\)</span> 和 <span class="math inline">\(\hat{\eta}+\hat{\alpha}_2+\hat{b}_1+\widehat{(ab)}_{21}\)</span>。因此，B_1 特定 BLUP 之差是估计 <span class="math inline">\(\hat{\alpha}_1-\hat{\alpha}_2+\widehat{\left(ab\right)}_{11}-\widehat{\left(ab\right)}_{21}\)</span>。一般来说，B_j 特定 BLUP 之差是可预测函数 <span class="math inline">\(\hat{\alpha}_1-\hat{\alpha}_2+\widehat{\left(ab\right)}_{1j}-\widehat{\left(ab\right)}_{2j}\)</span> 的估计。</p>
+<p>如果我们知道或猜测某些水平具有共同特征，并且我们想要一个汇总估计，我们也可以将 B 的水平组合在一起。例如，B 水平 1, 4, 5 和 8 看起来具有相对较大的处理差异，而 B 水平 2, 3, 6 和 7 则没有。对于位置 1, 4, 5 和 8 处的单独的处理 BLUPs，我们可以定义一个可预测函数</p>
+<p><span class="math display">\[\mu+\alpha_i+\left(\frac{b_1+b_4+b_5+b_8}4\right)+\left(\frac{\left(ab\right)_{i1}+\left(ab\right)_{i4}+\left(ab\right)_{i5}+\left(ab\right)_{i8}}4\right)\]</span></p>
+<p>以及对于差异的可预测函数为：</p>
+<p><span class="math display">\[\alpha_1-\alpha_2+\left(\frac{\left(ab\right)_{11}+\left(ab\right)_{14}+\left(ab\right)_{15}+\left(ab\right)_{18}}4\right)-\left(\frac{\left(ab\right)_{21}+\left(ab\right)_{24}+\left(ab\right)_{25}+\left(ab\right)_{28}}4\right)\]</span></p>
+<p>将以下 ESTIMATE 语句添加到上述 GLIMMIX 程序中，以获取 BLUP 估计：</p>
+<pre class="sas"><code>estimate ‘blup a1 @ b_1,4,5,8’ intercept 4 a 4 0 | intercept 1 a 1 0 / 
+ subject 1 0 0 1 1 0 0 1 divisor=4 e;
+estimate ‘blup a2 @ b_1,4,5,8’ intercept 4 a 0 4 | intercept 1 a 0 1 / 
+ subject 1 0 0 1 1 0 0 1 divisor=4 e;
+estimate ‘blup diff @ b_1,4,5,8’ a 4 -4 | a 1 -1 / 
+ subject 1 0 0 1 1 0 0 1 divisor=4 e;
+estimate ‘blup a1 @ b_2,3,6,7’ intercept 4 a 4 0 | intercept 1 a 1 0 / 
+ subject 0 1 1 0 0 1 1 0 divisor=4 e;
+estimate ‘blup a2 @ b_2,3,6,7’ intercept 4 a 0 4 | intercept 1 a 0 1 / 
+ subject 0 1 1 0 0 1 1 0 divisor=4 e;
+estimate ‘blup diff @ b_2,3,6,7’ a 4 -4 | a 1 -1 / 
+ subject 0 1 1 0 0 1 1 0 divisor=4 e;</code></pre>
+<p>请注意，竖线（|）之前的系数定义了 <span class="math inline">\(\symbf{k'\beta}=4{\eta+4\alpha}_i\)</span>，竖线之后的系数定义基本形式 <span class="math inline">\(b_j+ (ab)_{ij}\)</span>。SUBJECT 选择 <span class="math inline">\(b_j+ (ab)_{ij}\)</span> 作为系数列表中为 1 的 B 的水平，并且不选择为 0 的水平。DIVISOR 将所有这些项除以四。结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20319-1.png#center" style="width:50.0%"></div>
+<p>现在让我们看看当我们尝试使用普通最小二乘法进行此分析时会发生什么。</p>
+</div>
+<div id="sec10-3-2" class="section level3" number="10.3.2">
+<h3>
+<span class="header-section-number">10.3.2</span> BLUP 与固定效应估计之间的关系<a class="anchor" aria-label="anchor" href="#sec10-3-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>真正的混合模型软件直到 20 世纪 90 年代才出现。在相对较短的时间内，不到十年，混合模型方法论就从一个理解不深的新奇玩意发展成为主流。人们开始意识到需要使用正确的误差项来构建检验统计量，例如对于裂区试验。在计算机普及之前，这是通过手工计算 ANOVA 表来完成的。计算机出现后，普通最小二乘法软件占据了主导地位，SAS PROC GLM 就是其中的一个典型例子。PROC GLM 于 1976 年推出，直到 20 世纪 90 年代初 PROC MIXED 和 GENMOD 的出现（GLIMMIX 在 2005 年出现），它一直是 SAS 线性模型程序的旗舰产品。</p>
+<p>GLM 在混合模型应用中的使用仍然很普遍，因此，当我们尝试进行上一节中描述的混合模型分析时，看看使用它会发生什么是很有意义的。语句如下：</p>
+<pre class="sas"><code>proc glm data=example_10_4;
+ class a b;
+ model y=a|b;
+ random b a*b / test;
+ lsmeans a / stderr e;
+ lsmeans a / stderr e=a*b e;
+ estimate ‘a diff’ a 1 -1 / e;
+ estimate ‘a1 @ b_1’ intercept 1 a 1 0 b 1 0 0 0 0 0 0 0 a*b 1 0;
+ estimate ‘a2 @ b_1’ intercept 8 a 0 8 b 1 0 0 0 0 0 0 0 a*b 0 0 0 0 0 0 0 0 1;
+ estimate ‘diff @ b_1’ a 1 -1 a*b 1 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0;
+ estimate ‘diff @ b_2’ a 1 -1 a*b 0 1 0 0 0 0 0 0 0 -1 0 0 0 0 0 0;
+ estimate ‘diff @ b_3’ a 1 -1 a*b 0 0 1 0 0 0 0 0 0 0 -1 0 0 0 0 0;
+ estimate ‘diff @ b_4’ a 1 -1 a*b 0 0 0 1 0 0 0 0 0 0 0 -1 0 0 0 0;
+ estimate ‘diff @ b_5’ a 1 -1 a*b 0 0 0 0 1 0 0 0 0 0 0 0 -1 0 0 0;
+ estimate ‘diff @ b_6’ a 1 -1 a*b 0 0 0 0 0 1 0 0 0 0 0 0 0 -1 0 0;
+ estimate ‘diff @ b_7’ a 1 -1 a*b 0 0 0 0 0 0 1 0 0 0 0 0 0 0 -1 0;
+ estimate ‘diff @ b_8’ a 1 -1 a*b 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 -1;
+ estimate ‘a1 @ b_1,4,5,8’ intercept 4 a 0 4 b 1 0 0 1 1 0 0 1
+  a*b 1 0 0 1 1 0 0 1 0 0 0 0 0 0 0 0 / divisor=4;
+ estimate ‘a2 @ b_1,4,5,8’ intercept 4 a 0 4 b 1 0 0 1 1 0 0 1
+  a*b 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 1 / divisor=4;
+ estimate ‘diff @ b_1,4,5,8’ a 4 -4 a*b 1 0 0 1 1 0 0 1 -1 0 0 -1 -1 0 0 -1 /
+  divisor=4;
+ estimate ‘a1 @ b_2,3,6,7’ intercept 4 a 0 4 b 0 1 1 0 0 1 1 0
+  a*b 0 1 1 0 0 1 1 0 0 0 0 0 0 0 0 0 / divisor=4;
+ estimate ‘a2 @ b_2,3,6,7’ intercept 4 a 0 4 b 0 1 1 0 0 1 1 0
+  a*b 0 0 0 0 0 0 0 0 0 1 1 0 0 1 1 0 / divisor=4;
+ estimate ‘diff @ b_2,3,6,7’ a 4 -4 a*b 0 1 1 0 0 1 1 0 0 -1 -1 0 0 -1 -1 0 /
+  divisor=4;</code></pre>
+<p>RANDOM 语句指示程序在假定 B 和 A × B 效应是随机的情况下确定期望均方。除了默认的 ANOVA 输出（错误地）使用 <span class="math inline">\(\sigma^2\)</span> 估计来处理所有检验统计量之外，还确定了 A, B 和 A × B 效应的检验统计量并将其列在表中。第一个 LSMEANS 语句显示了默认情况下发生的情况。PROC GLM 使用 <span class="math inline">\(\hat\sigma^2\)</span> 来确定所有标准误——当所有效应都固定时，这是一种合理的策略，但当某些效应是随机时，这种策略就不合适了。第二个语句是 PROC GLM 可以得到的最接近 LSMEANS 的正确标准误的语句。但是，正如我们将看到的，它仍然不正确。PROC GLM 中的 LSMEANS 语句没有 <code>DIFF</code> 选项，因此我们必须使用 ESTIMATE 语句来计算处理差异的估计。不幸的是，PROC GLM 的 ESTIMATE 语句没有选项来覆盖使用 <span class="math inline">\(\sigma^2\)</span> 作为标准误的基础。我们将在列表中看到结果。最后，所有特定于 B 的估计都以它们的 GLM 语法形式给出。</p>
+<p>现在让我们研究一下结果。首先，“Type III tests of Fixed Effects” 的 PROC GLM 版本结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20320-1.png#center" style="width:90.0%"></div>
+<p>这些检验源于期望均方：</p>
+<div class="inline-figure"><img src="figure/figure%20320-2.png#center" style="width:60.0%"></div>
+<p>我们看到，如果我们想要检验 <span class="math inline">\(H_0\colon \alpha_1-\alpha_2=0\)</span>，则 <span class="math inline">\(F\)</span> 比 <span class="math inline">\(\frac{MS(A)}{MS(A*B)}\)</span> 会分离出 “<span class="math inline">\(Q ( A)\)</span>”——包含在 <span class="math inline">\(F\)</span> 的非中心参数中的二次型 <span class="math inline">\(\left(\alpha_1-\alpha_2\right)^2\)</span>。我们看到 <span class="math inline">\(F = 3.20\)</span> 和 <span class="math inline">\(p = 0.1166\)</span> 与混合模型分析一致。</p>
+<p>最小二乘均值就是另一回事了。默认输出为：</p>
+<div class="inline-figure"><img src="figure/figure%20321-1.png#center" style="width:50.0%"></div>
+<p>点估计与混合模型分析一致，但此处的标准误为 0.477，而 PROC GLIMMIX（或相当于这些数据的 MIXED）的标准误为 1.23。这是因为 <span class="math inline">\(0.477 = \sqrt{\hat\sigma^2/nb}\)</span>，我们知道这是不正确的。GLM 程序中的第二个 LSMEANS 语句使用选项 <code>E = A*B</code>，指示程序使用 A × B 的期望均方—— <span class="math inline">\(\sigma^2+n\sigma_{AB}^2\)</span> ——来计算标准误，即 <span class="math inline">\(s.e.(\mathrm{LS~Mean})=\sqrt{\left(\sigma^2+n\sigma_{AB}^2\right)/nb}\)</span>。这得到：</p>
+<div class="inline-figure"><img src="figure/figure%20321-2.png#center" style="width:50.0%"></div>
+<p>标准误为 1.005，仍然不是 1.23。根据模型 <a href="chap10.html#eq:10-3">(10.3)</a>，标准误应为 <span class="math inline">\(\sqrt{\left(\hat{\sigma}^2+n\hat{\sigma}_{AB}^2+n\hat{\sigma}_B^2\right)/nb}\)</span>。PROC GLM 中没有可用的选项来计算正确的标准误。然而，我们可以在混合模型分析中使用可预测函数来帮助理解 GLM 隐式计算的内容。如果我们在 <a href="chap10.html#sec10-3-1">10.3.1</a> 节的 GLIMMIX 程序中添加以下语句：</p>
+<pre class="sas"><code>estimate ‘blup a_1 narrow’ intercept 8 a 8 0 | intercept 1 a 1 0 / 
+ subject 1 1 1 1 1 1 1 1 divisor=8;
+estimate ‘blup a_2 narrow’ intercept 8 a 0 8 | intercept 1 a 0 1 / 
+ subject 1 1 1 1 1 1 1 1 divisor=8;
+estimate ‘blup a_1 intermediate’ intercept 8 a 8 0 | intercept 1 / 
+ subject 1 1 1 1 1 1 1 1 divisor=8;
+estimate ‘blup a_2 intermediate’ intercept 8 a 0 8 | intercept 1 / 
+ subject 1 1 1 1 1 1 1 1 divisor=8;</code></pre>
+<p>我们得到如下结果：</p>
+<div class="inline-figure"><img src="figure/figure%20321-3.png#center" style="width:60.0%"></div>
+<p>请记住，像 PROC GLM 这样的普通最小二乘程序不区分固定效应和随机效应——在求解估计方程时，<span class="math inline">\(\symbf{X\beta}\)</span> 和 <span class="math inline">\(\symbf{Zb}\)</span> 之间没有区别。因此，从普通最小二乘的角度来看，<span class="math inline">\(\eta+\alpha_i\)</span> ——与模型 <a href="chap10.html#eq:10-3">(10.3)</a> 一致的实际最小二乘均值——是不可估的。为了使其可估，普通最小二乘法必须加上 B 水平上的均值以及在 A 水平内的 AB 水平的均值。</p>
+<p>得到的系数是上面估计语句中显示的 “narrow BLUP” 的系数。注意，“BLUP A_1 NARROW” 的估计和标准误与 PROC GLM 中的默认 LSMEAN 是相同的。GLM 计算的是一个均值，其标准误仅适用于数据中实际观察到的 B 的水平。对于 B 的水平所代表的总体的任何其他部分，推断（至少是置信区间宽度）可能不适用。</p>
+<p>现在考虑称为 “INTERMEDIATE.” 的可预测函数。请注意，它们特定于 B 主效应水平，而不是 A × B. 这相当于对仅具有 A 和 B 固定主效应的模型进行推断。A × B 效应成为分布 <span class="math inline">\(y_{ijk}\sim N\left(\mu_{ij},\sigma_P^2\right)\)</span> 的一部分，其中 <span class="math inline">\(P\)</span> 表示 A × B 的方差分量和观测的方差分量已经合并 (pooled). 这稍微拓宽了推断范围，但它仍然局限于实际观察到的 B 的水平；我们仍然不能合理地使用基于该标准误的置信区间来对整个总体做出陈述。</p>
+<p>最后，表 10.6 显示了 GLM 计算的特定于 B 水平的普通最小二乘估计和标准误，与我们之前计算的 BLUPs 进行了比较。</p>
+<details><summary><font color="#8B2232">表 10.6</font>
+</summary><img src="figure/table%2010.6.png#center" style="width:90.0%"></details><p><br>
+观察收缩对各种估计的影响。顺便说一句，特定于组 <span class="math inline">\(B = {2, 3, 6, 7}\)</span> 的估计是正确的：两个 A 水平上的“平均”确实反转了。如果模型 <a href="chap10.html#eq:10-3">(10.3)</a> 准确地描述了数据——如果 B 效应确实具有概率分布并且不是固定的——那么 BLUPs 更准确地描述了正在发生的事情。它们利用了关于 B 的分布的信息来改进估计，而普通最小二乘分析则没有。</p>
+</div>
+</div>
+<div id="sec10-4" class="section level2" number="10.4">
+<h2>
+<span class="header-section-number">10.4</span> 复杂 <span class="math inline">\(\symbf Z\)</span> 矩阵的高级应用<a class="anchor" aria-label="anchor" href="#sec10-4"><i class="fas fa-link"></i></a>
+</h2>
+<p><a href="chap10.html#sec10-2">10.2</a> 节和 <a href="chap10.html#sec10-3">10.3</a> 节介绍了标准混合模型的可预测函数的推断。这些部分涵盖的思想同样适用于高斯和非高斯数据。尽管 <a href="chap10.html#sec10-2">10.2</a> 节和 <a href="chap10.html#sec10-3">10.3</a> 节使用简单的设计——完全随机和随机区组——所展示的技术可以直接扩展到更复杂的设计——只要 <span class="math inline">\(\symbf{Zb}\)</span>（线性预测器的随机效应部分）可以使用第 <a href="chap1.html#chap1">1</a> 和 <a href="chap2.html#chap2">2</a> 章节中所示的约定来形成。</p>
+<p>对于一些混合模型，<span class="math inline">\(\symbf{Zb}\)</span> 的传统构造不能充分捕捉我们试图建模的过程。一类重要的例子来自定量遗传学，其中 <span class="math inline">\(\symbf Z\)</span> 矩阵必须包含有关后代之间关系的信息，而不仅仅是 0-1 指标或回归变量。有关关系系数 (relationship coefficients) 的开创性出版物，请参阅 Wright (1922)；关于混合模型中使用这些系数的明确处理，见 Henderson (1984, 1985)；关于当代概述，见 Gilmour (2007)。</p>
+<div id="sec10-4-1" class="section level3" number="10.4.1">
+<h3>
+<span class="header-section-number">10.4.1</span> 说明 1：一个简单的增值模型<a class="anchor" aria-label="anchor" href="#sec10-4-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>另一种较新的、在线性模型文献中讨论较少的是<strong>增值建模</strong> (value-added modeling)，自从 Sanders et al. (1997) 引入它以来，它在教育成就研究中得到了越来越多的关注。McCaffery et al. (2004) 比较了增值模型，并讨论了有关其应用的问题。</p>
+<p>增值建模的基本动机是估计教师对学生成绩增长的贡献。由于本章前面给出的原因，教师效应被定义为随机的。无论在任何给定数据集中观察到哪一组教师，他们总是构成较大教师总体的子集，他们的效应的一般特征是已知的。它们的效应可以通过固定效应方法粗略估计，也可以通过 BLUP（收缩估计）技术进行细化。</p>
+<p>由于增值建模的数据由班级中的多个学生组成，而教师效应本身不能轻易地与其他班级动态分开，因此许多作者开始将“教师效应”称为“班级效应”。我们在本节中将使用后者。</p>
+<p>增值建模与标准混合模型的区别在于 <span class="math inline">\(\symbf Z\)</span> 矩阵的构造。请考虑图 10.1。</p>
+<details><summary><font color="#8B2232">图 10.1</font>
+</summary><img src="figure/figure%2010.1.png#center" style="width:80.0%"></details><p><br>
+虚线表示平均学生从五年级末（横轴上为 5）到八年级结束的平均进步。实线表示一个假设的学生，他在五年级取得了平均进步，继续在六年级以平均速度进步，然后在七年级取得了高于平均水平的进步，并一直保持到八年级结束。</p>
+<p>显然，成绩轴上从 6 到 7 的进步发生在学生七年级的班级上。因此，第一个增量（标记为 1 的双箭头）显然归功于七年级老师教授的课程。问题是 8 年级的分数—— 8 年级的班级是否应获得全部功劳，即便学生在 7 年级进步实现跳跃后，8 年级的进步率是平均水平，还是 7 年级的班级也应该获得一些（甚至是全部）功劳？现在考虑这个叙述如何转换为 <span class="math inline">\(\symbf Z\)</span> 矩阵。在图 10.1 所示的时间跨度内，这名学生一直在三位老师的指导下学习。将这三位老师的效应分别表示为 <span class="math inline">\(t_6,t_7\)</span> 和 <span class="math inline">\(t_8\)</span>。在传统的混合模型中，与教师效应相关的 <span class="math inline">\(\symbf{Zb}\)</span> 矩阵将是</p>
+<p><span class="math display">\[\begin{bmatrix}1&amp;0&amp;0\\[0.3em]0&amp;1&amp;0\\[0.3em]0&amp;0&amp;1\end{bmatrix}\begin{bmatrix}t_6\\[0.3em]t_7\\[0.3em]t_8\end{bmatrix}\]</span></p>
+<p>在该模型下，学生的 8 年级班级将因学生在 8 年级结束时取得的高于平均分的成绩而得到所有功劳。另一种方法称为分层模型 (layered model)，将 <span class="math inline">\(\symbf{Zb}\)</span> 定义为</p>
+<p><span class="math display" id="eq:11-2">\[\begin{bmatrix}1&amp;0&amp;0\\[0.3em]1&amp;1&amp;0\\[0.3em]1&amp;1&amp;1\end{bmatrix}\begin{bmatrix}t_6\\[0.3em]t_7\\[0.3em]t_8\end{bmatrix}\]</span></p>
+<p>因此，学生 6 年级的进步归功于 6 年级的班级，7 年级的进步归功于 6 年级和 7 年级班级影响的总和，以此类推。这使得该模型能够解释班级效应在学生实际上课的那一年之后的持续性。我们都能想到那些在学年结束后影响持续很长时间的班级（和老师）。</p>
+<p>Data Set 10.5 包含三年的假设学生成绩—— 6, 7 和 8 年级，每个年级两个班级，48 名学生。一个学生可以拥有 8 种可能的班级序列。如果我们让 A 和 B 是 6 年级的两个班，C 和 D 是 7 年级的班，E 和 F 是 8 年级的班。那么可能的序列是 ACE, ACF, ADE, ADF, BCE, BCF, BDE 和 BDF. 对于每个序列，有六个学生。诚然，这是一个理想化的数据集。增值模型的实时数据往往很混乱，数据集也很大。这个例子旨在让新接触增值模型的读者了解正在发生的事情，同时又不偏离本教科书的主要目的。</p>
+<p>也就是说，该数据的模型为：</p>
+<ul>
+<li><p>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+s_{i}+\gamma_{j}+t_{k(6)}+I\left(j\geq7\right)t_{k(7)}+I\left(j=8\right)t_{k(8)}\)</span>，其中 <span class="math inline">\(s_i\)</span> 表示第 <span class="math inline">\(i\)</span> 个学生的效应，<span class="math inline">\(\gamma_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个年级的效应，<span class="math inline">\(t_{k(j)}\)</span> 表示第 <span class="math inline">\(j\)</span> 个年级第 <span class="math inline">\(k\)</span> 个班级的效应。因此 <span class="math inline">\(k(6)=A,B,k(7)=C,D\)</span> 以及 <span class="math inline">\(k(8)=E,F\)</span>。请注意，分层模型意味着每个年级的线性预测器都有一个 <span class="math inline">\(t_{k(6)}\)</span>，而 <span class="math inline">\(t_{k(7)}\)</span> 将只出现在 7 年级和 8 年级线性预测器中，而 <span class="math inline">\(t_{k(8)}\)</span> 只出现在 8 年级的线性预测器中。</p></li>
+<li>
+<p>分布：</p>
+<ul>
+<li><span class="math inline">\(s_i\text{ iid }N\left(0,\sigma_S^2\right)\)</span></li>
+<li><span class="math inline">\(t_{k(j)}\text{ iid }N\left(0,\sigma_T^2\right)\)</span></li>
+<li>
+<span class="math inline">\(\symbf{y}_i\mid s_i,t_{k(j)}\thicksim N(\symbf{\mu}_i,\boldsymbol{\Sigma})\)</span>，其中 <span class="math inline">\(\symbf{y'}_i=\begin{bmatrix}y_{i5}&amp;y_{i6}&amp;y_{i7}&amp;y_{i8}\end{bmatrix}\)</span> 为第 <span class="math inline">\(i\)</span> 个学生四次考试的观测向量，<span class="math inline">\(\symbf\mu_i\)</span> 表示相应的平均向量。矩阵 <span class="math inline">\(\boldsymbol\Sigma\)</span> 表示每个学生分数之间的协方差。因为这些是对每个学生的重复测量，所以理论上它们可能是相关的。但简单起见，在这个例子中，我们假定它们不相关。</li>
+</ul>
+</li>
+<li><p>连接：恒等。</p></li>
+</ul>
+<p>该模型的 GLIMMIX 语句为：</p>
+<pre class="sas"><code>proc glimmix data=vam_data;
+class stu_id year;
+ effect cr_effect=collection(z1-z6);
+ model score= year / solution;
+ random cr_effect / solution;
+ random intercept / subject=stu_id;
+ /* examples of classroom BLUPs */
+ estimate ‘classroom=A1’ intercept 1 | cr_effect 1 0;
+ estimate ‘classroom=B’ intercept 1 | cr_effect 0 1 0;</code></pre>
+<p>变量 Z1 到 Z6 是分层 <span class="math inline">\(\symbf Z\)</span> 矩阵的列，对应于教师 A 到 F 的效应。EFFECT 语句将这些列组装为一个名为 CR_EFFECT（即“班级效应”）的 <span class="math inline">\(\symbf Z\)</span> 矩阵。在涉及 CR_EFFECT 的 RANDOM 语句中，GLIMMIX “知道”使用 EFFECT 语句中定义的 <span class="math inline">\(\symbf Z\)</span> 矩阵。</p>
+<p>选定输出结果为：</p>
+<div class="inline-figure"><img src="figure/figure%20325-1.png#center" style="width:60.0%"></div>
+<p>这个结果并不令人惊讶：进步分数通常会被标准化，以便那些逐年没有变化的分数表示平均进步。在这样的评分体系下，一个显著的年份效应会引起怀疑。</p>
+<div class="inline-figure"><img src="figure/figure%20325-2.png#center" style="width:70.0%"></div>
+<p>学生的方差分量（STU_ID）可以解释为研究开始时（五年级末/六年级初）学生基线分数之间变异的度量。这些估计表明，在该数据集中，在考虑了学生、班级和年份之间的差异之后，学生进步分数之间几乎没有差异。请记住，这是一个假设的模拟数据集——与实际成绩数据的任何相似或欠缺纯属巧合。</p>
+<div class="inline-figure"><img src="figure/figure%20326-1.png#center" style="width:100.0%"></div>
+<p>这些是班级效应的 BLUPs 估计：班级分数。这些都代表了增值模型的主要目标。请注意，在每个年级配对中，它们的总和为零。这纯粹因为该数据集是均衡的。在实际数据集中，我们不太可能看到这样的均衡，因为在实际情况下，我们不可能将学生分配到三个班级的序列中。然而，我们还是以同样的方式解释这些教师 BLUPs，就像处理实际数据一样。这些估计表明，在三年内在该班级学习的学生的平均进步与整体平均水平的差异。因此，CR_EFFECT Z1（对应于班级 A）的学生在进步量表上的平均分比整体平均水平低 0.60 个单位，而 CR_EFFECT Z2（班级 B）的学生则比整体平均水平高 0.60 个单位。</p>
+<p><span class="math inline">\(t\)</span> 值给出每个班级分数高于或低于平均值的标准差数。虽然没有证据表明这些班级成绩有任何异常，但我们确实注意到 A 班级和 E 班级的分数较低。由于这是一本关于线性模型概念和方法的教科书，我们不会讨论如何使用或不使用这些分数。我们只注意到它们的使用将高度依赖于上下文。线性模型专家的作用应该是根据混合模型理论找出对这些分数的合理和不合理的解释。</p>
+<div class="inline-figure"><img src="figure/figure%20326-2.png#center" style="width:80.0%"></div>
+<p>估计值是形如 <span class="math inline">\(\hat{\eta}+\hat{\bar{\gamma}}_\cdot+\hat{t}_{k(j)}\)</span> 的可预测函数。这里显示的是两个六年级班级的 BLUPs。这些只是以整体进步尺度表示的班级分数。对于这些数据，学生整体进步样本均值为 24.32. A 班级大约比这个低 0.6 个单位；B 班级则高 0.6 个单位。</p>
+</div>
+<div id="sec10-4-2" class="section level3" number="10.4.2">
+<h3>
+<span class="header-section-number">10.4.2</span> 说明 2：一个复杂的增值模型<a class="anchor" aria-label="anchor" href="#sec10-4-2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Green, Stroup and Fellers (2017) 提出了一个增值模型，其目的是评估教学改进项目对班级有效性的影响，更重要的是，描述项目参与者之间项目有效性的变异。</p>
+<p>以下示例说明了他们的方法。这是 Green et al. 在论文中提出的简化版本，但它说明了主要思想。与上一节中的示例一样，这些数据是为了演示目的而理想化的。该数据集包含 5 年级、6 年级、7 年级和 8 年级期末的学生成绩。以 5 年级末的分数作为基线。有 18 个班级，6、7 和 8 年级各有 6 个班级。六年级班级标记为 1 至 6，七年级班级标记为 7 至 12，八年级班级标记为 13 至 18。有两个学生“队列”，例如，队列 1 是 2019-20 学年的 6 年级、2020-21 学年的 7 年级和 2021-22 学年的 8 年级，队列 2 是这些学生的下一届。每个班级有 20 名学生，学生在三个学年中，班级的顺序各不相同。在第一个队列中，没有一个班级参与教学改进项目。在第 2 个队列中，六年级的 1, 2 和 3 班级，7 年级的 7, 8 和 9 班级，以及 8 年级的 13, 14 和 15 班级参加了该项目。</p>
+<p>所得模型为：</p>
+<ul>
+<li>线性预测器：<span class="math inline">\(\eta_{ijk}=\eta+\beta X_{ij}+\xi_j+\tau_k+\sum_{m=1}^t\sum_sc_{sj_{ijm}}\)</span>
+</li>
+</ul>
+<p>其中 <span class="math inline">\(\eta\)</span> 表示截距，<span class="math inline">\(x_{ij}\)</span> 表示第 <span class="math inline">\(j\)</span> 个队列中第 <span class="math inline">\(i\)</span> 个学生的基线分数，<span class="math inline">\(\xi_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个队列效应，<span class="math inline">\(\tau_k\)</span> 表示教学改进处理效应的固定效应分量，<span class="math inline">\(c_{sj_{ijm}}\)</span> 表示第 <span class="math inline">\(j\)</span> 个队列中班级 <span class="math inline">\(s\)</span> 的效应。下标 <span class="math inline">\(ijm\)</span> 表示在第 <span class="math inline">\(m\)</span> 年，第 <span class="math inline">\(j\)</span> 个队列第 <span class="math inline">\(s\)</span> 个班级的学生 <span class="math inline">\(i\)</span>。</p>
+<ul>
+<li>分布：
+<ul>
+<li>
+<span class="math inline">\(\symbf{y}_{ij}\sim N\left(\symbf\mu_{it},\boldsymbol\Sigma\right)\)</span>。其中 <span class="math inline">\(\symbf{y}_{ij}\)</span> 表示学生 <span class="math inline">\(i\)</span> 和队列 <span class="math inline">\(j\)</span> 的 6 年级、7 年级和 8 年级分数向量，<span class="math inline">\(\symbf\mu_{it}\)</span> 表示相应的均值向量，<span class="math inline">\(\boldsymbol\Sigma\)</span> 是协方差阵，反映了学生的连续分数可能相关的事实。具体地，<span class="math inline">\(Var\left(\symbf{y}_{ij}\right)=Var\left[\begin{matrix}{y_{ij6}}\\{y_{ij7}}\\{y_{ij8}}\\\end{matrix}\right]=\left[\begin{matrix}{\sigma_{6}^{2}}&amp;{\sigma_{67}}&amp;{\sigma_{68}}\\{\sigma_{67}}&amp;{\sigma_{7}^{2}}&amp;{\sigma_{78}}\\{\sigma_{68}}&amp;{\sigma_{78}}&amp;{\sigma_{8}^{2}}\\\end{matrix}\right]\)</span>。其中，<span class="math inline">\(\sigma^2_t\)</span> 表示 <span class="math inline">\(t\)</span> 年级学生成绩之间的方差，<span class="math inline">\(\sigma_{tt'}\)</span> 表示 <span class="math inline">\(t\)</span> 与 <span class="math inline">\(t'\)</span> 年级学生成绩之间的协方差。</li>
+<li>
+<span class="math inline">\(\symbf{c}_{j}\sim N\left(\symbf{0},\symbf{I}{\sigma}_{j}^{2}\right)\)</span>。其中 <span class="math inline">\(\symbf c_j\)</span> 表示第 <span class="math inline">\(j\)</span> 个队列中的班级效应向量。</li>
+</ul>
+</li>
+<li>连接函数：恒等。</li>
+</ul>
+<p>一旦我们估计了每个队列中班级的 BLUP，我们就可以通过计算班级队列的 BLUP 之差来估计每个班级在队列间的变化。在队列 <span class="math inline">\(j\)</span> 中，班级的 BLUP 为 <span class="math inline">\(\eta+\beta\bar{X}_{\cdot\cdot}+\zeta_j+\tau_k+c_{sj}\)</span>。队列 1 班级 s 的 BLUP 减去队列 2 班级 s 的 BLUP，得出参加专业发展项目的班级的对应值为 <span class="math inline">\({\zeta}_2-{\zeta}_1+{\tau}_1-{\tau}_0+{c}_{s2}-{c}_{s1}\)</span>，而没有参与项目的班级的对应值为 <span class="math inline">\({\zeta}_2-{\zeta}_1+{C}_{s2}-{C}_{s1}\)</span>。我们可以将这些 BLUPs 解释为班级分数在队列间变化的估计。这些变化在参与和未参与班级中的均值和方差，进而可以用来检测项目效果。例如，相对于未参与班级的变化，参与班级中出现更大的正向变化，则表明项目具有正向效果。然而，关注点不应仅限于所有班级的平均变化。Green et al. (2017) 指出这一点很重要。项目效果并非单一存在。这个模型考虑了项目对教师产生不同影响的现实情况，而我们真正需要估计的不是单一的值，而是项目效果在教师之间的分布——通过上面定义的变化 BLUPs 来估计。</p>
+<p>实现该模型的程序如下。共有三个步骤：</p>
+<ul>
+<li>步骤 1：创建分层 <span class="math inline">\(\symbf Z\)</span> 矩阵所需的变量</li>
+<li>步骤 2：创建 <span class="math inline">\(\symbf Z\)</span> 矩阵的 GLIMMIX 步。</li>
+<li>步骤 3：拟合模型并计算感兴趣的 BLUPs.</li>
+</ul>
+<pre class="sas"><code>/* step 1 */
+data create_Z_pt_1;
+ set vam_demo.VAM_PD_Demo_Data_Set;
+ if year&gt;0;
+ stu_id=student;
+ clsrm=put(teacher, z2.);
+
+ if cohort=1 then do;
+ ul1=lag1(clsrm); ul2=lag2(clsrm); drop ul1 ul2;
+ Ulag0clsrm=clsrm;
+  if lag1(stu_id)=stu_id then Ulag1clsrm=ul1;
+  if lag2(stu_id)=stu_id then Ulag2clsrm=ul2;
+ end;
+ if cohort=2 then do;
+  tl1=lag1(clsrm); tl2=lag2(clsrm); drop tl1 tl2;
+  Tlag0clsrm=clsrm;
+   if lag1(stu_id)=stu_id then Tlag1clsrm=tl1;
+   if lag2(stu_id)=stu_id then Tlag2clsrm=tl2;
+ end;
+run;</code></pre>
+<p>上述步骤使用滞后来创建创建分层 <span class="math inline">\(\symbf Z\)</span> 矩阵所需的变量。以 U 开头的变量用于下一步的队列 1 的 <span class="math inline">\(\symbf Z\)</span> 矩阵，以 T 开头的变量用于队列 2。</p>
+<pre class="sas"><code>/* GLIMMIX step - you don’t use this analysis */
+/* but it creates the Z matrix you need */
+/* in order to use HPMIXED to do the analysis */
+/* (typcially HPMIXED needed for size data sets */
+/* encountered in actual studies) */
+proc glimmix data=create_Z_pt_1 outdesign=Z_matrix;
+ class trt Ulag0clsrm Ulag1clsrm Ulag2clsrm Tlag0clsrm 
+ Tlag1clsrm Tlag2clsrm;
+/* the EFFECT called PD is really the 2nd cohort - the one where 
+PD teachers were affected by PD */
+ effect PD=MM(Tlag0clsrm Tlag1clsrm Tlag2clsrm / noeffect);
+/* the EFFECT called NoPD is really the 1st cohort - the one 
+before the PD program had yet begun */
+ effect noPD=MM(Ulag0clsrm Ulag1clsrm Ulag2clsrm / noeffect);
+ model score = baseline trt / s;
+ random NoPD PD / s;
+run;</code></pre>
+<p>OUTDESIGN 和 EFFECT 语句是上述 GLIMMIX 程序中的关键。注释语句解释了每个语句的目的。</p>
+<pre class="sas"><code>/* Step 3: use HPMIXED to compute the analysis */
+proc hpmixed data=Z_matrix;
+ class grade trt stu_id cohort;
+ effect Cs1=collection(_z1-_z18);
+ effect Cs2=collection(_z19-_z36);
+ model score = cohort baseline trt / s;
+ random Cs1 Cs2 / s;
+ repeated grade / type=un subject=stu_id;
+ estimate ‘classroom 01 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 02 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 |
+  Cs1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 03 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 04 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 05 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 |
+  Cs1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 06 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 07 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 08 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 |
+  Cs1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 09 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 10 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 11 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 12 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 13 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 Cs2 0;
+ estimate ‘classroom 14 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 Cs2 0;
+ estimate ‘classroom 15 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 Cs2 0;
+ estimate ‘classroom 16 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 Cs2 0;
+ estimate ‘classroom 17 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 Cs2 0;
+ estimate ‘classroom 18 cohort 1’ intercept 1 baseline 100 cohort 1 0 trt 1 0 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 Cs2 0; 
+ estimate ‘classroom 01 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 02 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 03 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 04 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 05 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 06 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 07 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 08 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 09 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 10 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0;
+ estimate ‘classroom 11 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0;
+ estimate ‘classroom 12 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0;
+ estimate ‘classroom 13 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0;
+ estimate ‘classroom 14 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0;
+ estimate ‘classroom 15 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 0 1 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0;
+ estimate ‘classroom 16 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0;
+ estimate ‘classroom 17 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 | 
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0;
+ estimate ‘classroom 18 cohort 2’ intercept 1 baseline 100 cohort 0 1 trt 1 0 |
+  Cs1 0 Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1; 
+ estimate ‘classroom 04 noPD effect’ cohort -1 1 | 
+  Cs1 0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+  Cs2 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 05 noPD effect’ cohort -1 1 | 
+  Cs1 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  Cs2 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 06 noPD effect’ cohort -1 1 | 
+  Cs1 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 
+  Cs2 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 10 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 
+   Cs2 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 11 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 
+   Cs2 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 12 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 
+   Cs2 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 16 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 
+   Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0/ cl;
+ estimate ‘classroom 17 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 
+   Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0/ cl;
+ estimate ‘classroom 18 noPD effect’ cohort -1 1 | 
+   Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1
+   Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1/ cl;
+ estimate ‘classroom 01 PD effect’ cohort -1 1 trt -1 1 | 
+   Cs1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+   Cs2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 02 PD effect’ cohort -1 1 trt -1 1 | 
+   Cs1 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+   Cs2 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 03 PD effect’ cohort -1 1 trt -1 1 | 
+   Cs1 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   Cs2 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0/ cl;
+ estimate ‘classroom 07 PD effect’ cohort -1 1 trt -1 1 | 
+   Cs1 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0
+   Cs2 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0/ cl;
+estimate ‘classroom 08 PD effect’ cohort -1 1 trt -1 1 | 
+  Cs1 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0
+  Cs2 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0/ cl;
+estimate ‘classroom 09 PD effect’ cohort -1 1 trt -1 1 | 
+  Cs1 0 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0
+  Cs2 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0/ cl;
+estimate ‘classroom 13 PD effect’ cohort -1 1 trt -1 1 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0
+  Cs2 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0/ cl;
+estimate ‘classroom 14 PD effect’ cohort -1 1 trt -1 1 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0 0
+ Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0/ cl;
+estimate ‘classroom 15 PD effect’ cohort -1 1 trt -1 1 | 
+  Cs1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0
+  Cs2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0/ cl;
+estimate ‘avg pgm effect’ cohort -9 9 trt -9 9 | 
+  Cs1 -1 -1 -1 0 0 0 -1 -1 -1 0 0 0 -1 -1 -1 0 0 0
+  Cs2 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 / cl divisor=9;
+estimate ‘avg no pgm effect’ cohort -9 9 | 
+  Cs1 0 0 0 -1 -1 -1 0 0 0 -1 -1 -1 0 0 0 -1 -1 -1 
+  Cs2 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 / cl divisor=9;
+estimate ‘avg difference’ trt -9 9 | 
+  Cs1 -1 -1 -1 1 1 1 -1 -1 -1 1 1 1 -1 -1 -1 1 1 1
+  Cs2 1 1 1 -1 -1 -1 1 1 1 -1 -1 -1 1 1 1 -1 -1 -1 / cl divisor=9;</code></pre>
+<p>PROC HPPMIXED 是一个 SAS 混合模型程序，它使用稀疏矩阵计算算法 (Gilmour et al, 1995; Johnson and Thompson, 1995)，使其能够处理非常大的数据集。HPPMIXED 过程是为增值建模等应用而开发的。EFFECT 语句使用上一步中创建的分层 <span class="math inline">\(\symbf Z\)</span> 矩阵来定义随机班级效应。MODEL 和 RANDOM 语句使用与 PROC MIXED 相同的语法，并遵循上述模型。ESTIMATE 语句定义感兴趣的 BLUP，如上所述。BLUP 输出：</p>
+<div class="inline-figure"><img src="figure/figure%20332.png#center" style="width:100.0%"></div>
+<div class="inline-figure"><img src="figure/figure%20333.png#center" style="width:100.0%"></div>
+<p>对于 “Classroom xx Cohort y” BLUPs，值大于 100 反映班级成绩高于平均水平。对于班级效应 BLUP，该值度量从队列 1 到队列 2 的改进。请注意，除班级 4 外的所有班级都有一定的改善，但参与改进项目的平均改善程度 “AVG PGM EFFECT” 高于未参与的班级。然而，两个处理组的班级之间存在变异性。</p>
+<p>我们还可以绘制这些 BLUPs，以形象地展示结果。程序语句包含在 Program Library 中的 SAS 程序中，但出于篇幅考虑，此处未显示它们和由此产生的图形。</p>
+</div>
+</div>
+<div id="sec10-5" class="section level2" number="10.5">
+<h2>
+<span class="header-section-number">10.5</span> 总结<a class="anchor" aria-label="anchor" href="#sec10-5"><i class="fas fa-link"></i></a>
+</h2>
+<p>本章重点讨论可预测函数 <span class="math inline">\(\symbf{K'\beta}+\symbf{Zb}\)</span> 在狭义推断中的应用。这种估计称为最佳线性无偏预测 (BLUP)， 特定个体推断和收缩估计。主要思想是，涉及 <span class="math inline">\(\symbf b\)</span> 的估计和推断统计量必须考虑到 <span class="math inline">\(\symbf b\)</span> 是一个随机向量，而不是一个固定参数。</p>
+<p>本章涵盖了：</p>
+<ul>
+<li>在 <span class="math inline">\(\symbf b\)</span> 的特定水平上进行推断的随机效应模型。</li>
+<li>混合模型，强调多地点或多场合研究中对特定地点或场合效应感兴趣的模型，例如特定地点的处理均值和差异。</li>
+<li>更复杂的混合模型，其中 <span class="math inline">\(\symbf Z\)</span> 矩阵必须包括非标准系数，例如，这些系数可能来源于遗传关系或教师对学生成绩影响的持久性。</li>
+<li>对于上面列出的前两个应用，GLIMMIX CONTRAST, ESTIMATE 和 LSMESTIMATE 函数可用于计算大多数感兴趣的 BLUPs.</li>
+<li>必须显式定义更复杂的 <span class="math inline">\(\symbf Z\)</span> 矩阵，例如通过使用 GLIMMIX 中的 <code>EFFECT</code> 选项。</li>
+</ul>
+<p>与具有协方差参数估计的混合模型中的固定效应推断类似，可预测函数必须考虑近似自由度和标准误偏差的问题，这些问题推动了 Satterthwaite 近似和 Kenward-Roger 调整的发展。在可预测函数的情况下，偏差校正基于 Prasad and Rao (1990) 以及 Harville and Jeske (1992) 的工作。</p>
+<ul>
+<li>Kenward-Roger 选项 <code>DDFM=KR</code> 基于 Prasad-Rao 以及 Harville-Jeske 实现偏差修正。</li>
+<li>本章介绍了高斯例子。原则上，非高斯 GLMMs 的工作方式与之相同。</li>
+<li>只有条件模型才能用于可预测函数估计和推断。边际模型的线性预测器中没有 <span class="math inline">\(\symbf b\)</span> ——因此不可能出现 <span class="math inline">\(\symbf{K'\beta}+\symbf{Zb}\)</span>。</li>
+<li>老旧的教科书在区分固定效应和随机效应时指出，后者仅对方差分量估计感兴趣，这显然是过时且具有误导性的。</li>
+</ul>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="chap9.html"><span class="header-section-number">9</span> 多水平模型</a></div>
+<div class="next"><a href="chap11.html"><span class="header-section-number">11</span> 计数</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#chap10"><span class="header-section-number">10</span> 最佳线性无偏预测</a></li>
+<li><a class="nav-link" href="#sec10-1"><span class="header-section-number">10.1</span> 回顾可估和可预测函数</a></li>
+<li>
+<a class="nav-link" href="#sec10-2"><span class="header-section-number">10.2</span> 仅随机效应模型中的 BLUP</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec10-2-1"><span class="header-section-number">10.2.1</span> 单向随机效应模型</a></li>
+<li><a class="nav-link" href="#sec10-2-2"><span class="header-section-number">10.2.2</span> 双向随机效应嵌套模型</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec10-3"><span class="header-section-number">10.3</span> 具有固定和随机效应的高斯数据</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec10-3-1"><span class="header-section-number">10.3.1</span> 使用 BLUP 进行混合模型分析以修改推断空间</a></li>
+<li><a class="nav-link" href="#sec10-3-2"><span class="header-section-number">10.3.2</span> BLUP 与固定效应估计之间的关系</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec10-4"><span class="header-section-number">10.4</span> 复杂 \(\symbf Z\) 矩阵的高级应用</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec10-4-1"><span class="header-section-number">10.4.1</span> 说明 1：一个简单的增值模型</a></li>
+<li><a class="nav-link" href="#sec10-4-2"><span class="header-section-number">10.4.2</span> 说明 2：一个复杂的增值模型</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec10-5"><span class="header-section-number">10.5</span> 总结</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>广义线性混合模型</strong>: 现代概念、方法和应用" was written by Wang Zhen. It was last built on 2024-05-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
